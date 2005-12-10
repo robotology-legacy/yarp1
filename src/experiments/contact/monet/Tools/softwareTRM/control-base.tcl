@@ -93,3 +93,5 @@ scale .scroll_breathe \
 scale .scroll_push \
     -command {altscaler 6 0} -orient horizontal -label "breath width"
 
+scale .scroll_source \
+    -command {altscaler 7 0} -orient horizontal -label "sound source"

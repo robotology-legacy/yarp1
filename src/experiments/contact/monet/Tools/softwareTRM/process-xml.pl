@@ -49,7 +49,7 @@ my $w = 3;
 my $h = int(0.5+$len/5);
 my $r = 1;
 my $c = 1;
-foreach my $name (@buttons) {
+foreach my $name (sort @buttons) {
 #    print "pack $name -side right\n";
     print "grid $name -in .phone -row $r -column $c\n";
     $c++;

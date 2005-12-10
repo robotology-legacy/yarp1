@@ -19,6 +19,7 @@ pack .constrict -side top -fill x
 .constrict.scroll_1 set 1
 .constrict.scroll_0 set 1
 
+pack .scroll_source -side bottom -fill x
 pack .scroll_push -side bottom -fill x
 pack .scroll_breathe -side bottom -fill x
 pack .scroll_velum -side bottom -fill x

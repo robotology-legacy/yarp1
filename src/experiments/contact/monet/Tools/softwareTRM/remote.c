@@ -169,13 +169,29 @@ INPUT *remoteInput(INPUT *input) {
   */
 
 #ifdef EXTERNAL_CONTROL
-  setParams(param);
-  param->glotVol *= 100;
-  // there's an annoying buzz when everything is turned down
-  if (param->glotVol<=1 && param->aspVol<=0.01 && param->fricVol<=0.01) {
-    setMute(1);
+  TRMParameters *param_fake = &(fake_data.inputHead->parameters);
+  setParams(param_fake);
+  static INPUT *save_input = NULL;
+  if (getParam(7,0)<50) {
+    if (save_input==NULL) {
+      save_input = input;
+    }
+    param = param_fake;
+    input = fake_data.inputHead;
+    //param = &(input->parameters);
+    param->glotVol *= 100;
+    // there's an annoying buzz when everything is turned down
+    if (param->glotVol<=1 && param->aspVol<=0.01 && param->fricVol<=0.01) {
+      setMute(1);
+    } else {
+      setMute(0);
+    }
   } else {
-    setMute(0);
+    if (save_input!=NULL) {
+      printf("Switching to alternative source\n");
+      input = save_input;
+      save_input = NULL;
+    }
   }
 #endif
   

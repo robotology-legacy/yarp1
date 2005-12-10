@@ -93,6 +93,8 @@ scale .scroll_breathe \
 scale .scroll_push \
     -command {altscaler 6 0} -orient horizontal -label "breath width"
 
+scale .scroll_source \
+    -command {altscaler 7 0} -orient horizontal -label "sound source"
 button .push_qz -text "qz" -width 5 -command {
 	tube 0.8 1.31 1.49 1.25 0.9 0.2 0.6 1.31 0.1
 	fric 0.0 5.8 55 5
@@ -534,69 +536,69 @@ button .push_hh -text "hh" -width 5 -command {
 snd 0.0 10.0
 }
 
-grid .push_qz -in .phone -row 1 -column 1
-grid .push_rr -in .phone -row 1 -column 2
-grid .push_y -in .phone -row 1 -column 3
-grid .push_g -in .phone -row 2 -column 1
-grid .push_e -in .phone -row 2 -column 2
-grid .push_ll -in .phone -row 2 -column 3
-grid .push_w -in .phone -row 3 -column 1
-grid .push_ls -in .phone -row 3 -column 2
-grid .push_dh -in .phone -row 3 -column 3
-grid .push_qp -in .phone -row 4 -column 1
-grid .push_tx -in .phone -row 4 -column 2
-grid .push_ng -in .phone -row 4 -column 3
-grid .push_a -in .phone -row 5 -column 1
-grid .push_ph -in .phone -row 5 -column 2
-grid .push_dx -in .phone -row 5 -column 3
-grid .push_kx -in .phone -row 6 -column 1
-grid .push_u -in .phone -row 6 -column 2
-grid .push_k -in .phone -row 6 -column 3
-grid .push_in -in .phone -row 7 -column 1
-grid .push_s -in .phone -row 7 -column 2
-grid .push_qk -in .phone -row 7 -column 3
-grid .push_uu -in .phone -row 8 -column 1
-grid .push_gs -in .phone -row 8 -column 2
-grid .push_hv -in .phone -row 8 -column 3
-grid .push_ee -in .phone -row 9 -column 1
-grid .push_i -in .phone -row 9 -column 2
-grid .push_qt -in .phone -row 9 -column 3
-grid .push_m -in .phone -row 10 -column 1
-grid .push_uh -in .phone -row 10 -column 2
-grid .push_o -in .phone -row 10 -column 3
-grid .push_ah -in .phone -row 11 -column 1
-grid .push_d -in .phone -row 11 -column 2
-grid .push_on -in .phone -row 11 -column 3
-grid .push_aa -in .phone -row 12 -column 1
-grid .push_ov -in .phone -row 12 -column 2
-grid .push_b -in .phone -row 12 -column 3
-grid .push_q -in .phone -row 13 -column 1
-grid .push_z -in .phone -row 13 -column 2
-grid .push_oh -in .phone -row 13 -column 3
-grid .push_ch -in .phone -row 14 -column 1
-grid .push_aw -in .phone -row 14 -column 2
-grid .push_qs -in .phone -row 14 -column 3
-grid .push_an -in .phone -row 15 -column 1
-grid .push_qc -in .phone -row 15 -column 2
-grid .push_bx -in .phone -row 15 -column 3
-grid .push_j -in .phone -row 16 -column 1
-grid .push_sh -in .phone -row 16 -column 2
-grid .push_t -in .phone -row 16 -column 3
-grid .push_th -in .phone -row 17 -column 1
-grid .push_er -in .phone -row 17 -column 2
-grid .push_v -in .phone -row 17 -column 3
-grid .push_px -in .phone -row 18 -column 1
-grid .push_un -in .phone -row 18 -column 2
-grid .push_r -in .phone -row 18 -column 3
-grid .push_x -in .phone -row 19 -column 1
-grid .push_h -in .phone -row 19 -column 2
-grid .push_f -in .phone -row 19 -column 3
-grid .push_n -in .phone -row 20 -column 1
-grid .push_zh -in .phone -row 20 -column 2
-grid .push_ar -in .phone -row 20 -column 3
-grid .push_l -in .phone -row 21 -column 1
-grid .push_p -in .phone -row 21 -column 2
-grid .push_hh -in .phone -row 21 -column 3
+grid .push_a -in .phone -row 1 -column 1
+grid .push_aa -in .phone -row 1 -column 2
+grid .push_ah -in .phone -row 1 -column 3
+grid .push_an -in .phone -row 2 -column 1
+grid .push_ar -in .phone -row 2 -column 2
+grid .push_aw -in .phone -row 2 -column 3
+grid .push_b -in .phone -row 3 -column 1
+grid .push_bx -in .phone -row 3 -column 2
+grid .push_ch -in .phone -row 3 -column 3
+grid .push_d -in .phone -row 4 -column 1
+grid .push_dh -in .phone -row 4 -column 2
+grid .push_dx -in .phone -row 4 -column 3
+grid .push_e -in .phone -row 5 -column 1
+grid .push_ee -in .phone -row 5 -column 2
+grid .push_er -in .phone -row 5 -column 3
+grid .push_f -in .phone -row 6 -column 1
+grid .push_g -in .phone -row 6 -column 2
+grid .push_gs -in .phone -row 6 -column 3
+grid .push_h -in .phone -row 7 -column 1
+grid .push_hh -in .phone -row 7 -column 2
+grid .push_hv -in .phone -row 7 -column 3
+grid .push_i -in .phone -row 8 -column 1
+grid .push_in -in .phone -row 8 -column 2
+grid .push_j -in .phone -row 8 -column 3
+grid .push_k -in .phone -row 9 -column 1
+grid .push_kx -in .phone -row 9 -column 2
+grid .push_l -in .phone -row 9 -column 3
+grid .push_ll -in .phone -row 10 -column 1
+grid .push_ls -in .phone -row 10 -column 2
+grid .push_m -in .phone -row 10 -column 3
+grid .push_n -in .phone -row 11 -column 1
+grid .push_ng -in .phone -row 11 -column 2
+grid .push_o -in .phone -row 11 -column 3
+grid .push_oh -in .phone -row 12 -column 1
+grid .push_on -in .phone -row 12 -column 2
+grid .push_ov -in .phone -row 12 -column 3
+grid .push_p -in .phone -row 13 -column 1
+grid .push_ph -in .phone -row 13 -column 2
+grid .push_px -in .phone -row 13 -column 3
+grid .push_q -in .phone -row 14 -column 1
+grid .push_qc -in .phone -row 14 -column 2
+grid .push_qk -in .phone -row 14 -column 3
+grid .push_qp -in .phone -row 15 -column 1
+grid .push_qs -in .phone -row 15 -column 2
+grid .push_qt -in .phone -row 15 -column 3
+grid .push_qz -in .phone -row 16 -column 1
+grid .push_r -in .phone -row 16 -column 2
+grid .push_rr -in .phone -row 16 -column 3
+grid .push_s -in .phone -row 17 -column 1
+grid .push_sh -in .phone -row 17 -column 2
+grid .push_t -in .phone -row 17 -column 3
+grid .push_th -in .phone -row 18 -column 1
+grid .push_tx -in .phone -row 18 -column 2
+grid .push_u -in .phone -row 18 -column 3
+grid .push_uh -in .phone -row 19 -column 1
+grid .push_un -in .phone -row 19 -column 2
+grid .push_uu -in .phone -row 19 -column 3
+grid .push_v -in .phone -row 20 -column 1
+grid .push_w -in .phone -row 20 -column 2
+grid .push_x -in .phone -row 20 -column 3
+grid .push_y -in .phone -row 21 -column 1
+grid .push_z -in .phone -row 21 -column 2
+grid .push_zh -in .phone -row 21 -column 3
 pack .phone -side right -fill x
 
 
@@ -619,6 +621,7 @@ pack .constrict -side top -fill x
 .constrict.scroll_1 set 1
 .constrict.scroll_0 set 1
 
+pack .scroll_source -side bottom -fill x
 pack .scroll_push -side bottom -fill x
 pack .scroll_breathe -side bottom -fill x
 pack .scroll_velum -side bottom -fill x

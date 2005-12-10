@@ -202,6 +202,7 @@ public:
       ext_params->fricVol = iparams(5,4);
       //printf("%g %g\n", t, ext_params->glotVol);
     }
+    iparams(7,0);
     mutex.Post();
 
   }
