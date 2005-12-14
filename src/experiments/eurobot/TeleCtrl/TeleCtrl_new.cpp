@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl_new.cpp,v 1.2 2005-12-09 13:41:32 beltran Exp $
+/// $Id: TeleCtrl_new.cpp,v 1.3 2005-12-14 17:53:00 beltran Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -239,7 +239,7 @@ void streamingThread::Body (void)
   while ( !IsTerminated() ) {
 
     // we assume the MASTER fires at 50Hz, so it's no point looping more often!
-    YARPTime::DelayInSeconds(0.05);
+    YARPTime::DelayInSeconds(0.02);
 
     // gather glove, tracker and pressens data
     if ( _options.useDataGlove || _options.useTracker || _options.usePresSens ) {
@@ -286,7 +286,7 @@ void streamingThread::Body (void)
 
       // send IK commands to the arm.
       // WARNING: the PUMA arm has all the axes swapped around, therefore the minus signs
-      SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, 0, 0, 0 );
+      SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, 0.0, 0.0, 0.0 );
 
       // send glove commands to the gripper - not so far
       //       dThumbMiddle  = 1.52 - (double)abs(_data.glove.thumb[0]-iThumbMiddleClosed) * (double)dThumbMiddleFactor;
@@ -456,9 +456,12 @@ void forward_kinematics(YVector& Q, YVector& X)
 {
   // forward kinematics for the PUMA 200 robotic arm
 
-  // length & displacement of the joints
-  const unsigned short L1 = 35, L2 = 20, L3 = 27;
-  const unsigned short H1 = 8, H2 = 8;
+  // specifications of the joints - taken from the PUMA200 manual
+  // lenghts of the joints - Figure 2-1 of the manual
+  const float L1 = 13.0*myInchToCM,
+    L2 = 7.8*myInchToCM, L2prime = -0.75*myInchToCM,
+    L3 = 8.0*myInchToCM;
+  const float H1 = 0.0, H2 = 5.9*myInchToCM-2.5; // measured on the robot directly!!
 
   // allocate configuration matrices and vectors
   YMatrix e_csi_1(4,4), e_csi_2(4,4), e_csi_3(4,4), g_st_0(4,4), T(4,4);
@@ -480,9 +483,9 @@ void forward_kinematics(YVector& Q, YVector& X)
   e_csi_2[1][0] =  sin(Q[1]); e_csi_2[1][1] =  cos(Q[1]); e_csi_2[1][2] =          0; e_csi_2[1][3] =  L1;
   e_csi_2[2][0] =          0; e_csi_2[2][1] =          0; e_csi_2[2][2] =          1; e_csi_2[2][3] =  H1;
   e_csi_2[3][0] =          0; e_csi_2[3][1] =          0; e_csi_2[3][2] =          0; e_csi_2[3][3] =  1;
-  // third joint (rot Q[2] about Z, displaced L2 on X, H2 on Z)
+  // third joint (rot Q[2] about Z, displaced L2 on X, L2prime on Y, H2 on Z)
   e_csi_3[0][0] =  cos(Q[2]); e_csi_3[0][1] = -sin(Q[2]); e_csi_3[0][2] =          0; e_csi_3[0][3] =  L2;
-  e_csi_3[1][0] =  sin(Q[2]); e_csi_3[1][1] =  cos(Q[2]); e_csi_3[1][2] =          0; e_csi_3[1][3] =  0;
+  e_csi_3[1][0] =  sin(Q[2]); e_csi_3[1][1] =  cos(Q[2]); e_csi_3[1][2] =          0; e_csi_3[1][3] =  L2prime;
   e_csi_3[2][0] =          0; e_csi_3[2][1] =          0; e_csi_3[2][2] =          1; e_csi_3[2][3] =  H2;
   e_csi_3[3][0] =          0; e_csi_3[3][1] =          0; e_csi_3[3][2] =          0; e_csi_3[3][3] =  1;
   // end effector (displaced -L3 on Y)
@@ -692,9 +695,9 @@ int SendArmPositions(double dof1, double dof2, double dof3, double dof4, double 
   armCmd(1) = dof1;
   armCmd(2) = dof2;
   armCmd(3) = dof3;
-  armCmd(4) = 0.0;
-  armCmd(5) = 0.0;
-  armCmd(6) = 0.0;
+  armCmd(4) = dof4;
+  armCmd(5) = dof5;
+  armCmd(6) = dof6;
   tmpBottle.reset();
   tmpBottle.writeVocab(YBVocab(YBVArmNewCmd));
   tmpBottle.writeYVector(armCmd);
