@@ -1,12 +1,12 @@
-Package: yarp-os
+Package: libyarp-os
 Version: 1.0
 Section: libdevel
 Priority: optional
 Architecture: all
 Essential: no
-Depends: libace-dev
+Depends: libace-dev | libace-dev-fake
 Pre-Depends: perl 
 Installed-Size: 1024
 Maintainer: Paul Fitzpatrick [paulfitz@alum.mit.edu]
-Provides: yarp-os
+Provides: libyarp-os
 Description: Yet Another Robot Platform - OS interface.

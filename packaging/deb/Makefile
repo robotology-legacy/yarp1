@@ -6,6 +6,7 @@ endif
 
 include $(YARP_ROOT)/conf/Makefile.template
 
+all: build fake
 
 # make a .deb package for libYARP_OS and associated tools
 build:
@@ -18,6 +19,8 @@ build:
 	cp $(YARP_ROOT)/lib/linux/libYARP_OS.* tmp/usr/lib
 	dpkg --build tmp libyarp-os.deb
 
+# make a fake .deb package for libace-dev, in case it is installed in
+# a non-managed way
 fake:
 	rm -rf tmp
 	cp -R libace-dev-fake tmp

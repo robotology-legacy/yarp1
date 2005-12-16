@@ -1,4 +1,4 @@
-Package: libace-dev
+Package: libace-dev-fake
 Version: 1.0
 Section: libdevel
 Priority: optional
@@ -8,5 +8,6 @@ Depends:
 Pre-Depends: perl 
 Installed-Size: 1024
 Maintainer: Paul Fitzpatrick [paulfitz@alum.mit.edu]
-Provides: libace-dev
-Description: fake libace-dev package
+Provides: libace-dev-fake
+Description: Fake libace-dev package, for if you installed ace in a 
+ non-debian way.
