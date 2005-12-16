@@ -1,0 +1,12 @@
+Package: libace-dev
+Version: 1.0
+Section: libdevel
+Priority: optional
+Architecture: all
+Essential: no
+Depends: 
+Pre-Depends: perl 
+Installed-Size: 1024
+Maintainer: Paul Fitzpatrick [paulfitz@alum.mit.edu]
+Provides: libace-dev
+Description: fake libace-dev package
