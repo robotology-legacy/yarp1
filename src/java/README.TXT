@@ -19,4 +19,5 @@ Then you can run it with:
   java -jar dist/lib/*.jar
 
 Not that much will happen right now if you do this.
-
+At the time of writing, the program expects yarp-service to be running,
+and also "yarp-read /read"
