@@ -40,7 +40,7 @@ public class NameClient {
     }
 
     public Address register(String name) {
-	return probe("NAME_SERVER register " + name + " 127.0.0.1 udp");
+	return probe("NAME_SERVER register " + name + " 127.0.0.1 UDP");
     }
 
     public String send(String msg) throws IOException {

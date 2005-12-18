@@ -26,7 +26,9 @@ class Test {
 	b.clear();
 	b.add(new Integer(0));
 	b.add("Hello");
+	System.out.println("Preparing to send bottle...");
 	c.send(bot);
+	System.out.println("bottle sent");
 
 	b.clear();
 	b.add(new Integer(0));
@@ -37,6 +39,9 @@ class Test {
 	b.add(new Integer(0));
 	b.add("My friend");
 	c.send(bot);
+
+
+	System.out.println("FINISHED!");
 
 	/*
 	Address server = nc.register("/boo");
@@ -52,7 +57,6 @@ class Test {
     public static void main(String[] args) {
 	oldTest();
 
-	/*
 	InputPort ip = new InputPort();
 	ip.create(new BottleContent());
 	ip.register("/foo");
@@ -63,6 +67,5 @@ class Test {
 		System.out.println(bot.asList());
 	    }
 	}
-	*/
     }
 }

@@ -24,6 +24,7 @@ public class Protocol {
     private boolean ok = true;
     private String senderName = "null";
     private ArrayList content = new ArrayList();
+    private String carrier = "tcp";
 
     public Protocol(ShiftStream shift) throws IOException {
 	this.shift = shift;
@@ -33,6 +34,10 @@ public class Protocol {
 
     public void setSender(String name) {
 	senderName = name;
+    }
+
+    public void setRawProtocol(String carrier) {
+	this.carrier = carrier;
     }
 
     private int readFull(byte[] b) throws IOException {
@@ -81,6 +86,11 @@ public class Protocol {
 
     private boolean sendProtocolSpecifier() throws IOException {
 	byte b[] = { 'Y', 'A', 0x64, 0x1e, 0, 0, 'R', 'P' };
+	byte p = 0x64;
+	if (carrier.equals("udp")) {
+	    p = 97;
+	}
+	b[2] = p;
 	out.write(b);
 	out.flush();
 	return true;
@@ -94,9 +104,29 @@ public class Protocol {
 	byte b[] = new byte[8];
 	readFull(b);
 	if (b[0] != (byte)'Y') {
-	    System.out.println("Garbage message");
+	    System.out.println("Garbage message at protocol specifier level");
 	    return false;
 	}
+
+	System.out.println("protocol number is " + b[2]);
+	switch(b[2]) {
+	case 100:
+	    System.out.println("stay with TCP");
+	    carrier = "tcp";
+	    break;
+	case 97:
+	    System.out.println("should switch to UDP");
+	    carrier = "udp";
+	    break;
+	case 98:
+	    System.out.println("this protocol observed during UDP disconnect");
+	    System.out.println("not currently handled");
+	    break;
+	default:
+	    System.out.println("unknown protocol");
+	    break;
+	}
+
 	gotHeader = true;
 	// should do something with it!
 
@@ -153,9 +183,16 @@ public class Protocol {
 	in.read(b);
 	//System.out.println(b[0]=='Y');
 	int port = b[2]+256*b[3];
-	//System.out.println("Port number is " + port);
+	System.out.println("Port number is " + port);
 	if (b[0]!='Y') {
 	    throw new IOException();
+	}
+	if (carrier.equals("udp")) {
+	    System.out.println("Switching to udp, remote port " + port);
+	    shift.becomeUdp(port);
+	    this.in = shift.getInputStream();
+	    this.out = shift.getOutputStream();
+	    System.out.println("Switched");
 	}
 	// For TCP, a delay seems to be needed - why?
 	try {
@@ -168,10 +205,21 @@ public class Protocol {
 
     public boolean respondToHeader() throws IOException {
 	if (!ok) { return false; }
-	// fake response for now
 	byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
+	byte b2[] = netInt(shift.getLocalPort());
+	for (int i=0; i<b2.length; i++) {
+	    b[i+2] = b2[i];
+	}
 	out.write(b);
 	out.flush();
+
+	if (carrier.equals("udp")) {
+	    System.out.println("Switching to udp");
+	    shift.becomeUdp(-1);
+	    this.in = shift.getInputStream();
+	    this.out = shift.getOutputStream();
+	}
+
 	return true;
     }
 
@@ -206,7 +254,7 @@ public class Protocol {
 	    byte b[] = new byte[8];
 	    readFull(b);
 	    if (b[0] != (byte)'Y') {
-		System.out.println("Garbage message");
+		System.out.println("Garbage message at index level");
 		for (int i=0; i<b.length; i++) {
 		    System.out.println(">>> " + i + " " + (int)b[i] + " " + (char)b[i]);		    
 		}
@@ -307,6 +355,11 @@ public class Protocol {
     }
 
     public void endContent() {
+	try {
+	    out.flush();
+	} catch (IOException e) {
+	    System.out.println("flush failed");
+	}
     }
 }
 

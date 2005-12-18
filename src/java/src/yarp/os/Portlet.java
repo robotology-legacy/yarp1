@@ -25,14 +25,19 @@ public class Portlet extends Thread {
 
 	while (protocol.isOk()) {
 	    protocol.expectIndex();
+	    System.out.println("got index, responding..");
 	    if (!protocol.respondToIndex()) { 
 		System.out.println("Protocol problem");
 		System.exit(1); 
 	    }
-
+	    System.out.println("got index, responded.");
+	    System.out.println("size is " + protocol.getSize());
 	    if (protocol.getSize()>=8) {
+		System.out.println("waiting for 8");
 		byte[] b = protocol.expectBlock(8);
+		System.out.println("got 8");
 		int cmd = (int)b[5];
+		System.out.println("command is " + cmd);
 		byte[] arg = new byte[] {0};
 		if (b[4]==(byte)'~') {
 		    if (protocol.getSize()>0 && cmd==0) {

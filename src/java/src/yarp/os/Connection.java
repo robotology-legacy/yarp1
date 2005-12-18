@@ -31,8 +31,10 @@ public class Connection {
 	proto = new Protocol(new SocketShiftStream(socket));
 
 	proto.setSender("null");
+	proto.setRawProtocol("udp");
 	proto.sendHeader();
 	proto.expectReplyToHeader();
+	System.out.println("Connection created ok");
     }
 
 
