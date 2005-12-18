@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.8 2005-04-21 17:03:09 emmebi75 Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.9 2005-12-18 23:40:57 babybot Exp $
 ///
 ///
 
@@ -1488,7 +1488,10 @@ int YARPEsdCanDeviceDriver::_readWord16Array (int msg, double *out)
 	}
 
 	if (r._writeMessages < 1)
+	{
+		_mutex.Post();
 		return YARP_FAIL;
+	}
 
 	_writerequested = true;
 	_noreply = false;
@@ -1666,7 +1669,10 @@ int YARPEsdCanDeviceDriver::_readDWordArray (int msg, double *out)
 	}
 
 	if (r._writeMessages < 1)
+	{
+		_mutex.Post();
 		return YARP_FAIL;
+	}
 
 	_writerequested = true;
 	_noreply = false;
