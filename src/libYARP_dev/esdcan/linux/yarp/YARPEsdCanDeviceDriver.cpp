@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.1 2005-12-02 12:05:58 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.2 2005-12-18 22:31:43 gmetta Exp $
 ///
 ///
 
@@ -1696,3 +1696,5 @@ int YARPEsdCanDeviceDriver::_readDWordArray (int msg, double *out)
 
 	return YARP_OK;
 }
+
+
