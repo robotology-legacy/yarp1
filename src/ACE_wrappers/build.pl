@@ -10,7 +10,7 @@
 #		  --distribution <PATH> is the path where ACE was unpacked
 #		  --os <OS> is the operating system you're compiling for
 #
-# $Id: build.pl,v 1.11 2005-11-20 00:27:43 babybot Exp $
+# $Id: build.pl,v 1.12 2005-12-18 23:59:21 babybot Exp $
 #
 # This script can be (at least in theory) configured to
 # do some useful thing in Linux and/or Qnx too. It's definitely
@@ -147,6 +147,9 @@ if ($debug)
 
 		call_make_and_print ('', 'debug=1 optimize=0');
 	
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
+
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
 	elsif ($os eq "linux" && $release == 0)
@@ -156,6 +159,9 @@ if ($debug)
 		copy ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
 
 		call_make_and_print ('', 'debug=1 optimize=0');
+
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
 
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
@@ -167,6 +173,9 @@ if ($debug)
 
                 call_make_and_print ('', 'debug=1 optimize=0');
                 
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
+
                 chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
         }
 }
@@ -193,6 +202,9 @@ if ($release)
 
 		call_make_and_print ('', 'optimize=1 debug=0');
 	
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
+
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
 	elsif ($os eq "linux")
@@ -203,6 +215,9 @@ if ($release)
 
 		call_make_and_print ('', 'optimize=1 debug=0');
 
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
+
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
         elsif ($os eq "darwin")
@@ -211,6 +226,9 @@ if ($release)
                 copy ("$yarp_root/include/$os/ace/platform_macosx_panther.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
                 copy ("$yarp_root/include/$os/ace/config-macosx-panther.h", "$distribution/ace/config.h");
                 call_make_and_print ('', 'optimize=1 debug=0');
+
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
 
                 chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
         }
