@@ -2,6 +2,7 @@
 package yarp.os;
 
 import java.io.*;
+import java.net.*;
 import java.nio.channels.*;
 import java.util.*;
 
@@ -26,6 +27,7 @@ public class Protocol {
     private String senderName = "null";
     private ArrayList content = new ArrayList();
     private String carrier = "tcp";
+    private Address mcastAddress;
 
     public Protocol(ShiftStream shift) throws IOException {
 	this.shift = shift;
@@ -39,6 +41,17 @@ public class Protocol {
 
     public void setRawProtocol(String carrier) {
 	this.carrier = carrier;
+	if (carrier.equals("mcast")) {
+	    System.out.println("Getting mcast info");
+	    mcastAddress = NameClient.getNameClient().mcastQuery(senderName);
+	    System.out.println("mcast address is " + mcastAddress);
+	}
+    }
+
+    public static int unsigned(byte b) {
+	int v = b;
+	if (v<0) { v = 256+v; }
+	return b;
     }
 
     private int readFull(byte[] b) throws IOException {
@@ -61,7 +74,7 @@ public class Protocol {
 	int x = 0;
 	for (int i=b.length-1; i>=0; i--) {
 	    x *= 256;
-	    x += (int)b[i]; // warning, may have sign trouble
+	    x += unsigned(b[i]);
 	}
 	return x;
     }
@@ -90,6 +103,10 @@ public class Protocol {
 	byte p = 0x64;
 	if (carrier.equals("udp")) {
 	    p = 97;
+	}
+	if (carrier.equals("mcast")) {
+	    p = 98;
+	    System.out.println("set protocol specifier to mcast");
 	}
 	b[2] = p;
 	out.write(b);
@@ -120,8 +137,10 @@ public class Protocol {
 	    carrier = "udp";
 	    break;
 	case 98:
-	    System.out.println("this protocol observed during UDP disconnect");
-	    System.out.println("not currently handled");
+	    //System.out.println("this protocol observed during UDP disconnect");
+	    //System.out.println("not currently handled");
+	    System.out.println("should switch to MCAST");
+	    carrier = "mcast";
 	    break;
 	default:
 	    System.out.println("unknown protocol");
@@ -165,6 +184,25 @@ public class Protocol {
     public boolean sendHeader() throws IOException {
 	sendProtocolSpecifier();
 	sendSenderSpecifier();
+	if (carrier.equals("mcast")) {
+	    System.out.println("Sending mcast info");
+	    byte b[] = new byte[6];
+
+	    InetAddress inet = InetAddress.getByName(mcastAddress.getName());
+	    byte[] raw = inet.getAddress();
+	    if (raw.length!=4) {
+		System.err.println("address strange size");
+		System.exit(1);
+	    }
+	    for (int i=0; i<4; i++) {
+		b[i] = raw[i];
+	    }
+	    int port = mcastAddress.getPort();
+	    b[5] = (byte)(port%256);
+	    b[4] = (byte)(port/256);
+	    
+	    out.write(b);
+	}
 	return true;
     }
 
@@ -176,21 +214,50 @@ public class Protocol {
 
 	if (!expectProtocolSpecifier()) { ok=false; return false; }
 	if (!expectSenderSpecifier()) { ok=false; return false; }
+	if (carrier.equals("mcast")) {
+	    System.out.println("Looking for mcast info");
+	    byte b[] = new byte[6];
+	    in.read(b);
+	    int ip[] = new int[4];
+	    for (int i=0; i<4; i++) {
+		ip[i] = unsigned(b[i]);
+		System.out.println("  >> IP " + ip[i]);
+	    }
+	    // strange byte order
+	    int port = netInt(new byte[] { b[5], b[4], 0, 0 });
+	    System.out.println("  >> PORT " + port);
+
+	    mcastAddress = new Address("" + ip[0] + "." + 
+				       ip[1] + "." +
+				       ip[2] + "." +
+				       ip[3],
+				       port);
+	}
 	return true;
     }
 
     public boolean expectReplyToHeader() throws IOException {
-	byte b[] = new byte[8];
-	in.read(b);
-	//System.out.println(b[0]=='Y');
-	int port = b[2]+256*b[3];
-	System.out.println("Port number is " + port);
-	if (b[0]!='Y') {
-	    throw new IOException();
+	int port = 0;
+	if (!carrier.equals("mcast")) {
+	    byte b[] = new byte[8];
+	    in.read(b);
+	    //System.out.println(b[0]=='Y');
+	    port = unsigned(b[2])+256*unsigned(b[3]);
+	    System.out.println("Port number is " + port);
+	    if (b[0]!='Y') {
+		throw new IOException();
+	    }
 	}
 	if (carrier.equals("udp")) {
 	    System.out.println("Switching to udp, remote port " + port);
 	    shift.becomeUdp(port);
+	    this.in = shift.getInputStream();
+	    this.out = shift.getOutputStream();
+	    System.out.println("Switched");
+	}
+	if (carrier.equals("mcast")) {
+	    System.out.println("Switching to mcast " + mcastAddress);
+	    shift.becomeMcast(mcastAddress);
 	    this.in = shift.getInputStream();
 	    this.out = shift.getOutputStream();
 	    System.out.println("Switched");
@@ -215,6 +282,12 @@ public class Protocol {
 	if (carrier.equals("udp")) {
 	    System.out.println("Switching to udp");
 	    shift.becomeUdp(-1);
+	    this.in = shift.getInputStream();
+	    this.out = shift.getOutputStream();
+	}
+	if (carrier.equals("mcast")) {
+	    System.out.println("Should switch to mcast, " + mcastAddress);
+	    shift.becomeMcast(mcastAddress);
 	    this.in = shift.getInputStream();
 	    this.out = shift.getOutputStream();
 	}

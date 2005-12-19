@@ -12,9 +12,11 @@ public class Port extends Thread {
     private ArrayList connections = new ArrayList();
     private ArrayList portlets = new ArrayList();
     private ProtocolHandler handler = null;
+    private String key = null;
 
-    public Port(Address address) {
+    public Port(Address address, String key) {
 	this.address = address;
+	this.key = key;
     }
 
     public synchronized void setHandler(ProtocolHandler handler) {
@@ -37,6 +39,11 @@ public class Port extends Thread {
 	if (handler!=null) {
 	    handler.read(protocol);
 	}
+    }
+
+
+    public String getPortName() {
+	return key;
     }
 
     public void run() {

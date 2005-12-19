@@ -67,7 +67,7 @@ public class Portlet extends Thread {
 					   new String (arg));
 			Address add = NameClient.getNameClient().query(new String(arg));
 			if (add!=null) {
-			    owner.addConnection(new Connection(add));
+			    owner.addConnection(new Connection(add,owner.getPortName(),new String(arg)));
 			}
 			break;
 		    case 'd':

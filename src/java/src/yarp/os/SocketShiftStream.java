@@ -7,6 +7,7 @@ import java.net.*;
 public class SocketShiftStream implements ShiftStream {
     Socket socket;
     DatagramSocket dgram;
+    MulticastSocket mcast;
     Address local;
     Address remote;
 
@@ -21,11 +22,16 @@ public class SocketShiftStream implements ShiftStream {
     public void close() throws IOException {
 	if (socket!=null) socket.close();
 	if (dgram!=null) dgram.close();
+	if (mcast!=null) mcast.close();
     }
 
     public InputStream getInputStream() throws IOException {
 	if (dgram!=null) {
 	    InputStream is = new DatagramInputStream(dgram,512);
+	    return is;
+	}
+	if (mcast!=null) {
+	    InputStream is = new DatagramInputStream(mcast,512);
 	    return is;
 	}
 	return socket.getInputStream();
@@ -34,6 +40,12 @@ public class SocketShiftStream implements ShiftStream {
     public OutputStream getOutputStream() throws IOException {
 	if (dgram!=null) {
 	    OutputStream os = new DatagramOutputStream(dgram,
+						       remote,
+						       512);
+	    return new BufferedOutputStream(os,512);
+	}
+	if (mcast!=null) {
+	    OutputStream os = new DatagramOutputStream(mcast,
 						       remote,
 						       512);
 	    return new BufferedOutputStream(os,512);
@@ -49,6 +61,18 @@ public class SocketShiftStream implements ShiftStream {
 	}
 	if (remotePort>=0) {
 	    remote = new Address(remote.getName(),remotePort);
+	}
+    }
+
+    public void becomeMcast(Address address) throws IOException {
+	System.out.println("Becoming mcast at " + address);
+	if (socket!=null) {
+	    socket.close();
+	    socket = null;
+	    remote = address;
+	    InetAddress group = InetAddress.getByName(address.getName());
+	    mcast = new MulticastSocket(address.getPort());
+	    mcast.joinGroup(group);
 	}
     }
 

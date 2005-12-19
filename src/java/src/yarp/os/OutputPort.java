@@ -7,8 +7,8 @@ import java.io.*;
 public class OutputPort {
     private Port port;
     public void register(String name) {
-	Address server = NameClient.getNameClient().register(name);
-	port = new Port(server);
+	Address server = NameClient.getNameClient().register(name,"mcast");
+	port = new Port(server,name);
 	//port.setHandler(this);
 	port.start();
     }
@@ -23,16 +23,16 @@ public class OutputPort {
 		System.err.println("Cannot find port to write to");
 	    }
 	    
-	    Connection c = new Connection(add);
+	    Connection c = new Connection(add,port.getPortName(),name);
 	    port.addConnection(c);
 	} catch (IOException e) {
 	    System.err.println("connection addition failed");
 	}
     }
 
-    public void addConnection(Address address) {
+    public void addConnection(Address address, String key) {
 	try {
-	    port.addConnection(new Connection(address));
+	    port.addConnection(new Connection(address,port.getPortName(),key));
 	} catch (IOException e) {
 	    System.err.println("connection addition failed");
 	}

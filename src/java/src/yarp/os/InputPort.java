@@ -14,7 +14,7 @@ public class InputPort implements ProtocolHandler {
 
     public void register(String name) {
 	Address server = NameClient.getNameClient().register(name);
-	port = new Port(server);
+	port = new Port(server,name);
 	port.setHandler(this);
 	//creator = new BottleContent();
 	content = creator.create();

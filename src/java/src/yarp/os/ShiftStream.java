@@ -9,6 +9,7 @@ public interface ShiftStream {
     public OutputStream getOutputStream() throws IOException;
     public void close() throws IOException;
     public void becomeUdp(int remotePort) throws IOException;
+    public void becomeMcast(Address address) throws IOException;
     public int getLocalPort() throws IOException;
 }
 

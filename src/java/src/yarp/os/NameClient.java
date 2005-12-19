@@ -35,12 +35,21 @@ public class NameClient {
     }
 
 
+    public Address mcastQuery(String name) {
+	return probe("NAME_SERVER query " + name + "-mcast");
+    }
+
     public Address query(String name) {
 	return probe("NAME_SERVER query " + name);
     }
 
     public Address register(String name) {
-	return probe("NAME_SERVER register " + name + " 127.0.0.1 UDP");
+	return register(name,"udp");
+    }
+
+    public Address register(String name, String rawProtocol) {
+	return probe("NAME_SERVER register " + name + " 127.0.0.1 " + 
+		     rawProtocol);
     }
 
     public String send(String msg) throws IOException {

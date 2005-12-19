@@ -10,9 +10,14 @@ public class Connection {
     private Address address;
     private Protocol proto;
     private Socket socket = null;
+    private String fromKey = null;
+    private String toKey = null;
 
-    public Connection(Address address) throws IOException {
+    public Connection(Address address, 
+		      String fromKey, String toKey) throws IOException {
 	this.address = address;
+	this.fromKey = fromKey;
+	this.toKey = fromKey;
 
 	try {
 	    socket = new Socket(address.getName(),address.getPort());
@@ -30,8 +35,9 @@ public class Connection {
 	
 	proto = new Protocol(new SocketShiftStream(socket));
 
-	proto.setSender("null");
-	proto.setRawProtocol("udp");
+	proto.setSender(fromKey);
+	proto.setRawProtocol("mcast");
+	//proto.setRawProtocol("udp");
 	proto.sendHeader();
 	proto.expectReplyToHeader();
 	System.out.println("Connection created ok");

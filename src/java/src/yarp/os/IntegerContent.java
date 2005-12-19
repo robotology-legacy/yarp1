@@ -12,5 +12,8 @@ public class IntegerContent implements Content, ContentCreator {
     }
     public void release() {
     }
+    public Object content() {
+	return content;
+    }
 }
 

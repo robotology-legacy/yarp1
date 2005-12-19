@@ -8,14 +8,15 @@ class Test {
 	try {
 	NameClient nc = NameClient.getNameClient();
 
-	Address add = nc.query("/read");
+	String name = "/read";
+	Address add = nc.query(name);
 
 	if (add==null) {
-	    System.out.println("Cannot find port to write to");
+	    System.out.println("Cannot find port " + name + " to write to");
 	    System.exit(1);
 	}
 
-	Connection c = new Connection(add);
+	Connection c = new Connection(add,"/fake",name);
 	
 	//c.send("peter piper");
 	//c.send("rules");
@@ -82,8 +83,8 @@ class Test {
 	OutputPort op = new OutputPort();
 	op.register("/op");
 	op.connect("/read");
-	op.connect("/read2");
-
+	//op.connect("/read2");
+	
 	BottleContent bot = new BottleContent();
 	Bottle b = (Bottle)bot.content();
 
@@ -94,12 +95,15 @@ class Test {
 	op.send(bot);
 	System.out.println("bottle sent");
 
-	b.clear();
-	b.add(new Integer(0));
-	b.add("My Friend");
-	System.out.println("requesting send for: " + b);
-	op.send(bot);
-	System.out.println("bottle sent");
+	for (int i = 0; i<2000; i++) {
+	    b.clear();
+	    b.add(new Integer(0));
+	    b.add("My Friend " + i);
+	    System.out.println("requesting send for: " + b);
+	    op.send(bot);
+	    System.out.println("bottle sent");
+	    Time.delay(1);
+	}
 
 	
 	System.out.println("starting close...");
@@ -125,7 +129,7 @@ class Test {
 
     public static void main(String[] args) {
 	//oldTest();
-	//outPortTest();
-	inPortTest();
+	outPortTest();
+	//inPortTest();
     }
 }

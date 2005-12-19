@@ -10,6 +10,8 @@ public class Address {
     public String getName() { return name; }
     public int getPort() {return port; }
 
+    public String toString() { return name + ":" + port; }
+
     private String name;
     private int port;
 }
