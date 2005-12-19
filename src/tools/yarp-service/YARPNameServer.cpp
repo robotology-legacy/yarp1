@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 2.2 2005-12-19 16:10:20 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 2.3 2005-12-19 17:29:04 eshuy Exp $
 ///
 ///
 
@@ -732,6 +732,7 @@ int YARPNameServer::handle_text_command(int argc, char *argv[]) {
 	    handle_registration(argv[1], argv[2], YARP_UDP);
 	    break;
 	  case 'M':
+	    /*
 	    delay_eor = 1;
 	    handle_registration(argv[1], argv[2], YARP_UDP);
 	    delay_eor = 0;
@@ -742,6 +743,14 @@ int YARPNameServer::handle_text_command(int argc, char *argv[]) {
 	      } else {
 		sprintf(buf,"%s-mcast",argv[1]);
 	      }
+	    }
+	    */
+	    if (argv[2][0]!='+') {
+	      handle_registration(argv[1], argv[2], YARP_UDP);
+	    }
+	    {
+	      char buf[1000];
+	      sprintf(buf,"%s-mcast",argv[1]);
 	      handle_registration_dip(buf, YARP_MCAST);
 	    }
 	    break;
