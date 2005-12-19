@@ -35,6 +35,22 @@ public class Port extends Thread {
 	connections.add(connection);
     }
 
+    public synchronized void removeConnection(String target) {
+	Connection defunct = null;
+	for (Iterator it = connections.iterator(); it.hasNext(); ) {
+	    Connection connection = (Connection) it.next();
+	    if (connection.getFromName().equals(target) ||
+		connection.getToName().equals(target)) {
+		defunct = connection;
+	    }
+	}
+	if (defunct!=null) {
+	    defunct.close();
+	    connections.remove(defunct);
+	}
+    }
+
+
     public synchronized void handleData(Protocol protocol) {
 	if (handler!=null) {
 	    handler.read(protocol);

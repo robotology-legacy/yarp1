@@ -30,7 +30,7 @@ public class DatagramOutputStream extends OutputStream {
 	SocketAddress sad = new InetSocketAddress(address.getName(),
 						  address.getPort());
 	DatagramPacket p = new DatagramPacket(b, offset, len, sad);
-	System.out.println("multicast output to " + address.getName() + " " + address.getPort());
+	System.out.println("Datagram output to " + address.getName() + " " + address.getPort());
 	dgram.send(p);
     }
 

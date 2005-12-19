@@ -14,10 +14,11 @@ public class Connection {
     private String toKey = null;
 
     public Connection(Address address, 
-		      String fromKey, String toKey) throws IOException {
+		      String fromKey, 
+		      String toKey) {
 	this.address = address;
 	this.fromKey = fromKey;
-	this.toKey = fromKey;
+	this.toKey = toKey;
 
 	try {
 	    socket = new Socket(address.getName(),address.getPort());
@@ -28,21 +29,36 @@ public class Connection {
 	    System.err.println("Couldn't get I/O for the connection to " + address.getName());
 	    System.exit(1);
 	}
-	
+	    
 	if (socket==null) {
 	    System.exit(1);
 	}
-	
-	proto = new Protocol(new SocketShiftStream(socket));
-
-	proto.setSender(fromKey);
-	proto.setRawProtocol("mcast");
-	//proto.setRawProtocol("udp");
-	proto.sendHeader();
-	proto.expectReplyToHeader();
-	System.out.println("Connection created ok");
+	    
+	try {
+	    
+	    proto = new Protocol(new SocketShiftStream(socket));
+	    
+	    proto.setSender(fromKey);
+	    proto.setRawProtocol(NameClient.getProtocolPart(toKey));
+	    proto.sendHeader();
+	    proto.expectReplyToHeader();
+	    System.out.println("Connection created ok");
+	} catch (IOException e) {
+	    System.err.println("Problem creating connection to " + address);
+	}
     }
 
+    public String getFromName() {
+	return fromKey;
+    }
+
+    public String getToName() {
+	return toKey;
+    }
+
+    public void close() {
+	proto.close();
+    }
 
     private byte[] netInt(int x) {
 	byte b[] = new byte[4];

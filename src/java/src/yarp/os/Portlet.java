@@ -62,6 +62,13 @@ public class Portlet extends Thread {
 		if (cmd!=0) {
 		    System.out.println("Got command [" + ((char)cmd) + "]");
 		    switch(cmd) {
+		    case '!':
+			String src = new String(arg);
+			src = src.substring(1,src.length());
+			System.out.println("Should disconnect output from " + 
+					   src);
+			owner.removeConnection(src);
+			break;
 		    case '/':
 			System.out.println("Should send output to " + 
 					   new String (arg));
@@ -78,6 +85,7 @@ public class Portlet extends Thread {
 		}
 	    }
 	    protocol.expectBlock(protocol.getSize());
+	    protocol.respondToBlock();
 
 	    System.out.println("Finished");
 	}

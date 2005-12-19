@@ -82,7 +82,8 @@ class Test {
     public static void outPortTest() {
 	OutputPort op = new OutputPort();
 	op.register("/op");
-	op.connect("/read");
+	//op.register("tcp://op");
+	//op.connect("mcast://read");
 	//op.connect("/read2");
 	
 	BottleContent bot = new BottleContent();

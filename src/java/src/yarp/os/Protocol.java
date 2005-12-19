@@ -36,7 +36,7 @@ public class Protocol {
     }
 
     public void setSender(String name) {
-	senderName = name;
+	senderName = NameClient.getNamePart(name);
     }
 
     public void setRawProtocol(String carrier) {
@@ -392,12 +392,17 @@ public class Protocol {
     }
 
     public byte[] expectBlock(int len) throws IOException {
+	if (len<0) {
+	    len = getSize();
+	}
 	byte b[] = new byte[len];
 	boolean result = expectBlock(b,len);
 	return result?b:null;
     }
 
     public boolean respondToBlock() throws IOException {
+	byte b[] = new byte[100];
+	out.write(b);
 	if (!ok) { return false; }
 	return true;
     }
@@ -428,6 +433,15 @@ public class Protocol {
     }
 
     public void endContent() {
+	System.out.println("raw protocol is " + carrier);
+    }
+
+    public void close() {
+	try {
+	    shift.close();
+	} catch (IOException e) {
+	    System.err.println("problem closing shiftsocket");
+	}
     }
 }
 

@@ -12,6 +12,30 @@ public class NameClient {
 	this.address = address;
     }
 
+    public static String getProtocolPart(String name) {
+	String result = getPart(name,1);
+	if (result!=null) {
+	    return result;
+	}
+	return "udp";
+    }
+
+    public static String getNamePart(String name) {
+	String result = getPart(name,2);
+	if (result!=null) {
+	    return result;
+	}
+	return name;
+    }
+
+    private static String getPart(String name, int part) {
+	Pattern p = Pattern.compile("/?([^/:]+):/([^ ]+)");
+	Matcher m = p.matcher(name);
+	if (m.find()) {
+	    return m.group(part);
+	} 
+	return null;
+    }
 
     public Address probe(String cmd) {
 	String result = "";
@@ -19,16 +43,15 @@ public class NameClient {
 	    result = send(cmd);
 	} catch (IOException e) {
 	}
-	Pattern p = Pattern.compile("ip ([^ ]+).*port ([^ ]+)");
+	Pattern p = Pattern.compile("ip ([^ ]+).*port ([^ ]+).*type ([^ ]+)");
 	Matcher m = p.matcher(result);
-	//System.out.println("Result: " + result);
+	System.out.println("Result: " + result);
 	if (m.find()) {
-	    //System.out.println("ip " + m.group(1));
-	    //System.out.println("port " + m.group(2));
 	    String ip = m.group(1);
 	    int port = Integer.valueOf(m.group(2)).intValue();
+	    String carrier = m.group(3).toLowerCase();
 	    if (port!=0) {
-		return new Address(ip,port);
+		return new Address(ip,port,carrier);
 	    }
 	}
 	return null;
@@ -36,15 +59,24 @@ public class NameClient {
 
 
     public Address mcastQuery(String name) {
-	return probe("NAME_SERVER query " + name + "-mcast");
+	String q = getNamePart(name) + "-mcast";
+        Address address = probe("NAME_SERVER query " + q);
+	if (address==null) {
+	    return register(getNamePart(name),"mcast");
+	}
+	return address;
+    }
+
+    public Address normalQuery(String name) {
+	return probe("NAME_SERVER query " + getNamePart(name));
     }
 
     public Address query(String name) {
-	return probe("NAME_SERVER query " + name);
+	return probe("NAME_SERVER query " + getNamePart(name));
     }
 
     public Address register(String name) {
-	return register(name,"udp");
+	return register(getNamePart(name),getProtocolPart(name));
     }
 
     public Address register(String name, String rawProtocol) {
