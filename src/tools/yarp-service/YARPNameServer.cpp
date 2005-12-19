@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 2.1 2005-12-07 14:34:09 natta Exp $
+/// $Id: YARPNameServer.cpp,v 2.2 2005-12-19 16:10:20 eshuy Exp $
 ///
 ///
 
@@ -71,6 +71,9 @@ using namespace std;
 
 // this is really bad - should use real strings
 static char name_buffer[1000];
+
+// server is single threaded, right?
+static int delay_eor = 0;
 
 // general function
 char * LocalGetYarpRoot (void)
@@ -344,7 +347,9 @@ void YARPNameServer::_handle_reply(const YARPString &text)
   if (using_text) {
     new_stream_.send_n(text.c_str(), strlen(text.c_str())+1, 0);
     char msg[] = "*** end of response\n";
-    new_stream_.send_n(msg, strlen(msg)+1, 0);
+    if (!delay_eor) {
+      new_stream_.send_n(msg, strlen(msg)+1, 0);
+    }
     return;
   }
 
@@ -387,7 +392,7 @@ void YARPNameServer::_handle_reply(const YARPString &ip, int type, int port)
 {
   if (using_text) {
     char buf[1000];
-    sprintf(buf,"registration ip %s port %d type %d\n", ip.c_str(), port, type);
+    sprintf(buf,"registration ip %s port %d type %s\n", ip.c_str(), port, servicetypeConverter(type));
     _handle_reply(YARPString(buf));
     return;
   }
@@ -432,7 +437,7 @@ void YARPNameServer::_handle_reply(const YARPString &ip, int type, const PORT_LI
     for(; !i.done(); i++)
       {
 	int port = (*i).port;
-	sprintf(buf,"registration ip %s port %d type %d\n", ip.c_str(), port, type);
+	sprintf(buf,"registration ip %s port %d type %s\n", ip.c_str(), port, servicetypeConverter(type));
 	text += buf;
 	j++;
       }
@@ -718,8 +723,33 @@ int YARPNameServer::handle_text_command(int argc, char *argv[]) {
     switch (toupper(argv[0][0])) {
     case 'R':
       if (argc>=3) {
-	handle_registration(argv[1], argv[2], 
-			    YARP_TCP);
+	if (argc>=4) {
+	  switch (toupper(argv[3][0])) {
+	  case 'T':
+	    handle_registration(argv[1], argv[2], YARP_TCP);
+	    break;
+	  case 'U':
+	    handle_registration(argv[1], argv[2], YARP_UDP);
+	    break;
+	  case 'M':
+	    delay_eor = 1;
+	    handle_registration(argv[1], argv[2], YARP_UDP);
+	    delay_eor = 0;
+	    {
+	      char buf[1000];
+	      if (argc>=5) {
+		sprintf(buf,"%s",argv[4]);
+	      } else {
+		sprintf(buf,"%s-mcast",argv[1]);
+	      }
+	      handle_registration_dip(buf, YARP_MCAST);
+	    }
+	    break;
+	  }
+	} else {
+	  handle_registration(argv[1], argv[2], 
+			      YARP_TCP);
+	}
       }
       break;
     case 'Q':

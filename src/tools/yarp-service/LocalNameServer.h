@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 2.1 2005-12-07 14:34:09 natta Exp $
+/// $Id: LocalNameServer.h,v 2.2 2005-12-19 16:10:20 eshuy Exp $
 ///
 ///
 
@@ -167,8 +167,8 @@ public:
     pool<T, T_LIST, T_IT> (){};
     pool<T, T_LIST, T_IT> (const pool &p)
     {
-        min=p.min;
-        max=p.max;
+        _min=p._min;
+        _max=p._max;
     }
 	bool findFree(T_LIST &l, T &item)
 	{

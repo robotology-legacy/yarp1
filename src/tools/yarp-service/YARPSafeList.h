@@ -89,7 +89,7 @@ public:
     {
         // call destructors for each element
         YARPSafeList<T> *tmp=const_cast<YARPSafeList<T>*>(&l);
-        YARPSafeList::iterator it (*tmp);
+        typename YARPSafeList::iterator it (*tmp);
         for(;!it.done();it++)
         {
             push_back(*it);    
@@ -105,7 +105,7 @@ public:
         clear();
         
         YARPSafeList<T> *tmp=const_cast<YARPSafeList<T>*>(&l);
-        YARPSafeList::iterator it (*tmp);
+        typename YARPSafeList::iterator it (*tmp);
         for(;!it.done();it++)
         {
             push_back(*it);    
@@ -185,7 +185,7 @@ public:
 	void clear() 
     { 
         // call destructors for each elements
-        YARPSafeList<T>::iterator it (*this);
+        typename YARPSafeList<T>::iterator it (*this);
         for(;!it.done();it++)
         {
             T *tmp=&(*it);
