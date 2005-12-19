@@ -16,6 +16,11 @@ public class Portlet extends Thread {
 
     public void close() {
 	System.out.println("Trying to halt portlet");
+	try {
+	    shift.close();
+	} catch (IOException e) {
+	    System.err.println("Problem while halting portlet");
+	}
 	interrupt();
     }
 

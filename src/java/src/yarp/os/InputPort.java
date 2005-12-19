@@ -58,5 +58,9 @@ public class InputPort implements ProtocolHandler {
 	}
 	return content.content();
     }
+
+    public void close() {
+	port.close();
+    }
 }
 

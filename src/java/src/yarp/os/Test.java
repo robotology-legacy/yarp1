@@ -107,22 +107,25 @@ class Test {
 	System.out.println("finished close...");
     }
 
-
-    public static void main(String[] args) {
-	//oldTest();
-	outPortTest();
-	return;
-	/*
+    public static void inPortTest() {
 	InputPort ip = new InputPort();
 	ip.create(new BottleContent());
 	ip.register("/foo");
-	while (ip.read()) {
+	int ct = 0;
+	while (ip.read()&&ct<3) {
 	    System.out.println("I read something!");
 	    Bottle bot = (Bottle) ip.content();
 	    if (bot!=null) {
 		System.out.println(bot.asList());
+		ct++;
 	    }
 	}
-	*/
+	ip.close();
+    }
+
+    public static void main(String[] args) {
+	//oldTest();
+	//outPortTest();
+	inPortTest();
     }
 }
