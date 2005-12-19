@@ -27,19 +27,38 @@ class Test {
 	b.add(new Integer(0));
 	b.add("Hello");
 	System.out.println("Preparing to send bottle...");
+	System.out.println("requesting send for: " + b);
 	c.send(bot);
 	System.out.println("bottle sent");
 
 	b.clear();
 	b.add(new Integer(0));
 	b.add("There");
+	System.out.println("requesting send for: " + b);
 	c.send(bot);
 
 	b.clear();
 	b.add(new Integer(0));
 	b.add("My friend");
+	System.out.println("requesting send for: " + b);
 	c.send(bot);
 
+
+	b.clear();
+	b.add(new Integer(0));
+	b.add("My very good friend");
+	System.out.println("requesting send for: " + b);
+	c.send(bot);
+
+
+	b.clear();
+	b.add(new Integer(0));
+	b.add("My very very good friend");
+	System.out.println("requesting send for: " + b);
+	c.send(bot);
+
+
+	Time.delay(1);
 
 	System.out.println("FINISHED!");
 
@@ -56,7 +75,8 @@ class Test {
 
     public static void main(String[] args) {
 	oldTest();
-
+	return;
+	/*
 	InputPort ip = new InputPort();
 	ip.create(new BottleContent());
 	ip.register("/foo");
@@ -67,5 +87,6 @@ class Test {
 		System.out.println(bot.asList());
 	    }
 	}
+	*/
     }
 }

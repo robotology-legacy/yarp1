@@ -242,6 +242,7 @@ public class Protocol {
 	for (int i=0; i<len; i++) {
 	    out.write(((byte[])content.get(i)));
 	}
+	out.flush();
 	return true;
     }
 
@@ -355,11 +356,6 @@ public class Protocol {
     }
 
     public void endContent() {
-	try {
-	    out.flush();
-	} catch (IOException e) {
-	    System.out.println("flush failed");
-	}
     }
 }
 
