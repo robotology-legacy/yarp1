@@ -14,6 +14,10 @@ public class Portlet extends Thread {
 	this.shift = shift;
     }
 
+    public void close() {
+	System.out.println("Trying to halt portlet");
+	interrupt();
+    }
 
     public void run() {
 	try {

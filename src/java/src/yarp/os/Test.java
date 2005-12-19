@@ -20,6 +20,10 @@ class Test {
 	//c.send("peter piper");
 	//c.send("rules");
 
+	OutputPort op = new OutputPort();
+	op.register("/op");
+	op.connect("/read2");
+
 	BottleContent bot = new BottleContent();
 	Bottle b = (Bottle)bot.content();
 
@@ -29,6 +33,7 @@ class Test {
 	System.out.println("Preparing to send bottle...");
 	System.out.println("requesting send for: " + b);
 	c.send(bot);
+	op.send(bot);
 	System.out.println("bottle sent");
 
 	b.clear();
@@ -73,8 +78,39 @@ class Test {
     }
 
 
+    public static void outPortTest() {
+	OutputPort op = new OutputPort();
+	op.register("/op");
+	op.connect("/read");
+	op.connect("/read2");
+
+	BottleContent bot = new BottleContent();
+	Bottle b = (Bottle)bot.content();
+
+	b.clear();
+	b.add(new Integer(0));
+	b.add("Hello");
+	System.out.println("requesting send for: " + b);
+	op.send(bot);
+	System.out.println("bottle sent");
+
+	b.clear();
+	b.add(new Integer(0));
+	b.add("My Friend");
+	System.out.println("requesting send for: " + b);
+	op.send(bot);
+	System.out.println("bottle sent");
+
+	
+	System.out.println("starting close...");
+	op.close();
+	System.out.println("finished close...");
+    }
+
+
     public static void main(String[] args) {
-	oldTest();
+	//oldTest();
+	outPortTest();
 	return;
 	/*
 	InputPort ip = new InputPort();

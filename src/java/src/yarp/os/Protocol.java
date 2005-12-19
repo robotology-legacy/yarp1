@@ -195,10 +195,8 @@ public class Protocol {
 	    System.out.println("Switched");
 	}
 	// For TCP, a delay seems to be needed - why?
-	try {
-	    Thread.sleep(2000);
-	} catch (Exception e) {
-	    System.out.println("sleep failed");
+	if (carrier.equals("tcp")) {
+	    Time.delay(2);
 	}
 	return true;
     }
