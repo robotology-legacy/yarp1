@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: CollectorCommands.h,v 1.4 2006-01-04 09:50:40 claudio72 Exp $
+/// $Id: CollectorCommands.h,v 1.5 2006-01-04 09:56:07 claudio72 Exp $
 ///
 ///
 
@@ -82,7 +82,6 @@ enum CollectorCmd {
 	CCMDDisconnect     = 9,
 	CCMDQuit           = 10
 };
-#include<yarp/end_pack_for_net.h>
 
 #include<yarp/end_pack_for_net.h>
 
