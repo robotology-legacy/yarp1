@@ -21,35 +21,42 @@ void CSaverThread::Body(void)
 
 	char fName[255];
 	nFrames = 0;
-		
-	while (!IsTerminated())
-	{
-		
+
+	while (!IsTerminated()) {
+
 		nFrames++;
-		if ( useDataGlove || useTracker || usePresSens)
-		{
+
+		if ( useDataGlove || useTracker0 || useTracker1 || usePresSens ) {
 			p_data_inport->Read();
 			*pData = p_data_inport->Content();
 			writeDataToFile(nFrames);
 		}
-		if ( useCamera)
-		{	
-			p_img_inport->Read();
-			pImg->Refer((p_img_inport->Content()));
-			ACE_OS::sprintf(fName,"%s_%03d.pgm", prefix, nFrames);
-			YARPImageFile::Write(fName, *pImg,YARPImageFile::FORMAT_PPM);
+
+		if ( useCamera0 || useCamera1 ) {
+
+			p_img0_inport->Read();
+			pImg0->Refer((p_img0_inport->Content()));
+			ACE_OS::sprintf(fName,"%s_0_%03d.pgm", prefix, nFrames);
+			YARPImageFile::Write(fName, *pImg0,YARPImageFile::FORMAT_PPM);
+
+			p_img1_inport->Read();
+			pImg1->Refer((p_img1_inport->Content()));
+			ACE_OS::sprintf(fName,"%s_1_%03d.pgm", prefix, nFrames);
+			YARPImageFile::Write(fName, *pImg1,YARPImageFile::FORMAT_PPM);
+
 		}
 		
 	}
-	
 
 	return;
 }
 
 void CSaverThread::writeDataToFile(int i)
 {
+
 	fprintf(pFile,"%d",i);
-	fprintf(pFile,";%f;%f;%f;%f;%f;%f", pData->tracker.x, pData->tracker.y, pData->tracker.z, pData->tracker.azimuth, pData->tracker.elevation, pData->tracker.roll);
+	fprintf(pFile,";%.3f;%.3f;%.3f;%.3f;%.3f;%.3f", pData->tracker0.x, pData->tracker0.y, pData->tracker0.z, pData->tracker0.azimuth, pData->tracker0.elevation, pData->tracker0.roll);
+	fprintf(pFile,";%.3f;%.3f;%.3f;%.3f;%.3f;%.3f", pData->tracker1.x, pData->tracker1.y, pData->tracker1.z, pData->tracker1.azimuth, pData->tracker1.elevation, pData->tracker1.roll);
 	fprintf(pFile,";%d;%d;%d", pData->glove.thumb[0], pData->glove.thumb[1], pData->glove.thumb[2]);
 	fprintf(pFile,";%d;%d;%d", pData->glove.index[0], pData->glove.index[1], pData->glove.index[2]);
 	fprintf(pFile,";%d;%d;%d", pData->glove.middle[0], pData->glove.middle[1], pData->glove.middle[2]);
@@ -60,25 +67,32 @@ void CSaverThread::writeDataToFile(int i)
 	fprintf(pFile,";%d;%d", pData->glove.wrist[0], pData->glove.wrist[1]);
 	fprintf(pFile,";%d;%d;%d;%d", pData->pressure.channelA, pData->pressure.channelB, pData->pressure.channelC, pData->pressure.channelD);
 	fprintf(pFile, "\n");
+
 }
 
 
 void CSaverThread::writeHeaderToFile()
 {
-	fprintf(pFile,"frameN;" );
-	fprintf(pFile,"X;Y;Z;Azimuth;Elevation;Roll;" );
-	fprintf(pFile,"ThumbInner;ThumbMiddle;ThumbOuter;" );
-	fprintf(pFile,"IndexInner;IndexMiddle;IndexOuter;" );
-	fprintf(pFile,"MiddleInner;MiddleMiddle;MiddleOuter;" );
-	fprintf(pFile,"RingInner;RingMiddle;RingOuter;" );
-	fprintf(pFile,"PinkieInner;PinkieMiddle;PinkieOuter;" );
-	fprintf(pFile,"Abduct1;Abduct2;Abduct3;Abduct4;Abduct5;" );
-	fprintf(pFile,"PalmArch;" );
-	fprintf(pFile,"Wrist1;Wrist2;" );
-	fprintf(pFile,"PressureA;PressureB;PressureC;PressureC\n" );
+
+	fprintf(pFile,"frameN;");
+	fprintf(pFile,"X0;Y0;Z0;Azimuth0;Elevation0;Roll0;");
+	fprintf(pFile,"X1;Y1;Z1;Azimuth1;Elevation1;Roll1;");
+	fprintf(pFile,"ThumbInner;ThumbMiddle;ThumbOuter;");
+	fprintf(pFile,"IndexInner;IndexMiddle;IndexOuter;");
+	fprintf(pFile,"MiddleInner;MiddleMiddle;MiddleOuter;");
+	fprintf(pFile,"RingInner;RingMiddle;RingOuter;");
+	fprintf(pFile,"PinkieInner;PinkieMiddle;PinkieOuter;");
+	fprintf(pFile,"Abduct1;Abduct2;Abduct3;Abduct4;Abduct5;");
+	fprintf(pFile,"PalmArch;");
+	fprintf(pFile,"Wrist1;Wrist2;");
+	fprintf(pFile,"PressureA;PressureB;PressureC;PressureC\n");
+
 }
 
 int CSaverThread::getSavedFramesN()
 {
+
 	return nFrames;
+
 }
+

@@ -16,10 +16,10 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CLiveCameraDlg dialog
 
-
 CLiveCameraDlg::CLiveCameraDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CLiveCameraDlg::IDD, pParent)
 {
+
 	//{{AFX_DATA_INIT(CLiveCameraDlg)
 		// NOTE: the ClassWizard will add member initialization here
 	pImage = NULL;
@@ -27,15 +27,18 @@ CLiveCameraDlg::CLiveCameraDlg(CWnd* pParent /*=NULL*/)
 	ASSERT (m_drawdib != NULL);
 	//m_drawdib = DrawDibOpen();
 	//}}AFX_DATA_INIT
+
 }
 
 
 void CLiveCameraDlg::DoDataExchange(CDataExchange* pDX)
 {
+
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CLiveCameraDlg)
 		// NOTE: the ClassWizard will add DDX and DDV calls here
 	//}}AFX_DATA_MAP
+
 }
 
 
@@ -51,27 +54,27 @@ END_MESSAGE_MAP()
 
 void CLiveCameraDlg::OnPaint() 
 {
-	CPaintDC dc(this); // device context for painting
-	if (( pImage != NULL) && (sizeX != 0) && (sizeY != 0) )
-	{
-		GetClientRect (&m_rect);
-		double zoomX;
-		double zoomY;
 
-		zoomX= double(m_rect.Width() - 2 * _BORDER) / double(sizeX);
-		zoomY = double(m_rect.Height() - 2 * _BORDER) / double(sizeY);
+	CPaintDC dc(this); // device context for painting
+
+	if (( pImage != NULL) && (sizeX != 0) && (sizeY != 0) ) {
+		GetClientRect (&m_rect);
+		double zoomX = double(m_rect.Width() - 2 * _BORDER) / double(sizeX);
+		double zoomY = double(m_rect.Height() - 2 * _BORDER) / double(sizeY);
 		unsigned char *dib = (unsigned char*)m_converter.ConvertAndFlipToDIB(*pImage);
 		CopyToScreen(m_drawdib, dc.GetSafeHdc(), dib, _BORDER, _BORDER, zoomX, zoomY);
-		
 	}
+
 	// Do not call CDialog::OnPaint() for painting messages
+
 }
 
 void CLiveCameraDlg::CopyToScreen(HDRAWDIB hDD, HDC hDC, unsigned char *img, int destX, int destY, double zoomX, double zoomY)
 {
-	ACE_ASSERT (img != NULL);				
 
-	BITMAPINFOHEADER* dibhdr = (BITMAPINFOHEADER *)img;
+	ACE_ASSERT (img != NULL);
+
+	BITMAPINFOHEADER* dibhdr = (BITMAPINFOHEADER*)img;
 	
 	int X = dibhdr->biWidth; 
 	int Y = dibhdr->biHeight;
@@ -79,30 +82,28 @@ void CLiveCameraDlg::CopyToScreen(HDRAWDIB hDD, HDC hDC, unsigned char *img, int
 	int sizeY = int(Y * zoomY);
 	
 	/// LATER: it should be a bit more generic.
-	if (dibhdr->biBitCount == 8)
-	{
+	if (dibhdr->biBitCount == 8) {
 		DrawDibDraw(
 		  hDD, hDC,
 		  destX, destY,
 		  sizeX, sizeY,
-		  (BITMAPINFOHEADER *)img,
+		  (BITMAPINFOHEADER*)img,
 		  img + sizeof(RGBQUAD) * 256 + sizeof(BITMAPINFOHEADER),
 		  0, 0,                 
 		  X, Y,
 		  0);
-	}
-	else
-	{
+	} else {
 		DrawDibDraw(
 		  hDD, hDC,
 		  destX, destY,
 		  sizeX, sizeY,
-		  (BITMAPINFOHEADER *)img,
+		  (BITMAPINFOHEADER*)img,
 		  img + sizeof(BITMAPINFOHEADER),
 		  0, 0,                 
 		  X, Y,
 		  0);
 	}
+
 }
 
 void CLiveCameraDlg::UpdateState(YARPGenericImage *p_img)

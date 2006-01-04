@@ -24,7 +24,7 @@ COptionsDlg::COptionsDlg(CWnd* pParent /*=NULL*/)
 	m_NetName = _T("default");
 	m_PortName = _T("mirrorGrasp");
 	m_Prefix = _T("seq");
-	m_RefreshTime = 100;
+	m_RefreshTime = 40;
 	m_SavePath = _T("d:\\tmp");
 	//}}AFX_DATA_INIT
 }
@@ -57,16 +57,18 @@ END_MESSAGE_MAP()
 
 void COptionsDlg::OnDefault() 
 {
+
 	m_PortName = "mirrorGrasp";
 	m_NetName = "default";
 	m_SavePath = "d:\\tmp";
 	m_Prefix = "seq";
-	m_RefreshTime = 100;
+	m_RefreshTime = 40;
 	UpdateData(FALSE);
 }
 
 void COptionsDlg::OnLoad() 
 {
+
 	YARPConfigFile optFile;	
 
 	optFile.setName("GraspCapture.ini");

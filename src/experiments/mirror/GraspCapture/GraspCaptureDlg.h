@@ -26,11 +26,13 @@ struct GraspOptions
 	char netName[255];
 	char savePath[255];
 	char prefix[255];
-	int useCamera;
-	int useTracker;
+	int useCamera0;
+	int useCamera1;
+	int useTracker0;
+	int useTracker1;
 	int useDataGlove;
 	int usePresSens;
-	int refresh;
+	int refreshFrequency;
 };
 
 typedef struct GraspOptions PgmOptions;
@@ -42,7 +44,8 @@ class CGraspCaptureDlg : public CDialog
 {
 // Construction
 public:
-	void setupOptions();
+	void setupOptionsDialog();
+	void readFromOptionsDialog();
 	bool registerPorts(void);
 	void InitMembers();
 	void InitDlgMembers();
@@ -88,23 +91,29 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
 	CLiveGloveDlg	GloveDialog;
-	CLiveTrackerDlg TrackerDialog;
-	CLiveCameraDlg	CameraDialog;
+	CLiveTrackerDlg Tracker0Dialog;
+	CLiveTrackerDlg Tracker1Dialog;
+	CLiveCameraDlg	Camera0Dialog;
+	CLiveCameraDlg	Camera1Dialog;
 	CMessagesDlg MessagesDialog;
 	COptionsDlg OptionsDialog;
-	bool bLiveTracker;
+	bool bLiveTracker0;
+	bool bLiveTracker1;
 	bool bLiveGlove;
-	bool bLiveCamera;
+	bool bLiveCamera0;
+	bool bLiveCamera1;
 	bool bShowDebugWnd;
 	UINT m_timerID;
 	
 	MNumData data;
-	YARPImageOf<YarpPixelBGR> img;
+	YARPImageOf<YarpPixelBGR> img0;
+	YARPImageOf<YarpPixelBGR> img1;
 	CSaverThread saverThread;
 	int nSeq;
 	PgmOptions options;
 	YARPInputPortOf<MNumData> data_inport;
-	YARPInputPortOf<YARPGenericImage> img_inport;
+	YARPInputPortOf<YARPGenericImage> img0_inport;
+	YARPInputPortOf<YARPGenericImage> img1_inport;
 	YARPInputPortOf<int> rep_inport;
 	YARPOutputPortOf<MCommands> cmd_outport;
 	CString logText;
