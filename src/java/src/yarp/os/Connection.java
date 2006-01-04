@@ -89,12 +89,13 @@ public class Connection {
 	return b3;
     }
 
-    public void send(String msg) throws IOException {
-	send(msg,false);
+    public void write(String msg) throws IOException {
+	write(msg,false);
     }
 
     // specialized for Bottle
-    public void send(String msg, boolean eof) throws IOException {
+    // not used any more, was just to understand things better
+    public void write(String msg, boolean eof) throws IOException {
 
 	InputStream in = null;
         OutputStream out = null;
@@ -129,10 +130,21 @@ public class Connection {
 	out.flush();
     }
 
-    public void send(Content content) throws IOException {
-	// need to produce index
-	// index contains data command
-	// followed by real content
+    public void writeCommand(char ch, String str) throws IOException {
+
+	proto.beginContent();
+
+	proto.appendBlock(new byte[] { 0,0,0,0, '~', (byte)ch, 0, 1}); // data hdr
+	if (str!=null) {
+	    proto.appendString(str);
+	}
+
+	proto.endContent();
+	proto.sendIndex();
+	proto.sendContent();
+    }
+
+    public void write(Content content) throws IOException {
 
 	proto.beginContent();
 	proto.addContent(new byte[] { 0,0,0,0,  '~', 'd', 0, 1}); // data hdr

@@ -1,6 +1,6 @@
 
 package yarp.os;
 
-public class ContentStream {
+class ContentStream {
 }
 

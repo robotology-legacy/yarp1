@@ -4,7 +4,7 @@ package yarp.os;
 import java.io.*;
 import java.net.*;
 
-public class SocketShiftStream implements ShiftStream {
+class SocketShiftStream implements ShiftStream {
     Socket socket;
     DatagramSocket dgram;
     MulticastSocket mcast;
@@ -80,5 +80,26 @@ public class SocketShiftStream implements ShiftStream {
     public int getLocalPort() throws IOException {
 	return local.getPort();
     }
+
+    public void become(String carrier, Address address) throws IOException {
+	if (carrier.equals("udp")) {
+	    if (address!=null) {
+		becomeUdp(address.getPort());
+	    } else {
+		becomeUdp(-1);
+	    }
+	} else if (carrier.equals("mcast")) {
+	    becomeMcast(address);
+	} else {
+	    System.err.println("SocketShiftStream does not support becoming " +
+			       carrier);
+	}
+    }
+
+
+    public Address getAddress() throws IOException {
+	return local;
+    }
+
 }
 

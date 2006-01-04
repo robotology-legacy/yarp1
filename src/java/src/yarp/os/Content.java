@@ -1,9 +1,12 @@
 
 package yarp.os;
 
-public interface Content extends ProtocolHandler {
-    public void read(Protocol proto);
-    public void write(Protocol proto);
+import java.io.*;
+
+public interface Content extends ContentCreator {
+    public void read(BlockReader reader) throws IOException;
+    public void write(BlockWriter writer) throws IOException;
     public void release();
-    public Object content();
+    public Object object();
+    public Content create();
 }

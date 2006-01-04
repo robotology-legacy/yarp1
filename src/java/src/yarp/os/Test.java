@@ -2,6 +2,7 @@
 package yarp.os;
 
 import java.io.*;
+import java.util.*;
 
 class Test {
     public static void oldTest() {
@@ -19,49 +20,49 @@ class Test {
 	Connection c = new Connection(add,"/fake",name);
 	
 	//c.send("peter piper");
-	//c.send("rules");
+	//c.write("rules");
 
 	OutputPort op = new OutputPort();
 	op.register("/op");
 	op.connect("/read2");
 
 	BottleContent bot = new BottleContent();
-	Bottle b = (Bottle)bot.content();
+	Bottle b = (Bottle)bot.object();
 
 	b.clear();
 	b.add(new Integer(0));
 	b.add("Hello");
 	System.out.println("Preparing to send bottle...");
 	System.out.println("requesting send for: " + b);
-	c.send(bot);
-	op.send(bot);
+	c.write(bot);
+	op.write(bot);
 	System.out.println("bottle sent");
 
 	b.clear();
 	b.add(new Integer(0));
 	b.add("There");
 	System.out.println("requesting send for: " + b);
-	c.send(bot);
+	c.write(bot);
 
 	b.clear();
 	b.add(new Integer(0));
 	b.add("My friend");
 	System.out.println("requesting send for: " + b);
-	c.send(bot);
+	c.write(bot);
 
 
 	b.clear();
 	b.add(new Integer(0));
 	b.add("My very good friend");
 	System.out.println("requesting send for: " + b);
-	c.send(bot);
+	c.write(bot);
 
 
 	b.clear();
 	b.add(new Integer(0));
 	b.add("My very very good friend");
 	System.out.println("requesting send for: " + b);
-	c.send(bot);
+	c.write(bot);
 
 
 	Time.delay(1);
@@ -85,15 +86,16 @@ class Test {
 	//op.register("tcp://op");
 	//op.connect("mcast://read");
 	//op.connect("/read2");
+
+	op.creator(new BottleContent());
 	
-	BottleContent bot = new BottleContent();
-	Bottle b = (Bottle)bot.content();
+	Bottle b = (Bottle)op.content();
 
 	b.clear();
 	b.add(new Integer(0));
 	b.add("Hello");
 	System.out.println("requesting send for: " + b);
-	op.send(bot);
+	op.write();
 	System.out.println("bottle sent");
 
 	for (int i = 0; i<2000; i++) {
@@ -101,7 +103,7 @@ class Test {
 	    b.add(new Integer(0));
 	    b.add("My Friend " + i);
 	    System.out.println("requesting send for: " + b);
-	    op.send(bot);
+	    op.write();
 	    System.out.println("bottle sent");
 	    Time.delay(1);
 	}
@@ -114,7 +116,7 @@ class Test {
 
     public static void inPortTest() {
 	InputPort ip = new InputPort();
-	ip.create(new BottleContent());
+	ip.creator(new BottleContent());
 	ip.register("/foo");
 	int ct = 0;
 	while (ip.read()&&ct<3) {
@@ -128,9 +130,11 @@ class Test {
 	ip.close();
     }
 
+
     public static void main(String[] args) {
+	YarpClient.main(args);
 	//oldTest();
-	outPortTest();
+	//outPortTest();
 	//inPortTest();
     }
 }

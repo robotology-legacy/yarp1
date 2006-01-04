@@ -1,18 +1,22 @@
 
 package yarp.os;
 
-public class IntegerContent implements Content, ContentCreator {
+import java.io.IOException;
+
+public class IntegerContent implements Content {
     public Integer content = new Integer(0);
     public Content create() {
 	return new IntegerContent();
     }
-    public void read(Protocol proto) {
+    public void read(BlockReader proto) throws IOException {
+	content = new Integer(proto.expectInt());
     }
-    public void write(Protocol proto) {
+    public void write(BlockWriter proto) throws IOException {
+	proto.appendInt(content.intValue());
     }
     public void release() {
     }
-    public Object content() {
+    public Object object() {
 	return content;
     }
 }

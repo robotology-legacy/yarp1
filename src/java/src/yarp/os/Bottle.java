@@ -25,7 +25,7 @@ class Bottle {
 
     public byte[] get() {
 	byte[] b = {};
-	for ( Iterator it = items.iterator(); it.hasNext(); ) {
+	for (Iterator it = items.iterator(); it.hasNext(); ) {
 	    Object o = it.next();
 	    if (o instanceof Integer) {
 		b = append(b,NetType.netInt(1));

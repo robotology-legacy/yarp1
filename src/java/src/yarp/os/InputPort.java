@@ -2,34 +2,43 @@
 package yarp.os;
 
 import java.lang.*;
+import java.io.*;
 
-public class InputPort implements ProtocolHandler {
 
+/**
+ * A port for receiving information.  The port is assigned a name
+ * using the register method.  Then it is associated (using the
+ * creator method) with a ContentCreator object that will be delegated
+ * the work of decoding andin constructing input objects as they
+ * arrive.
+ */
+public class InputPort {
+
+
+    /**
+     * Assign a unique global name to this port.
+     * @param name The name to assign.
+     */
     public void register(String name) {
 	Address server = NameClient.getNameClient().register(name);
-	port = new Port(server,name);
-	port.setHandler(this);
+	BasicPort basic = new BasicPort(server,name);
+	basic.setHandler(handler);
+	if (creator==null) {
+	    System.err.println("should call creator before register");
+	    System.exit(1);
+	}
 	content = creator.create();
-	port.start();
+	basic.start();
+	port = basic;
     }
 
-    public void read(Protocol proto) {
-	System.out.println("Could read now!");
-	if (content!=null) {
-	    content.read(proto);
-	}
-	synchronized(readSomething) {
-	    readSomething.notify();
-	}
-    }
 
-    public void write(Protocol proto) {
-    }
-
-    public void create(ContentCreator creator) {
-	this.creator = creator;
-    }
-
+    /**
+     * Wait for input to arrive.  Input can be extracted using the
+     * content method.  Must have called register and creator
+     * once.
+     * @return true is input is available.
+     */
     public boolean read() {
 	try {
 	    synchronized(stateMutex) {
@@ -44,22 +53,62 @@ public class InputPort implements ProtocolHandler {
 	}
     }
 
-    public Object content() {
-	synchronized(stateMutex) {
-	    clientReading = true;
-	}
-	return content.content();
-    }
 
+    /**
+     * Shut the port down.
+     */
     public void close() {
 	port.close();
     }
 
+
+    /**
+     * Access input that has arrived.  Must call read method first.
+     * @return the input that has arrived.
+     */
+    public Object content() {
+	synchronized(stateMutex) {
+	    clientReading = true;
+	}
+	return content.object();
+    }
+
+
+    /**
+     * Assign the object delegated to create input objects.
+     * @param creator the object delegated to create input objects.
+     */
+    public void creator(ContentCreator creator) {
+	this.creator = creator;
+    }
+
+
+    private class InputPortHandler implements ProtocolHandler  {
+
+	public void read(Protocol proto) {
+	    System.out.println("Could read now!");
+	    if (content!=null) {
+		try {
+		    content.read(proto);
+		} catch (IOException e) {
+		    System.err.println("Problem reading");
+		}
+	    }
+	    synchronized(readSomething) {
+		readSomething.notify();
+	    }
+	}
+	
+	public void write(Protocol proto) {
+	}
+    }
+
     private ContentCreator creator;
-    private Port port;
+    private BasicPort port;
     private Object readSomething = new Object();
     private Object stateMutex = new Object();
     private boolean clientReading = false;
     private Content content;
+    private ProtocolHandler handler = new InputPortHandler();
 }
 

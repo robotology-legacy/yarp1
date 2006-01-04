@@ -6,7 +6,7 @@ import java.net.*;
 
 // this stream should be wrapped in a BufferedOutputStream or it 
 // will be inefficient
-public class DatagramOutputStream extends OutputStream {
+class DatagramOutputStream extends OutputStream {
     private DatagramSocket dgram;
     private Address address;
     private DatagramPacket packet; // use later to optimize

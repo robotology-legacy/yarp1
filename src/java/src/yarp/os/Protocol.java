@@ -6,15 +6,8 @@ import java.net.*;
 import java.nio.channels.*;
 import java.util.*;
 
-/*
-  Note - have to think about how to adapt this to
-  work when part of protocol allows switching to a
-  different network connection. 
-  Probably have to put in some indirection - see
-  ShiftStream.
- */
 
-public class Protocol {
+class Protocol implements BlockWriter, BlockReader {
     private ShiftStream shift;
     private InputStream in;
     private OutputStream out;
@@ -27,31 +20,59 @@ public class Protocol {
     private String senderName = "null";
     private ArrayList content = new ArrayList();
     private String carrier = "tcp";
-    private Address mcastAddress;
+    private Carrier delegate;
+    private List delegates = new LinkedList();
 
     public Protocol(ShiftStream shift) throws IOException {
 	this.shift = shift;
 	this.in = shift.getInputStream();
 	this.out = shift.getOutputStream();
+
+	// set up the possible sub-protocols (or "carriers") supported
+	delegates.add(new TcpCarrier());
+	delegates.add(new UdpCarrier());
+	delegates.add(new McastCarrier());
     }
 
     public void setSender(String name) {
 	senderName = NameClient.getNamePart(name);
     }
 
-    public void setRawProtocol(String carrier) {
-	this.carrier = carrier;
-	if (carrier.equals("mcast")) {
-	    System.out.println("Getting mcast info");
-	    mcastAddress = NameClient.getNameClient().mcastQuery(senderName);
-	    System.out.println("mcast address is " + mcastAddress);
-	}
+    public String getSender() {
+	return senderName;
     }
 
-    public static int unsigned(byte b) {
-	int v = b;
-	if (v<0) { v = 256+v; }
-	return b;
+    public Carrier chooseCarrier(String name) {
+	for (Iterator it = delegates.iterator(); it.hasNext(); ) {
+	    Carrier c = (Carrier)it.next();
+	    if (name.equals(c.getName())) {
+		return c;
+	    }
+	}
+	return null;
+    }
+
+    public Carrier chooseCarrier(int specifier) {
+	for (Iterator it = delegates.iterator(); it.hasNext(); ) {
+	    Carrier c = (Carrier)it.next();
+	    if (specifier == c.getSpecifier()) {
+		return c;
+	    }
+	}
+	return null;
+    }
+
+    public void become(String carrier, Address address) throws IOException {
+	System.out.println("Switching to " + carrier);
+	shift.become(carrier,address);
+	this.in = shift.getInputStream();
+	this.out = shift.getOutputStream();
+    }
+
+    public void setRawProtocol(String carrier) {
+	this.carrier = carrier;
+	delegate = chooseCarrier(carrier);
+	delegate.prepareSend(this);
     }
 
     private int readFull(byte[] b) throws IOException {
@@ -70,44 +91,10 @@ public class Protocol {
 	return (result<0)?result:fullLen;
     }
 
-    public int netInt(byte[] b) {
-	int x = 0;
-	for (int i=b.length-1; i>=0; i--) {
-	    x *= 256;
-	    x += unsigned(b[i]);
-	}
-	return x;
-    }
-
-    public byte[] netInt(int x) {
-	byte b[] = new byte[4];
-	for (int i=0; i<4; i++) {
-	    int bi = x%256;
-	    b[i] = (byte)bi;
-	    x /= 256;
-	}
-	return b;
-    }
-
-    public byte[] netString(String s) {
-	byte b[] = new byte[s.length()+1];
-	for (int i=0; i<s.length(); i++) {
-	    b[i] = (byte)s.charAt(i);
-	}
-	b[s.length()] = '\0';
-	return b;
-    }
-
     private boolean sendProtocolSpecifier() throws IOException {
 	byte b[] = { 'Y', 'A', 0x64, 0x1e, 0, 0, 'R', 'P' };
 	byte p = 0x64;
-	if (carrier.equals("udp")) {
-	    p = 97;
-	}
-	if (carrier.equals("mcast")) {
-	    p = 98;
-	    System.out.println("set protocol specifier to mcast");
-	}
+	p = (byte)delegate.getSpecifier();
 	b[2] = p;
 	out.write(b);
 	out.flush();
@@ -117,7 +104,8 @@ public class Protocol {
     // part of header
     private boolean expectProtocolSpecifier() throws IOException {
 	// expect protocol specifying header.
-	// assume for now it is TCP.
+	// just guessing the codes - could compute them from MAGIC_NUMBER 
+	// stuff
 
 	byte b[] = new byte[8];
 	readFull(b);
@@ -127,24 +115,10 @@ public class Protocol {
 	}
 
 	System.out.println("protocol number is " + b[2]);
-	switch(b[2]) {
-	case 100:
-	    System.out.println("stay with TCP");
-	    carrier = "tcp";
-	    break;
-	case 97:
-	    System.out.println("should switch to UDP");
-	    carrier = "udp";
-	    break;
-	case 98:
-	    //System.out.println("this protocol observed during UDP disconnect");
-	    //System.out.println("not currently handled");
-	    System.out.println("should switch to MCAST");
-	    carrier = "mcast";
-	    break;
-	default:
-	    System.out.println("unknown protocol");
-	    break;
+	delegate = chooseCarrier((int)b[2]);
+	if (delegate==null) {
+	    System.err.println("unknown protocol");
+	    System.exit(1);
 	}
 
 	gotHeader = true;
@@ -154,8 +128,8 @@ public class Protocol {
     }
 
     private boolean sendSenderSpecifier() throws IOException {
-	out.write(netInt(senderName.length()+1));
-	out.write(netString(senderName));
+	out.write(NetType.netInt(senderName.length()+1));
+	out.write(NetType.netString(senderName));
 	out.flush();
 	return true;
     }
@@ -168,7 +142,7 @@ public class Protocol {
 	    
 	    byte b[] = new byte[4];
 	    readFull(b);
-	    len = netInt(b);
+	    len = NetType.netInt(b);
 	}
 	if (len>1000) len = 1000;
 	if (len<1) len = 1;
@@ -184,25 +158,8 @@ public class Protocol {
     public boolean sendHeader() throws IOException {
 	sendProtocolSpecifier();
 	sendSenderSpecifier();
-	if (carrier.equals("mcast")) {
-	    System.out.println("Sending mcast info");
-	    byte b[] = new byte[6];
+	delegate.sendExtraHeader(this);
 
-	    InetAddress inet = InetAddress.getByName(mcastAddress.getName());
-	    byte[] raw = inet.getAddress();
-	    if (raw.length!=4) {
-		System.err.println("address strange size");
-		System.exit(1);
-	    }
-	    for (int i=0; i<4; i++) {
-		b[i] = raw[i];
-	    }
-	    int port = mcastAddress.getPort();
-	    b[5] = (byte)(port%256);
-	    b[4] = (byte)(port/256);
-	    
-	    out.write(b);
-	}
 	return true;
     }
 
@@ -214,83 +171,26 @@ public class Protocol {
 
 	if (!expectProtocolSpecifier()) { ok=false; return false; }
 	if (!expectSenderSpecifier()) { ok=false; return false; }
-	if (carrier.equals("mcast")) {
-	    System.out.println("Looking for mcast info");
-	    byte b[] = new byte[6];
-	    in.read(b);
-	    int ip[] = new int[4];
-	    for (int i=0; i<4; i++) {
-		ip[i] = unsigned(b[i]);
-		System.out.println("  >> IP " + ip[i]);
-	    }
-	    // strange byte order
-	    int port = netInt(new byte[] { b[5], b[4], 0, 0 });
-	    System.out.println("  >> PORT " + port);
-
-	    mcastAddress = new Address("" + ip[0] + "." + 
-				       ip[1] + "." +
-				       ip[2] + "." +
-				       ip[3],
-				       port);
-	}
+	delegate.expectExtraHeader(this);
 	return true;
     }
 
     public boolean expectReplyToHeader() throws IOException {
-	int port = 0;
-	if (!carrier.equals("mcast")) {
-	    byte b[] = new byte[8];
-	    in.read(b);
-	    //System.out.println(b[0]=='Y');
-	    port = unsigned(b[2])+256*unsigned(b[3]);
-	    System.out.println("Port number is " + port);
-	    if (b[0]!='Y') {
-		throw new IOException();
-	    }
-	}
-	if (carrier.equals("udp")) {
-	    System.out.println("Switching to udp, remote port " + port);
-	    shift.becomeUdp(port);
-	    this.in = shift.getInputStream();
-	    this.out = shift.getOutputStream();
-	    System.out.println("Switched");
-	}
-	if (carrier.equals("mcast")) {
-	    System.out.println("Switching to mcast " + mcastAddress);
-	    shift.becomeMcast(mcastAddress);
-	    this.in = shift.getInputStream();
-	    this.out = shift.getOutputStream();
-	    System.out.println("Switched");
-	}
-	// For TCP, a delay seems to be needed - why?
-	if (carrier.equals("tcp")) {
-	    Time.delay(2);
-	}
+	delegate.expectReplyToHeader(this);
 	return true;
     }
 
     public boolean respondToHeader() throws IOException {
 	if (!ok) { return false; }
 	byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
-	byte b2[] = netInt(shift.getLocalPort());
+	byte b2[] = NetType.netInt(shift.getAddress().getPort());
 	for (int i=0; i<b2.length; i++) {
 	    b[i+2] = b2[i];
 	}
 	out.write(b);
 	out.flush();
 
-	if (carrier.equals("udp")) {
-	    System.out.println("Switching to udp");
-	    shift.becomeUdp(-1);
-	    this.in = shift.getInputStream();
-	    this.out = shift.getOutputStream();
-	}
-	if (carrier.equals("mcast")) {
-	    System.out.println("Should switch to mcast, " + mcastAddress);
-	    shift.becomeMcast(mcastAddress);
-	    this.in = shift.getInputStream();
-	    this.out = shift.getOutputStream();
-	}
+	delegate.respondExtraToHeader(this);
 
 	return true;
     }
@@ -303,9 +203,9 @@ public class Protocol {
 			      -128,-128,-128,-128});
 	byte b0[] = {};
 	for (int i=0; i<len; i++) {
-	    out.write(netInt(((byte[])content.get(i)).length));
+	    out.write(NetType.netInt(((byte[])content.get(i)).length));
 	}
-	out.write(netInt(0)); // reply length
+	out.write(NetType.netInt(0)); // reply length
 	return true;
     }
 
@@ -334,7 +234,7 @@ public class Protocol {
 		ok = false;
 		return false;
 	    }
-	    len = netInt(new byte[] {b[2], b[3], b[4], b[5]});
+	    len = NetType.netInt(new byte[] {b[2], b[3], b[4], b[5]});
 	    if (len!=10) {
 		System.out.println("Strange message");
 		ok = false;
@@ -355,16 +255,16 @@ public class Protocol {
 	for (int i=0; i<in_len; i++) {
 	    byte b[] = new byte[4];
 	    readFull(b);
-	    len += netInt(b);
-	    System.out.println("In len: " + netInt(b));
-	    inputLen.add(new Integer(netInt(b)));
+	    len += NetType.netInt(b);
+	    System.out.println("In len: " + NetType.netInt(b));
+	    inputLen.add(new Integer(NetType.netInt(b)));
 	}
 
 	for (int i=0; i<out_len; i++) {
 	    byte b[] = new byte[4];
 	    readFull(b);
-	    System.out.println("Out len: " + netInt(b));
-	    outputLen.add(new Integer (netInt(b)));
+	    System.out.println("Out len: " + NetType.netInt(b));
+	    outputLen.add(new Integer (NetType.netInt(b)));
 	}
 	System.out.println("Total message length: " + len);
 	messageLen = len;
@@ -400,6 +300,10 @@ public class Protocol {
 	return result?b:null;
     }
 
+    public String expectString(int len) throws IOException {
+	return new String(expectBlock(len));
+    }
+
     public boolean respondToBlock() throws IOException {
 	byte b[] = new byte[100];
 	out.write(b);
@@ -421,8 +325,25 @@ public class Protocol {
 	byte b[] = new byte[4];
 	readFull(b);
 	messageLen -= 4;
-	return netInt(b);    
+	return NetType.netInt(b);    
     }
+
+    public void append(byte[] data) {
+	addContent(data);
+    }
+
+    public void appendBlock(byte[] data) {
+	append(data);
+    }
+
+    public void appendInt(int data) {
+	append(NetType.netInt(data));
+    }
+
+    public void appendString(String data) {
+	append(NetType.netString(data));
+    }
+
 
     public void addContent(byte[] data) {
 	content.add(data);
@@ -442,6 +363,14 @@ public class Protocol {
 	} catch (IOException e) {
 	    System.err.println("problem closing shiftsocket");
 	}
+    }
+
+    public void write(byte[] b) throws IOException {
+	out.write(b);
+    }
+
+    public void read(byte[] b) throws IOException {
+	in.read(b);
     }
 }
 

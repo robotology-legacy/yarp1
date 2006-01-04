@@ -6,9 +6,16 @@ import java.io.*;
 
 public class OutputPort {
 
+    private ContentCreator creator;
+    private Content content;
+
+    public void creator(ContentCreator creator) {
+	this.creator = creator;
+    }
+
     public void register(String name) {
 	Address server = NameClient.getNameClient().register(name);
-	port = new Port(server,name);
+	port = new BasicPort(server,name);
 	port.start();
     }
 
@@ -26,7 +33,19 @@ public class OutputPort {
 	port.addConnection(c);
     }
 
-    public void send(Content content) {
+    public Object content() {
+	if (content==null) {
+	    content = creator.create();
+	}
+	return content.object();
+    }
+
+    public void write() {
+	port.send(content);
+	content = null;
+    }
+
+    public void write(Content content) {
 	port.send(content);
     }
 
@@ -34,5 +53,5 @@ public class OutputPort {
 	port.close();
     }
 
-    private Port port;
+    private BasicPort port;
 }

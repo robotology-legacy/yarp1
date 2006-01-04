@@ -36,5 +36,12 @@ public class NetType {
 	return b;
     }
 
+    public static int unsigned(byte b) {
+	int v = b;
+	if (v<0) { v = 256+v; }
+	return b;
+    }
+
+
 }
 

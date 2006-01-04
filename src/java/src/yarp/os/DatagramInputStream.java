@@ -4,7 +4,7 @@ package yarp.os;
 import java.io.*;
 import java.net.*;
 
-public class DatagramInputStream extends InputStream {
+class DatagramInputStream extends InputStream {
 
     public static final int DGRAM_BUF_LEN = 512;
 

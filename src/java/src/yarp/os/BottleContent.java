@@ -3,7 +3,7 @@ package yarp.os;
 
 import java.io.*;
 
-public class BottleContent implements Content, ContentCreator {
+public class BottleContent implements Content {
     private byte[] data;
     private Bottle bot = new Bottle();
 
@@ -15,35 +15,32 @@ public class BottleContent implements Content, ContentCreator {
     public Content create() {
 	return new BottleContent();
     }
-    public void read(Protocol proto) {
-	try {
-	    System.out.println("Bottle should read");
-	    int len = proto.expectInt();
-	    System.out.println("> name len is " + len);
-	    byte[] b = proto.expectBlock(len);
-	    System.out.println("> name is " + new String(b));
-	    int dataLen = proto.expectInt();
-	    System.out.println("> data len is " + dataLen);
-	    data = proto.expectBlock(dataLen);
-	    bot.set(data);
 
-	} catch (IOException e) {
-	    System.err.println("Problem reading bottle");
-	}
+    public void read(BlockReader proto) throws IOException {
+	System.out.println("Bottle should read");
+	int len = proto.expectInt();
+	System.out.println("> name len is " + len);
+	byte[] b = proto.expectBlock(len);
+	System.out.println("> name is " + new String(b));
+	int dataLen = proto.expectInt();
+	System.out.println("> data len is " + dataLen);
+	data = proto.expectBlock(dataLen);
+	bot.set(data);
     }
-    public void write(Protocol proto) {	
+
+    public void write(BlockWriter proto) throws IOException {	
 	byte[] data = bot.get();
 	String name = "void";
 	int len = data.length;
-	proto.addContent(NetType.netInt(name.length()+1));
-	proto.addContent(NetType.netString(name));
-	proto.addContent(NetType.netInt(len));
-	proto.addContent(bot.get());
+	proto.appendInt(name.length()+1);
+	proto.appendString(name);
+	proto.appendInt(len);
+	proto.appendBlock(bot.get());
     }
     public void release() {
     }
 
-    public Object content() {
+    public Object object() {
 	return bot;
     }
 }
