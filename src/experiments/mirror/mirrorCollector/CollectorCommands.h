@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: CollectorCommands.h,v 1.3 2005-09-21 18:14:24 beltran Exp $
+/// $Id: CollectorCommands.h,v 1.4 2006-01-04 09:50:40 claudio72 Exp $
 ///
 ///
 
@@ -69,9 +69,9 @@
 #define __CollectorCommandsh__
 
 #include<yarp/begin_pack_for_net.h>
-enum CollectorCmd
-{
-	CCMDGetData        = 1,
+
+enum CollectorCmd {
+	CCMDGetData = 1,
 	CCMDStartStreaming = 2,
 	CCMDStopStreaming  = 3,
 	CCMDGetLed         = 4,
@@ -84,15 +84,17 @@ enum CollectorCmd
 };
 #include<yarp/end_pack_for_net.h>
 
+#include<yarp/end_pack_for_net.h>
+
 typedef enum CollectorCmd MCommands;
 
 #include<yarp/begin_pack_for_net.h>
 
-struct CollectorData
-{
-	PresSensData		pressure;
-	TrackerData			tracker;
+struct CollectorData {
+	TrackerData			tracker0;
+	TrackerData			tracker1;
 	DataGloveData		glove;
+	PresSensData		pressure;
 };
 
 typedef struct CollectorData MNumData;
@@ -102,8 +104,10 @@ typedef struct CollectorData MNumData;
 #define CMD_ACK		1
 #define CMD_FAILED	0
 #define HW_DATAGLOVE	0x01
-#define HW_TRACKER		0x02
-#define HW_PRESSENS		0x04
-#define HW_CAMERA		0x08
+#define HW_TRACKER0		0x02
+#define HW_TRACKER1		0x04
+#define HW_PRESSENS		0x08
+#define HW_CAMERA0		0x10
+#define HW_CAMERA1		0x20
 
 #endif
