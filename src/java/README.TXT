@@ -1,8 +1,7 @@
 
 This is the beginnings of a Java interface to YARP.  It is not yet
-functional.  However, already it is probably a better source for
-understanding the basic communication protocol than the C++ code.  Only
-the TCP component of the protocol has been touched on so far though.
+fully functional.  However, already it is probably a better source for
+understanding the basic communication protocol than the C++ code.
 
 Hopefully we will write the protocol down explicitly at some point :-)
 
@@ -15,9 +14,20 @@ To build the project, type:
 [if you are on a debian machine, you can apt-get install ant (it is
 in contrib)]
 
-Then you can run it with:
-  java -jar dist/lib/*.jar
+Strangely, there is a makefile for calling ant, and running different 
+things.
 
-Not that much will happen right now if you do this.
-At the time of writing, the program expects yarp-service to be running,
-and also "yarp-read /read"
+It is simplest if yarp-service is running.  Then in one terminal you
+could do:
+  make write
+in another
+  make read
+and in another
+  make connect
+
+Then things typed in the first terminal should appear in the second.
+
+All this is basically the same as:
+  yarp-write /write
+  yarp-read /read
+  yarp-connect /write /read
