@@ -1,0 +1,128 @@
+From: "Giorgio Metta" <pasa@liralab.it>
+Subject: On the software architecture
+Date: Sun, 6 Nov 2005 00:39:12 +0100
+Organization: LIRA-Lab, University of Genoa
+
+Ciao all,
+
+I discussed with Paul the software architecture (SA) of the iCub based as we
+agreed on Yarp. I'm trying to give a summary here, comments are very welcome
+of course. The goal is to prepare things for the Jan meeting and
+subsequently for the summer school (I'll be sending another email about the
+organization of the summer school).
+
+Our task is to specify how the modules are implemented in the SA assuming
+we're not talking of a monolithic piece of software. As I pointed out in the
+discussion with David some time ago, it is likely that we are going to use a
+cluster of PCs, running several processes each, each process composed of
+several threads. The architecture though does not enforce this programming
+style, at most it favors it by providing IPC structures.
+
+The SA must be OS-independent (at least between Win32 and Linux) - we must
+be aware of 64 bit processors (they're becoming more common).
+
+The SA must consider the interface between the iCub and the client/user code
+running on the cluster of PCs. The SA will include this interface code.
+
+The SA is not just Yarp.  The SA is a set of specifications (some of which
+Yarp meets, and other implementations could also meet). We should make the
+specifications as neutral as possible, allowing for potentially radical
+changes in implementation. 
+
+At the same time, the SA includes Yarp as an implementation of the
+specifications.  Compatibility with Yarp could be mandated as a requirement
+for the project, but this is a separable issue. We will provide Yarp as a
+possible implementation, which btw allows us to start programming right now,
+rather than implementing the SA from scratch. I'm not convinced anybody else
+will ever provide a new implementation of the specifications but we never
+know, we might decide to reimplement things in the future.
+
+Yarp which will be used by the SA has to be improved, not much on actual
+functionality but rather on documentation, interface, packaging, etc.
+
+--------------
+The tasks we planned with Paul:
+	- Specification of the line protocol for the iCub-client code
+connection (Ethernet cable)
+	- Specification of the API
+
+	- Creation of a demo running both on the available hardware and
+perhaps the simulator
+		- the demo can be complemented by various examples
+
+-------------
+We started then discussing the specs of the protocol. It is going to be a
+set of layered specifications. Yarp will be used as a model. In examining
+the actual Yarp protocol, we'll fix it, generalize it if needed and avoid
+propagating uglinesses. The "use Yarp" below means take Yarp as it is now
+and massage it a bit where needed.
+
+	- line protocol, use Yarp. It requires figuring out the exact
+protocol and cleaning it up a bit. The protocol specification is going to be
+put on paper. The protocol will look like a sequence of bytes (or other
+items) to be sent on the Ethernet cable to handshake and handle
+communication. The line protocol includes also the name server protocol
+(Yarp has a naming system for identifying connections). The name server will
+run within the iCub (PC104 card).
+
+	- channel protocol, use Yarp. This is the YARPPortOf<> templates we
+have already withing the Yarp library. This does not constrain the data
+types yet. For example it does not specify the format of images: rgb, bgr,
+bits per plane, etc.
+
+	- data protocol, use Yarp. It requires defining the data types that
+will be used by the robot (e.g. images, motor commands). This can be
+implemented in Yarp using the existing classes. Additional data types might
+be required and will be defined here.
+
+	- API level. TBD. We don't know yet what to do here.
+
+-------------
+APPENDIX - other things to do:
+-------------
+
+Specific to Yarp:
+	- Documentation
+		- improving the Doxygen documentation
+		- improving the external documentation (e.g. a tutorial?)
+
+	- YARP_OS library (one of the libraries in Yarp containing the core
+of the system)
+		- simplify the interface
+		- style (see RobotCub guidelines)
+		- ACE: how is it going to help us? Make it clear with our
+partners that it's a useful library
+		- multi-packet messages (low-priority). Implementation limit
+at the moment (64K) on datagram sockets
+		- DLL/Static: decide how to link
+		- perl: used for compiling and generating configuration
+files (improve usage)
+		- Error handling: to be improved
+		- Shared memory issue: ACE? There's an issue (occurring
+sporadically) with the shared memory
+
+	- reorganize the CVS repository (clean up)
+	
+	- pre-compiled releases (Win32 install, Debian package)
+
+--------------
+
+We stopped the discussion here.
+
+The plan is to start the preparation of the line protocol and in parallel
+improve the YARP_OS library. This allows implementing the demo (we'll use
+the toyota robot to test the architecture and maybe later the iCub head).
+
+Comments?
+
+Cheers,
+
+
+Giorgio Metta <pasa@liralab.it>           Assistant Professor
+ 
+LIRA-Lab, DIST                            University of Genova 
+Viale Causa, 13                           16145 Genova, Italy
+Ph: +39 010 353-2791                      Fax: +39 010 353-2948
+
+URL: http://pasa.lira.dist.unige.it
+
