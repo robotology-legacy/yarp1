@@ -83,11 +83,12 @@ class Test {
     public static void outPortTest() {
 	OutputPort op = new OutputPort();
 	op.register("/op");
-	//op.register("tcp://op");
-	//op.connect("mcast://read");
-	//op.connect("/read2");
-
 	op.creator(new BottleContent());
+
+	op.register("tcp://op");
+	op.connect("mcast://read");
+	//op.connect("/read");
+
 	
 	Bottle b = (Bottle)op.content();
 
@@ -98,7 +99,10 @@ class Test {
 	op.write();
 	System.out.println("bottle sent");
 
+	Time.delay(1);
+
 	for (int i = 0; i<2000; i++) {
+	    b = (Bottle)op.content();
 	    b.clear();
 	    b.add(new Integer(0));
 	    b.add("My Friend " + i);
@@ -117,7 +121,7 @@ class Test {
     public static void inPortTest() {
 	InputPort ip = new InputPort();
 	ip.creator(new BottleContent());
-	ip.register("/foo");
+	ip.register("/read");
 	int ct = 0;
 	while (ip.read()&&ct<3) {
 	    System.out.println("I read something!");
@@ -132,9 +136,12 @@ class Test {
 
 
     public static void main(String[] args) {
-	YarpClient.main(args);
-	//oldTest();
-	//outPortTest();
-	//inPortTest();
+	if (args.length>=1) {
+	    YarpClient.main(args);
+	} else {
+	    //oldTest();
+	    outPortTest();
+	    //inPortTest();
+	}
     }
 }

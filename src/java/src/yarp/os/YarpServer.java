@@ -12,9 +12,17 @@ import java.util.regex.*;
 
 class YarpServer implements CommandProcessor {
 
-    private class HostRecord {
+    private static class HostRecord {
+
+	// should remove this constant
 	private int base = 10001;
+
 	private Stack reuse = new Stack();
+	private YarpServer owner = null;
+
+	HostRecord(YarpServer owner) {
+	    this.owner = owner;
+	}
 
 	void release(int port) {
 	    reuse.push(new Integer(port));
@@ -30,8 +38,13 @@ class YarpServer implements CommandProcessor {
 	}
     }
 
-    private class NameRecord {
+    private static class NameRecord {
 	private Address address = null;
+	private YarpServer owner = null;
+
+	NameRecord(YarpServer owner) {
+	    this.owner = owner;
+	}
 
 	public void setAddress(Address address) {
 	    this.address = address;
@@ -43,11 +56,12 @@ class YarpServer implements CommandProcessor {
 
     private HashMap nameMap = new HashMap();
     private HashMap hostMap = new HashMap();
+    private HashMap mcastMap = new HashMap();
 
     public NameRecord getNameRecord(String name) {
 	NameRecord rec = (NameRecord)nameMap.get(name);
 	if (rec==null) {
-	    rec = new NameRecord();
+	    rec = new NameRecord(this);
 	    nameMap.put(name,rec);
 	}
 	return rec;
@@ -56,7 +70,7 @@ class YarpServer implements CommandProcessor {
     public HostRecord getHostRecord(String host) {
 	HostRecord rec = (HostRecord)hostMap.get(host);
 	if (rec==null) {
-	    rec = new HostRecord();
+	    rec = new HostRecord(this);
 	    hostMap.put(host,rec);
 	}
 	return rec;

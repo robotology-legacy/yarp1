@@ -19,13 +19,20 @@ class CarrierShiftStream implements ShiftStream {
 	}
     }
     
-    private static Carrier[] delegates = { 
-	new TcpCarrier(),
-	new UdpCarrier(),
-	new McastCarrier()
+    private static Carrier[] delegates;
+
+    private static void setup() {
+	if (delegates==null) {
+	    delegates = new Carrier[] { 
+		new TcpCarrier(),
+		new UdpCarrier(),
+		new McastCarrier()
+	    };
+	}
     };
 
     public static Carrier chooseCarrier(String name) {
+	setup();
 	for (int i=0; i<delegates.length; i++) {
 	    Carrier c = delegates[i];
 	    if (name.equals(c.getName())) {
@@ -36,6 +43,7 @@ class CarrierShiftStream implements ShiftStream {
     }
 
     public static Carrier chooseCarrier(int specifier) {
+	setup();
 	for (int i=0; i<delegates.length; i++) {
 	    Carrier c = delegates[i];
 	    if (specifier == c.getSpecifier()) {

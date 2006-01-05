@@ -100,9 +100,12 @@ public class Connection {
 
 	InputStream in = null;
         OutputStream out = null;
+	assert(socket!=null);
 	in = socket.getInputStream();
 	out = socket.getOutputStream();
-	
+	assert(in!=null);
+	assert(out!=null);
+	assert(msg!=null);
 
 	out.write(new byte[] { 'Y', 'A', 10, 0, 0, 0, 'R', 'P' });
 	out.write(new byte[] {2, 1,    
@@ -146,6 +149,8 @@ public class Connection {
     }
 
     public void write(Content content) throws IOException {
+	
+	assert(content!=null);
 
 	proto.beginContent();
 	proto.addContent(new byte[] { 0,0,0,0,  '~', 'd', 0, 1}); // data hdr

@@ -1,4 +1,6 @@
 
+EXEC = java -enableassertions -jar dist/lib/yarp.jar
+
 default:
 	ant dist
 
@@ -10,25 +12,28 @@ doc:
 #	gjdoc -s src/ -all -d api-docs/
 
 run:
-	java -jar dist/lib/yarp.jar
+	$(EXEC)
 
 read:
-	java -jar dist/lib/yarp.jar read /read
+	$(EXEC) read /read
 
 write:
-	java -jar dist/lib/yarp.jar write /write
+	$(EXEC) write /write
 
 autowrite:
-	ls -R | java -jar dist/lib/yarp.jar write /write /read
+	ls -R | $(EXEC) write /write /read
+
+mconnect:
+	$(EXEC) connect /mcast://write /read
 
 connect:
-	java -jar dist/lib/yarp.jar connect /write /read
+	$(EXEC) connect /write /read
 
 disconnect:
-	java -jar dist/lib/yarp.jar disconnect /write /read
+	$(EXEC) disconnect /write /read
 
 server:
-	java -jar dist/lib/yarp.jar server
+	$(EXEC) server
 
 
 

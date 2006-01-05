@@ -8,6 +8,7 @@ public class OutputPort {
 
     private ContentCreator creator;
     private Content content;
+    private BasicPort port;
 
     public void creator(ContentCreator creator) {
 	this.creator = creator;
@@ -20,6 +21,15 @@ public class OutputPort {
     }
 
     public void connect(String name) {
+	if (port==null) {
+	    System.out.println("Please call register() before connect()");
+	    System.exit(1);
+	}
+	if (creator==null) {
+	    System.out.println("Please call creator() before connect()");
+	    System.exit(1);
+	}
+
 	NameClient nc = NameClient.getNameClient();
 	
 	Address add = nc.query(name);
@@ -41,6 +51,7 @@ public class OutputPort {
     }
 
     public void write() {
+	content();
 	port.send(content);
 	content = null;
     }
@@ -53,5 +64,4 @@ public class OutputPort {
 	port.close();
     }
 
-    private BasicPort port;
 }

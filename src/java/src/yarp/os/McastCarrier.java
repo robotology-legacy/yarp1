@@ -90,7 +90,7 @@ class McastCarrier extends Carrier {
 
     public void respondExtraToHeader(Protocol proto) throws IOException {
 	System.out.println("respondExtraToHeader for " + getName());
-	proto.become(getName(),null);
+	proto.become(getName(),mcastAddress);
     }
 
     public void close() throws IOException {
