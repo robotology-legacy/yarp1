@@ -21,17 +21,11 @@ class Protocol implements BlockWriter, BlockReader {
     private ArrayList content = new ArrayList();
     private String carrier = "tcp";
     private Carrier delegate;
-    private List delegates = new LinkedList();
 
     public Protocol(ShiftStream shift) throws IOException {
 	this.shift = shift;
 	this.in = shift.getInputStream();
 	this.out = shift.getOutputStream();
-
-	// set up the possible sub-protocols (or "carriers") supported
-	delegates.add(new TcpCarrier());
-	delegates.add(new UdpCarrier());
-	delegates.add(new McastCarrier());
     }
 
     public void setSender(String name) {

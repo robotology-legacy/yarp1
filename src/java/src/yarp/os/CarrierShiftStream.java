@@ -5,12 +5,10 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-// moving away from using SocketShiftStream
 
 class CarrierShiftStream implements ShiftStream {
 
     Carrier current;
-
 
     CarrierShiftStream(Socket socket) {
 	try {
@@ -28,14 +26,6 @@ class CarrierShiftStream implements ShiftStream {
     };
 
     public static Carrier chooseCarrier(String name) {
-	/*
-	for (Iterator it = delegates.iterator(); it.hasNext(); ) {
-	    Carrier c = (Carrier)it.next();
-	    if (name.equals(c.getName())) {
-		return c;
-	    }
-	}
-	*/
 	for (int i=0; i<delegates.length; i++) {
 	    Carrier c = delegates[i];
 	    if (name.equals(c.getName())) {
@@ -46,24 +36,14 @@ class CarrierShiftStream implements ShiftStream {
     }
 
     public static Carrier chooseCarrier(int specifier) {
-	/*
-	for (Iterator it = delegates.iterator(); it.hasNext(); ) {
-	    Carrier c = (Carrier)it.next();
-	    if (specifier == c.getSpecifier()) {
-		return c;
-	    }
-	}
-	*/
 	for (int i=0; i<delegates.length; i++) {
 	    Carrier c = delegates[i];
 	    if (specifier == c.getSpecifier()) {
 		return c;
 	    }
 	}
-
 	return null;
     }
-
 
     public InputStream getInputStream() throws IOException {
 	return current.getInputStream();

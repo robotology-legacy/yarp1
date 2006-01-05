@@ -192,16 +192,6 @@ public class NameClient {
 	return null;
     }
 
-
-    public Address mcastQuery(String name) {
-	String q = getNamePart(name) + "-mcast";
-        Address address = probe("NAME_SERVER query " + q);
-	if (address==null) {
-	    return register(getNamePart(name),"mcast");
-	}
-	return address;
-    }
-
     public Address normalQuery(String name) {
 	return probe("NAME_SERVER query " + getNamePart(name));
     }

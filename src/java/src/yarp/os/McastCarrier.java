@@ -43,11 +43,21 @@ class McastCarrier extends Carrier {
 	proto.write(b);
     }
 
+    public Address mcastQuery(String name) {
+	NameClient nc = NameClient.getNameClient();
+	String q = nc.getNamePart(name) + "-mcast";
+        Address address = nc.probe("NAME_SERVER query " + q);
+	if (address==null) {
+	    return nc.register(nc.getNamePart(name),"mcast");
+	}
+	return address;
+    }
+
     public void prepareSend(Protocol proto) {
 	System.out.println("prepareSend for " + getName());
 	senderName = proto.getSender();
 	System.out.println("Getting mcast info");
-	mcastAddress = NameClient.getNameClient().mcastQuery(senderName);
+	mcastAddress = mcastQuery(senderName);
 	System.out.println("mcast address is " + mcastAddress);
     }
 
