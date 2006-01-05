@@ -6,6 +6,8 @@ import java.net.*;
 
 class UdpCarrier extends Carrier {
     DatagramSocket dgram;
+    InputStream is;
+    OutputStream os;
 
     public String getName() {
 	return "udp";
@@ -31,12 +33,35 @@ class UdpCarrier extends Carrier {
     }
 
     public void close() throws IOException {
+	if (dgram!=null) {
+	    dgram.close();
+	    dgram = null;
+	}
     }
 
     public void open(Address address, Carrier previous) throws IOException {
-	int remotePort = -1;
+	close();
+	Address local = previous.getLocalAddress();
+	Address remote = previous.getRemoteAddress();
+	dgram = new DatagramSocket(local.getPort());
 	if (address!=null) {
+	    remote = new Address(remote.getName(),address.getPort());
 	}
+	setAddress(local,remote);
+	is = new DatagramInputStream(dgram,512);
+	os = new BufferedOutputStream(new DatagramOutputStream(dgram,
+							       remote,
+							       512),
+				      512);
+    }
+
+
+    public InputStream getInputStream() throws IOException {
+	return is;
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+	return os;
     }
 }
 

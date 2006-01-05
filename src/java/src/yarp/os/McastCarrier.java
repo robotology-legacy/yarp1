@@ -9,6 +9,9 @@ import java.util.*;
 class McastCarrier extends Carrier {
     private String senderName;
     private Address mcastAddress;
+    MulticastSocket mcast;
+    InputStream is;
+    OutputStream os;
 
     public String getName() {
 	return "mcast";
@@ -81,9 +84,35 @@ class McastCarrier extends Carrier {
     }
 
     public void close() throws IOException {
+	if (mcast!=null) {
+	    mcast.close();
+	    mcast = null;
+	}
     }
 
-    public void open(Address address) throws IOException {
+    public void open(Address address, Carrier previous) throws IOException {
+	close();
+	Address local = previous.getLocalAddress();
+	Address remote = previous.getLocalAddress();
+	remote = address;
+	InetAddress group = InetAddress.getByName(address.getName());
+	mcast = new MulticastSocket(address.getPort());
+	mcast.joinGroup(group);
+	setAddress(local,remote);
+	is = new DatagramInputStream(mcast,512);
+	os = new BufferedOutputStream(new DatagramOutputStream(mcast,
+							       remote,
+							       512),
+				      512);
+    }
+
+
+    public InputStream getInputStream() throws IOException {
+	return is;
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+	return os;
     }
 
 }

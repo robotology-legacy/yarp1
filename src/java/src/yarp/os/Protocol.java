@@ -43,23 +43,11 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public Carrier chooseCarrier(String name) {
-	for (Iterator it = delegates.iterator(); it.hasNext(); ) {
-	    Carrier c = (Carrier)it.next();
-	    if (name.equals(c.getName())) {
-		return c;
-	    }
-	}
-	return null;
+	return CarrierShiftStream.chooseCarrier(name);
     }
 
     public Carrier chooseCarrier(int specifier) {
-	for (Iterator it = delegates.iterator(); it.hasNext(); ) {
-	    Carrier c = (Carrier)it.next();
-	    if (specifier == c.getSpecifier()) {
-		return c;
-	    }
-	}
-	return null;
+	return CarrierShiftStream.chooseCarrier(specifier);
     }
 
     public void become(String carrier, Address address) throws IOException {

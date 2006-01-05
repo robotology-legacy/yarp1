@@ -103,7 +103,9 @@ class BasicPort extends Thread {
 
     public Portlet newPortlet(Socket socket) {
 	return new BasicPortlet(this,
-				new SocketShiftStream(socket));
+				new CarrierShiftStream(socket));
+	//return new BasicPortlet(this,
+	//		new SocketShiftStream(socket));
     }
 
     public void send(Content content) {

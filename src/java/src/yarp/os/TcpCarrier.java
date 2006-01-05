@@ -53,5 +53,14 @@ class TcpCarrier extends Carrier {
 	remote = new Address(a2.getHostName(),socket.getPort());
     }
 
+
+    public InputStream getInputStream() throws IOException {
+	return socket.getInputStream();
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+	return socket.getOutputStream();
+    }
+
 }
 

@@ -4,16 +4,22 @@ package yarp.os;
 import java.io.*;
 
 abstract class Carrier {
+    Address local, remote;
 
     public abstract String getName();
     public abstract int getSpecifier();
 
     public Address getLocalAddress() {
-	return null;
+	return local;
     }
 
     public Address getRemoteAddress() {
-	return null;
+	return remote;
+    }
+
+    public void setAddress(Address local, Address remote) {
+	this.local = local;
+	this.remote = remote;
     }
 
     public void sendExtraHeader(Protocol proto) throws IOException {
@@ -54,4 +60,7 @@ abstract class Carrier {
 
     public void open(Address address, Carrier previous) throws IOException {
     }
+
+    public abstract InputStream getInputStream() throws IOException;
+    public abstract OutputStream getOutputStream() throws IOException;
 }

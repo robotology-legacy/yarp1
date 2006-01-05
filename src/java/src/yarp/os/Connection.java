@@ -36,7 +36,8 @@ public class Connection {
 	    
 	try {
 	    
-	    proto = new Protocol(new SocketShiftStream(socket));
+	    //proto = new Protocol(new SocketShiftStream(socket));
+	    proto = new Protocol(new CarrierShiftStream(socket));
 	    
 	    proto.setSender(fromKey);
 	    proto.setRawProtocol(NameClient.getProtocolPart(toKey));
