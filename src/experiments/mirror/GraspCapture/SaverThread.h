@@ -19,19 +19,23 @@ public:
 	int getSavedFramesN();
 
 	int useDataGlove;
+	int useGazeTracker;
 	int useTracker0;
 	int useTracker1;
 	int usePresSens;
 	int useCamera0;
 	int useCamera1;
+
+	CollectorNumericalData    *pData;
 	YARPImageOf<YarpPixelBGR> *pImg0;
 	YARPImageOf<YarpPixelBGR> *pImg1;
-	FILE *pFile;
-	MNumData *pData;
-	YARPInputPortOf<MNumData> *p_data_inport;
-	YARPInputPortOf<YARPGenericImage> *p_img0_inport;	
-	YARPInputPortOf<YARPGenericImage> *p_img1_inport;	
+
 	char prefix[255];
+	FILE *pFile;
+
+	YARPInputPortOf<CollectorNumericalData> *p_data_inport;
+	YARPInputPortOf<YARPGenericImage>       *p_img0_inport;
+	YARPInputPortOf<YARPGenericImage>       *p_img1_inport;
 
 private:
 	int nFrames;

@@ -54,7 +54,6 @@
 #define IDC_FINGER_12                   1022
 #define IDC_REFRESH                     1022
 #define IDC_SAVEPATH                    1023
-#define IDC_FREQUENCY                   1024
 #define IDC_PREFIX                      1025
 #define IDC_FINGER_13                   1026
 #define IDC_FINGER_14                   1027
@@ -70,6 +69,9 @@
 #define IDC_PRES_2                      1037
 #define IDC_PRES_3                      1038
 #define IDC_PRES_4                      1039
+#define IDC_PUP_DIA                     1040
+#define IDC_PUP_X                       1041
+#define IDC_PUP_Y                       1042
 
 // Next default values for new objects
 // 

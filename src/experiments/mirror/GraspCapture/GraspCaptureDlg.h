@@ -16,45 +16,50 @@
 #include "SaverThread.h"
 #include "OptionsDlg.h"
 
-
 //////////////////////////////////////
-struct GraspOptions
-{
+typedef struct GraspCaptureOptionsStruct {
+	GraspCaptureOptionsStruct() {
+		sizeX = sizeY = 0;
+		ACE_OS::strcpy(portName, "mirrorGrasp");
+		ACE_OS::strcpy(netName, "default");
+		ACE_OS::strcpy(savePath, "d:\\tmp");
+		ACE_OS::strcpy(prefix, "seq");
+		useCamera0 = useCamera1 = useTracker0 = useTracker1 =
+		useGazeTracker = useDataGlove = usePresSens = false;
+		refreshFrequency = 40;
+	};
 	int	sizeX;
 	int sizeY;
 	char portName[255];
 	char netName[255];
 	char savePath[255];
 	char prefix[255];
-	int useCamera0;
-	int useCamera1;
-	int useTracker0;
-	int useTracker1;
-	int useDataGlove;
-	int usePresSens;
+	bool useCamera0;
+	bool useCamera1;
+	bool useTracker0;
+	bool useTracker1;
+	bool useGazeTracker;
+	bool useDataGlove;
+	bool usePresSens;
 	int refreshFrequency;
-};
-
-typedef struct GraspOptions PgmOptions;
+} GraspCaptureOptions;
 
 /////////////////////////////////////////////////////////////////////////////
 // CGraspCaptureDlg dialog
 
 class CGraspCaptureDlg : public CDialog
 {
-// Construction
+
+	// Construction
 public:
-	void setupOptionsDialog();
-	void readFromOptionsDialog();
+
 	bool registerPorts(void);
-	void InitMembers();
-	void InitDlgMembers();
-	void prepareDataStructures(void);
-	void cleanDataStructures(void);
 	void unregisterPorts(void);
+	void cleanDataStructures(void);
+
 	CGraspCaptureDlg(CWnd* pParent = NULL);	// standard constructor
 
-// Dialog Data
+	// Dialog Data
 	//{{AFX_DATA(CGraspCaptureDlg)
 	enum { IDD = IDD_GRASPCAPTURE_DIALOG };
 	//}}AFX_DATA
@@ -65,7 +70,8 @@ public:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	//}}AFX_VIRTUAL
 
-// Implementation
+
+	// Implementation
 protected:
 	HICON m_hIcon;
 
@@ -89,34 +95,40 @@ protected:
 	afx_msg void OnDebugWnd();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
 private:
+
+	// dialogs
 	CLiveGloveDlg	GloveDialog;
 	CLiveTrackerDlg Tracker0Dialog;
 	CLiveTrackerDlg Tracker1Dialog;
 	CLiveCameraDlg	Camera0Dialog;
 	CLiveCameraDlg	Camera1Dialog;
-	CMessagesDlg MessagesDialog;
-	COptionsDlg OptionsDialog;
-	bool bLiveTracker0;
-	bool bLiveTracker1;
-	bool bLiveGlove;
-	bool bLiveCamera0;
-	bool bLiveCamera1;
-	bool bShowDebugWnd;
-	UINT m_timerID;
-	
-	MNumData data;
-	YARPImageOf<YarpPixelBGR> img0;
-	YARPImageOf<YarpPixelBGR> img1;
+	COptionsDlg     OptionsDialog;
+
+	// data coming from the collector
+	CollectorNumericalData _data;
+	CollectorImage         _img0;
+	CollectorImage         _img1;
+
+	// the streaming thread
 	CSaverThread saverThread;
 	int nSeq;
-	PgmOptions options;
-	YARPInputPortOf<MNumData> data_inport;
-	YARPInputPortOf<YARPGenericImage> img0_inport;
-	YARPInputPortOf<YARPGenericImage> img1_inport;
-	YARPInputPortOf<int> rep_inport;
-	YARPOutputPortOf<MCommands> cmd_outport;
-	CString logText;
+
+	// program options
+	GraspCaptureOptions _options;
+
+	// communication ports: data
+	YARPInputPortOf<CollectorNumericalData> _data_inport;
+	YARPInputPortOf<YARPGenericImage>       _img0_inport;
+	YARPInputPortOf<YARPGenericImage>       _img1_inport;
+	// communication ports: commands
+	YARPInputPortOf<int>  _cmd_inport;
+	YARPOutputPortOf<int> _cmd_outport;
+
+	// timer for live acquisition
+	UINT m_timerID;
+
 };
 
 //{{AFX_INSERT_LOCATION}}

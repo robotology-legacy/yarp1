@@ -26,7 +26,7 @@ void CSaverThread::Body(void)
 
 		nFrames++;
 
-		if ( useDataGlove || useTracker0 || useTracker1 || usePresSens ) {
+		if ( useDataGlove || useGazeTracker || useTracker0 || useTracker1 || usePresSens ) {
 			p_data_inport->Read();
 			*pData = p_data_inport->Content();
 			writeDataToFile(nFrames);
@@ -55,17 +55,18 @@ void CSaverThread::writeDataToFile(int i)
 {
 
 	fprintf(pFile,"%d",i);
-	fprintf(pFile,";%.3f;%.3f;%.3f;%.3f;%.3f;%.3f", pData->tracker0.x, pData->tracker0.y, pData->tracker0.z, pData->tracker0.azimuth, pData->tracker0.elevation, pData->tracker0.roll);
-	fprintf(pFile,";%.3f;%.3f;%.3f;%.3f;%.3f;%.3f", pData->tracker1.x, pData->tracker1.y, pData->tracker1.z, pData->tracker1.azimuth, pData->tracker1.elevation, pData->tracker1.roll);
-	fprintf(pFile,";%d;%d;%d", pData->glove.thumb[0], pData->glove.thumb[1], pData->glove.thumb[2]);
-	fprintf(pFile,";%d;%d;%d", pData->glove.index[0], pData->glove.index[1], pData->glove.index[2]);
-	fprintf(pFile,";%d;%d;%d", pData->glove.middle[0], pData->glove.middle[1], pData->glove.middle[2]);
-	fprintf(pFile,";%d;%d;%d", pData->glove.ring[0], pData->glove.ring[1], pData->glove.ring[2]);
-	fprintf(pFile,";%d;%d;%d", pData->glove.pinkie[0], pData->glove.pinkie[1], pData->glove.pinkie[2]);
-	fprintf(pFile,";%d;%d;%d;%d;%d", pData->glove.abduction[0], pData->glove.abduction[1], pData->glove.abduction[2], pData->glove.abduction[3], pData->glove.abduction[4]);
-	fprintf(pFile,";%d", pData->glove.palmArch);
-	fprintf(pFile,";%d;%d", pData->glove.wrist[0], pData->glove.wrist[1]);
-	fprintf(pFile,";%d;%d;%d;%d", pData->pressure.channelA, pData->pressure.channelB, pData->pressure.channelC, pData->pressure.channelD);
+	fprintf(pFile,";%.3f;%.3f;%.3f;%.3f;%.3f;%.3f", pData->tracker0Data.x, pData->tracker0Data.y, pData->tracker0Data.z, pData->tracker0Data.azimuth, pData->tracker0Data.elevation, pData->tracker0Data.roll);
+	fprintf(pFile,";%.3f;%.3f;%.3f;%.3f;%.3f;%.3f", pData->tracker1Data.x, pData->tracker1Data.y, pData->tracker1Data.z, pData->tracker1Data.azimuth, pData->tracker1Data.elevation, pData->tracker1Data.roll);
+	fprintf(pFile,";%d;%d;%d", pData->GTData.pupilDiam, pData->GTData.pupilX, pData->GTData.pupilY);
+	fprintf(pFile,";%d;%d;%d", pData->gloveData.thumb[0], pData->gloveData.thumb[1], pData->gloveData.thumb[2]);
+	fprintf(pFile,";%d;%d;%d", pData->gloveData.index[0], pData->gloveData.index[1], pData->gloveData.index[2]);
+	fprintf(pFile,";%d;%d;%d", pData->gloveData.middle[0], pData->gloveData.middle[1], pData->gloveData.middle[2]);
+	fprintf(pFile,";%d;%d;%d", pData->gloveData.ring[0], pData->gloveData.ring[1], pData->gloveData.ring[2]);
+	fprintf(pFile,";%d;%d;%d", pData->gloveData.pinkie[0], pData->gloveData.pinkie[1], pData->gloveData.pinkie[2]);
+	fprintf(pFile,";%d;%d;%d;%d;%d", pData->gloveData.abduction[0], pData->gloveData.abduction[1], pData->gloveData.abduction[2], pData->gloveData.abduction[3], pData->gloveData.abduction[4]);
+	fprintf(pFile,";%d", pData->gloveData.palmArch);
+	fprintf(pFile,";%d;%d", pData->gloveData.wrist[0], pData->gloveData.wrist[1]);
+	fprintf(pFile,";%d;%d;%d;%d", pData->pressureData.channelA, pData->pressureData.channelB, pData->pressureData.channelC, pData->pressureData.channelD);
 	fprintf(pFile, "\n");
 
 }

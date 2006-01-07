@@ -45,6 +45,9 @@ CLiveGloveDlg::CLiveGloveDlg(CWnd* pParent /*=NULL*/)
 	m_palm = 0;
 	m_wristABD = 0;
 	m_wristFLX = 0;
+	m_PupDiam = 0;
+	m_pupX = 0;
+	m_pupY = 0;
 	//}}AFX_DATA_INIT
 }
 
@@ -79,6 +82,9 @@ void CLiveGloveDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_PALM, m_palm);
 	DDX_Text(pDX, IDC_WR_ABD, m_wristABD);
 	DDX_Text(pDX, IDC_WR_FLX, m_wristFLX);
+	DDX_Text(pDX, IDC_PUP_DIA, m_PupDiam);
+	DDX_Text(pDX, IDC_PUP_X, m_pupX);
+	DDX_Text(pDX, IDC_PUP_Y, m_pupY);
 	//}}AFX_DATA_MAP
 }
 
@@ -92,8 +98,9 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CLiveGloveDlg message handlers
 
-void CLiveGloveDlg::UpdateState(DataGloveData newGlove_d, PresSensData newPres_d)
+void CLiveGloveDlg::UpdateState(DataGloveData newGlove_d, PresSensData newPres_d, GazeTrackerData newGT_d)
 {
+
 	m_Pres1 = newPres_d.channelA;
 	m_Pres2 = newPres_d.channelB;
 	m_Pres3 = newPres_d.channelC;
@@ -122,5 +129,10 @@ void CLiveGloveDlg::UpdateState(DataGloveData newGlove_d, PresSensData newPres_d
 	m_wristABD = newGlove_d.wrist[0];
 	m_wristFLX = newGlove_d.wrist[1];
 
+	m_PupDiam = newGT_d.pupilDiam;
+	m_pupX = newGT_d.pupilX;
+	m_pupY = newGT_d.pupilY;
+
 	UpdateData(FALSE);
+
 }

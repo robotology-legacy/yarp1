@@ -43,7 +43,6 @@ void CMessagesDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CMessagesDlg, CDialog)
 	//{{AFX_MSG_MAP(CMessagesDlg)
-	ON_EN_CHANGE(IDC_FREQUENCY, OnChangeFrequency)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -59,15 +58,4 @@ BOOL CMessagesDlg::OnInitDialog()
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
-}
-
-void CMessagesDlg::OnChangeFrequency() 
-{
-	// TODO: If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-	
-	// TODO: Add your control notification handler code here
-	
 }

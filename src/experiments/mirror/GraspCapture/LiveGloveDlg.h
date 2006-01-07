@@ -14,7 +14,7 @@ class CLiveGloveDlg : public CDialog
 {
 // Construction
 public:
-	void UpdateState(DataGloveData newGlove_d, PresSensData newPres_d);
+	void UpdateState(DataGloveData newGlove_d, PresSensData newPres_d, GazeTrackerData newGT_d);
 	CLiveGloveDlg(CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
@@ -46,6 +46,9 @@ public:
 	int		m_palm;
 	int		m_wristABD;
 	int		m_wristFLX;
+	int		m_PupDiam;
+	int		m_pupX;
+	int		m_pupY;
 	//}}AFX_DATA
 
 
