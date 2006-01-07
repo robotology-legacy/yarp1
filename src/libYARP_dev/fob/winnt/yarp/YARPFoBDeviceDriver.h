@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFoBDeviceDriver.h,v 1.1 2004-09-13 23:22:49 babybot Exp $
+/// $Id: YARPFoBDeviceDriver.h,v 1.2 2006-01-07 10:55:00 claudio72 Exp $
 ///
 ///
 
@@ -78,13 +78,15 @@
 
 struct FoBOpenParameters
 {
+	int nGroupID;
 	unsigned short comPort;
 	unsigned int baudRate;
 	unsigned int timeOut;
-// WE NEED ONLY A SINGLE BIRD
-// LATER: HANDLE MULTIPLE FOB
-	//bool standalone;
-	//int nDevices,
+	double measurementRate;
+	char transOpMode;
+	// TODO: manage flocks with multiple birds...
+	// bool standalone;
+	// int nDevices;
 };
 
 class YARPFoBDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPFoBDeviceDriver>

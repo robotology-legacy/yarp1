@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFoBDeviceDriver.cpp,v 1.1 2004-09-13 23:22:49 babybot Exp $
+/// $Id: YARPFoBDeviceDriver.cpp,v 1.2 2006-01-07 10:55:00 claudio72 Exp $
 ///
 ///
 
@@ -80,15 +80,15 @@ class FoBResources
 public:
 	FoBResources (void)
 	{
+		groupID = 0;
+		standalone = true;
+		nDevices = 1;
 		posScaling = 0;
 		xMapping = 1;
 		yMapping = -1;
 		zMapping = -1;
 		streamingStarted = false;
 		connected = false;
-		groupID = 1;
-		standalone = true;
-		nDevices = 1;
 	};
 
 	~FoBResources () 
@@ -98,13 +98,13 @@ public:
 
 	int groupID;
 	bool standalone;
-	bool streamingStarted;
-	bool connected;
-	double posScaling;
 	int nDevices;
+	double posScaling;
 	int xMapping;
 	int yMapping;
 	int zMapping;
+	bool streamingStarted;
+	bool connected;
 
 };
 
@@ -137,21 +137,41 @@ YARPFoBDeviceDriver::~YARPFoBDeviceDriver()
 ///
 int YARPFoBDeviceDriver::open (void *res)
 {
+
+	// gather system resources and parameters
 	FoBResources& d = RES(system_resources);
 	FoBOpenParameters *param = (FoBOpenParameters*) res;
 
-// Open the device Driver
+	d.groupID = param->nGroupID;
 
-	int ret;
-	ret = birdRS232WakeUp(d.groupID,d.standalone,d.nDevices,&(param->comPort),param->baudRate,param->timeOut,param->timeOut);
-	if (!ret)
+	// Open the device Driver
+	if ( ! birdRS232WakeUp(d.groupID, d.standalone, d.nDevices,
+						   &(param->comPort),param->baudRate,param->timeOut,param->timeOut) )
 		return YARP_FAIL;
 	
-	BIRDDEVICECONFIG birdConfig;
-	birdGetDeviceConfig(d.groupID,0,&birdConfig);
-	d.posScaling = birdConfig.wScaling;
+	// set measurement rate
+	BIRDSYSTEMCONFIG birdSysConfig;
+	if ( ! birdGetSystemConfig(d.groupID,&birdSysConfig) )
+		return YARP_FAIL;
+	birdSysConfig.dMeasurementRate = param->measurementRate;
+	if ( ! birdSetSystemConfig(d.groupID,&birdSysConfig) )
+		return YARP_FAIL;
+
+	// set transmitter operation mode
+	BYTE pbuffer[3] = { 'P', 18, param->transOpMode };
+	if ( ! birdRS232SendCommand(d.groupID, 0, (void*)pbuffer, 3) )
+		return YARP_FAIL;
+
+	// gather scaling; set connected flag to true
+	BIRDDEVICECONFIG birdDevConfig;
+	if ( ! birdGetDeviceConfig(d.groupID,0,&birdDevConfig) )
+		return YARP_FAIL;
+	d.posScaling = birdDevConfig.wScaling;
 	d.connected = true;
+
+	// ok, bail out
 	return YARP_OK;	
+
 }
 
 int YARPFoBDeviceDriver::close (void)
