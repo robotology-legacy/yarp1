@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.3 2006-01-04 09:59:18 claudio72 Exp $
+/// $Id: main.cpp,v 1.4 2006-01-07 10:58:56 claudio72 Exp $
 ///
 ///
 
@@ -88,13 +88,9 @@
 
 using namespace std;
 
-double elapsedTime;
-
 // ---------- procedures prototypes
-void sendHelp(void);
 bool connectSensors(void);
 void releaseSensors(void);
-void initData(void);
 void acquireAndSend(void);
 void setOptions(char*);
 void registerPorts(void);
@@ -103,66 +99,80 @@ int main (int, char **);
 
 // ---------- YARP communication ports
 
-YARPOutputPortOf<MNumData> _data_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+// data to be sent on ports
+YARPOutputPortOf<CollectorNumericalData> _data_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 YARPOutputPortOf<YARPGenericImage> _img0_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 YARPOutputPortOf<YARPGenericImage> _img1_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-YARPOutputPortOf<int> _rep_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-
-YARPInputPortOf<MCommands> _cmd_inport;
+// channel for commands. MUST BE NO_BUFFERS, otherwise will lose sequentiality
+YARPOutputPortOf<int> _cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+YARPInputPortOf<int>  _cmd_inport (YARPInputPort::NO_BUFFERS, YARP_TCP);
 
 // ---------- global types
 
-// what hardware do we possibly use? (defined onthefly in mirrorCollector.conf)
-struct CollectorHardware {
+// what hardware is possibly attached to this setup?
+typedef struct {
 	YARPGrabber			grabber0;
 	YARPGrabber			grabber1;
 	YARPMagneticTracker	tracker0;
 	YARPMagneticTracker	tracker1;
 	YARPDataGlove		glove;
 	YARPPresSens		press;
-};
+	YARPGazeTracker		gt;
+} CollectorHardware;
 
-// hardware options
-struct CollectorOptions {
+// options
+typedef struct {
+
 	YARPString portName;
 	YARPString netName;
-	int useDataGlove;
-	short gloveComPort;
-	int	gloveBaudRate;
-	int useTracker0;
-	short tracker0ComPort;
-	int	tracker0BaudRate;
-	double tracker0TransRate;
-	int	tracker0Timeout;
-	int useTracker1;
-	short tracker1ComPort;
-	int	tracker1BaudRate;
-	double tracker1TransRate;
-	int	tracker1Timeout;
-	int usePresSens;
-	short nPresSens;
-	int useCamera0;
-	int useCamera1;
+
+	bool useCamera0;
+	bool useCamera1;
 	int	sizeX;
 	int sizeY;
 	int yOffset;
-};
+
+	bool useTracker0;
+	short tracker0ComPort;
+	int	tracker0BaudRate;
+	double tracker0MeasRate;
+	int	tracker0TransOpMode;
+	int	tracker0Timeout;
+	bool useTracker1;
+	short tracker1ComPort;
+	int	tracker1BaudRate;
+	double tracker1MeasRate;
+	int	tracker1TransOpMode;
+	int	tracker1Timeout;
+
+	bool useDataGlove;
+	short gloveComPort;
+	int	gloveBaudRate;
+
+	bool usePresSens;
+	short nPresSens;
+
+	bool useGazeTracker;
+	short GTComPort;
+	int GTBaudRate;
+
+} CollectorOptions;
 
 // ---------- global variables
 
 // the hardware and its options
-struct CollectorOptions   _options;
-struct CollectorHardware  _hardware;
+CollectorHardware      _hardware;
+CollectorOptions       _options;
 // the data: (a) numerical (pressure, glove, tracker), (b) images from the cameras
-MNumData                  _data;
-YARPImageOf<YarpPixelBGR> _img0;
-YARPImageOf<YarpPixelBGR> _img1;
+CollectorNumericalData _data;
+CollectorImage         _img0;
+CollectorImage         _img1;
 
-// the default options file name (may be ovverridden by --file)
-char* confFileName="C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
+// the default options file name
+char* collectorConfFileName="C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
 
 // the streaming thread frequency
-const double streamingFrequency = 1.0/25.0;
+const double CollectorStreamingFrequency = 1.0/25.0;
 
 // ---------- streaming thread
 
@@ -189,7 +199,7 @@ public:
 		// stream until terminated
 
 		while ( !IsTerminated() ) {
-			YARPTime::DelayInSeconds(streamingFrequency);
+			YARPTime::DelayInSeconds(CollectorStreamingFrequency);
 			acquireAndSend();
 		}
 
@@ -214,65 +224,110 @@ public:
 
 // ---------- functions
 
-void sendHelp(void)
-{
-
-	// output a help message
-
-	cout << endl << "*** Mirror setup acquisition thread ***" << endl  << endl;
-	cout << "USAGE: collector.exe [parameters]" << endl;
-	cout << "parameters are:" << endl;
-	cout << "\t--help            this help screen." << endl;
-	cout << "\t--file filename   use option file <filename>." <<endl;
-
-}
-
 bool connectSensors(void)
 {
+
+	// try and connect all peripherals requested (look at _options)
+	// if all of them fail to initialise, return failure; otherwise, ok, but
+	// disable peripherals which did not initialise.
+
+	bool atLeastOneIsOK = false;
 
 	if (_options.useCamera0) {
 		// Framegrabber Initialization
 		cout << "Initialising camera #0... ";
-		_hardware.grabber0.initialize (0, _options.sizeX, _options.sizeY);
-		cout <<  "done. W=" << _options.sizeX << ", H=" << _options.sizeY <<endl;
+		if ( _hardware.grabber0.initialize (0, _options.sizeX, _options.sizeY) == YARP_OK ) {
+			cout <<  "done. W=" << _options.sizeX << ", H=" << _options.sizeY <<endl;
+			atLeastOneIsOK = true;
+		} else {
+			cout <<  "failed." <<endl;
+			_options.useCamera0 = false;
+		}
 	}
 
 	if (_options.useCamera1) {
 		// Framegrabber Initialization
 		cout << "Initialising camera #1... ";
-		_hardware.grabber1.initialize (1, _options.sizeX, _options.sizeY);
-		cout <<  "done. W=" << _options.sizeX << ", H=" << _options.sizeY <<endl;
+		if ( _hardware.grabber1.initialize (1, _options.sizeX, _options.sizeY) == YARP_OK ) {
+			cout <<  "done. W=" << _options.sizeX << ", H=" << _options.sizeY <<endl;
+			atLeastOneIsOK = true;
+		} else {
+			cout <<  "failed." <<endl;
+			_options.useCamera1 = false;
+		}
 	}
 
 	if (_options.useTracker0) {
 		// Tracker Initialization
 		cout << "Initialising tracker #0... ";
-		_hardware.tracker0.initialize (_options.tracker0ComPort, _options.tracker0BaudRate, _options.tracker0Timeout);
-		cout <<  "done. On COM" << _options.tracker0ComPort << ", " << _options.tracker0BaudRate << " baud." << endl;
+		YARPMirrorTrackerParams tracker0Params = {
+			0,
+			_options.tracker0ComPort, _options.tracker0BaudRate, _options.tracker0Timeout,
+			_options.tracker0MeasRate, _options.tracker0TransOpMode
+		};
+		if ( _hardware.tracker0.initialize (tracker0Params) == YARP_OK ) {
+			cout <<  "done. On COM" << _options.tracker0ComPort << ", " << _options.tracker0BaudRate << " baud." << endl;
+			atLeastOneIsOK = true;
+		} else {
+			cout <<  "failed." <<endl;
+			_options.useTracker0 = false;
+		}
 	}
 	
 	if (_options.useTracker1) {
 		// Tracker Initialization
 		cout << "Initialising tracker #1... ";
-		_hardware.tracker1.initialize (_options.tracker1ComPort, _options.tracker1BaudRate, _options.tracker1Timeout);
-		cout <<  "done. On COM" << _options.tracker1ComPort << ", " << _options.tracker1BaudRate << " baud." << endl;
+		YARPMirrorTrackerParams tracker1Params = {
+			1,
+			_options.tracker1ComPort, _options.tracker1BaudRate, _options.tracker1Timeout,
+			_options.tracker1MeasRate, _options.tracker1TransOpMode
+		};
+		if ( _hardware.tracker1.initialize (tracker1Params) == YARP_OK ) {
+			cout <<  "done. On COM" << _options.tracker1ComPort << ", " << _options.tracker1BaudRate << " baud." << endl;
+			atLeastOneIsOK = true;
+		} else {
+			cout <<  "failed." <<endl;
+			_options.useTracker1 = false;
+		}
 	}
 	
 	if (_options.useDataGlove) {
 		// DataGlove Initialization
 		cout << "Initialising DataGlove... ";
-		_hardware.glove.initialize (_options.gloveComPort, _options.gloveBaudRate);
-		cout <<  "done. On COM" << _options.gloveComPort << ", " << _options.gloveBaudRate << " baud." << endl;
+		if ( _hardware.glove.initialize (_options.gloveComPort, _options.gloveBaudRate) == YARP_OK ) {
+			cout <<  "done. On COM" << _options.gloveComPort << ", " << _options.gloveBaudRate << " baud." << endl;
+			atLeastOneIsOK = true;
+		} else {
+			cout <<  "failed." <<endl;
+			_options.useDataGlove = false;
+		}
+	}
+	
+	if (_options.useGazeTracker) {
+		// GT Initialization
+		cout << "Initialising GazeTracker... ";
+		if ( _hardware.gt.initialize (_options.GTComPort, _options.GTBaudRate) == YARP_OK ) {
+			cout <<  "done. On COM" << _options.GTComPort << ", " << _options.GTBaudRate << " baud." << endl;
+			atLeastOneIsOK = true;
+		} else {
+			cout <<  "failed." <<endl;
+			_options.useGazeTracker = false;
+		}
 	}
 	
 	if (_options.usePresSens) {
 		// PresSensors Initialization
 		cout << "Initialising pressure sensors... ";
-		_hardware.press.initialize (_options.nPresSens);
-		cout <<  "done. " << _options.nPresSens << " sensor(s) connected." << endl;
+		if ( _hardware.press.initialize (_options.nPresSens) == YARP_OK ) {
+			cout <<  "done. " << _options.nPresSens << " sensor(s) connected." << endl;
+			atLeastOneIsOK = true;
+		} else {
+			cout <<  "failed." <<endl;
+			_options.usePresSens = false;
+		}
 	}
 
-	return true;
+	return atLeastOneIsOK;
 
 }
 
@@ -314,68 +369,19 @@ void releaseSensors(void)
 		cout << "done." << endl;
 	}
 	
+	if (_options.useGazeTracker) {
+		// GT
+		cout << "Releasing GazeTracker... ";
+		_hardware.gt.uninitialize ();
+		cout << "done." << endl;
+	}
+	
 	if (_options.usePresSens) {
 		// Pressure Sensors
 		cout << "Releasing pressure sensors... ";
 		_hardware.press.uninitialize ();
 		cout << "done." << endl;
 	}
-
-}
-
-void initData(void)
-{
-
-	// image buffers
-	_img0.Resize (_options.sizeX, _options.sizeY);
-	_img0.Zero();
-	_img1.Resize (_options.sizeX, _options.sizeY);
-	_img1.Zero();
-
-	// trackers
-	_data.tracker0.x = 0.0;
-	_data.tracker0.y = 0.0;
-	_data.tracker0.z = 0.0;
-	_data.tracker0.azimuth = 0.0;
-	_data.tracker0.elevation = 0.0;
-	_data.tracker0.roll = 0.0;
-	_data.tracker1.x = 0.0;
-	_data.tracker1.y = 0.0;
-	_data.tracker1.z = 0.0;
-	_data.tracker1.azimuth = 0.0;
-	_data.tracker1.elevation = 0.0;
-	_data.tracker1.roll = 0.0;
-
-	// DataGlove
-	_data.glove.thumb[0] = 0;	// inner
-	_data.glove.thumb[1] = 0;	// middle
-	_data.glove.thumb[2] = 0;	// outer
-	_data.glove.index[0] = 0;	// inner
-	_data.glove.index[1] = 0;	// middle
-	_data.glove.index[2] = 0;	// outer
-	_data.glove.middle[0] = 0;	// inner
-	_data.glove.middle[1] = 0;	// middle
-	_data.glove.middle[2] = 0;	// outer
-	_data.glove.ring[0] = 0;	// inner
-	_data.glove.ring[1] = 0;	// middle
-	_data.glove.ring[2] = 0;	// outer
-	_data.glove.pinkie[0] = 0;	// inner
-	_data.glove.pinkie[1] = 0;	// middle
-	_data.glove.pinkie[2] = 0;	// outer
-	_data.glove.abduction[0] = 0; // thumb-index
-	_data.glove.abduction[1] = 0; // index-middle
-	_data.glove.abduction[2] = 0; // middle-ring
-	_data.glove.abduction[3] = 0; // ring-pinkie
-	_data.glove.abduction[4] = 0; // palm
-	_data.glove.palmArch = 0;
-	_data.glove.wrist[0] = 0; // pitch
-	_data.glove.wrist[1] = 0; // yaw
-
-	// pressure sensors
-	_data.pressure.channelA = 0;
-	_data.pressure.channelB = 0;
-	_data.pressure.channelC = 0;
-	_data.pressure.channelD = 0;
 
 }
 
@@ -402,21 +408,26 @@ void acquireAndSend(void)
 
 	if (_options.useTracker0) {
 		// Read Tracker
-		_hardware.tracker0.getData(&_data.tracker0);
+		_hardware.tracker0.getData(&_data.tracker0Data);
 	}
 
 	if (_options.useTracker1) {
-		_hardware.tracker1.getData(&_data.tracker1);
+		_hardware.tracker1.getData(&_data.tracker1Data);
+	}
+
+	if (_options.useGazeTracker) {
+		// Read GT
+		_hardware.gt.getData(&_data.GTData);
 	}
 
 	if (_options.useDataGlove) {
 		// Read DataGlove
-		_hardware.glove.getData(&_data.glove);
+		_hardware.glove.getData(&_data.gloveData);
 	}
 
 	if (_options.usePresSens) {
 		// Read Pressure Sensors
-		_hardware.press.getData(&_data.pressure);
+		_hardware.press.getData(&_data.pressureData);
 	}
 
 	// send data
@@ -431,7 +442,8 @@ void acquireAndSend(void)
 		_img1_outport.Write();
 	}
 
-	if ( _options.useDataGlove || _options.usePresSens || _options.useTracker0 || _options.useTracker1 ) {
+	if ( _options.useGazeTracker || _options.useDataGlove ||
+		 _options.usePresSens || _options.useTracker0 || _options.useTracker1 ) {
 		_data_outport.Content() = _data;
 		_data_outport.Write();
 	}
@@ -450,12 +462,14 @@ void setOptions(char* fileName)
 	_options.useTracker0		= 1;
 	_options.tracker0ComPort	= 2;
 	_options.tracker0BaudRate	= 115200;
-	_options.tracker0TransRate	= 103.3;
+	_options.tracker0MeasRate	= 103.3;
+	_options.tracker0TransOpMode= 2;
 	_options.tracker0Timeout	= 160;
 	_options.useTracker1		= 0;
 	_options.tracker1ComPort	= 4;
 	_options.tracker1BaudRate	= 115200;
-	_options.tracker1TransRate	= 103.3;
+	_options.tracker1MeasRate	= 103.3;
+	_options.tracker1TransOpMode= 2;
 	_options.tracker1Timeout	= 160;
 	_options.usePresSens		= 0;
 	_options.nPresSens			= 2;
@@ -464,10 +478,14 @@ void setOptions(char* fileName)
 	_options.sizeX				= 384;
 	_options.sizeY				= 272;
 	_options.yOffset			= 0;
+	_options.useGazeTracker     = 0;
+	_options.GTComPort          = 1;
+	_options.GTBaudRate         = 57600;
 
 	// now read specific options from conf file
 	YARPConfigFile optFile;
 	char buf[255];
+	int yesNo;
 	// network specs
 	optFile.setName(fileName);
 	if ( optFile.getString("[NETWORK]", "PortName", buf) == YARP_OK) {
@@ -477,26 +495,32 @@ void setOptions(char* fileName)
 		_options.netName = buf;
 	}
 	// glove
-	optFile.get("[HARDWARE]", "UseDataGlove", &_options.useDataGlove);
+	optFile.get("[HARDWARE]", "UseDataGlove", &yesNo); _options.useDataGlove = (yesNo ? true : false);
 	optFile.get("[HARDWARE]", "GloveComPort", &_options.gloveComPort);
 	optFile.get("[HARDWARE]", "GloveBaudRate", &_options.gloveBaudRate);
+	// GT
+	optFile.get("[HARDWARE]", "UseGazeTracker", &yesNo); _options.useGazeTracker = (yesNo ? true : false);
+	optFile.get("[HARDWARE]", "GTComPort", &_options.GTComPort);
+	optFile.get("[HARDWARE]", "GTBaudRate", &_options.GTBaudRate);
 	// trackers
-	optFile.get("[HARDWARE]", "UseTracker0", &_options.useTracker0);
+	optFile.get("[HARDWARE]", "UseTracker0", &yesNo); _options.useTracker0 = (yesNo ? true : false);
 	optFile.get("[HARDWARE]", "Tracker0ComPort", &_options.tracker0ComPort);
 	optFile.get("[HARDWARE]", "Tracker0BaudRate", &_options.tracker0BaudRate);
-	optFile.get("[HARDWARE]", "Tracker0TransRate", &_options.tracker0TransRate);
+	optFile.get("[HARDWARE]", "Tracker0MeasRate", &_options.tracker0MeasRate);
+	optFile.get("[HARDWARE]", "Tracker0TransOpMode", &_options.tracker0TransOpMode);
 	optFile.get("[HARDWARE]", "Tracker0Timeout", &_options.tracker0Timeout);
-	optFile.get("[HARDWARE]", "UseTracker1", &_options.useTracker1);
+	optFile.get("[HARDWARE]", "UseTracker1", &yesNo); _options.useTracker1 = (yesNo ? true : false);
 	optFile.get("[HARDWARE]", "Tracker1ComPort", &_options.tracker1ComPort);
 	optFile.get("[HARDWARE]", "Tracker1BaudRate", &_options.tracker1BaudRate);
-	optFile.get("[HARDWARE]", "Tracker1TransRate", &_options.tracker1TransRate);
+	optFile.get("[HARDWARE]", "Tracker1MeasRate", &_options.tracker1MeasRate);
+	optFile.get("[HARDWARE]", "Tracker1TransOpMode", &_options.tracker1TransOpMode);
 	optFile.get("[HARDWARE]", "Tracker1Timeout", &_options.tracker1Timeout);
 	// pressure sensors
-	optFile.get("[HARDWARE]", "UsePresSens", &_options.usePresSens);
+	optFile.get("[HARDWARE]", "UsePresSens", &yesNo); _options.usePresSens = (yesNo ? true : false);
 	optFile.get("[HARDWARE]", "NPresSens", &_options.nPresSens);
 	// cameras
-	optFile.get("[HARDWARE]", "UseCamera0", &_options.useCamera0);
-	optFile.get("[HARDWARE]", "UseCamera1", &_options.useCamera1);
+	optFile.get("[HARDWARE]", "UseCamera0", &yesNo); _options.useCamera0 = (yesNo ? true : false);
+	optFile.get("[HARDWARE]", "UseCamera1", &yesNo); _options.useCamera1 = (yesNo ? true : false);
 	optFile.get("[HARDWARE]", "ImageSizeX", &_options.sizeX);
 	optFile.get("[HARDWARE]", "ImageSizeY", &_options.sizeY);
 	optFile.get("[HARDWARE]", "YOffSet", &_options.yOffset);
@@ -560,7 +584,7 @@ void registerPorts(void)
 	// register response port
 	cout << "Registering response port... " << endl;
 	ACE_OS::sprintf(buf, "/%s/o:int", _options.portName.c_str());
-	if ( _rep_outport.Register(buf,_options.netName.c_str()) != YARP_OK)	{
+	if ( _cmd_outport.Register(buf,_options.netName.c_str()) != YARP_OK)	{
 		cout << endl << "FATAL: could not register " << buf << endl;
 		exit(YARP_FAIL);
 	} else {
@@ -573,7 +597,7 @@ void unregisterPorts(void)
 {
 
 	_cmd_inport.Unregister();
-	_rep_outport.Unregister();
+	_cmd_outport.Unregister();
 	_data_outport.Unregister();
 	_img0_outport.Unregister();
 	_img1_outport.Unregister();
@@ -585,160 +609,143 @@ void unregisterPorts(void)
 int main (int argc, char *argv[])
 {
 
-	char buf[256];
+	setOptions(collectorConfFileName);
 
-	if ( YARPParseParameters::parse(argc, argv, "-help" ) ) {
-		sendHelp();
-		exit(YARP_OK);
-	}
-
-	if ( YARPParseParameters::parse(argc, argv, "-file", buf) ) {
-		setOptions(buf);
-	} else {
-		setOptions(confFileName);
-	}
+	YARPScheduler::setHighResScheduling();
+	_img0.Resize (_options.sizeX, _options.sizeY);
+	_img1.Resize (_options.sizeX, _options.sizeY);
 
 	registerPorts();
 
-	cout << "Waiting for Commands.." << endl;
+	cout << "Now waiting for commands." << endl;
 
-	// ------------ main command parser loop
+	// ------------ main command parsing loop
 
-	MCommands command;
 	bool bQuit = false;
 	bool bStreaming = false;
 	bool bConnected = false;
 	streamingThread stream;
-	int ret;
 		
-	YARPScheduler::setHighResScheduling();
-
-	initData();
-
 	do {
 
-		//Read Commands for port
 		_cmd_inport.Read ();
-		command = _cmd_inport.Content();
 
-		// what command was that?
+		switch( _cmd_inport.Content() ) {
 
-		switch(command) {
-
-		case CCMDConnect:
+		case CCmdConnect:
 			// connect peripherals
 			if (!bConnected) {
-				ret = connectSensors();		
-				if (!ret) {
-					_rep_outport.Content() = CMD_FAILED;
-					_rep_outport.Write();
-					cout << endl << "FATAL ERROR: unable to connect to peripherals." << endl;
-					exit(YARP_FAIL);
-				} else {
+				if ( connectSensors() ) {
 					bConnected = true;
-					ret = 0;
-					if ( _options.useDataGlove) {
-						ret |= HW_DATAGLOVE;
+					// signal that connection was successful
+					_cmd_outport.Content() = CCmdSucceeded;
+					_cmd_outport.Write();
+					// send what hardware we use
+					int tmpOptions = 0;
+					if ( _options.useDataGlove ) {
+						tmpOptions |= HardwareUseDataGlove;
+					}
+					if ( _options.useGazeTracker ) {
+						tmpOptions |= HardwareUseGT;
 					}
 					if ( _options.useTracker0 ) {
-						ret |= HW_TRACKER0;
+						tmpOptions |= HardwareUseTracker0;
 					}
 					if ( _options.useTracker1 ) {
-						ret |= HW_TRACKER1;
+						tmpOptions |= HardwareUseTracker1;
 					}
-					if ( _options.usePresSens) {
-						ret |= HW_PRESSENS;
+					if ( _options.usePresSens ) {
+						tmpOptions |= HardwareUsePresSens;
 					}
-					if ( _options.useCamera0) {
-						ret |= HW_CAMERA0;
+					if ( _options.useCamera0 ) {
+						tmpOptions |= HardwareUseCamera0;
 					}
-					if ( _options.useCamera1) {
-						ret |= HW_CAMERA1;
+					if ( _options.useCamera1 ) {
+						tmpOptions |= HardwareUseCamera1;
 					}
-					_rep_outport.Content() = ret;
-					_rep_outport.Write();
+					_cmd_outport.Content() = tmpOptions;
+					_cmd_outport.Write(true);
+					// store and send size of the images
 					if ( _options.useCamera0 || _options.useCamera1 ) {
-						_rep_outport.Content() = _options.sizeX;
-						_rep_outport.Write();
-						_rep_outport.Content() = _options.sizeY;
-						_rep_outport.Write();
+						_cmd_outport.Content() = _options.sizeX;
+						_cmd_outport.Write(true);
+						_cmd_outport.Content() = _options.sizeY;
+						_cmd_outport.Write(true);
 					}
+				} else {
+					_cmd_outport.Content() = CCmdFailed;
+					_cmd_outport.Write();
 				}
 			} else {
-				_rep_outport.Content() = CMD_FAILED;
-				_rep_outport.Write();
+				_cmd_outport.Content() = CCmdFailed;
+				_cmd_outport.Write();
 			}
 			break;
 
-		case CCMDDisconnect:
+		case CCmdDisconnect:
 			// Disconnect peripherals
 			if (bConnected) {
 				releaseSensors();
-				_rep_outport.Content() = CMD_ACK;
-				_rep_outport.Write();
+				_cmd_outport.Content() = CCmdSucceeded;
+				_cmd_outport.Write();
 				bConnected = false;
 			} else {
-				_rep_outport.Content() = CMD_FAILED;
-				_rep_outport.Write();
+				_cmd_outport.Content() = CCmdFailed;
+				_cmd_outport.Write();
 			}
 			break;
 
-		case CCMDQuit:
-			// quit (need to disconnect first...)
-			if (!bConnected) {
+		case CCmdQuit:
+			// quit (need to disconnect first)
+			if (bConnected) {
+				_cmd_outport.Content() = CCmdFailed;
+				_cmd_outport.Write();
+			} else {
 				bConnected = false;
 				bQuit = true;
-				_rep_outport.Content() = CMD_ACK;
-				_rep_outport.Write();
-			} else {
-				_rep_outport.Content() = CMD_FAILED;
-				_rep_outport.Write();
+				_cmd_outport.Content() = CCmdSucceeded;
+				_cmd_outport.Write();
 			}
 			break;
 
-		case CCMDGetData:
+		case CCmdGetData:
 			// gather data off peripherals (need to be connected, obviously)
 			if (bConnected) {
-				_rep_outport.Content() = CMD_ACK;
-				_rep_outport.Write();
+				_cmd_outport.Content() = CCmdSucceeded;
+				_cmd_outport.Write();
 				// acquire data and send
 				acquireAndSend();
-   // DEBUG: is the frequency respected?
-   double currentTime = YARPTime::GetTimeAsSeconds();
-   cout << currentTime-elapsedTime << "\r";
-   elapsedTime = currentTime;
-   // DEBUG
 			} else {
-				_rep_outport.Content() = CMD_FAILED;
-				_rep_outport.Write();
+				_cmd_outport.Content() = CCmdFailed;
+				_cmd_outport.Write();
 			}
 			break;
 
-		case CCMDStartStreaming:
+		case CCmdStartStreaming:
 			// start streaming thread
 			if ( !bStreaming && bConnected ) {
 				stream.Begin();
 				bStreaming = true;
 				cout << "Streaming thread is running." << endl;
-				_rep_outport.Content() = CMD_ACK;
-				_rep_outport.Write();
+				_cmd_outport.Content() = CCmdSucceeded;
+				_cmd_outport.Write();
 			} else {
-				_rep_outport.Content() = CMD_FAILED;
-				_rep_outport.Write();
+				_cmd_outport.Content() = CCmdFailed;
+				_cmd_outport.Write();
 			}
 			break;
 
-		case CCMDStopStreaming:
+		case CCmdStopStreaming:
 			// start streaming thread
 			if ( bStreaming ) {
 				stream.End();
 				bStreaming = false;
 				cout << "Streaming thread ended." << endl;
-				_rep_outport.Content() = CMD_ACK;
-				_rep_outport.Write();
+				_cmd_outport.Content() = CCmdSucceeded;
+				_cmd_outport.Write();
 			} else {
-				_rep_outport.Content() = CMD_FAILED;
-				_rep_outport.Write();
+				_cmd_outport.Content() = CCmdFailed;
+				_cmd_outport.Write();
 			}
 			break;
 

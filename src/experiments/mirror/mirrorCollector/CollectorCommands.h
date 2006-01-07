@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: CollectorCommands.h,v 1.5 2006-01-04 09:56:07 claudio72 Exp $
+/// $Id: CollectorCommands.h,v 1.6 2006-01-07 10:58:56 claudio72 Exp $
 ///
 ///
 
@@ -70,43 +70,45 @@
 
 #include<yarp/begin_pack_for_net.h>
 
-enum CollectorCmd {
-	CCMDGetData = 1,
-	CCMDStartStreaming = 2,
-	CCMDStopStreaming  = 3,
-	CCMDGetLed         = 4,
-	CCMDGetSwitch      = 5,
-	CCMDResetGlove     = 6,
-	CCMDSetLed         = 7,
-	CCMDConnect        = 8,
-	CCMDDisconnect     = 9,
-	CCMDQuit           = 10
+// ---------------------- REMOVE ME AS SOON AS POSSIBLE !!!
+struct GazeTrackerData { int pupilDiam, pupilX, pupilY; };
+class YARPGazeTracker {
+ public:
+	int initialize (unsigned short comPort,	unsigned int baudRate) { return YARP_OK; }
+	int uninitialize (void) { return YARP_OK; }
+	int getData(GazeTrackerData* data) { data->pupilDiam++; data->pupilX++; data->pupilY++; return YARP_OK; }
 };
+// ---------------------- REMOVE ME AS SOON AS POSSIBLE !!!
+
+typedef enum {
+	CCmdFailed		   = 0,
+	CCmdSucceeded	   = 1,
+	CCmdGetData        = 2,
+	CCmdStartStreaming = 3,
+	CCmdStopStreaming  = 4,
+	CCmdConnect        = 5,
+	CCmdDisconnect     = 6,
+	CCmdQuit           = 7
+} CollectorCommand;
+
+typedef struct {
+	TrackerData			tracker0Data;
+	TrackerData			tracker1Data;
+	GazeTrackerData		GTData;
+	DataGloveData		gloveData;
+	PresSensData		pressureData;
+} CollectorNumericalData;
+
+typedef YARPImageOf<YarpPixelBGR> CollectorImage;
+
+const int HardwareUseDataGlove = 0x01;
+const int HardwareUseTracker0  = 0x02;
+const int HardwareUseTracker1  = 0x04;
+const int HardwareUsePresSens  = 0x08;
+const int HardwareUseCamera0   = 0x10;
+const int HardwareUseCamera1   = 0x20;
+const int HardwareUseGT        = 0x40;
 
 #include<yarp/end_pack_for_net.h>
-
-typedef enum CollectorCmd MCommands;
-
-#include<yarp/begin_pack_for_net.h>
-
-struct CollectorData {
-	TrackerData			tracker0;
-	TrackerData			tracker1;
-	DataGloveData		glove;
-	PresSensData		pressure;
-};
-
-typedef struct CollectorData MNumData;
-
-#include<yarp/end_pack_for_net.h>
-
-#define CMD_ACK		1
-#define CMD_FAILED	0
-#define HW_DATAGLOVE	0x01
-#define HW_TRACKER0		0x02
-#define HW_TRACKER1		0x04
-#define HW_PRESSENS		0x08
-#define HW_CAMERA0		0x10
-#define HW_CAMERA1		0x20
 
 #endif
