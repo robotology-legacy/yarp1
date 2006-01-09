@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPDragonflyGrabberOnJamesAdapter.h,v 1.1 2005-11-23 15:23:50 babybot Exp $
+/// $Id: YARPDragonflyGrabberOnJamesAdapter.h,v 1.2 2006-01-09 10:59:28 babybot Exp $
 ///
 ///
 
@@ -74,5 +74,5 @@ public:
 	}
 };
 
-
 #endif
+

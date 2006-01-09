@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPJamesGrabber.h,v 1.1 2005-11-23 15:23:50 babybot Exp $
+/// $Id: YARPJamesGrabber.h,v 1.2 2006-01-09 11:00:18 babybot Exp $
 ///
 ///
 
@@ -42,3 +42,4 @@ typedef YARPGenericGrabber<YARPDragonflyGrabberOnJamesAdapter, YARPJamesGrabberP
 //typedef YARPGenericGrabber<YARPNullGrabberOnJamesAdapter, YARPJamesGrabberParams> YARPJamesGrabber;
 
 #endif
+
