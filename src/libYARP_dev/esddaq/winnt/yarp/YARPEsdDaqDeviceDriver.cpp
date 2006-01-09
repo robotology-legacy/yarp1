@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.1 2006-01-09 09:07:28 gmetta Exp $
+/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.2 2006-01-09 22:57:14 babybot Exp $
 ///
 ///
 
@@ -227,8 +227,9 @@ int EsdDaqResources::addMessage (int msg_id)
 	CMSG x;
 	memset (&x, 0, sizeof(CMSG));
 
-	x.id = _my_address << 4;
-	x.id = _remote_address & 0x0f;
+	x.id = 0x200;
+	x.id |= (_my_address << 4);
+	x.id |= (_remote_address & 0x0f);
 
 	x.len = 1;
 	x.data[0] = msg_id;
