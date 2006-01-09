@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.9 2005-12-18 23:40:57 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.10 2006-01-09 09:07:26 gmetta Exp $
 ///
 ///
 
@@ -49,7 +49,7 @@
 
 #define BUF_SIZE 2047
 
-typedef int (*PV) (char *fmt, ...);
+typedef int (*PV) (const char *fmt, ...);
 
 ///
 ///
@@ -656,7 +656,7 @@ int YARPEsdCanDeviceDriver::setDebugPrintFunction (void *cmd)
 {
 	_mutex.Wait();
 	EsdCanResources& r = RES(system_resources);
-	_p = (int (*) (char *fmt, ...))cmd;
+	_p = (int (*) (const char *fmt, ...))cmd;
 	_mutex.Post();
 
 	return YARP_OK;
@@ -1488,10 +1488,13 @@ int YARPEsdCanDeviceDriver::_readWord16Array (int msg, double *out)
 	}
 
 	if (r._writeMessages < 1)
+
 	{
+
 		_mutex.Post();
 		return YARP_FAIL;
 	}
+
 
 	_writerequested = true;
 	_noreply = false;
@@ -1669,10 +1672,13 @@ int YARPEsdCanDeviceDriver::_readDWordArray (int msg, double *out)
 	}
 
 	if (r._writeMessages < 1)
+
 	{
+
 		_mutex.Post();
 		return YARP_FAIL;
 	}
+
 
 	_writerequested = true;
 	_noreply = false;

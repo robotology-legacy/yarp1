@@ -162,6 +162,8 @@ print "\nDone!\n";
 
 #
 # specific install for unixes.
+# LATER: it will include duplicated .o files if encountered during the library
+# creation procedure.
 #
 sub install_libs_generic
 {
@@ -180,8 +182,9 @@ sub install_libs_generic
 				foreach my $file (glob "*.a *.lib")
 				{
 					# unpack libraries.
-	        			open MK, "ar -x $file"."|";
-					while (<MK>)
+	        	    open MK, "ar -x $file"."|";
+					
+                    while (<MK>)
 					{
 						print;
 					}
@@ -189,8 +192,9 @@ sub install_libs_generic
 					foreach my $filex (glob "*.o")
 					{ 
 					    $libraries = "$libraries ./$device/$os/dd_orig/lib/$filex";
-					}
-				    }
+					}    
+                }
+
 				# look for dynamic shared lib
 				foreach my $file (glob "*.so")
 				{
@@ -211,7 +215,7 @@ sub install_libs_generic
 	{
 		print "\nNow building libraries...\n";
 		open MK, "ar -rv ./lib/$os/libYARP_dev.a $libraries"."|";
-	        while (<MK>)
+	    while (<MK>)
 		{
 			print;
 		}
@@ -244,7 +248,12 @@ sub install_libs_winnt
 			foreach my $file (glob "./$device/$os/dd_orig/lib/*.lib")
 			{
 				$file =~ s#/#\\#g;
-				$libraries = "$libraries $file";
+                $file =~ /\\(\w+.lib)$/;
+
+                if (!($libraries =~ /$1/))
+                {
+				    $libraries = "$libraries $file";
+                }
 			}
 
 			foreach my $file (glob "./$device/$os/dd_orig/bin/*.dll")

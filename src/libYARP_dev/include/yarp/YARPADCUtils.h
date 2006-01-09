@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPADCUtils.h,v 1.1 2004-07-13 13:21:07 babybot Exp $
+/// $Id: YARPADCUtils.h,v 1.2 2006-01-09 09:07:28 gmetta Exp $
 ///
 ///
 
@@ -42,7 +42,8 @@ enum ADCCmd
 	CMDAIVReadScan = 2,
 	CMDAIReadScan = 3,
 	CMDAIReadChannel = 4,
-	ADCCmds = 5, // required! tells the total number of commands
+	CMDAISetDebugPrintFunction = 5,
+	ADCCmds = 6, // required! tells the total number of commands
 };
 
 #endif

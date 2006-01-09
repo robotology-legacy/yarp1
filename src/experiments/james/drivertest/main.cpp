@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2005-11-23 16:10:54 babybot Exp $
+/// $Id: main.cpp,v 1.2 2006-01-09 09:08:19 gmetta Exp $
 ///
 ///
 
@@ -46,11 +46,12 @@
 #include <ace/log_msg.h>
 
 #include <yarp/YARPControlBoardUtils.h>
-#include <yarp/YARPValueCanDeviceDriver.h>
 #include <yarp/YARPEsdCanDeviceDriver.h>
 #include <yarp/YARPConfigFile.h>
 #include <yarp/YARPRobotMath.h>
 
+#include <yarp/YARPADCUtils.h>
+#include <yarp/YARPEsdDaqDeviceDriver.h>
 
 
 static FILE *	__file_handle = NULL;
@@ -107,13 +108,19 @@ static int flush_log (void)
 
 static int init_null (void) { return YARP_OK; }
 static int close_null (void) { return YARP_OK; }
+static int flush_null (void) { ACE_OS::fflush (stdout); return YARP_OK; }
 
-#define INITLOG init_log
-#define CLOSELOG close_log
-#define PRINTLOG xfprintf
-#define FLUSHLOG flush_log
+//#define INITLOG init_log
+//#define CLOSELOG close_log
+//#define PRINTLOG xfprintf
+//#define FLUSHLOG flush_log
 
-#define MAX_ARM_JNTS 12
+#define INITLOG init_null
+#define CLOSELOG close_null
+#define PRINTLOG (ACE_OS::printf)
+#define FLUSHLOG flush_null
+
+#define MAX_ARM_JNTS 15
 #define MAX_HEAD_JNTS 8
 
 
@@ -129,9 +136,9 @@ const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c,
 													   0x80, 0x80, 0x80, 0x80,
 													   0x80, 0x80, 0x80, 0x80 };
 
-YARPValueCanDeviceDriver head;
-YARPValueCanDeviceDriver arm;
-
+YARPEsdCanDeviceDriver head;
+YARPEsdCanDeviceDriver arm;
+YARPEsdDaqDeviceDriver touch;
 
 ///
 ///
@@ -140,9 +147,10 @@ int main (int argc, char *argv[])
 {
 	bool _headinitialized = false;
 	bool _arminitialized = false;
-	bool _headrunning = false;
-	bool _armrunning = false;
-	
+//	bool _headrunning = false;
+//	bool _armrunning = false;
+	bool _touchinitialized = false;
+
 	double *_headjointstore = NULL;
 	double *_armjointstore = NULL;
 
@@ -152,16 +160,17 @@ int main (int argc, char *argv[])
 	FLUSHLOG();
 
 	/// head (bus 1).
-	ValueCanOpenParameters op_par;
-	memcpy (op_par._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
-	op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
-	op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
-	op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
+	EsdCanOpenParameters op_par1;
+	memcpy (op_par1._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+	op_par1._my_address = CANBUS_MY_ADDRESS;					/// my address.
+	op_par1._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
+	op_par1._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
+	op_par1._networkN = 0;									/// first can controller, attached to the head.
 
-	op_par._njoints = MAX_HEAD_JNTS;
-	op_par._p = NULL;
+	op_par1._njoints = MAX_HEAD_JNTS;
+	op_par1._p = NULL;
 
-	if (head.open ((void *)&op_par) < 0)
+	if (head.open ((void *)&op_par1) < 0)
 	{
 		head.close();
 		ACE_OS::printf ("head driver open failed\n");
@@ -175,13 +184,14 @@ int main (int argc, char *argv[])
 	}
 	
 	/// arm (bus 2).
-	ValueCanOpenParameters op_par2;
+	EsdCanOpenParameters op_par2;
 	op_par2._njoints = MAX_ARM_JNTS;
 	op_par2._p = PRINTLOG;
 	memcpy (op_par2._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 	op_par2._my_address = CANBUS_MY_ADDRESS;					/// my address.
 	op_par2._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
-	op_par2._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
+	op_par2._timeout = CANBUS_TIMEOUT;							/// approx this value times the polling interval [ms].
+	op_par2._networkN = 1;										/// second can controller, attached to the arm/hand.
 
 	if (arm.open ((void *)&op_par2) < 0)
 	{
@@ -196,10 +206,28 @@ int main (int argc, char *argv[])
 		_arminitialized = true;
 	}
 
+	EsdDaqOpenParameters op_par3;
+	op_par3._networkN = 1;						// same address of the arm/hand.
+	op_par3._remote_address = 5;				// address of the daq card.
+	op_par3._my_address = CANBUS_MY_ADDRESS;	// this is the second instance to the same driver (we can even use a different ID).
+	op_par3._polling_interval = CANBUS_POLLING_INTERVAL;
+	op_par3._timeout = CANBUS_TIMEOUT;			
+
+	if (touch.open ((void *)&op_par3) < 0)
+	{
+		touch.close();
+		ACE_OS::printf ("daq driver open failed\n");
+	}
+	else
+	{
+		ACE_OS::printf ("daq driver opened correctly (hopefully)\n");
+		_touchinitialized = true;
+	}
+
 	//head.close();
 	//_headinitialized = false;
 
-	if (!_headinitialized && !_arminitialized)
+	if (!_headinitialized && !_arminitialized && !_touchinitialized)
 	{
 		ACE_OS::printf ("No device found\n");
 		return -1;
@@ -253,6 +281,18 @@ int main (int argc, char *argv[])
 			ACE_OS::printf ("\n");
 		}
 
+		// to start with read channel 0.
+		if (_touchinitialized)
+		{
+			int channel = 0;
+			int bck = channel;
+			ret = touch.IOCtl (MPH_READ_CHANNEL_0, (void *)&channel);
+			if (ret != YARP_OK)
+				ACE_OS::printf ("troubles reading from daq card\n");
+			else
+				ACE_OS::printf ("read channel %d value = %d\n", bck, channel);
+		}
+
 		Sleep (150);
 		FLUSHLOG();
 	}
@@ -268,6 +308,11 @@ int main (int argc, char *argv[])
 	{
 		arm.close();
 		if (_armjointstore != NULL) delete[] _armjointstore;
+	}
+
+	if (_touchinitialized)
+	{
+		touch.close();
 	}
 
 	CLOSELOG();

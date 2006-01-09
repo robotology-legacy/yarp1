@@ -308,7 +308,7 @@ SOURCE=..\joypres\winnt\yarp\YARPJoyPresDeviceDriver.h
 # End Group
 # Begin Group "esdcan"
 
-# PROP Default_Filter ""
+# PROP Default_Filter "h;cpp"
 # Begin Source File
 
 SOURCE=..\esdcan\winnt\yarp\YARPEsdCanDeviceDriver.cpp
@@ -316,6 +316,18 @@ SOURCE=..\esdcan\winnt\yarp\YARPEsdCanDeviceDriver.cpp
 # Begin Source File
 
 SOURCE=..\esdcan\winnt\yarp\YARPEsdCanDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "esddaq"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\esddaq\winnt\yarp\YARPEsdDaqDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\esddaq\winnt\yarp\YARPEsdDaqDeviceDriver.h
 # End Source File
 # End Group
 # End Target

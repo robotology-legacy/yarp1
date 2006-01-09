@@ -27,12 +27,12 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.6 2006-01-09 09:07:26 gmetta Exp $
+/// $Id: YARPEsdDaqDeviceDriver.h,v 1.1 2006-01-09 09:07:28 gmetta Exp $
 ///
 ///
 
-#ifndef __YARPEsdCanDeviceDriverh__
-#define __YARPEsdCanDeviceDriverh__
+#ifndef __YARPEsdDaqDeviceDriverh__
+#define __YARPEsdDaqDeviceDriverh__
 
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPDeviceDriver.h>
@@ -41,32 +41,32 @@
 #include <yarp/YARPTime.h>
 
 /**
- * \file YARPEsdCanDeviceDriver.h 
- * class for interfacing with the ESD can device driver.
+ * \file YARPEsdDaqDeviceDriver.h 
+ * class for interfacing with the pic-daq board through the ESD can device.
  */
 
-/**
- * Max number of addressable cards in this implementation.
- */
-const int ESD_MAX_CARDS		= 16;
-
+enum 
+{
+	MPH_READ_CHANNEL_0 = 0x00,
+	/* + channel no. */
+	MPH_LAST_MESSAGE = 0xff,
+};
 
 /**
  * The open parameter class containing the initialization values.
  */
-struct EsdCanOpenParameters
+struct EsdDaqOpenParameters
 {
 	/**
 	 * Constructor.
 	 */
-	EsdCanOpenParameters (void)
+	EsdDaqOpenParameters (void)
 	{
 		_networkN = 0;
-		memset (_destinations, 0, sizeof(unsigned char) * ESD_MAX_CARDS);
+		_remote_address = 0;
 		_my_address = 0;
 		_polling_interval = 10;
 		_timeout = 20;
-		_njoints = 0;
 		_p = NULL;
 
 		_txQueueSize = 2047;					/** max len of the buffer for the esd driver */
@@ -81,8 +81,7 @@ struct EsdCanOpenParameters
 	long int _rxTimeout;
 
 	int _networkN;								/** network number */
-	int _njoints;								/** number of joints (cards * 2) */
-	unsigned char _destinations[ESD_MAX_CARDS];		/** destination addresses */
+	unsigned char _remote_address;				/** destination address */
 	unsigned char _my_address;					/** my address */
 	int _polling_interval;						/** thread polling interval [ms] */
 	int _timeout;								/** number of cycles before timing out */
@@ -91,32 +90,32 @@ struct EsdCanOpenParameters
 
 
 /**
- * The esd can device driver.
+ * The esd can device driver for polling the DAQ card.
  * Contains a thread that takes care of polling the can bus for incoming messages.
  * The class is derived from the standard YARP device driver base class.
  */
-class YARPEsdCanDeviceDriver : 
-	public YARPDeviceDriver<YARPNullSemaphore, YARPEsdCanDeviceDriver>, public YARPThread
+class YARPEsdDaqDeviceDriver : 
+	public YARPDeviceDriver<YARPNullSemaphore, YARPEsdDaqDeviceDriver>, public YARPThread
 {
 private:
-	YARPEsdCanDeviceDriver(const YARPEsdCanDeviceDriver&);
-	void operator=(const YARPEsdCanDeviceDriver&);
+	YARPEsdDaqDeviceDriver(const YARPEsdDaqDeviceDriver&);
+	void operator=(const YARPEsdDaqDeviceDriver&);
 
 public:
 	/**
 	 * Constructor.
 	 */
-	YARPEsdCanDeviceDriver();
+	YARPEsdDaqDeviceDriver();
 
 	/**
 	 * Destructor.
 	 */
-	virtual ~YARPEsdCanDeviceDriver();
+	virtual ~YARPEsdDaqDeviceDriver();
 
 	/**
 	 * Opens the device driver.
 	 * @param d is the pointer to the parameter structure which is expected to be
-	 * of type EsdCanOpenParameters.
+	 * of type EsdDaqOpenParameters.
 	 * @return YARP_OK on success.
 	 */ 
 	virtual int open(void *d);
@@ -128,51 +127,10 @@ public:
 	virtual int close(void);
 
 protected:
-	int getPosition(void *cmd);
-	int getPositions(void *cmd);
-	int getRefPosition (void *cmd);
-	int getRefPositions(void *cmd);
-	int setPosition(void *cmd);
-	int setPositions(void *cmd);
-	int getError(void *cmd);
-	int setSpeed(void *cmd);
-	int setSpeeds(void *cmd);
-	int getSpeeds(void *cmd);
-	int getRefSpeeds(void *cmd);
-	int setAcceleration(void *cmd);
-	int setAccelerations(void *cmd);
-	int getRefAccelerations(void *cmd);
-	int setOffset(void *cmd);
-	int setOffsets(void *cmd);
-	int setPid(void *cmd);
-	int getPid(void *cmd);
-	int setIntegratorLimit(void *cmd);
-	int setIntegratorLimits(void *cmd);
-	int definePosition(void *cmd);
-	int definePositions(void *cmd);
-	int enableAmp(void *cmd);
-	int disableAmp(void *cmd);
-	int controllerIdle(void *cmd);
-	int controllerRun(void *cmd);
-	int velocityMove(void *cmd);
-	int setCommand(void *cmd);
-	int setCommands(void *cmd);
-	int getTorque(void *cmd);
-	int getTorques(void *cmd);
-	int readBootMemory(void *cmd);
-	int writeBootMemory(void *cmd);
-	int setSwPositiveLimit(void *cmd);
-	int setSwNegativeLimit(void *cmd);
-	int getSwPositiveLimit(void *cmd);
-	int getSwNegativeLimit(void *cmd);
-	int setTorqueLimit (void *cmd);
-	int setTorqueLimits (void *cmd);
-	int getTorqueLimit (void *cmd);
-	int getTorqueLimits (void *cmd);
-	int getErrorStatus (void *cmd);
-	int checkMotionDone (void *cmd);
-
-	int setDebugMessageFilter (void *cmd);
+	int scanSetup (void *cmd);
+	int aivReadScan (void *cmd);
+	int aiReadScan (void *cmd);
+	int aiReadChannel (void *cmd);
 	int setDebugPrintFunction (void *cmd);
 
 protected:
@@ -188,35 +146,17 @@ protected:
 	 */
 	int (*_p) (const char *fmt, ...);
 
-	/**
-	 * filter for recurrent messages.
-	 */
-	int _filter;
-
-	/**
-	 * helper function to check whether the enabled flag is on or off.
-	 * @param axis is the axis to check for.
-	 * @return true if the axis is enabled and processing of the message
-	 * can in fact continue.
-	 */
-	inline bool ENABLED (int axis);
-
 	virtual void Body(void);
 
 	/// helper functions
 	int _writeWord16 (int msg, int axis, short s);
 	int _writeWord16Ex (int msg, int axis, short s1, short s2);
 	int _readWord16 (int msg, int axis, short& value);
-	int _readWord16Array (int msg, double *out);
+	int _readWord16Array (int msg, short *out);
 	int _readDWord (int msg, int axis, int& value);
-	int _readDWordArray (int msg, double *out);
+	int _readDWordArray (int msg, int *out);
 	int _writeDWord (int msg, int axis, int value);
 	int _writeNone (int msg, int axis);
-
-	/// internal stuff.
-	double *_ref_speeds;
-	double *_ref_accs;
-	double *_ref_positions;
 
 	enum { MAX_SHORT = 32767, MIN_SHORT = -32768, MAX_INT = 0x7fffffff, MIN_INT = 0x80000000 };
 	enum { ESD_CAN_SKIP_ADDR = 0x80 };
