@@ -350,6 +350,34 @@ SOURCE=..\obrero\yarp\YARPObreroGrabber.h
 SOURCE=..\obrero\yarp\YARPSCIOnObreroArmAdapter.h
 # End Source File
 # End Group
+# Begin Group "james"
+
+# PROP Default_Filter "cpp;h"
+# Begin Source File
+
+SOURCE=..\james\yarp\YARPCanOnJamesArmAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\james\yarp\YARPCanOnJamesHeadAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\james\yarp\YARPDragonflyGrabberOnJamesAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\james\yarp\YARPJamesArm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\james\yarp\YARPJamesGrabber.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\james\yarp\YARPJamesHead.h
+# End Source File
+# End Group
 # End Group
 # End Target
 # End Project

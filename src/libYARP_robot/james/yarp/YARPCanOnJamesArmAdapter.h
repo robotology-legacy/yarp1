@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesArmAdapter.h,v 1.1 2005-11-23 15:23:50 babybot Exp $
+/// $Id: YARPCanOnJamesArmAdapter.h,v 1.2 2006-01-09 10:51:17 gmetta Exp $
 ///
 ///
 
@@ -415,7 +415,7 @@ public:
 	double			*_limitsMin;
 	unsigned char	*_destinations;
 
-	int (* _p) (char *fmt, ...);
+	int (* _p) (const char *fmt, ...);
 	int _message_filter;
 };
 
@@ -481,6 +481,7 @@ public:
 			YARPEsdCanDeviceDriver::close();
 			return YARP_FAIL;
 		}
+
 
 		// filters out certain messages.
 		int msg = _parameters->_message_filter;
