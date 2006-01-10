@@ -6,7 +6,7 @@ It listens on the CAN bus. On message arrival:
 	len = 1,
    class = 2,
    src = <any>,
-   dest = _board_ID 
+   dest = _board_ID
 	dati: <channel>
 
 reads the channel <channel> and sends the value back on the CAN bus:
@@ -135,14 +135,14 @@ void main()
    setup_timer_1(T1_DISABLED);
    setup_timer_2(T2_DISABLED,0,1);
    setup_timer_3(T3_DISABLED|T3_DIV_BY_1);
-   
+
    _board_ID = read_eeprom(0);
 
    can_init();
    adc_init();
 
    enable_interrupts(GLOBAL);
-   
+
    while(TRUE)
    {
       if ( can_kbhit() )   // wait for a message on the CAN bus
@@ -151,7 +151,7 @@ void main()
          {
             // reads message
             // handles message for the analog channel
-            if ((rx_len == 1) && (in_data[0] < MAX_CHANNELS))
+            if ((rx_len == 1) && ((rx_id & 0x700) == 0x200) && (in_data[0] < MAX_CHANNELS))
             {
   		 	      tmp = read_analog(in_data[0]);
                out_data[2] = (int8)(tmp);
@@ -161,15 +161,15 @@ void main()
 
                tx_id = ID_BASE;
                tx_id |= ((_board_ID) << 4);
-               tx_id |= ((rx_id & 0x00f0) >> 4); 
+               tx_id |= ((rx_id & 0x00f0) >> 4);
 
-               out_data[0] = in_data[0];               
+               out_data[0] = in_data[0];
 			      tx_len = 3;
 
                // replies to message.
-               can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr); 
+               can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);
             }
-            
+
             // handle CAN bus messages for the downloader
             else
             if ((rx_len == 1) &&  (((rx_id>>8) & 0x7)==7))
@@ -187,14 +187,14 @@ void main()
                       // sends message
                		can_putd(tx_id, out_data, 4,tx_pri,tx_ext,tx_rtr);
                		break;
-                     
+
                	case 0x04:
                		out_data[0] = 4;
                		out_data[1] = 1;
                      // sends message
                		can_putd(tx_id, out_data, 2,tx_pri,tx_ext,tx_rtr);
                		break;
-                     
+
                	case 0:
 		            #ASM
          		      GOTO 0x3A00    // jumps to CAN downloader code
