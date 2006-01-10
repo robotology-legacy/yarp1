@@ -411,7 +411,16 @@ The commands to the actual hardware are sent though this methods, the {\em cmd} 
 
 \end{itemize}
 
-The goal of the implementation of the device driver in YARP is then that of shielding completely any call to the original libraries through this class (the {\em YARPPicoloDeviceDriver}). With the same spirit, the original device header files are not included from the YARP driver header file so that, once compiled, YARP no longer requires anything from the original manufacturer library. To help shielding the implementation any type required by the driver is allocated through a {\em void *} variable called {\em system\_resources}. Typically this is a pointer to a class allocated during the device initialization containing all the device variables. In our example, the {\em YARPPicoloDeviceDriver} looks liek this:
+The goal of the implementation of the device driver in YARP is then that of
+shielding completely any call to the original libraries through this class (the
+{\em YARPPicoloDeviceDriver}). With the same spirit, the original device header
+files are not included from the YARP driver header file so that, once compiled,
+YARP no longer requires anything from the original manufacturer library. To help
+shielding the implementation any type required by the driver is allocated
+through a {\em void *} variable called {\em system\_resources}. Typically this
+is a pointer to a class allocated during the device initialization containing
+all the device variables. In our example, the {\em YARPPicoloDeviceDriver} looks
+like this:
 
 \begin{verbatim}
     class YARPPicoloDeviceDriver : 
