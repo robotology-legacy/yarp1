@@ -437,7 +437,7 @@ void userError(int Error)
 	comWaitEnd();
 	delayTx();
 // jmp to program.......
-    reset_cpu();
+   reset_cpu();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -594,8 +594,13 @@ void comMainLoop(void)
 #org 0x3A00, 0x3CBE
 void main(void)
 {
-	_board_ID = read_eeprom(0);  // read ID board
+   // set can bus address here.
+   write_eeprom (0, 5);
+   write_eeprom (1, 1);
+   write_eeprom (2, 2);
    
+	_board_ID = read_eeprom(0);  // read ID board
+
 	can_init();					     // CAN init
 
    CAN_messID = (CMD_DONWL << 8) | (_board_ID << 4) | DEST;  // build ID tx CAN messagge
