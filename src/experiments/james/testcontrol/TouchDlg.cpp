@@ -23,6 +23,8 @@ CTouchDlg::CTouchDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CTouchDlg)
 	//}}AFX_DATA_INIT
 	ACE_OS::memset (m_c, 0, sizeof(short) * MAX_CHANNELS);
+	m_mask = 0;
+	m_count = 0;
 }
 
 
@@ -73,6 +75,19 @@ void CTouchDlg::DisableInterface()
 	}
 }
 
+void CTouchDlg::SetMask (int newmask)
+{
+	m_mask = newmask;
+	m_count = 0;
+	int i;
+	for (i = 0; i < MAX_CHANNELS; i++)
+	{
+		if (newmask & 0x1)
+			m_count++;
+		newmask >>= 1;
+	}
+}
+
 // MUST be called when the device driver is properly initialized.
 void CTouchDlg::UpdateInterface()
 {
@@ -86,6 +101,17 @@ void CTouchDlg::UpdateInterface()
 	}
 	else
 	{
+		int val = m_mask;
+		int i, j;
+		for (i = 0, j = 0; i < MAX_CHANNELS; i++)
+		{
+			if (m_mask & 0x1)
+			{
+				m_c[MAX_CHANNELS-1-i] = m_c[m_count-1-j];
+				j++;
+			}
+		}
+
 		UpdateData (FALSE);
 	}
 }
