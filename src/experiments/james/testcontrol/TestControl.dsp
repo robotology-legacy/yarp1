@@ -120,6 +120,10 @@ SOURCE=.\TestControl.rc
 
 SOURCE=.\TestControlDlg.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\TouchDlg.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -155,6 +159,10 @@ SOURCE=.\TestControl.h
 # Begin Source File
 
 SOURCE=.\TestControlDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TouchDlg.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
