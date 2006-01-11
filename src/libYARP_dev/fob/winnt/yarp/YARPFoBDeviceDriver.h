@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFoBDeviceDriver.h,v 1.2 2006-01-07 10:55:00 claudio72 Exp $
+/// $Id: YARPFoBDeviceDriver.h,v 1.3 2006-01-11 10:39:58 claudio72 Exp $
 ///
 ///
 
@@ -76,8 +76,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct FoBOpenParameters
-{
+struct FoBOpenParameters {
+	FoBOpenParameters() {
+		nGroupID = 0;
+		comPort = 1;
+		baudRate = 115200;
+		timeOut = 160;
+		measurementRate = 103.3;
+		transOpMode = 2;
+	};
 	int nGroupID;
 	unsigned short comPort;
 	unsigned int baudRate;
