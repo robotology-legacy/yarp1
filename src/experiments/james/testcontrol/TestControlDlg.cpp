@@ -19,6 +19,7 @@ static char THIS_FILE[] = __FILE__;
 //
 YARPHead head;
 YARPArm arm;
+YARPEsdDaqDeviceDriver touch;
 
 
 //
@@ -49,7 +50,7 @@ static BOOL close_console (void)
 }
 
 /// Use wprintf like TRACE0, TRACE1, ... (The arguments are the same as printf)
-static int xprintf_arm(char *fmt, ...)
+static int xprintf_arm(const char *fmt, ...)
 {
 	if (__console_handle == INVALID_HANDLE_VALUE)
 		return -1;
@@ -70,7 +71,7 @@ static int xprintf_arm(char *fmt, ...)
 }
 
 /// Use wprintf like TRACE0, TRACE1, ... (The arguments are the same as printf)
-static int xprintf_head(char *fmt, ...)
+static int xprintf_head(const char *fmt, ...)
 {
 	if (__console_handle == INVALID_HANDLE_VALUE)
 		return -1;
@@ -85,6 +86,27 @@ static int xprintf_head(char *fmt, ...)
 
 	DWORD cCharsWritten;
 	WriteConsole(__console_handle, "HEAD: ", 6, &cCharsWritten, NULL);
+	WriteConsole(__console_handle, s, ACE_OS::strlen(s), &cCharsWritten, NULL);
+
+	return(cnt);
+}
+
+///
+static int xprintf_touch(const char *fmt, ...)
+{
+	if (__console_handle == INVALID_HANDLE_VALUE)
+		return -1;
+
+	char s[300];
+	va_list argptr;
+	int cnt;
+
+	va_start(argptr, fmt);
+	cnt = vsprintf(s, fmt, argptr);
+	va_end(argptr);
+
+	DWORD cCharsWritten;
+	WriteConsole(__console_handle, "TOUCH: ", 6, &cCharsWritten, NULL);
 	WriteConsole(__console_handle, s, ACE_OS::strlen(s), &cCharsWritten, NULL);
 
 	return(cnt);

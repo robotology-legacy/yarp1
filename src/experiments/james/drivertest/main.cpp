@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.2 2006-01-09 09:08:19 gmetta Exp $
+/// $Id: main.cpp,v 1.3 2006-01-11 12:39:18 gmetta Exp $
 ///
 ///
 
@@ -153,6 +153,8 @@ int main (int argc, char *argv[])
 
 	double *_headjointstore = NULL;
 	double *_armjointstore = NULL;
+	short *_analogstore = NULL;
+	int _maxanalogchannels = 0;
 
 	/// init robot.
 	INITLOG ();
@@ -165,7 +167,7 @@ int main (int argc, char *argv[])
 	op_par1._my_address = CANBUS_MY_ADDRESS;					/// my address.
 	op_par1._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
 	op_par1._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
-	op_par1._networkN = 0;									/// first can controller, attached to the head.
+	op_par1._networkN = 1;									/// first can controller, attached to the head.
 
 	op_par1._njoints = MAX_HEAD_JNTS;
 	op_par1._p = NULL;
@@ -191,7 +193,7 @@ int main (int argc, char *argv[])
 	op_par2._my_address = CANBUS_MY_ADDRESS;					/// my address.
 	op_par2._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
 	op_par2._timeout = CANBUS_TIMEOUT;							/// approx this value times the polling interval [ms].
-	op_par2._networkN = 1;										/// second can controller, attached to the arm/hand.
+	op_par2._networkN = 2;										/// second can controller, attached to the arm/hand.
 
 	if (arm.open ((void *)&op_par2) < 0)
 	{
@@ -207,11 +209,12 @@ int main (int argc, char *argv[])
 	}
 
 	EsdDaqOpenParameters op_par3;
-	op_par3._networkN = 1;						// same address of the arm/hand.
+	op_par3._networkN = 0;						// same address of the arm/hand.
 	op_par3._remote_address = 5;				// address of the daq card.
 	op_par3._my_address = CANBUS_MY_ADDRESS;	// this is the second instance to the same driver (we can even use a different ID).
 	op_par3._polling_interval = CANBUS_POLLING_INTERVAL;
 	op_par3._timeout = CANBUS_TIMEOUT;			
+	op_par3._scanSequence = 0xff000000;			// first two channels.
 
 	if (touch.open ((void *)&op_par3) < 0)
 	{
@@ -222,6 +225,14 @@ int main (int argc, char *argv[])
 	{
 		ACE_OS::printf ("daq driver opened correctly (hopefully)\n");
 		_touchinitialized = true;
+
+		int ret = touch.IOCtl (CMDGetMaxChannels, (void *)&_maxanalogchannels);
+		if (_maxanalogchannels)
+		{
+			_analogstore = new short[_maxanalogchannels];
+			ACE_ASSERT (_analogstore != NULL);
+			memset (_analogstore, 0, sizeof(short) * _maxanalogchannels);
+		}
 	}
 
 	//head.close();
@@ -284,13 +295,22 @@ int main (int argc, char *argv[])
 		// to start with read channel 0.
 		if (_touchinitialized)
 		{
-			int channel = 0;
-			int bck = channel;
-			ret = touch.IOCtl (MPH_READ_CHANNEL_0, (void *)&channel);
+			ret = touch.IOCtl (CMDAIReadScan, (void *)_analogstore);
+
 			if (ret != YARP_OK)
 				ACE_OS::printf ("troubles reading from daq card\n");
 			else
-				ACE_OS::printf ("read channel %d value = %d\n", bck, channel);
+			{
+				int i;
+				ACE_OS::printf ("read channels : ");
+				for (i = 0; i < _maxanalogchannels; i++)
+					ACE_OS::printf ("%d ", _analogstore[i]);
+				ACE_OS::printf ("\n");
+			}
+
+			//int channel = 0;
+			//int bck = channel;
+			//ret = touch.IOCtl (CMDAIReadChannel, (void *)&channel);
 		}
 
 		Sleep (150);
@@ -312,6 +332,7 @@ int main (int argc, char *argv[])
 
 	if (_touchinitialized)
 	{
+		if (_analogstore != NULL) delete[] _analogstore;
 		touch.close();
 	}
 
