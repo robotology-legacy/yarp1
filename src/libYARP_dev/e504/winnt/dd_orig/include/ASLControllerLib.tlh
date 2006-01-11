@@ -1,0 +1,559 @@
+// Created by Microsoft (R) C/C++ Compiler Version 12.00.8447.0 (e1b2c881).
+//
+// ASLControllerLib.tlh
+//
+// C++ source equivalent of Win32 type library ../dd_orig/lib/ASLControllerLib.tlb
+// compiler-generated file created 01/08/06 at 19:05:54 - DO NOT EDIT!
+
+#pragma once
+#pragma pack(push, 8)
+
+#include <comdef.h>
+
+//
+// Forward references and typedefs
+//
+
+struct __declspec(uuid("07b28ecd-2e03-4605-a40a-7af5cacee7d1"))
+/* dual interface */ IASLControllerPort;
+struct /* coclass */ ASLControllerPort;
+struct ASLController_Statistics;
+struct ASLController_Results;
+struct ASLController_EyeheadGeneralParameters;
+struct ASLController_EyeheadSceneParameters;
+struct ASLController_EyeheadSceneEquationValues;
+struct ASLEyeheadSubjectInfo;
+
+//
+// Smart pointer typedef declarations
+//
+
+_COM_SMARTPTR_TYPEDEF(IASLControllerPort, __uuidof(IASLControllerPort));
+
+//
+// Type library items
+//
+
+struct __declspec(uuid("07b28ecd-2e03-4605-a40a-7af5cacee7d1"))
+IASLControllerPort : IDispatch
+{
+    //
+    // Raw methods provided by interface
+    //
+
+    virtual HRESULT __stdcall Connect (
+        long comPort,
+        long baudRate ) = 0;
+    virtual HRESULT __stdcall Disconnect ( ) = 0;
+    virtual HRESULT __stdcall get_statistics (
+        struct ASLController_Statistics * stats ) = 0;
+    virtual HRESULT __stdcall set_video_input_source (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_video_input_source (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_eye_video_source (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_eye_video_source (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_scene_video_source (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_scene_video_source (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_helmet_illuminator_level (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_helmet_illuminator_level (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_pupil_threshold (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_pupil_threshold (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_discrimination_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_corneal_reflection_threshold (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_corneal_reflection_threshold (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_pupil_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_pupil_mode (
+        long * value ) = 0;
+    virtual HRESULT __stdcall reset_system ( ) = 0;
+    virtual HRESULT __stdcall get_operational_status (
+        unsigned short * status ) = 0;
+    virtual HRESULT __stdcall get_system_info (
+        BSTR * strVersion,
+        long * lVersion,
+        long * pattern_recognition_algorithm ) = 0;
+    virtual HRESULT __stdcall set_system_type (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_system_type (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_camera_power_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_camera_power_mode (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_illuminator_power_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_illuminator_power_mode (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_eye_camera_update_rate (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_eye_camera_update_rate (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_scene_camera_update_rate (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_scene_camera_update_rate (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_tracking_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_ptc_exposure_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_ptc_shutter_setting (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_ptc_iris_setting (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_ptc_gain_setting (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_ptc_zoom_setting (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_ptc_relative_position (
+        long pan,
+        long tilt ) = 0;
+    virtual HRESULT __stdcall set_ptc_absolute_position (
+        long pan,
+        long tilt ) = 0;
+    virtual HRESULT __stdcall set_distance_from_ptc_to_mht_transmitter (
+        float distance ) = 0;
+    virtual HRESULT __stdcall compute_ptc_to_mht_transmitter_vector ( ) = 0;
+    virtual HRESULT __stdcall get_ptc_to_mht_transmitter_vector (
+        float * x,
+        float * y,
+        float * z ) = 0;
+    virtual HRESULT __stdcall set_ptc_to_mht_transmitter_vector (
+        float x,
+        float y,
+        float z ) = 0;
+    virtual HRESULT __stdcall set_ptc_mht_calibration_data (
+        long pnum,
+        float x,
+        float y,
+        float z,
+        long pan,
+        long tilt,
+        long focus ) = 0;
+    virtual HRESULT __stdcall compute_ptc_mht_transform_coefficients (
+        long * completionCode ) = 0;
+    virtual HRESULT __stdcall get_ptc_mht_transform_coefficients (
+        float * azimuth1,
+        float * azimuth2,
+        float * elevation1,
+        float * elevation2,
+        float * focus1,
+        float * focus2 ) = 0;
+    virtual HRESULT __stdcall compute_ptc_mht_sensor_to_eye_vector (
+        long * completionCode ) = 0;
+    virtual HRESULT __stdcall get_ptc_mht_sensor_to_eye_vector (
+        float * x,
+        float * y,
+        float * z ) = 0;
+    virtual HRESULT __stdcall set_ptc_mht_sensor_to_eye_vector (
+        float x,
+        float y,
+        float z ) = 0;
+    virtual HRESULT __stdcall set_mht_sensor_to_eye_offset (
+        float offset ) = 0;
+    virtual HRESULT __stdcall set_scene_cursor_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_pog_indicator_type (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_pog_indicator_type (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_pog_indicator_intensity (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_pog_indicator_intensity (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_scene_cursor_position (
+        long x,
+        long y ) = 0;
+    virtual HRESULT __stdcall get_scene_cursor_position (
+        long * x,
+        long * y ) = 0;
+    virtual HRESULT __stdcall set_pupil_cursor_intensity (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_pupil_cursor_intensity (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_cr_cursor_intensity (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_cr_cursor_intensity (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_scene_camera_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_scene_camera_mode (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_horizontal_breaks_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_horizontal_breaks_mode (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_scene_target_point_position (
+        long pnum,
+        long x,
+        long y ) = 0;
+    virtual HRESULT __stdcall get_scene_target_point_position (
+        long pnum,
+        long * x,
+        long * y ) = 0;
+    virtual HRESULT __stdcall get_pattern_recognition_results (
+        VARIANT_BOOL * pupilCenterFound,
+        long * pupilCenterHorz,
+        long * pupilCenterVert,
+        long * pupilDiameter,
+        long * pupilHeight,
+        long * pupilThreshold,
+        VARIANT_BOOL * crCenterFound,
+        long * crCenterHorz,
+        long * crCenterVert,
+        long * crDiameter,
+        long * crThreshold ) = 0;
+    virtual HRESULT __stdcall sample_eye_calibration_data (
+        float * h1,
+        float * v1,
+        float * h2,
+        float * v2 ) = 0;
+    virtual HRESULT __stdcall sample_eye_calibration_data_ex (
+        long trimPercent,
+        float * h1,
+        float * v1,
+        float * h2,
+        float * v2,
+        float * h1q,
+        float * v1q ) = 0;
+    virtual HRESULT __stdcall set_eye_calibration_point_data (
+        long pnum,
+        float h1,
+        float v1,
+        float h2,
+        float v2 ) = 0;
+    virtual HRESULT __stdcall get_eye_calibration_point_data (
+        long pnum,
+        float * h1,
+        float * v1,
+        float * h2,
+        float * v2 ) = 0;
+    virtual HRESULT __stdcall compute_scene_transform_coefficients ( ) = 0;
+    virtual HRESULT __stdcall sample_mirror_calibration_data (
+        float * h1,
+        float * v1,
+        float * h2,
+        float * v2 ) = 0;
+    virtual HRESULT __stdcall set_mirror_calibration_point_data (
+        long pnum,
+        float h1,
+        float v1,
+        float h2,
+        float v2 ) = 0;
+    virtual HRESULT __stdcall get_mirror_calibration_point_data (
+        long pnum,
+        float * h1,
+        float * v1,
+        float * h2,
+        float * v2 ) = 0;
+    virtual HRESULT __stdcall compute_mirror_transform_coefficients ( ) = 0;
+    virtual HRESULT __stdcall set_eye_monitor_white_level (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_eye_monitor_white_level (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_scene_monitor_white_level (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_scene_monitor_white_level (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_vitc_level (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_vitc_level (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_pupil_diameter_offset (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_pupil_diameter_offset (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_pupil_diameter_gain (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_pupil_diameter_gain (
+        long * value ) = 0;
+    virtual HRESULT __stdcall set_pattern_recognition_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_transform_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_data_acquisition_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_data_acquisition_mode (
+        long * value ) = 0;
+    virtual HRESULT __stdcall start_edge_data_collection ( ) = 0;
+    virtual HRESULT __stdcall stop_edge_data_collection ( ) = 0;
+    virtual HRESULT __stdcall set_eye_position_average_size (
+        long size ) = 0;
+    virtual HRESULT __stdcall set_eye_position_offset (
+        long x,
+        long y ) = 0;
+    virtual HRESULT __stdcall set_eye_calibration_type (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_eyehead_units (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_eyehead_transform_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_eyehead_test_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_eyehead_general_parameters (
+        struct ASLController_EyeheadGeneralParameters value ) = 0;
+    virtual HRESULT __stdcall set_eyehead_target_point_position (
+        long pnum,
+        float h,
+        float v ) = 0;
+    virtual HRESULT __stdcall get_eyehead_target_point_position (
+        long pnum,
+        float * h,
+        float * v ) = 0;
+    virtual HRESULT __stdcall calculate_eyehead_scene_equation_values (
+        long snum,
+        long * completion_code ) = 0;
+    virtual HRESULT __stdcall perform_eyehead_boresight (
+        float * position_x,
+        float * position_y,
+        float * position_z,
+        float * angle_az,
+        float * angle_el,
+        float * angle_rl,
+        long * completion_code ) = 0;
+    virtual HRESULT __stdcall calculate_eyehead_subject_dependant_values ( ) = 0;
+    virtual HRESULT __stdcall set_ssc_transform_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_ssc_scene_cursor_mode (
+        long snum,
+        long value ) = 0;
+    virtual HRESULT __stdcall set_ssc_scene_monitor_point (
+        long snum,
+        long pnum,
+        long x,
+        long y ) = 0;
+    virtual HRESULT __stdcall get_ssc_scene_monitor_point (
+        long snum,
+        long pnum,
+        long * x,
+        long * y ) = 0;
+    virtual HRESULT __stdcall set_ssc_scene_plane_point (
+        long snum,
+        long pnum,
+        float h,
+        float v ) = 0;
+    virtual HRESULT __stdcall set_ssc_coefficients (
+        long snum,
+        float * h,
+        float * v ) = 0;
+    virtual HRESULT __stdcall get_ssc_coefficients (
+        long snum,
+        float * h,
+        float * v ) = 0;
+    virtual HRESULT __stdcall compute_ssc_coefficients (
+        long snum,
+        long * completion_code ) = 0;
+    virtual HRESULT __stdcall set_mht_system_type (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_mht_port (
+        long port_id,
+        long baud_rate,
+        long data_bits,
+        long parity,
+        long stop_bits ) = 0;
+    virtual HRESULT __stdcall start_mht (
+        long * completion_code ) = 0;
+    virtual HRESULT __stdcall stop_mht (
+        long * completion_code ) = 0;
+    virtual HRESULT __stdcall reset_mht (
+        long * completion_code ) = 0;
+    virtual HRESULT __stdcall boresight_mht (
+        long * completion_code ) = 0;
+    virtual HRESULT __stdcall sample_mht_values (
+        float * position_x,
+        float * position_y,
+        float * position_z,
+        float * angle_az,
+        float * angle_el,
+        float * angle_rl,
+        long * completion_code ) = 0;
+    virtual HRESULT __stdcall set_analog_output_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_serial_data_out_format_type (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_eye_position_blink_filter_value (
+        long value ) = 0;
+    virtual HRESULT __stdcall get_edge_data (
+        long * p,
+        long * c ) = 0;
+    virtual HRESULT __stdcall get_interface_status (
+        long * value ) = 0;
+    virtual HRESULT __stdcall updateComm ( ) = 0;
+    virtual HRESULT __stdcall output_target_point (
+        long point_number ) = 0;
+    virtual HRESULT __stdcall get_edge_data_buffer (
+        long segment,
+        unsigned char * outbuffer ) = 0;
+    virtual HRESULT __stdcall set_video_annotation_mode (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_pt_mht_rotation_limit_mode (
+        VARIANT_BOOL value ) = 0;
+    virtual HRESULT __stdcall set_pupil_only_mode (
+        VARIANT_BOOL value ) = 0;
+    virtual HRESULT __stdcall set_calibration_mode (
+        VARIANT_BOOL value ) = 0;
+    virtual HRESULT __stdcall set_ptc_model (
+        long value ) = 0;
+    virtual HRESULT __stdcall set_ptc_constants (
+        unsigned char * values ) = 0;
+    virtual HRESULT __stdcall get_results (
+        struct ASLController_Results * results,
+        VARIANT_BOOL * valid ) = 0;
+    virtual HRESULT __stdcall set_eyehead_scene_parameters (
+        long snum,
+        struct ASLController_EyeheadSceneParameters value ) = 0;
+    virtual HRESULT __stdcall get_eyehead_scene_equation_values (
+        long snum,
+        struct ASLController_EyeheadSceneEquationValues * value ) = 0;
+    virtual HRESULT __stdcall set_camera_communication_mode (
+        long value ) = 0;
+};
+
+struct __declspec(uuid("cec3243e-eff0-49f5-afda-8a9f45a809c8"))
+ASLControllerPort;
+    // [ default ] interface IASLControllerPort
+
+struct ASLController_Statistics
+{
+    long cc_protocol_state;
+    long cc_num_retransmissions;
+    long cc_num_dup_data_packets;
+    long cc_num_receive_queue_overflows;
+    long cc_num_header_errors;
+    long cc_num_data_errors;
+    long cc_receive_queue_count;
+    long cc_send_queue_count;
+    long dc_protocol_state;
+    long dc_num_retransmissions;
+    long dc_num_dup_data_packets;
+    long dc_num_receive_queue_overflows;
+    long dc_num_header_errors;
+    long dc_num_data_errors;
+    long dc_receive_queue_count;
+    long dc_send_queue_count;
+};
+
+struct ASLController_Results
+{
+    long frame_number;
+    long xdat_value;
+    VARIANT_BOOL pupil_center_found;
+    long pupil_center_horz;
+    long pupil_center_vert;
+    long pupil_diameter;
+    long pupil_height;
+    VARIANT_BOOL cr_center_found;
+    long cr_center_horz;
+    long cr_center_vert;
+    long cr_diameter;
+    long scene_x;
+    long scene_y;
+    float eyeplot_x;
+    float eyeplot_y;
+    long mht_x_position;
+    long mht_y_position;
+    long mht_z_position;
+    long mht_azimuth_angle;
+    long mht_elevation_angle;
+    long mht_roll_angle;
+    long final_intersecting_scene_plane;
+    float actual_point_of_gaze_x_cp;
+    float actual_point_of_gaze_y_cp;
+    float actual_point_of_gaze_x_ip;
+    float actual_point_of_gaze_y_ip;
+    float actual_point_of_gaze_magnitude;
+    long ptc_tracking_mode;
+    long source_to_eye__trn[3];
+    long eye_to_pog__trn[3];
+    long gaze_res_factor;
+    long content_flags;
+    long auxs_x_position;
+    long auxs_y_position;
+    long auxs_z_position;
+    long auxs_azimuth_angle;
+    long auxs_elevation_angle;
+    long auxs_roll_angle;
+};
+
+struct ASLController_EyeheadGeneralParameters
+{
+    float sensor_to_eye_vector__head[3];
+    float transmitter_offset[3];
+    float horz_final_unit_offset;
+    float vert_final_unit_offset;
+    float horz_final_unit_gain;
+    float vert_final_unit_gain;
+    long number_of_defined_scenes;
+    long abc_method;
+};
+
+struct ASLController_EyeheadSceneParameters
+{
+    float point_a_coordinate__scn[2];
+    float point_b_coordinate__scn[2];
+    float point_c_coordinate__scn[2];
+    float gimbal_pointer_magnitude;
+    float source_to_point_a_magnitude;
+    float source_to_point_b_magnitude;
+    float source_to_point_c_magnitude;
+    float point_a_direction[3];
+    float point_b_direction[3];
+    float point_c_direction[3];
+    float point_a_angles[3];
+    float point_b_angles[3];
+    float point_c_angles[3];
+    float sensor_wand_tip__sen[3];
+    float source_to_point_a__trn[3];
+    float source_to_point_b__trn[3];
+    float source_to_point_c__trn[3];
+    float source_to_scene_normal_magntude;
+    float source_to_scene_normal__trn[3];
+    float source_to_scene_normal_angles[3];
+    float scene_normal_offset__scn[2];
+    float plane_equation_coefficient__trn[3];
+    float plane_equation_constant__trn;
+    float source_to_plane_origin__trn[3];
+    float top_scene_boundary_limit__scn;
+    float bottom_scene_boundry_limit__scn;
+    float left_scene_boundary_limit__scn;
+    float right_scene_boundary_limit__scn;
+    float manual_scene_plane_offset__scn[2];
+};
+
+struct ASLController_EyeheadSceneEquationValues
+{
+    float source_to_point_a__trn[3];
+    float source_to_point_b__trn[3];
+    float source_to_point_c__trn[3];
+    float source_to_scene_normal_magntude;
+    float source_to_scene_normal__trn[3];
+    float source_to_scene_normal_angles[3];
+    float scene_normal_offset__scn[2];
+    float plane_equation_coefficient__trn[3];
+    float plane_equation_constant__trn;
+    float source_to_plane_origin__trn[3];
+};
+
+struct ASLEyeheadSubjectInfo
+{
+    float cal_mht_head_position__trn[3];
+    float bs_mht_head_position__trn[3];
+    float cal_angles[3];
+    float cal_bs_angles[3];
+    float current_bs_angles[3];
+    float current_sensor_to_eye__head[3];
+    float cal_sensor_to_eye__head[3];
+};
+
+#pragma pack(pop)
