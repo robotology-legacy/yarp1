@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.2 2006-01-09 22:57:14 babybot Exp $
+/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.3 2006-01-11 14:07:11 gmetta Exp $
 ///
 ///
 
@@ -93,6 +93,7 @@ public:
 	int _writeMessages;							/// size of the write packet.
 	CMSG _writeBuffer[BUF_SIZE];				/// write buffer.
 	CMSG _replyBuffer[BUF_SIZE];				/// reply buffer.
+	int _scanSequence;							/// the sequence of channel to sample (bitmap).
 
 	unsigned char _my_address;					/// local can bus address.
 	unsigned char _remote_address;				/// remote can bus address.
@@ -101,7 +102,7 @@ public:
 
 	PV _p;										///	pointer to a printf type function
 												/// used to spy on can messages.
-
+	
 	char _printBuffer[16384];
 };
 
@@ -125,6 +126,7 @@ EsdDaqResources::EsdDaqResources ()
 	_msg_lost = 0;
 	_writeMessages = 0;
 	_error_status = YARP_OK;
+	_scanSequence = 0;
 }
 
 EsdDaqResources::~EsdDaqResources () 
@@ -152,6 +154,7 @@ int EsdDaqResources::initialize (const EsdDaqOpenParameters& parms)
 	_polling_interval = parms._polling_interval;
 	_timeout = parms._timeout;
 	_p = parms._p;
+	_scanSequence = parms._scanSequence;
 
 	_txQueueSize = parms._txQueueSize;
 	_rxQueueSize = parms._rxQueueSize;
@@ -226,6 +229,7 @@ int EsdDaqResources::addMessage (int msg_id)
 {
 	CMSG x;
 	memset (&x, 0, sizeof(CMSG));
+
 
 	x.id = 0x200;
 	x.id |= (_my_address << 4);
@@ -343,12 +347,13 @@ YARPEsdDaqDeviceDriver::YARPEsdDaqDeviceDriver(void)
 	*/
 
 	/*
-	m_cmds[CMDScanSetup] = &YARPEsdDaqDeviceDriver::scanSetup;
 	m_cmds[CMDAIVReadScan] = &YARPEsdDaqDeviceDriver::aivReadScan;
-	m_cmds[CMDAIReadScan] = &YARPEsdDaqDeviceDriver::aiReadScan;
 	*/
-	m_cmds[CMDAIReadChannel] = &YARPEsdDaqDeviceDriver::aiReadChannel;
 
+	m_cmds[CMDScanSetup] = &YARPEsdDaqDeviceDriver::scanSetup;
+	m_cmds[CMDAIReadScan] = &YARPEsdDaqDeviceDriver::aiReadScan;
+	m_cmds[CMDAIReadChannel] = &YARPEsdDaqDeviceDriver::aiReadChannel;
+	m_cmds[CMDGetMaxChannels] = &YARPEsdDaqDeviceDriver::getMaxChannels;
 	m_cmds[CMDAISetDebugPrintFunction] = &YARPEsdDaqDeviceDriver::setDebugPrintFunction;
 }
 
@@ -601,13 +606,52 @@ int YARPEsdDaqDeviceDriver::setDebugPrintFunction (void *cmd)
 /// control card commands.
 ///
 
-/// cmd is an array of double
+/// cmd is a pointer to a 32-bit map (1- read, 0- don't read channel).
 int YARPEsdDaqDeviceDriver::scanSetup (void *cmd)
 {
+	_mutex.Wait();
+	EsdDaqResources& r = RES(system_resources);
+	r._scanSequence = *((int *)cmd);
+	_mutex.Post();
+
+	return YARP_OK;
+
+/*
+	// LATER: must handles a firmware message.
+	if (_writeDWord (MPH_SET_SEQUENCE, 0, *((int *)cmd)) == YARP_OK)
+	{
+		return YARP_OK;
+	}
+
+	return YARP_FAIL;
+*/
+}
+
+/// cmd is an array of double (LATER: verify this).
+int YARPEsdDaqDeviceDriver::aiReadScan (void *cmd)
+{
+	return _readWord16Array (MPH_READ_CHANNEL_0, (short *)cmd);
+
+	/// rationale:
+	/// - sends a single packet to start the acquisition
+	/// - replies multiple messages (each containing 3 channels)
+	/// 
+	///	- send is simple, in Body sets the appropriate loop/msg/wait
+	///	- recv must wait for Body to complete receiving (as usual)
+	///
+	/// Body must be changed.
+
+	///return YARP_FAIL;
+}
+
+/// returns the maximum number of channels.
+int YARPEsdDaqDeviceDriver::getMaxChannels (void *cmd)
+{
+	*((int *)cmd) = MAX_CHANNELS;
 	return YARP_OK;
 }
 
-/// cmd is a SingleAxisParameters pointer with double arg
+/// cmd is a pointer to an integer.
 int YARPEsdDaqDeviceDriver::aiReadChannel (void *cmd)
 {
 	/// prepare can message.
@@ -682,7 +726,8 @@ int YARPEsdDaqDeviceDriver::_readWord16 (int msg, int axis, short& value)
 	return YARP_OK;
 }
 
-// reads an array up to MAX_CHANNELS.
+// reads an array up to MAX_CHANNELS (WARNING: <out> must be preallocated of
+// length MAX_CHANNELS).
 // this should probably be part of the configuration of the 
 // scan sequence.
 //
@@ -695,9 +740,15 @@ int YARPEsdDaqDeviceDriver::_readWord16Array (int msg, short *out)
 	_mutex.Wait();
 	r.startPacket ();
 
+	int val = r._scanSequence;
 	for(i = 0; i < MAX_CHANNELS; i++)
 	{
-		r.addMessage (msg + i);
+		if (val & 0x00000001)
+		{
+			r.addMessage (msg + MAX_CHANNELS - 1 - i);
+		}
+
+		val >>= 1;
 	}
 
 	if (r._writeMessages < 1)
@@ -718,7 +769,7 @@ int YARPEsdDaqDeviceDriver::_readWord16Array (int msg, short *out)
 		return YARP_FAIL;
 	}
 
-	int j;
+	int j;	// LATER: perhaps the loop can be stopped at max # of messages.
 	for (i = 0, j = 0; i < MAX_CHANNELS; i++)
 	{
 		CMSG& m = r._replyBuffer[j];

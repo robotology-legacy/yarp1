@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.h,v 1.1 2006-01-09 09:07:28 gmetta Exp $
+/// $Id: YARPEsdDaqDeviceDriver.h,v 1.2 2006-01-11 14:07:11 gmetta Exp $
 ///
 ///
 
@@ -47,8 +47,12 @@
 
 enum 
 {
-	MPH_READ_CHANNEL_0 = 0x00,
+	MPH_READ_CHANNEL_0 = 0,
 	/* + channel no. */
+	MPH_SET_SEQUENCE = 32,
+	MPH_GET_SEQUENCE = 33,
+	MPH_GET_MAX_CHANNELS = 34,
+
 	MPH_LAST_MESSAGE = 0xff,
 };
 
@@ -67,6 +71,7 @@ struct EsdDaqOpenParameters
 		_my_address = 0;
 		_polling_interval = 10;
 		_timeout = 20;
+		_scanSequence = 0;
 		_p = NULL;
 
 		_txQueueSize = 2047;					/** max len of the buffer for the esd driver */
@@ -85,6 +90,7 @@ struct EsdDaqOpenParameters
 	unsigned char _my_address;					/** my address */
 	int _polling_interval;						/** thread polling interval [ms] */
 	int _timeout;								/** number of cycles before timing out */
+	int _scanSequence;							/** a bitmap representing the channel scan sequence */
 	int (*_p) (const char *fmt, ...);			/** printf-like function for spying messages */
 };
 
@@ -128,6 +134,7 @@ public:
 
 protected:
 	int scanSetup (void *cmd);
+	int getMaxChannels (void *cmd);
 	int aivReadScan (void *cmd);
 	int aiReadScan (void *cmd);
 	int aiReadChannel (void *cmd);

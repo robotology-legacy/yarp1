@@ -126,6 +126,14 @@ void main()
    int tx_len=8;
    int tx_pri=3;
 
+   // bitmap, expanded to 8 bit (needed?)
+   int8 sequence[MAX_CHANNELS];
+   int32 val;
+   
+   int i;
+   for (i = 0; i < MAX_CHANNELS; i++)
+      sequence[i] = MAX_CHANNELS;
+
    // resource initialization.
    setup_adc_ports(AN0);
    setup_adc(ADC_CLOCK_INTERNAL);
@@ -149,13 +157,12 @@ void main()
       {
          if (can_getd(rx_id, &in_data[0], rx_len, rxstat))
          {
-            // reads message
             // handles message for the analog channel
             if ((rx_len == 1) && ((rx_id & 0x700) == 0x200) && (in_data[0] < MAX_CHANNELS))
             {
   		 	      tmp = read_analog(in_data[0]);
-               out_data[2] = (int8)(tmp);
-               out_data[1] = (int8)(tmp>>8);
+               out_data[1] = (int8)(tmp);
+               out_data[2] = (int8)(tmp>>8);
 
                while (!can_tbe()) ;
 
@@ -169,8 +176,35 @@ void main()
                // replies to message.
                can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);
             }
+            // handles message to prepare a sequence.
+            else
+            if ((rx_len == 5) && ((rx_id & 0x700) == 0x200) && (in_data[0] == 32))
+            {
+               for (i = 0; i < MAX_CHANNELS; i++)
+               {
+                  val = *((int32 *)(&in_data[1]));
+                  if (val & 0x00000001)
+                  {
+                     sequence[MAX_CHANNELS-1-i] = MAX_CHANNELS-1-i;
+                  }
+                  val >>= 1;
+               }
 
-            // handle CAN bus messages for the downloader
+               // perhaps this is not needed.
+               // LATER: check the driver.               
+               while (!can_tbe()) ;
+
+               tx_id = ID_BASE;
+               tx_id |= ((_board_ID) << 4);
+               tx_id |= ((rx_id & 0x00f0) >> 4);
+
+               out_data[0] = in_data[0];
+			      tx_len = 1;
+
+               // replies to message.
+               can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);
+            }
+            // handles CAN bus messages for the downloader
             else
             if ((rx_len == 1) &&  (((rx_id>>8) & 0x7)==7))
             {
