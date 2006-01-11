@@ -12,7 +12,6 @@
 #include "LiveCameraDlg.h"
 #include "LiveGloveDlg.h"
 #include "LiveTrackerDlg.h"
-#include "MessagesDlg.h"
 #include "SaverThread.h"
 #include "OptionsDlg.h"
 

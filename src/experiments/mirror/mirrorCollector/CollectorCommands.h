@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: CollectorCommands.h,v 1.6 2006-01-07 10:58:56 claudio72 Exp $
+/// $Id: CollectorCommands.h,v 1.7 2006-01-11 10:13:52 claudio72 Exp $
 ///
 ///
 
@@ -71,13 +71,13 @@
 #include<yarp/begin_pack_for_net.h>
 
 // ---------------------- REMOVE ME AS SOON AS POSSIBLE !!!
-struct GazeTrackerData { int pupilDiam, pupilX, pupilY; };
-class YARPGazeTracker {
- public:
-	int initialize (unsigned short comPort,	unsigned int baudRate) { return YARP_OK; }
-	int uninitialize (void) { return YARP_OK; }
-	int getData(GazeTrackerData* data) { data->pupilDiam++; data->pupilX++; data->pupilY++; return YARP_OK; }
-};
+//struct GazeTrackerData { int pupilDiam, pupilX, pupilY; };
+//class YARPGazeTracker {
+// public:
+//	int initialize (unsigned short comPort,	unsigned int baudRate) { return YARP_OK; }
+//	int uninitialize (void) { return YARP_OK; }
+//	int getData(GazeTrackerData* data) { data->pupilDiam++; data->pupilX++; data->pupilY++; return YARP_OK; }
+//};
 // ---------------------- REMOVE ME AS SOON AS POSSIBLE !!!
 
 typedef enum {

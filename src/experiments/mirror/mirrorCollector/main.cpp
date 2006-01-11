@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.4 2006-01-07 10:58:56 claudio72 Exp $
+/// $Id: main.cpp,v 1.5 2006-01-11 10:13:52 claudio72 Exp $
 ///
 ///
 
@@ -92,7 +92,7 @@ using namespace std;
 bool connectSensors(void);
 void releaseSensors(void);
 void acquireAndSend(void);
-void setOptions(char*);
+void getOptionsFromEnv(char*);
 void registerPorts(void);
 void unregisterPorts(void);
 int main (int, char **);
@@ -121,17 +121,43 @@ typedef struct {
 } CollectorHardware;
 
 // options
-typedef struct {
-
+typedef struct CollectorOptionsStruct {
+	CollectorOptionsStruct() {
+		portName			= "mirrorCollector";
+		netName				= "default";
+		useDataGlove		= false;
+		gloveComPort		= 3;
+		gloveBaudRate		= 115200;
+		useTracker0			= false;
+		tracker0ComPort		= 2;
+		tracker0BaudRate	= 115200;
+		tracker0MeasRate	= 103.3;
+		tracker0TransOpMode	= 2;
+		tracker0Timeout		= 160;
+		useTracker1			= false;
+		tracker1ComPort		= 4;
+		tracker1BaudRate	= 115200;
+		tracker1MeasRate	= 103.3;
+		tracker1TransOpMode	= 2;
+		tracker1Timeout		= 160;
+		usePresSens			= false;
+		nPresSens			= 2;
+		useCamera0			= false;
+		useCamera1			= false;
+		sizeX				= 384;
+		sizeY				= 272;
+		yOffset				= 0;
+		useGazeTracker		= false;
+		GTComPort			= 1;
+		GTBaudRate			= 57600;
+	};
 	YARPString portName;
 	YARPString netName;
-
 	bool useCamera0;
 	bool useCamera1;
 	int	sizeX;
 	int sizeY;
 	int yOffset;
-
 	bool useTracker0;
 	short tracker0ComPort;
 	int	tracker0BaudRate;
@@ -144,14 +170,11 @@ typedef struct {
 	double tracker1MeasRate;
 	int	tracker1TransOpMode;
 	int	tracker1Timeout;
-
 	bool useDataGlove;
 	short gloveComPort;
 	int	gloveBaudRate;
-
 	bool usePresSens;
 	short nPresSens;
-
 	bool useGazeTracker;
 	short GTComPort;
 	int GTBaudRate;
@@ -260,12 +283,9 @@ bool connectSensors(void)
 	if (_options.useTracker0) {
 		// Tracker Initialization
 		cout << "Initialising tracker #0... ";
-		YARPMirrorTrackerParams tracker0Params = {
-			0,
-			_options.tracker0ComPort, _options.tracker0BaudRate, _options.tracker0Timeout,
-			_options.tracker0MeasRate, _options.tracker0TransOpMode
-		};
-		if ( _hardware.tracker0.initialize (tracker0Params) == YARP_OK ) {
+		if ( _hardware.tracker0.initialize (0, _options.tracker0ComPort,
+											_options.tracker0BaudRate,
+											_options.tracker0Timeout) == YARP_OK ) {
 			cout <<  "done. On COM" << _options.tracker0ComPort << ", " << _options.tracker0BaudRate << " baud." << endl;
 			atLeastOneIsOK = true;
 		} else {
@@ -277,12 +297,9 @@ bool connectSensors(void)
 	if (_options.useTracker1) {
 		// Tracker Initialization
 		cout << "Initialising tracker #1... ";
-		YARPMirrorTrackerParams tracker1Params = {
-			1,
-			_options.tracker1ComPort, _options.tracker1BaudRate, _options.tracker1Timeout,
-			_options.tracker1MeasRate, _options.tracker1TransOpMode
-		};
-		if ( _hardware.tracker1.initialize (tracker1Params) == YARP_OK ) {
+		if ( _hardware.tracker1.initialize (1, _options.tracker1ComPort,
+											_options.tracker1BaudRate,
+											_options.tracker1Timeout) == YARP_OK ) {
 			cout <<  "done. On COM" << _options.tracker1ComPort << ", " << _options.tracker1BaudRate << " baud." << endl;
 			atLeastOneIsOK = true;
 		} else {
@@ -306,7 +323,14 @@ bool connectSensors(void)
 	if (_options.useGazeTracker) {
 		// GT Initialization
 		cout << "Initialising GazeTracker... ";
-		if ( _hardware.gt.initialize (_options.GTComPort, _options.GTBaudRate) == YARP_OK ) {
+		E504OpenParameters params;
+		params.baudRate = _options.GTBaudRate;
+		params.comPort = _options.GTComPort;
+		params.illuminatorState = true;
+		params.illuminatorLevel = 30;
+		params.CRThreshold = 70;
+		params.pupilThreshold = 120;
+		if ( _hardware.gt.initialize (params) == YARP_OK ) {
 			cout <<  "done. On COM" << _options.GTComPort << ", " << _options.GTBaudRate << " baud." << endl;
 			atLeastOneIsOK = true;
 		} else {
@@ -450,39 +474,10 @@ void acquireAndSend(void)
 
 }
 
-void setOptions(char* fileName)
+void getOptionsFromEnv(char* fileName)
 {
 
-	// set options default values
-	_options.portName			= "mirrorCollector";
-	_options.netName			= "default";
-	_options.useDataGlove		= 0;
-	_options.gloveComPort		= 3;
-	_options.gloveBaudRate		= 115200;
-	_options.useTracker0		= 1;
-	_options.tracker0ComPort	= 2;
-	_options.tracker0BaudRate	= 115200;
-	_options.tracker0MeasRate	= 103.3;
-	_options.tracker0TransOpMode= 2;
-	_options.tracker0Timeout	= 160;
-	_options.useTracker1		= 0;
-	_options.tracker1ComPort	= 4;
-	_options.tracker1BaudRate	= 115200;
-	_options.tracker1MeasRate	= 103.3;
-	_options.tracker1TransOpMode= 2;
-	_options.tracker1Timeout	= 160;
-	_options.usePresSens		= 0;
-	_options.nPresSens			= 2;
-	_options.useCamera0			= 0;
-	_options.useCamera1			= 0;
-	_options.sizeX				= 384;
-	_options.sizeY				= 272;
-	_options.yOffset			= 0;
-	_options.useGazeTracker     = 0;
-	_options.GTComPort          = 1;
-	_options.GTBaudRate         = 57600;
-
-	// now read specific options from conf file
+	// read specific options from conf file
 	YARPConfigFile optFile;
 	char buf[255];
 	int yesNo;
@@ -609,7 +604,7 @@ void unregisterPorts(void)
 int main (int argc, char *argv[])
 {
 
-	setOptions(collectorConfFileName);
+	getOptionsFromEnv(collectorConfFileName);
 
 	YARPScheduler::setHighResScheduling();
 	_img0.Resize (_options.sizeX, _options.sizeY);
