@@ -29,6 +29,8 @@
 #include <yarp/YARPRateThread.h>
 #include <yarp/YARPConfigRobot.h>
 #include <yarp/YARPRobotHardware.h>
+
+#include <yarp/YARPADCUtils.h>
 #include <yarp/YARPEsdDaqDeviceDriver.h>
 
 #include <ace/config.h>

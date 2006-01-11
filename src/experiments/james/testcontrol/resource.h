@@ -13,6 +13,7 @@
 #define IDD_DIALOG_GAIN                 136
 #define IDD_DIALOG_CALIBRATION          139
 #define IDD_DIALOG_SEQUENCE             140
+#define IDD_DIALOG_TOUCH                141
 #define IDC_BUTTON1                     1000
 #define IDC_BUTTON_HIDE                 1000
 #define IDC_BUTTON_STORE                1000
@@ -166,6 +167,38 @@
 #define IDC_WAIT_20                     1240
 #define IDC_BUTTON_LOOP                 1242
 #define IDC_BUTTON_STOPL                1244
+#define IDC_EDIT_C1                     1246
+#define IDC_EDIT_C2                     1247
+#define IDC_EDIT_C3                     1248
+#define IDC_EDIT_C4                     1249
+#define IDC_EDIT_C5                     1250
+#define IDC_EDIT_C6                     1251
+#define IDC_EDIT_C7                     1252
+#define IDC_EDIT_C8                     1253
+#define IDC_EDIT_C9                     1254
+#define IDC_EDIT_C10                    1255
+#define IDC_EDIT_C11                    1256
+#define IDC_EDIT_C12                    1257
+#define IDC_EDIT_C13                    1258
+#define IDC_EDIT_C14                    1259
+#define IDC_EDIT_C15                    1260
+#define IDC_EDIT_C16                    1261
+#define IDC_EDIT_C17                    1262
+#define IDC_EDIT_C18                    1263
+#define IDC_EDIT_C19                    1264
+#define IDC_EDIT_C20                    1265
+#define IDC_EDIT_C21                    1266
+#define IDC_EDIT_C22                    1267
+#define IDC_EDIT_C23                    1268
+#define IDC_EDIT_C24                    1269
+#define IDC_EDIT_C25                    1270
+#define IDC_EDIT_C26                    1271
+#define IDC_EDIT_C27                    1272
+#define IDC_EDIT_C28                    1273
+#define IDC_EDIT_C29                    1274
+#define IDC_EDIT_C30                    1275
+#define IDC_EDIT_C31                    1276
+#define IDC_EDIT_C32                    1277
 #define ID_HELP_ABOUT                   32771
 #define ID_FILE_EXIT                    32772
 #define ID_INTERFACE_START              32773
@@ -179,14 +212,16 @@
 #define ID_POSTURES_SETSEQUENCE         32782
 #define ID_FILE_LOADSEQUENCE            32783
 #define ID_FILE_SAVESEQUENCE            32784
+#define ID_INTERFACE_SHOWHALLEFFECT     32785
+#define ID_INTERFACE_HIDEHALLEFFECT     32786
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         32785
-#define _APS_NEXT_CONTROL_VALUE         1245
+#define _APS_NEXT_RESOURCE_VALUE        142
+#define _APS_NEXT_COMMAND_VALUE         32787
+#define _APS_NEXT_CONTROL_VALUE         1247
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

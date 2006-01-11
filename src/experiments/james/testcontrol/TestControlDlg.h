@@ -11,6 +11,7 @@
 #include "GainControlDlg.h"
 #include "CalibrationDlg.h"
 #include "SeqDlg.h"
+#include "TouchDlg.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CTestControlDlg dialog
@@ -36,10 +37,12 @@ public:
 	// variables.
 	bool _headinitialized;			// whether the head control device is initialized.
 	bool _arminitialized;			// same for the arm/hand.
+	bool _touchinitialized;
 
 	bool _headrunning;				// whether the PID controller is ON.
 	bool _armrunning;
-	
+	bool _touchrunning;
+
 	double *_headstore[N_POSTURES];  
 	double *_headstorev[N_POSTURES];  
 
@@ -55,7 +58,8 @@ public:
 	CGainControlDlg _gaincontroldlg;
 	CCalibrationDlg _calibrationdlg;
 	CSeqDlg			_sequencedlg;
-	
+	CTouchDlg		_touchdlg;
+
 	// my hack!
 	CEdit	m_sa_ctrl[MAX_ARM_JNTS];
 	CEdit	m_va_ctrl[MAX_ARM_JNTS];
@@ -152,6 +156,12 @@ protected:
 	afx_msg void OnFileSavesequence();
 	afx_msg void OnUpdateFileLoadsequence(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateFileSavesequence(CCmdUI* pCmdUI);
+	afx_msg void OnInterfaceHidehalleffect();
+	afx_msg void OnUpdateInterfaceHidehalleffect(CCmdUI* pCmdUI);
+	afx_msg void OnInterfaceShowhalleffect();
+	afx_msg void OnUpdateInterfaceShowhalleffect(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateInterfaceHidegain(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateInterfaceShowgain(CCmdUI* pCmdUI);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

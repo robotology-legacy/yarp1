@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.3 2006-01-11 12:39:18 gmetta Exp $
+/// $Id: main.cpp,v 1.4 2006-01-11 14:05:28 gmetta Exp $
 ///
 ///
 
@@ -163,7 +163,7 @@ int main (int argc, char *argv[])
 
 	/// head (bus 1).
 	EsdCanOpenParameters op_par1;
-	memcpy (op_par1._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+	ACE_OS::memcpy (op_par1._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 	op_par1._my_address = CANBUS_MY_ADDRESS;					/// my address.
 	op_par1._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
 	op_par1._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
@@ -189,7 +189,7 @@ int main (int argc, char *argv[])
 	EsdCanOpenParameters op_par2;
 	op_par2._njoints = MAX_ARM_JNTS;
 	op_par2._p = PRINTLOG;
-	memcpy (op_par2._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+	ACE_OS::memcpy (op_par2._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 	op_par2._my_address = CANBUS_MY_ADDRESS;					/// my address.
 	op_par2._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
 	op_par2._timeout = CANBUS_TIMEOUT;							/// approx this value times the polling interval [ms].
@@ -231,7 +231,7 @@ int main (int argc, char *argv[])
 		{
 			_analogstore = new short[_maxanalogchannels];
 			ACE_ASSERT (_analogstore != NULL);
-			memset (_analogstore, 0, sizeof(short) * _maxanalogchannels);
+			ACE_OS::memset (_analogstore, 0, sizeof(short) * _maxanalogchannels);
 		}
 	}
 

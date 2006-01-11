@@ -161,6 +161,7 @@ static int xfprintf(char *fmt, ...)
 #define CLOSELOG close_console
 #define PRINTLOGH xprintf_head
 #define PRINTLOGA xprintf_arm
+#define PRINTLOGT xprintf_touch
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -236,6 +237,9 @@ CTestControlDlg::CTestControlDlg(CWnd* pParent /*=NULL*/)
 
 	_headrunning = false;
 	_armrunning = false;
+
+	_touchinitialized = false;
+	_touchrunning = false;
 
 	int i;
 	for (i = 0; i < N_POSTURES; i++)
@@ -343,6 +347,12 @@ BEGIN_MESSAGE_MAP(CTestControlDlg, CDialog)
 	ON_COMMAND(ID_FILE_SAVESEQUENCE, OnFileSavesequence)
 	ON_UPDATE_COMMAND_UI(ID_FILE_LOADSEQUENCE, OnUpdateFileLoadsequence)
 	ON_UPDATE_COMMAND_UI(ID_FILE_SAVESEQUENCE, OnUpdateFileSavesequence)
+	ON_COMMAND(ID_INTERFACE_HIDEHALLEFFECT, OnInterfaceHidehalleffect)
+	ON_UPDATE_COMMAND_UI(ID_INTERFACE_HIDEHALLEFFECT, OnUpdateInterfaceHidehalleffect)
+	ON_COMMAND(ID_INTERFACE_SHOWHALLEFFECT, OnInterfaceShowhalleffect)
+	ON_UPDATE_COMMAND_UI(ID_INTERFACE_SHOWHALLEFFECT, OnUpdateInterfaceShowhalleffect)
+	ON_UPDATE_COMMAND_UI(ID_INTERFACE_HIDEGAIN, OnUpdateInterfaceHidegain)
+	ON_UPDATE_COMMAND_UI(ID_INTERFACE_SHOWGAIN, OnUpdateInterfaceShowgain)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -381,11 +391,9 @@ BOOL CTestControlDlg::OnInitDialog()
 
 	// modeless dialog boxes.
 	_gaincontroldlg.Create (CGainControlDlg::IDD, this);
-	//	_gaincontroldlg.m_parent = this;
-
 	_calibrationdlg.Create (CCalibrationDlg::IDD, this);
-
 	_sequencedlg.Create (CSeqDlg::IDD, this);
+	_touchdlg.Create (CTouchDlg::IDD, this);
 
 	// sort of initialization.
 	m_entry_ctrl.SetCurSel(0);
@@ -519,7 +527,7 @@ void CTestControlDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysM
 
 void CTestControlDlg::EnableGUI ()
 {
-	if (!_headinitialized && !_arminitialized)
+	if (!_headinitialized && !_arminitialized && !_touchinitialized)
 		return;
 
 	SetTimer (TIMER_ID, GUI_REFRESH_INTERVAL, NULL); 
@@ -527,6 +535,7 @@ void CTestControlDlg::EnableGUI ()
 	_gaincontroldlg.EnableInterface();
 	_calibrationdlg.EnableInterface();
 	_sequencedlg.EnableInterface();
+	_touchdlg.EnableInterface();
 
 	if (_headinitialized)
 	{
@@ -616,6 +625,7 @@ void CTestControlDlg::DisableGUI ()
 	m_entry_all_ctrl.EnableWindow(FALSE);
 
 	// others.
+	_touchdlg.DisableInterface();
 	_gaincontroldlg.DisableInterface();
 	_calibrationdlg.DisableInterface();
 	_sequencedlg.DisableInterface();
@@ -762,6 +772,41 @@ void CTestControlDlg::OnInterfaceStart()
 		ACE_ASSERT (arm.nj() == MAX_ARM_JNTS);
 	}
 
+	// direct initialization of the hall-effect mph-daq card device driver.
+	EsdDaqOpenParameters op_par;
+	op_par._networkN = 0;				// same address of the arm/hand. LATER: SET THE CORRECT BUS NUMBER HERE!
+	op_par._remote_address = 5;			// address of the daq card.
+	op_par._my_address = 0;				// this is the second instance to the same driver (we can even use a different ID).
+	op_par._polling_interval = 10;
+	op_par._timeout = 10;			
+	op_par._scanSequence = 0xff000000;			// first 8 channels (TEST).
+
+	if (touch.open ((void *)&op_par) != YARP_OK)
+	{
+		touch.close();
+
+		char message[512];
+		ACE_OS::sprintf (message, "Can't start the interface with the hall-effect sensor card, please make sure the hardware and control cards are on.");
+		MessageBox (message, "Error!");
+	}
+	else
+	{
+		_touchinitialized = true;
+
+		/*
+		int ret = touch.IOCtl (CMDGetMaxChannels, (void *)&_maxanalogchannels);
+		if (_maxanalogchannels)
+		{
+			_analogstore = new short[_maxanalogchannels];
+			ACE_ASSERT (_analogstore != NULL);
+			ACE_OS::memset (_analogstore, 0, sizeof(short) * _maxanalogchannels);
+		}
+		*/
+
+		_touchrunning = true;
+	}	
+
+
 	if (_headinitialized)
 		AllocHeadArrays (MAX_HEAD_JNTS);
 
@@ -793,17 +838,22 @@ void CTestControlDlg::OnInterfaceStop()
 		_arminitialized = false;
 	}
 	
+	if (_touchinitialized)
+	{
+		touch.close ();
+	}
+
 	DisableGUI ();
 }
 
 void CTestControlDlg::OnUpdateInterfaceStart(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable (!_headinitialized && !_arminitialized);
+	pCmdUI->Enable (!_headinitialized && !_arminitialized && !_touchinitialized);
 }
 
 void CTestControlDlg::OnUpdateInterfaceStop(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable (_headinitialized || _arminitialized);
+	pCmdUI->Enable (_headinitialized || _arminitialized || _touchinitialized);
 }
 
 void CTestControlDlg::OnFileOpenconsole() 
@@ -812,12 +862,13 @@ void CTestControlDlg::OnFileOpenconsole()
 	{
 		PRINTLOGH("Debug window started...\n");
 		PRINTLOGA("Debug window started...\n");
+		PRINTLOGT("Debug window started...\n");
 	}
 }
 
 void CTestControlDlg::OnUpdateFileOpenconsole(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable (_headinitialized || _arminitialized);
+	pCmdUI->Enable (_headinitialized || _arminitialized || _touchinitialized);
 }
 
 void CTestControlDlg::OnFileCloseconsole() 
@@ -827,7 +878,7 @@ void CTestControlDlg::OnFileCloseconsole()
 
 void CTestControlDlg::OnUpdateFileCloseconsole(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable (_headinitialized || _arminitialized);
+	pCmdUI->Enable (_headinitialized || _arminitialized || _touchinitialized);
 }
 
 void CTestControlDlg::OnInterfaceShowgain() 
@@ -887,6 +938,14 @@ void CTestControlDlg::OnTimer(UINT nIDEvent)
 		{
 			ACE_OS::sprintf (_buffer, "%.2f", _armjointstore[i]);
 			m_sa_ctrl[i].SetWindowText (_buffer);
+		}
+	}
+
+	if (_touchinitialized)
+	{
+		if (_touchdlg.IsWindowVisible())
+		{
+			_touchdlg.UpdateInterface();
 		}
 	}
 
@@ -1307,4 +1366,34 @@ void CTestControlDlg::OnUpdateFileLoadsequence(CCmdUI* pCmdUI)
 void CTestControlDlg::OnUpdateFileSavesequence(CCmdUI* pCmdUI) 
 {
 	pCmdUI->Enable (_headinitialized && _arminitialized);
+}
+
+void CTestControlDlg::OnInterfaceHidehalleffect() 
+{
+	_touchdlg.ShowWindow (SW_HIDE);
+}
+
+void CTestControlDlg::OnUpdateInterfaceHidehalleffect(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable (_touchdlg.IsWindowVisible());
+}
+
+void CTestControlDlg::OnInterfaceShowhalleffect() 
+{
+	_touchdlg.ShowWindow (SW_SHOW);	
+}
+
+void CTestControlDlg::OnUpdateInterfaceShowhalleffect(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable (!_touchdlg.IsWindowVisible());	
+}
+
+void CTestControlDlg::OnUpdateInterfaceHidegain(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable (_gaincontroldlg.IsWindowVisible());
+}
+
+void CTestControlDlg::OnUpdateInterfaceShowgain(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable (!_gaincontroldlg.IsWindowVisible());
 }
