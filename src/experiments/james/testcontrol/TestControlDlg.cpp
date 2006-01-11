@@ -774,12 +774,12 @@ void CTestControlDlg::OnInterfaceStart()
 
 	// direct initialization of the hall-effect mph-daq card device driver.
 	EsdDaqOpenParameters op_par;
-	op_par._networkN = 0;				// same address of the arm/hand. LATER: SET THE CORRECT BUS NUMBER HERE!
+	op_par._networkN = 1;				// same address of the arm/hand. LATER: SET THE CORRECT BUS NUMBER HERE!
 	op_par._remote_address = 5;			// address of the daq card.
 	op_par._my_address = 0;				// this is the second instance to the same driver (we can even use a different ID).
 	op_par._polling_interval = 10;
 	op_par._timeout = 10;			
-	op_par._scanSequence = 0xff000000;			// first 8 channels (TEST).
+	op_par._scanSequence = 0x01ffffff;	// first 7 channels not connected.
 
 	if (touch.open ((void *)&op_par) != YARP_OK)
 	{
