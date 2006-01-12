@@ -61,28 +61,25 @@
 ///
 
 ///
-/// $Id: CollectorCommands.h,v 1.7 2006-01-11 10:13:52 claudio72 Exp $
+/// $Id: CollectorCommands.h,v 1.8 2006-01-12 15:48:46 claudio72 Exp $
 ///
 ///
 
 #ifndef __CollectorCommandsh__
 #define __CollectorCommandsh__
 
+// ------------------------- WARNING
+// so far, there is NO GUARANTEE on the streaming frequency. It seems
+// that, connecting all peripherals, we get to a reasonable 25Hz, but
+// I have found no sensible means to stabilise it - not even putting
+// a delay in the streaming thread. TO BE EVENTUALLY FIXED.
+// -------------------------
+
 #include<yarp/begin_pack_for_net.h>
 
-// ---------------------- REMOVE ME AS SOON AS POSSIBLE !!!
-//struct GazeTrackerData { int pupilDiam, pupilX, pupilY; };
-//class YARPGazeTracker {
-// public:
-//	int initialize (unsigned short comPort,	unsigned int baudRate) { return YARP_OK; }
-//	int uninitialize (void) { return YARP_OK; }
-//	int getData(GazeTrackerData* data) { data->pupilDiam++; data->pupilX++; data->pupilY++; return YARP_OK; }
-//};
-// ---------------------- REMOVE ME AS SOON AS POSSIBLE !!!
-
 typedef enum {
-	CCmdFailed		   = 0,
-	CCmdSucceeded	   = 1,
+	CCmdFailed         = 0,
+	CCmdSucceeded      = 1,
 	CCmdGetData        = 2,
 	CCmdStartStreaming = 3,
 	CCmdStopStreaming  = 4,
@@ -91,12 +88,20 @@ typedef enum {
 	CCmdQuit           = 7
 } CollectorCommand;
 
-typedef struct {
-	TrackerData			tracker0Data;
-	TrackerData			tracker1Data;
-	GazeTrackerData		GTData;
-	DataGloveData		gloveData;
-	PresSensData		pressureData;
+typedef struct CollectorNumericalDataStruct {
+	CollectorNumericalDataStruct() { clean(); };
+	void clean() {
+		tracker0Data.clean();
+		tracker1Data.clean();
+		GTData.clean();
+		gloveData.clean();
+		pressureData.clean();
+	};
+	TrackerData     tracker0Data;
+	TrackerData     tracker1Data;
+	GazeTrackerData GTData;
+	DataGloveData   gloveData;
+	PresSensData    pressureData;
 } CollectorNumericalData;
 
 typedef YARPImageOf<YarpPixelBGR> CollectorImage;

@@ -54,7 +54,6 @@ public:
 
 	bool registerPorts(void);
 	void unregisterPorts(void);
-	void cleanDataStructures(void);
 
 	CGraspCaptureDlg(CWnd* pParent = NULL);	// standard constructor
 

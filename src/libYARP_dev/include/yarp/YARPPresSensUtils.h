@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPresSensUtils.h,v 1.3 2005-05-30 14:20:07 beltran Exp $
+/// $Id: YARPPresSensUtils.h,v 1.4 2006-01-12 15:47:48 claudio72 Exp $
 ///
 ///
 
@@ -79,12 +79,17 @@ enum PresSensCmd
 
 #include<yarp/begin_pack_for_net.h>
 
-struct PresSensData
-{
+struct PresSensData {
+	PresSensData(){ clean(); };
+	void clean() {
+		channelA=channelB=channelC=channelD=0;
+	};
+
 	int channelA;
 	int channelB;
 	int channelC;
 	int channelD;
+
 };
 
 #include<yarp/end_pack_for_net.h>

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPTrackerUtils.h,v 1.2 2005-05-30 14:20:07 beltran Exp $
+/// $Id: YARPTrackerUtils.h,v 1.3 2006-01-12 15:47:48 claudio72 Exp $
 ///
 ///
 
@@ -70,8 +70,7 @@
 
 #include <yarp/YARPConfig.h>
 
-enum TrackerCmd
-{
+enum TrackerCmd {
 	TCMDGetData = 1,
 	TCMDStartStreaming = 2,
 	TCMDStopStreaming = 3,
@@ -81,8 +80,12 @@ enum TrackerCmd
 
 #include<yarp/begin_pack_for_net.h>
 
-struct TrackerData
-{
+struct TrackerData {
+	TrackerData(){ clean(); };
+	void clean() {
+		x=y=z=azimuth=elevation=roll=0.0;
+	};
+
 	double x;
 	double y;
 	double z;

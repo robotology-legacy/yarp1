@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDataGloveUtils.h,v 1.2 2005-05-30 14:20:07 beltran Exp $
+/// $Id: YARPDataGloveUtils.h,v 1.3 2006-01-12 15:47:48 claudio72 Exp $
 ///
 ///
 
@@ -85,8 +85,18 @@ enum DataGloveCmd
 
 #include<yarp/begin_pack_for_net.h>
 
-struct DataGloveData
-{
+struct DataGloveData {
+	DataGloveData(){ clean(); };
+	void clean() {
+		thumb[0]=0;  thumb[1]=0;  thumb[2]=0;
+		index[0]=0;  index[1]=0;  index[2]=0;
+		middle[0]=0; middle[1]=0; middle[2]=0;
+		ring[0]=0;   ring[1]=0;   ring[2]=0;
+		pinkie[0]=0; pinkie[1]=0; pinkie[2]=0;
+		abduction[0]=0; abduction[1]=0; abduction[2]=0; abduction[3]=0; abduction[4]=0;
+		palmArch=0;
+		wrist[0]=0; wrist[1]=0;
+	};
 	int thumb[3];	// [inner, middle, outer]
 	int index[3];	// [inner, middle, outer]
 	int middle[3];	// [inner, middle, outer]

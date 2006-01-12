@@ -503,7 +503,13 @@ void CGraspCaptureDlg::OnAcqStart()
 		saverThread.writeHeaderToFile();
 	}
 
-	cleanDataStructures();
+	_data.clean();
+	if ( _options.useCamera0 ) {
+		_img0.Zero();
+	}
+	if ( _options.useCamera1 ) {
+		_img1.Zero();
+	}
 
 	// activate collector's streaming mode
 	_cmd_outport.Content() = CCmdStartStreaming;
@@ -562,69 +568,6 @@ void CGraspCaptureDlg::OnAcqStop()
 		GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
 	if (_options.useTracker0 || _options.useTracker1)
 		GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
-
-}
-
-void CGraspCaptureDlg::cleanDataStructures(void)
-{
-
-	// Pressure Sensors
-	_data.pressureData.channelA = 0;
-	_data.pressureData.channelB = 0;
-	_data.pressureData.channelC = 0;
-	_data.pressureData.channelD = 0;
-
-	// Trackers
-	_data.tracker0Data.x = 0.0;
-	_data.tracker0Data.y = 0.0;
-	_data.tracker0Data.z = 0.0;
-	_data.tracker0Data.azimuth = 0.0;
-	_data.tracker0Data.elevation = 0.0;
-	_data.tracker0Data.roll = 0.0;
-	_data.tracker1Data.x = 0.0;
-	_data.tracker1Data.y = 0.0;
-	_data.tracker1Data.z = 0.0;
-	_data.tracker1Data.azimuth = 0.0;
-	_data.tracker1Data.elevation = 0.0;
-	_data.tracker1Data.roll = 0.0;
-
-	// GazeTracker
-	_data.GTData.pupilDiam = 0;
-	_data.GTData.pupilX = 0;
-	_data.GTData.pupilY = 0;
-
-	// DataGlove
-	_data.gloveData.thumb[0] = 0;	// inner
-	_data.gloveData.thumb[1] = 0;	// middle
-	_data.gloveData.thumb[2] = 0;	// outer
-	_data.gloveData.index[0] = 0;	// inner
-	_data.gloveData.index[1] = 0;	// middle
-	_data.gloveData.index[2] = 0;	// outer
-	_data.gloveData.middle[0] = 0;	// inner
-	_data.gloveData.middle[1] = 0;	// middle
-	_data.gloveData.middle[2] = 0;	// outer
-	_data.gloveData.ring[0] = 0;	// inner
-	_data.gloveData.ring[1] = 0;	// middle
-	_data.gloveData.ring[2] = 0;	// outer
-	_data.gloveData.pinkie[0] = 0;	// inner
-	_data.gloveData.pinkie[1] = 0;	// middle
-	_data.gloveData.pinkie[2] = 0;	// outer
-	_data.gloveData.abduction[0] = 0; // thumb-index
-	_data.gloveData.abduction[1] = 0; // index-middle
-	_data.gloveData.abduction[2] = 0; // middle-ring
-	_data.gloveData.abduction[3] = 0; // ring-pinkie
-	_data.gloveData.abduction[4] = 0; // palm
-	_data.gloveData.palmArch = 0;
-	_data.gloveData.wrist[0] = 0; // pitch
-	_data.gloveData.wrist[1] = 0; // yaw
-
-	if ( _options.useCamera0 ) {
-		_img0.Zero();
-	}
-
-	if ( _options.useCamera1 ) {
-		_img1.Zero();
-	}
 
 }
 

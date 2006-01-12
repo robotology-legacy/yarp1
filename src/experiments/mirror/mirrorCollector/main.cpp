@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.6 2006-01-12 09:40:32 claudio72 Exp $
+/// $Id: main.cpp,v 1.7 2006-01-12 15:48:46 claudio72 Exp $
 ///
 ///
 
@@ -194,9 +194,6 @@ CollectorImage         _img1;
 // the default options file name
 char* collectorConfFileName="C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
 
-// the streaming thread frequency
-const double CollectorStreamingFrequency = 1.0/1.0;
-
 // ---------- streaming thread
 
 class streamingThread : public YARPThread {
@@ -204,7 +201,7 @@ class streamingThread : public YARPThread {
 public:
 
 	streamingThread (void)
-		: _averageFreq(0.0), _numOfRuns(0) {}
+		: _averageTime(0.0), _numOfRuns(0) {}
 
 	virtual void Body (void) {
 
@@ -225,11 +222,13 @@ _previousTime = YARPTime::GetTimeAsSeconds();
 		// stream until terminated
 		while ( !IsTerminated() ) {
 
+// ------------ debug: show average frequency
 _currentTime = YARPTime::GetTimeAsSeconds();
-double interval = _currentTime - _previousTime;
-_averageFreq += (interval - _averageFreq) / (++_numOfRuns);
-cout << interval << " (AVG: " << _averageFreq << ")\r";
+_interval = _currentTime - _previousTime;
 _previousTime = _currentTime;
+_averageTime += (_interval - _averageTime) / (++_numOfRuns);
+cout << "--> interval:" << _interval << " (average: " << _averageTime << ")   \r";
+// ------------ debug
 
 			acquireAndSend();
 		}
@@ -250,7 +249,7 @@ _previousTime = _currentTime;
 
 private:
 
-	double _previousTime, _currentTime, _averageFreq;
+	double _previousTime, _currentTime, _averageTime, _interval;
 	unsigned long _numOfRuns;
 
 };
@@ -489,10 +488,9 @@ void getOptionsFromEnv(char* fileName)
 
 	// read specific options from conf file
 	YARPConfigFile optFile;
-	char buf[255];
-	int yesNo;
 	// network specs
 	optFile.setName(fileName);
+	char buf[255];
 	if ( optFile.getString("[NETWORK]", "PortName", buf) == YARP_OK) {
 		_options.portName = buf;
 	}
@@ -500,6 +498,7 @@ void getOptionsFromEnv(char* fileName)
 		_options.netName = buf;
 	}
 	// glove
+	int yesNo;
 	optFile.get("[HARDWARE]", "UseDataGlove", &yesNo); _options.useDataGlove = (yesNo ? true : false);
 	optFile.get("[HARDWARE]", "GloveComPort", &_options.gloveComPort);
 	optFile.get("[HARDWARE]", "GloveBaudRate", &_options.gloveBaudRate);
