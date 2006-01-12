@@ -50,7 +50,7 @@ public class OutputPort {
 	/*
 	 * Let's be polite and make sure the carrier is supported
 	 */
-	if (NameClient.canConnect(port.getName(),base,carrier)) {
+	if (NameClient.canConnect(port.getPortName(),base,carrier)) {
 	    Connection c = null;
 	    try {
 		c = new Connection(add,port.getPortName(),base);
