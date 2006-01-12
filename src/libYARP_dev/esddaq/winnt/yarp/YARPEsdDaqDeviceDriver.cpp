@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.3 2006-01-11 14:07:11 gmetta Exp $
+/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.4 2006-01-12 14:11:18 babybot Exp $
 ///
 ///
 
@@ -769,15 +769,13 @@ int YARPEsdDaqDeviceDriver::_readWord16Array (int msg, short *out)
 		return YARP_FAIL;
 	}
 
-	int j;	// LATER: perhaps the loop can be stopped at max # of messages.
-	for (i = 0, j = 0; i < MAX_CHANNELS; i++)
+	for (i = 0; i < r._writeMessages; i++)
 	{
-		CMSG& m = r._replyBuffer[j];
+		CMSG& m = r._replyBuffer[i];
 		if (m.id == 0xffff)
-			out[i] = 0;
+			out[r._writeMessages-1-i] = 0;
 		else
-			out[i] = *((short *)(m.data+1));
-		j++;
+			out[r._writeMessages-1-i] = *((short *)(m.data+1));
 	}
 
 	return YARP_OK;
