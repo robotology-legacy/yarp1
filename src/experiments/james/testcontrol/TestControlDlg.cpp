@@ -842,6 +842,8 @@ void CTestControlDlg::OnInterfaceStop()
 	if (_touchinitialized)
 	{
 		touch.close ();
+		_touchrunning = false;
+		_touchinitialized = false;
 	}
 
 	DisableGUI ();
