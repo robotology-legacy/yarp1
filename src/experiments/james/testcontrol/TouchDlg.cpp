@@ -105,11 +105,17 @@ void CTouchDlg::UpdateInterface()
 		int i, j;
 		for (i = 0, j = 0; i < MAX_CHANNELS; i++)
 		{
-			if (m_mask & 0x1)
+			if (val & 0x1)
 			{
 				m_c[MAX_CHANNELS-1-i] = m_c[m_count-1-j];
 				j++;
 			}
+			else
+			{
+				m_c[MAX_CHANNELS-1-i] = 0;
+			}
+
+			val >>= 1;
 		}
 
 		UpdateData (FALSE);
