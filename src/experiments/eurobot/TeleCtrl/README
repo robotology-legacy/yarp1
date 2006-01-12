@@ -4,7 +4,7 @@ In order to set the teleoperation platform up:
 
 (1) [on atlas] turn on tracker and dataglove
 
-(2) [on atlas] launch teleoperATIOOOON.js
+(2) [on atlas] launch teleoperation.js
     ---> this will start two camview's (for the slave's eyes) and
          mirrorCollector (for the master's sensors)
 
