@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 2.1 2005-12-07 14:34:09 natta Exp $
+/// $Id: YARPNameServer.h,v 2.2 2006-01-12 11:55:15 eshuy Exp $
 ///
 ///
 
@@ -122,8 +122,8 @@ public:
 
 	int accept_connection();
 	int handle_connection();
-        int handle_text_command(const char *command);
-        int handle_text_command(int argc, char *argv[]);
+        int handle_text_command(const char *command, const char *remote);
+        int handle_text_command(int argc, char *argv[], const char *remote);
 
 	// dump current status
 	void dump_resources();

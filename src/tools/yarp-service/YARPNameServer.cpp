@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 2.3 2005-12-19 17:29:04 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 2.4 2006-01-12 11:55:15 eshuy Exp $
 ///
 ///
 
@@ -562,7 +562,16 @@ int YARPNameServer::handle_connection()
 	      }
 	    }
 	    using_text = 1;
-	    handle_text_command(buf);
+	    ACE_INET_Addr remote;
+	    YARPString name("unknown");
+	    if (new_stream_.get_remote_addr(remote)==0) {
+	      // assume INET, don't really know how to use ACE
+	      //ACE_INET_Addr& inet
+	      char nbuf[1000];
+	      remote.get_host_addr(nbuf,sizeof(nbuf));
+	      name = nbuf;
+	    }
+	    handle_text_command(buf,name.c_str());
 	    tmpCmd.cmd = 0;
 	    tmpCmd.length = 0;
 	    tmpCmd.type = 0;
@@ -675,7 +684,8 @@ int YARPNameServer::handle_connection()
 #define MAX_ARG_CT (8)
 #define MAX_ARG_LEN (256)
 
-int YARPNameServer::handle_text_command(const char *command) {
+int YARPNameServer::handle_text_command(const char *command, 
+				        const char *remote) {
 
   char *argv[MAX_ARG_CT];
   char buf[MAX_ARG_CT][MAX_ARG_LEN];
@@ -708,52 +718,64 @@ int YARPNameServer::handle_text_command(const char *command) {
     buf[i][MAX_ARG_LEN-1] = '\0';
   }
 
-  return handle_text_command(at,argv);
+  return handle_text_command(at,argv,remote);
 }
 
-int YARPNameServer::handle_text_command(int argc, char *argv[]) {
-  /*
+int YARPNameServer::handle_text_command(int argc, char *argv[],
+					const char *remote) {
+
   printf("Handling text command");
   for (int i=0; i<argc; i++) {
     printf(" [%s]", argv[i]);
   }
   printf("\n");
-  */
+
   if (argc>0) {
     switch (toupper(argv[0][0])) {
     case 'R':
-      if (argc>=3) {
+      if (argc>=2) {
+	const char *target = argv[1];
+	const char *proto = NULL;
+	const char *base = NULL;
+	if (argc>=3) {
+	  if (strcmp(argv[2],"*")!=0) {
+	    proto = argv[2];
+	  }
+	}
 	if (argc>=4) {
-	  switch (toupper(argv[3][0])) {
+	  if (strcmp(argv[3],"*")!=0) {
+	    base = argv[3];
+	  }
+	}
+	if (proto==NULL) {
+	  proto = "tcp";
+	}
+	if (base==NULL) {
+	  base = remote;
+	}
+	printf("Planning to register %s for %s with protocol %s\n",
+	       target, base, proto);
+	if (true) {
+	  switch (toupper(proto[0])) {
 	  case 'T':
-	    handle_registration(argv[1], argv[2], YARP_TCP);
+	    handle_registration(target, base, YARP_TCP);
 	    break;
 	  case 'U':
-	    handle_registration(argv[1], argv[2], YARP_UDP);
+	    handle_registration(target, base, YARP_UDP);
 	    break;
 	  case 'M':
+	    handle_registration_dip(target, YARP_MCAST);
 	    /*
-	    delay_eor = 1;
-	    handle_registration(argv[1], argv[2], YARP_UDP);
-	    delay_eor = 0;
-	    {
-	      char buf[1000];
-	      if (argc>=5) {
-		sprintf(buf,"%s",argv[4]);
-	      } else {
-		sprintf(buf,"%s-mcast",argv[1]);
-	      }
-	    }
-	    */
 	    if (argv[2][0]!='+') {
-	      handle_registration(argv[1], argv[2], YARP_UDP);
+	      handle_registration(target, base, YARP_UDP);
 	    }
 	    {
 	      char buf[1000];
-	      sprintf(buf,"%s-mcast",argv[1]);
+	      sprintf(buf,"%s-mcast",target);
 	      handle_registration_dip(buf, YARP_MCAST);
 	    }
 	    break;
+	    */
 	  }
 	} else {
 	  handle_registration(argv[1], argv[2], 
