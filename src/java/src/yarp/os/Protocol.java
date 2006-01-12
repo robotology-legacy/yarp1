@@ -20,6 +20,7 @@ class Protocol implements BlockWriter, BlockReader {
     private boolean ok = true;
     private boolean textMode = false;
     private boolean requireAck = false;
+    private boolean pendingAck = false;
 
     private String senderName = "null";
     private ArrayList content = new ArrayList();
@@ -300,6 +301,7 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public boolean expectIndex() throws IOException {
+	pendingAck = true;
 	if (!ok) { return false; }
 	if (isTextMode()) {
 	    log.println("Text mode - skipping index stage");
@@ -436,6 +438,7 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public boolean sendAck() throws IOException {
+	pendingAck = false;
 	if (requireAck()&&!textMode) {
 	    log.println("sending ack");
 	    byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
@@ -493,6 +496,13 @@ class Protocol implements BlockWriter, BlockReader {
 
     public void close() {
 	try {
+	    if (pendingAck) {
+		try {
+		    sendAck();
+		} catch (IOException e) {
+		    // don't worry about this, just make best effort
+		}
+	    }
 	    shift.close();
 	} catch (IOException e) {
 	    log.error("Problem closing protocol handler");
