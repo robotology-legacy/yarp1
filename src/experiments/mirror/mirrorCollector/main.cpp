@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.5 2006-01-11 10:13:52 claudio72 Exp $
+/// $Id: main.cpp,v 1.6 2006-01-12 09:40:32 claudio72 Exp $
 ///
 ///
 
@@ -195,7 +195,7 @@ CollectorImage         _img1;
 char* collectorConfFileName="C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
 
 // the streaming thread frequency
-const double CollectorStreamingFrequency = 1.0/25.0;
+const double CollectorStreamingFrequency = 1.0/1.0;
 
 // ---------- streaming thread
 
@@ -203,45 +203,55 @@ class streamingThread : public YARPThread {
 
 public:
 
+	streamingThread (void)
+		: _averageFreq(0.0), _numOfRuns(0) {}
+
 	virtual void Body (void) {
 
 		// start streaming peripherals
-
 		if (_options.useDataGlove) {
 			_hardware.glove.startStreaming();
 		}
-
 		if (_options.useTracker0) {
 			_hardware.tracker0.startStreaming();
 		}
-
 		if (_options.useTracker1) {
 			_hardware.tracker1.startStreaming();
 		}
 
-		// stream until terminated
+cout.precision(2);
+_previousTime = YARPTime::GetTimeAsSeconds();
 
+		// stream until terminated
 		while ( !IsTerminated() ) {
-			YARPTime::DelayInSeconds(CollectorStreamingFrequency);
+
+_currentTime = YARPTime::GetTimeAsSeconds();
+double interval = _currentTime - _previousTime;
+_averageFreq += (interval - _averageFreq) / (++_numOfRuns);
+cout << interval << " (AVG: " << _averageFreq << ")\r";
+_previousTime = _currentTime;
+
 			acquireAndSend();
 		}
 
 		// stop streaming peripherals
-
 		if (_options.useDataGlove) {
 			_hardware.glove.stopStreaming();
 		}
-
 		if (_options.useTracker0) {
 			_hardware.tracker0.stopStreaming();
 		}
-		
 		if (_options.useTracker1) {
 			_hardware.tracker1.stopStreaming();
 		}
 		
 		return;
 	}
+
+private:
+
+	double _previousTime, _currentTime, _averageFreq;
+	unsigned long _numOfRuns;
 
 };
 

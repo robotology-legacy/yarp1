@@ -32,18 +32,18 @@ void CSaverThread::Body(void)
 			writeDataToFile(nFrames);
 		}
 
-		if ( useCamera0 || useCamera1 ) {
-
+		if ( useCamera0 ) {
 			p_img0_inport->Read();
 			pImg0->Refer((p_img0_inport->Content()));
 			ACE_OS::sprintf(fName,"%s_0_%03d.pgm", prefix, nFrames);
 			YARPImageFile::Write(fName, *pImg0,YARPImageFile::FORMAT_PPM);
-
+		}
+		
+		if ( useCamera1 ) {
 			p_img1_inport->Read();
 			pImg1->Refer((p_img1_inport->Content()));
 			ACE_OS::sprintf(fName,"%s_1_%03d.pgm", prefix, nFrames);
 			YARPImageFile::Write(fName, *pImg1,YARPImageFile::FORMAT_PPM);
-
 		}
 		
 	}

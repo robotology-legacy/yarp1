@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericTracker.h,v 1.1 2004-09-13 23:22:49 babybot Exp $
+/// $Id: YARPGenericTracker.h,v 1.2 2006-01-12 09:39:36 claudio72 Exp $
 ///
 ///
 
@@ -87,6 +87,7 @@ public:
 	YARPGenericTracker () {}
 	~YARPGenericTracker () {}
 
+	int initialize (unsigned short groupID,	unsigned short comPort,	unsigned int baudRate, unsigned int timeOut);
 	int initialize (unsigned short comPort,	unsigned int baudRate, unsigned int timeOut);
 	int initialize (const PARAMETERS &param);
 	int uninitialize (void);
@@ -95,6 +96,13 @@ public:
 	int stopStreaming(void);
 	
 };
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericTracker<ADAPTER, PARAMETERS>::initialize(unsigned short groupID,	unsigned short comPort, unsigned int baudRate, unsigned int timeOut)
+{
+	_params.nGroupID = groupID;
+	return initialize (comPort, baudRate, timeOut);
+}
 
 template <class ADAPTER, class PARAMETERS>
 int YARPGenericTracker<ADAPTER, PARAMETERS>::initialize(unsigned short comPort, unsigned int baudRate, unsigned int timeOut)

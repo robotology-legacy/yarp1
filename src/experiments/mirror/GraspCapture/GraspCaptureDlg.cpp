@@ -618,8 +618,14 @@ void CGraspCaptureDlg::cleanDataStructures(void)
 	_data.gloveData.wrist[0] = 0; // pitch
 	_data.gloveData.wrist[1] = 0; // yaw
 
-	_img0.Zero();
-	_img1.Zero();
+	if ( _options.useCamera0 ) {
+		_img0.Zero();
+	}
+
+	if ( _options.useCamera1 ) {
+		_img1.Zero();
+	}
+
 }
 
 void CGraspCaptureDlg::OnKill() 
