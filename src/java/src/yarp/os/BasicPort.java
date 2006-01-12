@@ -15,6 +15,7 @@ class BasicPort extends Thread {
 	Collections.synchronizedList(new ArrayList());
     private ProtocolHandler handler = null;
     private String key = null;
+    private boolean shutdown = false;
     private static Logger log = Logger.get();
 
     public BasicPort(Address address, String key) {
@@ -184,6 +185,10 @@ class BasicPort extends Thread {
 		finish = true;
 	    }
 
+	    if (shutdown) {
+		finish = true;
+	    }
+
 	    if (!finish) {
 		log.println("got something");
 		
@@ -222,6 +227,7 @@ class BasicPort extends Thread {
 
     public void close() {
 	log.println("starting Port close...");
+	shutdown = true;
 	for (Iterator it = portlets.iterator(); it.hasNext(); ) {
 	    Portlet portlet = (Portlet) it.next();
 	    portlet.close();
