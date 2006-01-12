@@ -212,7 +212,46 @@ public class NameClient {
 
     public Address register(String name, String rawProtocol) {
 	//String host = getHostName();
-	return probe("NAME_SERVER register " + name + " " + rawProtocol);
+	Address result = 
+	    probe("NAME_SERVER register " + name + " " + rawProtocol);
+
+	// set up the protocols that JYARP offers/accepts
+	// basically, we just don't do shmem
+	probe("NAME_SERVER set " + name + " offers tcp udp mcast");
+	probe("NAME_SERVER set " + name + " accepts tcp udp mcast");
+
+	return result;
+    }
+
+    public boolean check(String name, String key, String val) {
+	boolean ok = true;
+	try {
+	    String result = send("NAME_SERVER check " + name + " " + key + " " + val);
+	    Pattern p = Pattern.compile("port ([^ ]+) property ([^ ]+) value ([^ ]+) present ([^ \n\r]+)");
+	    Matcher m = p.matcher(result);
+	    log.println("check result is: " + result);
+	    if (m.find()) {
+		String t = m.group(4);
+		if (t.equals("true")) {
+		    ok = true;
+		} else {
+		    ok = false;
+		}
+	    }
+	} catch (IOException e) {
+	    log.error("problem with name server");
+	}
+
+	return ok;
+    }
+
+
+    public boolean offers(String name, String carrier) {
+	return check(name,"offers",carrier);
+    }
+
+    public boolean accepts(String name, String carrier) {
+	return check(name,"accepts",carrier);
     }
 
     public String send(String msg) throws IOException {
@@ -276,4 +315,14 @@ public class NameClient {
     public static NameClient getNameClient() {
 	return theNameClient;
     }
+
+    public static boolean canConnect(String from, String to, String carrier) {
+	NameClient nc = getNameClient();
+	boolean canOffer = nc.offers(from,carrier);
+	boolean canAccept = nc.accepts(to,carrier);
+	Logger.get().println("carrier support: offer " + canOffer + 
+			     " accept " + canAccept);
+	return canOffer&&canAccept;
+    }
+
 }

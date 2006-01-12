@@ -48,11 +48,6 @@ public class NetType {
     }
 
     public static String netString(byte[] txt) {
-	//String s = new String(txt);
-	//s = s.replaceAll("\0"," ");
-	//s = s.trim();
-	//return s;
-
 	String s = new String(txt);
 	if (s.length()>=1) {
 	    int tlen = s.length();
@@ -60,6 +55,7 @@ public class NetType {
 		s = s.substring(0,tlen-1);
 	    }
 	}
+	//Logger.get().println("netstring is [" + s + "] (" + s.length() + " chars)");
 	return s;
     }
 

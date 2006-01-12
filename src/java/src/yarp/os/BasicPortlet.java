@@ -146,8 +146,12 @@ class BasicPortlet extends Portlet {
 		    if (add!=null) {
 			add = new Address(add.getName(), add.getPort(),
 					  srcCarrier);
-			owner.addConnection(new Connection(add,owner.getPortName(),srcName));
-			owner.println(ps,msg,true);
+			if (NameClient.canConnect(ownerName,srcName,srcCarrier)) {
+			    owner.addConnection(new Connection(add,owner.getPortName(),srcName));
+			    owner.println(ps,msg,true);
+			} else {
+			    owner.println(ps,"ports cannot be connected using that protocol",true);
+			}
 		    } else {
 			owner.println(ps,"Cannot find " + srcName,true);
 		    }

@@ -47,8 +47,18 @@ public class OutputPort {
 	add = new Address(add.getName(),add.getPort(),carrier);
 	Logger.get().println("connecting to address " + add.toString());
 	
-	Connection c = new Connection(add,port.getPortName(),base);
-	port.addConnection(c);
+	/*
+	 * Let's be polite and make sure the carrier is supported
+	 */
+	if (NameClient.canConnect(port.getName(),base,carrier)) {
+	    Connection c = null;
+	    try {
+		c = new Connection(add,port.getPortName(),base);
+		port.addConnection(c);
+	    } catch (IOException e) {
+		Logger.get().error("Could not make connection");
+	    }
+	}
     }
 
     public Object content() {

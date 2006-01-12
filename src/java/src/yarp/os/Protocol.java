@@ -155,7 +155,7 @@ class Protocol implements BlockWriter, BlockReader {
 	String chk1 = NetType.netString(new byte[] { b[0], b[1], b[6], b[7] });
 	String chk2 = NetType.netString(b);
 
-	if (chk2.equals("CONNECT")) {
+	if (chk2.equals("CONNECT ")) {
 	    log.println("Text mode communication requested");
 	    textMode = true;
 	}
@@ -436,7 +436,7 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public boolean sendAck() throws IOException {
-	if (requireAck()) {
+	if (requireAck()&&!textMode) {
 	    log.println("sending ack");
 	    byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
 	    out.write(b);

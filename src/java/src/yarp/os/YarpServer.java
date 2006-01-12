@@ -80,64 +80,92 @@ class YarpServer implements CommandProcessor {
     }
 
 
-    private static class ProtocolRecord {
-	private Set spoken;
+    private static class PropertyRecord {
+	private List prop;
 
-	ProtocolRecord() {
-	    spoken = new HashSet();
+	PropertyRecord() {
+	    prop = new LinkedList();
 	    clear();
 	}
 
 	void clear() {
-	    spoken.clear();
-	    spoken.add(getLinguaFranca());
-	}
-
-	static String getLinguaFranca() {
-	    return "tcp";
+	    prop.clear();
 	}
 
 	boolean check(String p) {
-	    return spoken.contains(p);
+	    return prop.contains(p);
 	}
 
 	void add(String p) {
-	    spoken.add(p);
+	    prop.add(p);
+	}
+
+	public String toString() {
+	    String add = "";
+	    StringBuffer out = new StringBuffer("");
+	    for (Iterator it = prop.iterator(); it.hasNext(); ) {
+		String name = (String)it.next();
+		out.append(add);
+		out.append(name);
+		add = " ";
+	    }
+	    return out.toString();
 	}
     }
 
 
     private static class NameRecord {
 	private Address address = null;
-        private ProtocolRecord accepts = new ProtocolRecord();
-	private ProtocolRecord offers = new ProtocolRecord();
+	private Map propMap = new HashMap();
+
+	NameRecord() {
+	    // set up some defaults for legacy support
+	    addProp("accepts","tcp");
+	    addProp("accepts","udp");
+	    addProp("accepts","mcast");
+	    addProp("accepts","shmem");
+	    addProp("offers","tcp");
+	    addProp("offers","udp");
+	    addProp("offers","mcast");
+	    addProp("offers","shmem");
+	}
+
+	public PropertyRecord getPropertyRecord(String name) {
+	    PropertyRecord rec = (PropertyRecord)propMap.get(name);
+	    if (rec==null) {
+		rec = new PropertyRecord();
+		propMap.put(name,rec);
+	    }
+	    return rec;
+	}
 
 	public void setAddress(Address address) {
 	    this.address = address;
 	}
+
 	public Address getAddress() {
 	    return address;
 	}
-	ProtocolRecord getAccepts() {
-	    return accepts;
+
+	public void clearProp(String key) {
+	    PropertyRecord pr = getPropertyRecord(key);
+	    pr.clear();
 	}
-	ProtocolRecord getOffers() {
-	    return offers;
+
+	public void addProp(String key, String val) {
+	    PropertyRecord pr = getPropertyRecord(key);
+	    pr.add(val);
 	}
-	/*
-	boolean checkAccepts(String p) {
-	    return accepts.check(p);
+
+	public String getProp(String key) {
+	    PropertyRecord pr = getPropertyRecord(key);
+	    return pr.toString();
 	}
-	boolean checkOffers(String p) {
-	    return offers.check(p);
+
+	public boolean checkProp(String key, String val) {
+	    PropertyRecord pr = getPropertyRecord(key);
+	    return pr.check(val);
 	}
-	void addAccept(String p) {
-	    accepts.add(p);
-	}
-	void addOffer(String p) {
-	    offers.add(p);
-	}
-	*/
     }
 
     private HashMap nameMap = new HashMap();
@@ -270,14 +298,39 @@ class YarpServer implements CommandProcessor {
 		Address result = query(target);
 		return textify(result);
 	    }
-	    if (act.equals("offer")) {
+	    if (act.equals("set")) {
 		String target = str[0];
-		System.out.println("Offer " + target);
+		String key = str[1];
 		NameRecord nameRecord = getNameRecord(target);
-		ProtocolRecord pr = nameRecord.getOffers();
-		pr.clear();
-		for (int i=1; i<str.length; i++) {
-		    pr.add(str[i]);
+		nameRecord.clearProp(key);
+		for (int i=2; i<str.length; i++) {
+		    nameRecord.addProp(key,str[i]);
+		}
+		response = "port " + target + " property " + 
+		    key + " = " + nameRecord.getProp(key) +
+		    "\n";
+	    }
+	    if (act.equals("get")) {
+		String target = str[0];
+		String key = str[1];
+		NameRecord nameRecord = getNameRecord(target);
+		response = "port " + target + " property " + 
+		    key + " = " + nameRecord.getProp(key) +
+		    "\n";
+	    }
+	    if (act.equals("check")) {
+		String target = str[0];
+		String key = str[1];
+		NameRecord nameRecord = getNameRecord(target);
+		response = "";
+		for (int i=2; i<str.length; i++) {
+		    String val = "false";
+		    if (nameRecord.checkProp(key,str[i])) {
+			val = "true";
+		    }
+		    response += "port " + target + " property " + 
+			key + " value " + str[i] + " present " + val +
+			"\n";
 		}
 	    }
 	} else {
