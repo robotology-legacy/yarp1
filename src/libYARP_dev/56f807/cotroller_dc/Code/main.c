@@ -87,7 +87,7 @@ word _current[JN] = { 0, 0};			/* current through the transistors*/
 word _current_old[JN] = { 0, 0};		/* current at t-1*/
 dword _filt_current[JN] = { 0, 0};      /* filtered current through the transistors*/
 dword _filt_current_old[JN] = { 0, 0};  /* filtered current at t-1*/
-dword _limit_current = (dword) 4e6;		/* limit on the current in micro-ampere*/
+dword _limit_current = 4000000;			/* limit on the current in micro-ampere*/
 
 /*
  * version specifi global variables.
@@ -100,8 +100,6 @@ Int16 _version = 0x0112;
 Int16 _version = 0x0113;
 #elif VERSION == 0x0114
 Int16 _version = 0x0114;
-#elif VERSION == 0x0115
-Int16 _version = 0x0115;
 #endif
 
 #if VERSION == 0x0113
@@ -162,13 +160,13 @@ Int16 compute_pid2(byte j)
 		_error[j] = extract_l(InputError);
 	}		
 
-	/*Proportional*/
+	/* Proportional */
 	ProportionalPortion = ((Int32) _error[j]) * ((Int32)_kp[j]);
 	ProportionalPortion = ProportionalPortion >> _kr[j];
-	/*Derivative*/	
+	/* Derivative */	
 	DerivativePortion = ((Int32) (_error[j]-_error_old[j])) * ((Int32) _kd[j]);
 	DerivativePortion = DerivativePortion >>  _kr[j];
-	/*Integral*/
+	/* Integral */
 	IntegralError = ( (Int32) _error[j]) * ((Int32) _ki[j]);
 	IntegralError = IntegralError >> _kr[j];
 	
@@ -183,7 +181,7 @@ Int16 compute_pid2(byte j)
 	SumDerivativeProportional = L_add(ProportionalPortion, DerivativePortion);
 	PIDoutput = L_add(SumDerivativeProportional, IntegralPortion);
 	
-	/*Anti reset wind up scheme*/
+	/* Anti reset wind up scheme */
 	if (PIDoutput > _pid_limit[j])
     {
     	_pid[j] = _pid_limit[j];
@@ -208,16 +206,16 @@ Int16 compute_pid2(byte j)
 	}
 	}
 							
-	/*Accumulator saturation*/
+	/* Accumulator saturation */
 	if (_integral[j] >= _integral_limit[j])
     {
 		_integral[j] = (Int32) _integral_limit[j];
 	}
 	else 
 	{
-	if (_integral[j] < -_integral_limit[j])
-    	{
-		_integral[j] = (Int32) -_integral_limit[j];
+		if (_integral[j] < -_integral_limit[j])
+	    {
+			_integral[j] = (Int32) -_integral_limit[j];
 		}
 	}		
 	return 0;
@@ -290,8 +288,7 @@ byte writeToFlash (word addr)
 		err = IFsh1_setWordFlash(ptr, _kd[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
-//		err = IFsh1_SetWordFlash(ptr, _ki[i]);
-		err = IFsh1_setWordFlash(ptr, 0);
+		err = IFsh1_setWordFlash(ptr, _ki[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
 		err = IFsh1_setWordFlash(ptr, _ko[i]);
@@ -300,8 +297,7 @@ byte writeToFlash (word addr)
 		err = IFsh1_setWordFlash(ptr, _kr[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
-//		err = IFsh1_SetWordFlash(ptr, _integral_limit[i]);
-		err = IFsh1_setWordFlash(ptr, 0);
+		err = IFsh1_setWordFlash(ptr, _integral_limit[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
 		err = IFsh1_setWordFlash(ptr, _pid_limit[i]);
@@ -465,8 +461,6 @@ void print_version(void)
 	AS1_printStringEx ("1.13");
 #elif VERSION == 0x0114
 	AS1_printStringEx ("1.14");
-#elif VERSION == 0x0115
-	AS1_printStringEx ("1.15");
 #else
 #	error "No valid version specified"
 #endif
@@ -563,21 +557,16 @@ void main(void)
 	PWMC1_init ();
 	TI1_init ();
 	IFsh1_init ();
-	
-#if VERSION == 0x0114 | VERSION == 0x0115
 	TIC_init ();
 	AD_init ();
-#endif
 
 	__EI();
 
 	readFromFlash (_flash_addr);
 	writeToFlash (_flash_addr);	
 
-#if VERSION == 0x0114 | VERSION == 0x0115
 	AD_enableIntTriggerA ();
 	AD_enableIntTriggerB ();
-#endif			
 	
 	print_version ();
 	AS1_printStringEx ("\r\n");
@@ -697,9 +686,9 @@ void main(void)
 		generatePwm (0);
 		generatePwm (1);
 		
-		/*Current*/
-#if VERSION == 0x0115
-		/*First joint*/
+		/* Current limit management */
+		
+		/* First joint */
 		AD_getChannel16A (1, &temporary);
 		_current_old[0] = _current[0];
 		_current[0] = temporary * 0.3663;
@@ -710,27 +699,15 @@ void main(void)
 			PWMC0_outputPadDisable();
 			AS1_printStringEx (" Current threshold exceeded!");
 		}
-		
-		//AS1_printWord16AsChars(_current[0]);
-		//AS1_printStringEx (" ");
-		//AS1_printDWordAsCharsDec(_filt_current[0]);
-		//AS1_printStringEx ("\r\n");
-		
-		/*Second joint*/
+				
+		/* Second joint */
 		AD_getChannel16B (1, &temporary);
 		_current_old[1] = _current[1];
 		_current[1] = temporary * 0.3663;
 		
 		compute_filtcurr(1);
 		if (_filt_current[1] > _limit_current)
-			PWMC1_outputPadDisable();
-		
-		//AS1_printDWordAsCharsDec(_current[1]);
-		//AS1_printStringEx (" ");
-		//AS1_printDWordAsCharsDec(_filt_current[1]);
-		//AS1_printStringEx ("\r\n");
-
-#endif	
+			PWMC1_outputPadDisable();	
 
 		/* do extra functions, communicate, etc. */
 		/* LATER */
@@ -763,7 +740,6 @@ void compute_filtcurr(byte jnt)
 	
 	_filt_current_old[jnt] = _filt_current[jnt];
 	_filt_current[jnt] = 0.9886 * _filt_current_old[jnt] + 5.7 * (_current_old[jnt] + _current[jnt]);
-	
 }
 
 /* this function might not be required */
