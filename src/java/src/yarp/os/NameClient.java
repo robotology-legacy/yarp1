@@ -126,7 +126,8 @@ public class NameClient {
 		File f2 = new File(base + "/conf/namer.conf");
 		if (!f2.exists()) {
 		    try {
-			PrintStream prn = new PrintStream(f2);
+			PrintStream prn = 
+			    new PrintStream(new FileOutputStream(f2));
 			prn.println("127.0.0.1 10000");
 			prn.println("");
 			prn.println("// start network description, don't forget to separate \"Node=\" and names with space");

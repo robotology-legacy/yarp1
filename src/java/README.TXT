@@ -31,3 +31,13 @@ All this is basically the same as:
   yarp-write /write
   yarp-read /read
   yarp-connect /write /read
+
+======================================================================
+
+The code can also be compiled if you have gcj installed (on debian,
+type "apt-get install gcj").
+
+Type:
+  make gcj
+
+Then the executable should appear, named "jyarp"

@@ -44,5 +44,6 @@ disconnect:
 server:
 	$(EXEC) server
 
-
+gcj:
+	cd src && gcj --main=yarp.os.YarpClient yarp/os/*.java -o ../jyarp
 
