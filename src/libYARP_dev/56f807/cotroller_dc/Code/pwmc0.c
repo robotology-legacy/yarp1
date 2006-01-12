@@ -63,7 +63,7 @@ void PWMC0_init(void)
 	/* PWMA_PWMVAL5: PWMVAL=1333 */
 	setReg (PWMA_PWMVAL5, 0x535);         
 
-	/* PWMA_PWMCM: ??=0,PWMCM=1333 */
+	/* PWMA_PWMCM: ??=0,PWMCM=1333 i.e. 30KHz*/
 	setReg (PWMA_PWMCM, 0x535);           
 
 	/* PWMA_PMCTL: LDOK=1,PWMEN=1 */
@@ -108,31 +108,33 @@ byte PWMC0_setPeriod (word period)
 /**
  * sets the PWM duty cycle.
  * @param channel is the channel number between 0 and 5.
- * @param duty is the duty cycle. 0 means off, greater than 0x7fff
- * will cause the pwm to be on the whole period.
+ * @param val determines the duty cycle which is given by
+ * the expression duty = val/PWMCM * 100. 0 means off, 
+ * greater than 0x7fff will cause the pwm to be on the 
+ * whole period.
  * @return ERR_OK if successful.
  */
-byte PWMC0_setDuty (byte channel, int duty)
+byte PWMC0_setDuty (byte channel, int val)
 {
 	switch (channel) 
 	{
 	case 0 :
-		setReg (PWMA_PWMVAL0, duty);
+		setReg (PWMA_PWMVAL0, val);
 		break;
 	case 1 :
-		setReg (PWMA_PWMVAL1, duty);
+		setReg (PWMA_PWMVAL1, val);
 		break;
 	case 2 :
-		setReg (PWMA_PWMVAL2, duty);
+		setReg (PWMA_PWMVAL2, val);
 		break;
 	case 3 :
-		setReg (PWMA_PWMVAL3, duty);
+		setReg (PWMA_PWMVAL3, val);
 		break;
 	case 4 :
-		setReg (PWMA_PWMVAL4, duty);
+		setReg (PWMA_PWMVAL4, val);
 		break;
 	case 5 :
-		setReg (PWMA_PWMVAL5, duty);
+		setReg (PWMA_PWMVAL5, val);
 		break;
 	default: 
 		return ERR_RANGE;
@@ -152,26 +154,27 @@ byte PWMC0_setDutyPercent(byte channel,byte duty)
 
 	if (duty>100)
 		return ERR_RANGE;
+		
 	dutyreg = (word)((dword)getReg (PWMA_PWMCM) * duty / 100);
 	switch (channel) 
 	{
 	case 0 :
-		setReg(PWMA_PWMVAL0,dutyreg);
+		setReg(PWMA_PWMVAL0,duty);
 		break;
 	case 1 :
-		setReg(PWMA_PWMVAL1,dutyreg);
+		setReg(PWMA_PWMVAL1,duty);
 		break;
 	case 2 :
-		setReg(PWMA_PWMVAL2,dutyreg);
+		setReg(PWMA_PWMVAL2,duty);
 		break;
 	case 3 :
-		setReg(PWMA_PWMVAL3,dutyreg);
+		setReg(PWMA_PWMVAL3,duty);
 		break;
 	case 4 :
-		setReg(PWMA_PWMVAL4,dutyreg);
+		setReg(PWMA_PWMVAL4,duty);
 		break;
 	case 5 :
-		setReg(PWMA_PWMVAL5,dutyreg);
+		setReg(PWMA_PWMVAL5,duty);
 		break;
 	default: 
 		return ERR_RANGE;

@@ -609,6 +609,7 @@
 	if (CAN_LEN == 3) \
 	{ \
 		_ki[i] = BYTE_W(CAN_DATA[1], CAN_DATA[2]); \
+		_integral[i] = 0; \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \

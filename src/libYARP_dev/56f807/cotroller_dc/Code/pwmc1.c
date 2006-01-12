@@ -11,6 +11,8 @@
  
 #include "pwmc1.h"
 #include "controller.h"
+#include "asc.h"
+
 
 /**
  * initializes the PWM module w/ 30KHz complementary mode and 8 clock tick dead time.
@@ -63,7 +65,7 @@ void PWMC1_init(void)
 	/* PWMB_PWMVAL5: PWMVAL=1333 */
 	setReg (PWMB_PWMVAL5, 0x0535);         
 
-	/* PWMB_PWMCM: ??=0,PWMCM=1333 */
+	/* PWMB_PWMCM: ??=0,PWMCM=1333 i.e. 30KHz*/
 	setReg (PWMB_PWMCM, 0x0535);           
 
 	/* PWMB_PMCTL: LDOK=1,PWMEN=1 */

@@ -6,6 +6,7 @@
  */
  
 #include "controller.h"
+#include "asc.h"
 
 /* global variables */
 //bool _actv[JN] = { false, false };
@@ -21,6 +22,7 @@ Int16 _period = CONTROLLER_PERIOD;	/* in ms */
 float _stepf[JN] = { 0., 0. };
 
 bool _ended[JN] = { true, true };
+extern bool EnablePrintOnScreen;
 
 /* local prototypes */
 float p5f (float x);
@@ -52,7 +54,7 @@ Int16 init_trajectory (byte jj, Int32 current, Int32 final, Int16 speed)
 	
 	_x0[jj] = current;
 	_xf[jj] = final;
-
+	
 	_distance[jj] = _xf[jj] - _x0[jj];
 	_tf[jj] = __labs (_distance[jj]) / speedf;
 	_tf[jj] /= (float)_period;
@@ -121,6 +123,6 @@ Int32 step_trajectory (byte jj)
 		return (Int32)a;
 	}			
 
-	_ended[jj] = true;	
+	_ended[jj] = true;
 	return _xf[jj];
 }

@@ -63,7 +63,7 @@ Int16  _max_vel[JN] = { DEFAULT_MAX_VELOCITY, DEFAULT_MAX_VELOCITY };
 										
 Int16  _set_acc[JN] = { DEFAULT_ACCELERATION, DEFAULT_ACCELERATION };
 										/* set point for acceleration [too low!] */
-Int16  _integral[JN] = { 0, 0 };		/* store the sum of the integral component */
+Int32  _integral[JN] = { 0, 0 };		/* store the sum of the integral component */
 Int16  _integral_limit[JN] = { 0x7fff, 0x7fff };
 
 Int16  _error[JN] = { 0, 0 };			/* actual feedback error */
@@ -83,6 +83,12 @@ Int16 _counter = 0;						/* used to count cycles, it resets now and then */
 Int16 _flash_addr = 0;
 byte _write_buffer = 0;					/* the current CAN bus buffer, buffers alternate */
 
+word _current[JN] = { 0, 0};			/* current through the transistors*/
+word _current_old[JN] = { 0, 0};		/* current at t-1*/
+dword _filt_current[JN] = { 0, 0};      /* filtered current through the transistors*/
+dword _filt_current_old[JN] = { 0, 0};  /* filtered current at t-1*/
+dword _limit_current = (dword) 4e6;		/* limit on the current in micro-ampere*/
+
 /*
  * version specifi global variables.
  */
@@ -94,6 +100,8 @@ Int16 _version = 0x0112;
 Int16 _version = 0x0113;
 #elif VERSION == 0x0114
 Int16 _version = 0x0114;
+#elif VERSION == 0x0115
+Int16 _version = 0x0115;
 #endif
 
 #if VERSION == 0x0113
@@ -122,6 +130,7 @@ extern bool _ended[];					/* trajectory completed flag */
 /* Local prototypes */
 Int16 compute_pid2(byte j);
 void print_version(void);
+void compute_filtcurr(byte j);
 
 #if VERSION == 0x0113
 void can_send_request(void);
@@ -132,53 +141,86 @@ void can_send_request(void);
  */
 Int16 compute_pid2(byte j)
 {
-	Int32 ProportionalPortion, PIDoutput;
-	Int16 InputError;
-
+	Int32 ProportionalPortion, DerivativePortion, IntegralPortion;
+	Int32 SumDerivativeProportional;
+	Int32 IntegralError;
+	Int32 PIDoutput;
+	Int32 InputError;
+		
 	/* the error @ previous cycle */
 	_error_old[j] = _error[j];
 
-	PIDoutput = L_sub(_desired[j], _position[j]);
-	
-	if (PIDoutput > MAX_16)
-		InputError = MAX_16;
-	else
-	if (PIDoutput < MIN_16) 
-		InputError = MIN_16;
-	else
-	{
-		InputError = extract_l(PIDoutput);
-	}
-	
-	ProportionalPortion = L_mult(_kp[j], InputError) >> _kr[j];
-	_error[j] = InputError;
-
-	PIDoutput = L_sub(L_deposit_l(InputError), L_deposit_l(_error_old[j]));
-	
-	if (PIDoutput > MAX_16)
-		InputError = MAX_16;
-	else
-	if(PIDoutput < MIN_16)  
-		InputError = MIN_16;
-	else
-	{
-		InputError = extract_l(PIDoutput);
-	}
-	
-	PIDoutput = L_mult(_kd[j], InputError) >> _kr[j];
-	PIDoutput = L_add(PIDoutput, ProportionalPortion);
-
-	if (PIDoutput > _pid_limit[j])
-    	_pid[j] = _pid_limit[j];
-	else
-    if (PIDoutput < -_pid_limit[j])
-		_pid[j] =  -_pid_limit[j];
-	else
-	{
-		_pid[j] = extract_l(PIDoutput);
-	}
+	InputError = L_sub(_desired[j], _position[j]);
 		
-	return 0; //(extract_l(PIDoutput));
+	if (InputError > MAX_16)
+		_error[j] = MAX_16;
+	else
+	if (InputError < MIN_16) 
+		_error[j] = MIN_16;
+	else
+	{
+		_error[j] = extract_l(InputError);
+	}		
+
+	/*Proportional*/
+	ProportionalPortion = ((Int32) _error[j]) * ((Int32)_kp[j]);
+	ProportionalPortion = ProportionalPortion >> _kr[j];
+	/*Derivative*/	
+	DerivativePortion = ((Int32) (_error[j]-_error_old[j])) * ((Int32) _kd[j]);
+	DerivativePortion = DerivativePortion >>  _kr[j];
+	/*Integral*/
+	IntegralError = ( (Int32) _error[j]) * ((Int32) _ki[j]);
+	IntegralError = IntegralError >> _kr[j];
+	
+	if (IntegralError > MAX_16)
+		IntegralError = (Int32) MAX_16;
+	if (IntegralError < MIN_16) 
+		IntegralError = (Int32) MIN_16;
+	
+	_integral[j] = L_add(_integral[j], IntegralError);
+	IntegralPortion = _integral[j];
+		
+	SumDerivativeProportional = L_add(ProportionalPortion, DerivativePortion);
+	PIDoutput = L_add(SumDerivativeProportional, IntegralPortion);
+	
+	/*Anti reset wind up scheme*/
+	if (PIDoutput > _pid_limit[j])
+    {
+    	_pid[j] = _pid_limit[j];
+    	if ( _ki[j] != 0)
+    	{
+    		_integral[j] =  ((Int32) _pid_limit[j]) - SumDerivativeProportional;
+		}
+	}
+	else 
+	{
+	if (PIDoutput < -_pid_limit[j])
+    {
+		_pid[j] =  -_pid_limit[j];
+		if ( _ki[j] != 0)
+		{
+    		_integral[j] =  ((Int32) (-_pid_limit[j])) - SumDerivativeProportional;
+		}
+	}
+	else
+	{
+		_pid[j] = (Int16)(PIDoutput);
+	}
+	}
+							
+	/*Accumulator saturation*/
+	if (_integral[j] >= _integral_limit[j])
+    {
+		_integral[j] = (Int32) _integral_limit[j];
+	}
+	else 
+	{
+	if (_integral[j] < -_integral_limit[j])
+    	{
+		_integral[j] = (Int32) -_integral_limit[j];
+		}
+	}		
+	return 0;
 }
 
 
@@ -330,9 +372,9 @@ dword BYTE_C(byte x4, byte x3, byte x2, byte x1)
 
 #define DUTYCYCLE(axis, ch, value) \
  if (axis == 0) \
-	PWMC0_setDutyPercent (ch, value); \
+	PWMC0_setDuty (ch, value); \
  else \
-	PWMC1_setDutyPercent (ch, value);
+	PWMC1_setDuty (ch, value);
  
 #define LOADDUTYCYCLE(axis) \
  if (axis == 0) \
@@ -382,19 +424,19 @@ void generatePwm (byte i)
 		{
 			if (_pid[i] >= 0)
 			{
-				if (_pid[i] > 100) 
-					_pid[i] = 100;
-				DUTYCYCLE (i, 0, (unsigned char)(_pid[i] & 0x00ff));
+				if (_pid[i] > MAX_16) 
+					_pid[i] = MAX_16;
+				DUTYCYCLE (i, 0, (unsigned char)(_pid[i] & 0x7fff));
 				DUTYCYCLE (i, 2, 0);
 				DUTYCYCLE (i, 4, 0);
 			}
 			else
 			{
 				_pid[i] = -_pid[i];
-				if (_pid[i] > 100) 
-					_pid[i] = 100;
+				if (_pid[i] > MAX_16) 
+					_pid[i] = MAX_16;
 				DUTYCYCLE (i, 0, 0);
-				DUTYCYCLE (i, 2, (unsigned char)(_pid[i] & 0x00ff));
+				DUTYCYCLE (i, 2, (unsigned char)(_pid[i] & 0x7fff));
 				DUTYCYCLE (i, 4, 0);
 			}
 			
@@ -423,6 +465,8 @@ void print_version(void)
 	AS1_printStringEx ("1.13");
 #elif VERSION == 0x0114
 	AS1_printStringEx ("1.14");
+#elif VERSION == 0x0115
+	AS1_printStringEx ("1.15");
 #else
 #	error "No valid version specified"
 #endif
@@ -520,7 +564,7 @@ void main(void)
 	TI1_init ();
 	IFsh1_init ();
 	
-#if VERSION == 0x0114
+#if VERSION == 0x0114 | VERSION == 0x0115
 	TIC_init ();
 	AD_init ();
 #endif
@@ -530,7 +574,7 @@ void main(void)
 	readFromFlash (_flash_addr);
 	writeToFlash (_flash_addr);	
 
-#if VERSION == 0x0114
+#if VERSION == 0x0114 | VERSION == 0x0115
 	AD_enableIntTriggerA ();
 	AD_enableIntTriggerB ();
 #endif			
@@ -652,6 +696,41 @@ void main(void)
 		 */		  
 		generatePwm (0);
 		generatePwm (1);
+		
+		/*Current*/
+#if VERSION == 0x0115
+		/*First joint*/
+		AD_getChannel16A (1, &temporary);
+		_current_old[0] = _current[0];
+		_current[0] = temporary * 0.3663;
+		
+		compute_filtcurr(0);
+		if (_filt_current[0] > _limit_current)
+		{
+			PWMC0_outputPadDisable();
+			AS1_printStringEx (" Current threshold exceeded!");
+		}
+		
+		//AS1_printWord16AsChars(_current[0]);
+		//AS1_printStringEx (" ");
+		//AS1_printDWordAsCharsDec(_filt_current[0]);
+		//AS1_printStringEx ("\r\n");
+		
+		/*Second joint*/
+		AD_getChannel16B (1, &temporary);
+		_current_old[1] = _current[1];
+		_current[1] = temporary * 0.3663;
+		
+		compute_filtcurr(1);
+		if (_filt_current[1] > _limit_current)
+			PWMC1_outputPadDisable();
+		
+		//AS1_printDWordAsCharsDec(_current[1]);
+		//AS1_printStringEx (" ");
+		//AS1_printDWordAsCharsDec(_filt_current[1]);
+		//AS1_printStringEx ("\r\n");
+
+#endif	
 
 		/* do extra functions, communicate, etc. */
 		/* LATER */
@@ -662,6 +741,30 @@ void main(void)
 	} /* end for(;;) */
 }
 
+/* this function filters the current */
+
+void compute_filtcurr(byte jnt)
+{
+	/*
+	The filter is the following:
+	_filt_current = a_1 * _filt_current_old 
+				  + a_2 * (_current_old + _current).
+	Parameters a_1 and a_2 are computed on the sample time
+	(Ts = 1 ms) and the rising time (ts = 200ms).Specifically
+	we have:
+	a_1 = (2*tau - Ts) / (2*tau + Ts)
+	a_2 = Ts / (2*tau + Ts)
+	where tau = ts/2.3. Therefore:
+	a_1 = 0.9886
+	a_2 = 0.0057
+	For numerical reasons we prefer to compute _filt_current
+	in micro-ampere choosing a_2 = 3.8 instead of a_2 = 0.0038
+	*/
+	
+	_filt_current_old[jnt] = _filt_current[jnt];
+	_filt_current[jnt] = 0.9886 * _filt_current_old[jnt] + 5.7 * (_current_old[jnt] + _current[jnt]);
+	
+}
 
 /* this function might not be required */
 byte calibrate (byte jnt)

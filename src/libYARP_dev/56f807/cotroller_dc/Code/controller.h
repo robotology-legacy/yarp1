@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.19 2006-01-12 09:11:24 babybot Exp $
+/// $Id: controller.h,v 1.20 2006-01-12 15:50:36 gmetta Exp $
 ///
 ///
 
@@ -52,9 +52,10 @@
 #endif
 
 //#define VERSION 0x0111				/* standard/basic implementation */
-#define VERSION 0x0112   		    	/* decouples shoulder first two joints */
-//#define VERSION 0x0113     			/* decouples the third joint of the shoulder */
+//#define VERSION 0x0112				/* decouples shoulder first two joints */
+//#define VERSION 0x0113				/* decouples the third joint of the shoulder */
 //#define VERSION 0x0114				/* feedback from the AD */
+#define VERSION 0x0115				/* limits on transistors current flow */
 
 //#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
