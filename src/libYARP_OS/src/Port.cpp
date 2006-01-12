@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: Port.cpp,v 2.1 2006-01-12 11:53:37 eshuy Exp $
 ///
 ///
 
@@ -271,7 +271,20 @@ void OutputTarget::Body ()
 
 			target_pid = YARPNameService::LocateName (GetLabel().c_str(), network_name.c_str());
 			target_pid->setRequireAck(GetRequireAck());
-			if (!target_pid->isConsistent(YARP_UDP))
+			/*
+			  There is some kind of hack going on here that
+			  prevents a clean use of nameserver (registering
+			  ports with the protocol they actually use).
+			  Adding a workaround.
+			 */
+			int use_workaround = 0;
+			if (target_pid->isConsistent(YARP_TCP)) {
+			  use_workaround = 1;
+			}
+
+
+			if (!(use_workaround||
+			      target_pid->isConsistent(YARP_UDP)))
 			{
 			  if (target_pid->getServiceType()==YARP_NO_SERVICE_AVAILABLE) {
 			    ACE_DEBUG ((LM_INFO, "*** FAILED to make connection to %s, port not found\n",GetLabel().c_str()));
