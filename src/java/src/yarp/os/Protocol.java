@@ -258,7 +258,9 @@ class Protocol implements BlockWriter, BlockReader {
 	if (!ok) { return false; }
 	byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
 	assert(shift.getAddress()!=null);
-	byte b2[] = NetType.netInt(shift.getAddress().getPort());
+	int cport = shift.getAddress().getPort();
+	log.println("setting port number to " + cport);
+	byte b2[] = NetType.netInt(cport);
 	for (int i=0; i<b2.length; i++) {
 	    b[i+2] = b2[i];
 	}
