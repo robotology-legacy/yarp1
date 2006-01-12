@@ -1,0 +1,17 @@
+On linux:
+
+goto:
+$YARP_ROOT/src/libYARP_OS/doc/manual and type make prep
+
+it'll generate the html under: ./manual
+
+then copy the files in: 
+ htdocs/doc-yarp0/doc/manual/manual
+
+on the YARP website. The doc directory is exactly the same in libYARP_OS/doc (copied).
+Don't foget to check the permissions (rw to group, r to others)
+
+The other directories in:
+ htdocs/doc-yarp0/doc/
+
+are the Doxygen output. Also to be copied on the website and permissions checked.
