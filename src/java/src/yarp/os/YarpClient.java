@@ -76,11 +76,11 @@ class YarpClient {
     }
 
 
-    public static void command(String source, String cmd) {
+    public static void command(String source, String cmd) throws IOException {
 	command(source,cmd,'\0');
     }
 
-    public static void command(String source, String cmd, char ch) {
+    public static void command(String source, String cmd, char ch) throws IOException {
 	try {
 	    NameClient nc = NameClient.getNameClient();
 	    
@@ -95,7 +95,7 @@ class YarpClient {
 	    c.writeCommand(ch,cmd);
 	    c.close();
 	} catch (IOException e) {
-	    System.err.println("connection failed");
+	    throw(new IOException("connection failed"));
 	}
     }
 
@@ -111,7 +111,11 @@ class YarpClient {
 	    target = "/" + carrier + ":/" + target;
 	}
 	System.out.println("Connecting " + source + " to " + target);
-	command(source,target);
+	try {
+	    command(source,target);
+	} catch(IOException e) {
+	    log.error(e.toString());
+	}
     }
 
     public static void disconnect(String[] args) {
@@ -122,7 +126,11 @@ class YarpClient {
 	String source = args[1];
 	String target = args[2];
 	System.out.println("Disconnecting " + source + " from " + target);
-	command(source,"!"+target);
+	try {
+	    command(source,"!"+target);
+	} catch(IOException e) {
+	    log.error(e.toString());
+	}
     }
 
     public static void write(String[] args) {

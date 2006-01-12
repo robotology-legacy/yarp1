@@ -31,9 +31,9 @@ public class BottleContent implements Content {
     }
 
     public void write(BlockWriter proto) throws IOException {	
-	byte[] data = bot.get();
+	byte[] data2 = bot.get();
 	String name = "void";
-	int len = data.length;
+	int len = data2.length;
 	proto.appendInt(name.length()+1);
 	proto.appendString(name);
 	proto.appendInt(len);

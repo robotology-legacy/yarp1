@@ -45,16 +45,16 @@ class UdpCarrier extends Carrier {
 
     public void open(Address address, Carrier previous) throws IOException {
 	close();
-	Address local = previous.getLocalAddress();
-	Address remote = previous.getRemoteAddress();
-	dgram = new DatagramSocket(local.getPort());
+	Address clocal = previous.getLocalAddress();
+	Address cremote = previous.getRemoteAddress();
+	dgram = new DatagramSocket(clocal.getPort());
 	if (address!=null) {
-	    remote = new Address(remote.getName(),address.getPort());
+	    cremote = new Address(cremote.getName(),address.getPort());
 	}
-	setAddress(local,remote);
+	setAddress(clocal,cremote);
 	is = new DatagramInputStream(dgram,512);
 	os = new BufferedOutputStream(new DatagramOutputStream(dgram,
-							       remote,
+							       cremote,
 							       512,
 							       reading),
 				      512);

@@ -85,11 +85,11 @@ public class NameClient {
 	Pattern p = Pattern.compile("^([^ ]+) +([0-9]+)");
 	Matcher m = p.matcher(txt);
 	if (m.find()) {
-	    String host = m.group(1);
-	    String port = m.group(2);
-	    log.println("Config host is " + host + " and port is " +
-			port);
-	    address = new Address(host,Integer.valueOf(port));
+	    String chost = m.group(1);
+	    String cport = m.group(2);
+	    log.println("Config host is " + chost + " and port is " +
+			cport);
+	    address = new Address(chost,Integer.valueOf(cport).intValue());
 	}
 	address = new Address("127.0.0.1",10000);
     }

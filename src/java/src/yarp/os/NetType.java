@@ -18,7 +18,7 @@ public class NetType {
 	    x *= 256;
 	    x += unsigned(b[i+offset]);
 	}
-	if (x>Integer.MAX_VALUE) { x -= 2*Integer.MIN_VALUE; }
+	if (x>Integer.MAX_VALUE) { x -= 2*((long)Integer.MIN_VALUE); }
 	return (int)x;
     }
 

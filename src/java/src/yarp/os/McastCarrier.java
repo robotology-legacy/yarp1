@@ -126,7 +126,7 @@ class McastCarrier extends Carrier {
 
     public Address mcastQuery(String name) {
 	NameClient nc = NameClient.getNameClient();
-	String q = nc.getNamePart(name) + "-mcast";
+	String q = NameClient.getNamePart(name) + "-mcast";
         Address address = nc.probe("NAME_SERVER query " + q);
 	if (address==null) {
 	    return nc.register(q,"mcast");
@@ -188,25 +188,32 @@ class McastCarrier extends Carrier {
     }
 
     public void open(Address address, Carrier previous) throws IOException {
+	address = new Address(address.getName(),
+			      address.getPort(),
+			      "mcast");
 	log.println("********* open for mcast address " + address);
 	//close();
-	Address local = previous.getLocalAddress();
-	Address remote = previous.getLocalAddress();
-	Address tcpRemote = remote;
-	remote = address;
+	Address clocal = previous.getLocalAddress();
+	Address cremote = previous.getLocalAddress();
+	Address tcpRemote = cremote;
+	cremote = address;
 	InetAddress group = InetAddress.getByName(address.getName());
 	InetAddress tcp = InetAddress.getByName(tcpRemote.getName());
 	mcast = new MulticastSocket(address.getPort()); 
 
-	log.debug("remote address is " + remote);
+	log.debug("tcp address is " + tcpRemote);
+	log.debug("mcast address is " + cremote);
 
-	NetworkInterface anticipate = NetworkInterface.getByInetAddress(tcp);
-	if (anticipate.getDisplayName().equals("lo")) {
-	    // loopback may not support multicast, so skip setting interface
-	} else {
-	    mcast.setInterface(InetAddress.getByName(tcpRemote.getName()));
-	    // does the above pick the right NIC?  if not, should call 
-	    // setNetworkInterface.
+	if (!reading) {
+	    NetworkInterface anticipate = NetworkInterface.getByInetAddress(tcp);
+	    log.debug("anticipate nic is " + anticipate.getDisplayName());
+	    if (anticipate.getDisplayName().equals("lo")) {
+		// loopback may not support multicast, so skip setting interface
+	    } else {
+		// setting the interface seems to break things right now.
+		mcast.setNetworkInterface(anticipate);
+		//mcast.setInterface(InetAddress.getByName(tcpRemote.getName()));
+	    }
 	}
 
 	mcast.joinGroup(group);
@@ -217,10 +224,10 @@ class McastCarrier extends Carrier {
 	mcastKey = mcastAddress.getName() + " on NIC " + nicName;
 	addCarrier(mcastKey,this);
 	
-	setAddress(local,remote);
+	setAddress(clocal,cremote);
 	is = new DatagramInputStream(mcast,512);
 	os = new BufferedOutputStream(new DatagramOutputStream(mcast,
-							       remote,
+							       cremote,
 							       512,
 							       reading),
 				      512);

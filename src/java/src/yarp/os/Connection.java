@@ -24,11 +24,10 @@ public class Connection {
 	try {
 	    socket = new Socket(address.getName(),address.getPort());
 	} catch (UnknownHostException e) {
-	    log.error("Don't know about host " + address.getName());
-	    throw(new IOException());
+	    throw(new IOException("Don't know about host " + address.getName()));
 	} catch (IOException e) {
-	    log.error("Couldn't make a connection to " + address);
-	    throw(new IOException());
+	    //log.error("Couldn't make a connection to " + address);
+	    throw(new IOException("Couldn't make a connection to " + address));
 	}
 	    
 	if (socket==null) {
@@ -72,7 +71,11 @@ public class Connection {
 	    // up what the right command is
 	    log.println("Attempting to ask " + getToName() +
 			" to disconnect from " + getFromName());
-	    YarpClient.command(getToName(),"~" +getFromName());
+	    try {
+		YarpClient.command(getToName(),"~" +getFromName());
+	    } catch (IOException e) {
+		// this is fine, other side closed down first
+	    }
 	}
     }
 

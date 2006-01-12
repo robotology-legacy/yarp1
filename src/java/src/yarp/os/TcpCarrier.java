@@ -6,8 +6,8 @@ import java.net.*;
 
 class TcpCarrier extends Carrier {
     Socket socket;
-    Address local;
-    Address remote;
+    //Address local;
+    //Address remote;
 
     public String getName() {
 	return "tcp";

@@ -9,11 +9,11 @@ class Logger {
     private Logger parent;
     private String prefix;
 
-    private final int SEVERE = 10;
-    private final int INFO = 9;
-    private final int WARNING = 8;
-    private final int MAJOR_DEBUG = 7;
-    private final int DEBUG = 6;
+    private final static int SEVERE = 10;
+    private final static int INFO = 9;
+    private final static int WARNING = 8;
+    private final static int MAJOR_DEBUG = 7;
+    private final static int DEBUG = 6;
 
     private int low = WARNING;
 
