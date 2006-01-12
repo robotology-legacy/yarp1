@@ -14,7 +14,7 @@ public class NetType {
 	long x = 0;
 	if (len<0) { len = b.length-offset; }
 	for (int i=len-1; i>=0; i--) {
-	    //System.out.println("int " + i + " is " + unsigned(b[i+offset]));
+	    System.out.println("int " + i + " is " + unsigned(b[i+offset]));
 	    x *= 256;
 	    x += unsigned(b[i+offset]);
 	}
