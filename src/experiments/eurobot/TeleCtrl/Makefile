@@ -11,7 +11,7 @@
 include $(YARP_ROOT)/conf/Makefile.template
 
 CPPFLAGS += -I $(YARP_ROOT)/include -I $(YARP_ROOT)/include/$(OS) -I ../../mirror/mirrorCollector $(CDEFS) -I NR -ggdb3
-BIN     = TeleCtrl TeleCtrl_new
+BIN     = TeleCtrl
 FILES 	=
 LDLIBS  =	$(YARP_ROOT)/lib/$(OS)/libYARP_robot.a \
 		$(YARP_ROOT)/lib/$(OS)/libYARP_dev.a \

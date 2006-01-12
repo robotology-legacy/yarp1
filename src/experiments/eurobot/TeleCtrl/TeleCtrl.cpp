@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.1 2005-12-02 13:56:55 beltran Exp $
+/// $Id: TeleCtrl.cpp,v 1.2 2006-01-12 16:28:15 beltran Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -87,6 +87,11 @@
 #include <yarp/YARPScheduler.h>
 #include <yarp/YARPImages.h>
 #include <yarp/YARPImageFile.h>
+// sockets (for GraspIt)
+#include "ace/SOCK_Connector.h"
+#include "ace/INET_Addr.h"
+#define SIZE_BUF 128
+#define NO_ITERATIONS 5
 
 // straight from sendCmd (to be understood later on)
 #include <yarp/YARPBabyBottle.h>
@@ -98,10 +103,13 @@
 #include <yarp/YARPPresSensUtils.h>
 #include <yarp/YARPDataGloveUtils.h>
 #include <yarp/YARPTrackerUtils.h>
-#include <yarp/YARPRobotHardware.h>
+#include <yarp/YARPGazeTrackerUtils.h>
 // this is needed, too: we must be able to interact with mirrorCollector
 // in order to gather data from the MASTER
 #include "CollectorCommands.h"
+// Numerical Recipes --- this is for the downhill simplex method
+// used in evaluating inverse kinematics
+#include "nr.h"
 
 // -----------------------------------
 // globals
@@ -111,8 +119,11 @@ using namespace std;
 
 // global options
 struct SaverOptions {
+  int useCamera0, useCamera1;
   int sizeX, sizeY;
-  int useCamera, useTracker, useDataGlove, usePresSens;
+  int useTracker0, useTracker1;
+  int useDataGlove;
+  int usePresSens;
 } _options;
 
 // standard name for port
@@ -122,29 +133,75 @@ const char *DEFAULT_TOSLAVE_NAME = "TeleCtrlToSlave";
 const char *CONNECT_SCRIPT = "TeleCtrlConnect.bat";
 const char *DISCONNECT_SCRIPT = "TeleCtrlDisconnect.bat";
 
-// communication ports with MASTER
-YARPInputPortOf<MNumData> _master_data_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-YARPInputPortOf<YARPGenericImage> _master_img_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-YARPInputPortOf<int> _master_rep_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-YARPOutputPortOf<MCommands> _master_cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-// communication port with SLAVE
+// communication ports to MASTER
+// data
+YARPInputPortOf<CollectorNumericalData> _master_data_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+YARPInputPortOf<YARPGenericImage> _master_img0_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+YARPInputPortOf<YARPGenericImage> _master_img1_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+// commands (back and forth)
+YARPInputPortOf<int> _master_cmd_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+YARPOutputPortOf<CollectorCommand> _master_cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+// communication port to SLAVE
 YARPOutputPortOf<YARPBabyBottle> _slave_outport(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 
 // prefix for saved images file names
 char _prefix[255];
-// *the* image
-YARPImageOf<YarpPixelBGR> _img;
+// from the cameras
+CollectorImage _img0;
+CollectorImage _img1;
 // data flowing from MASTER to TeleCtrl (glove, pressure, tracker)
-MNumData _data;
+CollectorNumericalData _data;
+// six coordinates of the reference frame (set by calibration at the beginning)
+double refX=0, refY=0, refZ=0, refAz=0, refEl=0, refRo=0;
+// convert degrees to radiants
+const double myDegToRad = 2*M_PI/360.0;
+// convert inches to cm's
+const double myInchToCM = 2.45;
+// set in-place rotation tolerance to half a cm (the FOB works in inches...)
+#define INPLACE_TOLERANCE (0.5/myInchToCM)
+// streaming frequency
+const double streamingFrequency = 1.0/25.0;
+
+// evaluation of inverse kinematics
+// desired configuration - as a global, so far
+YVector desired_cfg(3);
+
+// Dataglove
+double dThumbMiddle  = 0.0;
+double dIndexMiddle  = 0.0;
+double dMiddleMiddle = 0.0;
+double dAbduction    = 0.0;
+
+int iThumbMiddleOpen   = 0;
+int iIndexMiddleOpen   = 0;
+int iMiddleMiddleOpen  = 0;
+int iAbductionOpen     = 0;
+
+int iThumbMiddleClosed  = 0;
+int iIndexMiddleClosed  = 0;
+int iMiddleMiddleClosed = 0;
+int iAbductionClosed    = 0;
+
+//Data glove transformation factors
+double dThumbMiddleFactor  = 0.0;
+double dIndexMiddleFactor  = 0.0;
+double dMiddleMiddleFactor = 0.0;
+double dAbductionFactor    = 0.0;
 
 // -----------------------------------
 // prototypes
 // -----------------------------------
 
-void prepareDataStructures(void);
-void cleanDataStructures(void);
+void forward_kinematics(YVector&, YVector&);
+double evaluate_error(YVector&);
+void inverse_kinematics(YVector&, YVector&, YVector&);
+void NR::amoeba(Mat_IO_DP&, Vec_IO_DP&, const DP, DP funk(Vec_I_DP&), int&);
+DP NR::amotry(Mat_IO_DP&, Vec_O_DP&, Vec_IO_DP&, DP funk(Vec_I_DP&),const int, const DP);
+
 void registerPorts(void);
 void unregisterPorts(void);
+int SendArmPositions(double, double, double, double, double, double);
+
 int main(void);
 
 // -----------------------------------
@@ -162,119 +219,90 @@ public:
 void streamingThread::Body (void)
 {
 
-  int j = 0;
-  char imageFileName[255];
- 
-  cleanDataStructures();
- 
+  // for the inverse kinematics
+  YVector desired_X(3), required_Q(3), starting_Q(3), current_X(3);
+  starting_Q[0] = 0; starting_Q[1] = 0; starting_Q[2] = 0;
+
   // prepare data structures to send commands to the head
   YARPBabyBottle tmpBottle;
   tmpBottle.setID(YBVMotorLabel);
   YVector headCmd, armCmd;
   headCmd.Resize(5);
   armCmd.Resize(6);
-  double azimuth, elevation, roll;
-  double prevAzimuth, prevElevation, prevRoll;
+  double frX, frY, frZ, frAz, frEl, frRo;
+  double dx, dy, dz;
+  double rot[4][4];
 
-  cout << endl << endl << "       \tX\tY\tZ\tAZIM\tELEV\tROLL" << endl;
+  rot[1][1] =  cos(refEl)*cos(refAz); rot[1][2] = -sin(refAz)*cos(refEl); rot[1][3] =  -sin(refEl);
+  rot[2][1] =  sin(refAz);            rot[2][2] =  cos(refAz);            rot[2][3] =  0;
+  rot[3][1] =  sin(refEl)*cos(refAz); rot[3][2] = -sin(refEl)*sin(refAz); rot[3][3] =  cos(refEl);
 
   // loop until the thread is terminated ( thread.End() )
   while ( !IsTerminated() ) {
 
-    // we assume the MASTER fires at 50Hz, so it's no point looping more often!
-    YARPTime::DelayInSeconds(0.02);
+    //    YARPTime::DelayInSeconds(streamingFrequency);
 
-    // sequence order number
-    j++;
-    
     // gather glove, tracker and pressens data
-    if ( _options.useDataGlove || _options.useTracker || _options.usePresSens ) {
+    if ( _options.useDataGlove || _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
 
       // get data
       _master_data_inport.Read();
       _data = _master_data_inport.Content();
+      
+      // evaluate data wrt reference frame
+      dx = _data.tracker0Data.x - refX;
+      dy = _data.tracker0Data.y - refY;
+      dz = _data.tracker0Data.z - refZ;
 
-      // normalise azimuth
-      if ( _data.tracker.azimuth>90.0 ) {
-        azimuth = 90.0;
-      } else if ( _data.tracker.azimuth<-90.0 ) {
-        azimuth = -90.0;
-      } else {
-        azimuth = _data.tracker.azimuth;
-      }
-      azimuth /= 3.0;
-      azimuth = floor(azimuth);
-      // normalise elevation
-      if ( _data.tracker.elevation>90.0 ) {
-        elevation = 90.0;
-      } else if ( _data.tracker.elevation<-90.0 ) {
-        elevation = -90.0;
-      } else {
-        elevation = _data.tracker.elevation;
-      }
-      elevation /= 3.0;
-      elevation = -floor(elevation);
-      // normalise roll
-      if ( _data.tracker.roll>90.0 ) {
-        roll = 90.0;
-      } else if ( _data.tracker.roll<-90.0 ) {
-        roll = -90.0;
-      } else {
-        roll = _data.tracker.roll;
-      }
-      roll /= 2.0;
-      roll = floor(roll);
+      frX  = rot[1][1]*dx +rot[1][2]*dy +rot[1][3]*dz;
+      frY  = rot[2][1]*dx +rot[2][2]*dy +rot[2][3]*dz;
+      frZ  = rot[3][1]*dx +rot[3][2]*dy +rot[3][3]*dz;
+
+      frAz = myDegToRad * _data.tracker0Data.azimuth - refAz;
+      frEl = myDegToRad * _data.tracker0Data.elevation - refEl;
+      frRo = myDegToRad * _data.tracker0Data.roll - refRo;
 
       // output to screen what we are actually sending
       cout.precision(5);
-      cout << "Sending\t"
-           << floor(_data.tracker.x) << "\t"
-           << floor(_data.tracker.y) << "\t"
-           << floor(_data.tracker.z) << "\t"
-           << floor(_data.tracker.azimuth) << "\t"
-           << floor(_data.tracker.elevation) << "\t"
-           << floor(_data.tracker.roll) << "         \r";
+      // then set the desired_X (in CMs)
+      desired_X[0] = frX*myInchToCM; desired_X[1] = frY*myInchToCM; desired_X[2] = frZ*myInchToCM;
+      // evaluate inverse kinematics according to tracker position
+      inverse_kinematics(desired_X, required_Q, starting_Q);
+      // now: if the end-effector position has not changed thanks to this shift in required_Q,
+      // it is an unwanted, in-place rotation. so we discard it and revert to the old required_Q
+      YVector actual_X(3);
+      forward_kinematics(required_Q, actual_X);
+      if ( (actual_X - current_X).norm2() < INPLACE_TOLERANCE ) {
+        continue;
+      }
+      // otherwise, go on searching.
+      starting_Q = required_Q;
+      current_X = actual_X;
+      // all Qs are in DEGREES
+      cout.precision(3);
+      cout << "Arm:\t"
+           << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
+           << "Q\t" << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "   \r";
       cout.flush();
 
-      // prepare vector and send, unless nothing has changed (saves bandwidth)
-      // command to head
-      if ( azimuth!=prevAzimuth || elevation!=prevElevation ) {
-        headCmd(1) = azimuth*M_PI/180.0;
-        headCmd(2) = elevation*M_PI/180.0;
-        headCmd(3) = 0.0; headCmd(4) = 0.0; headCmd(5) = 0.0;
-        tmpBottle.reset();
-        tmpBottle.writeVocab(YBVocab(YBVHeadNewCmd));
-        tmpBottle.writeYVector(headCmd);
-        _slave_outport.Content() = tmpBottle;
-        _slave_outport.Write();
-        prevElevation=elevation;
-      }
+      // send IK commands to the arm.
+      // WARNING: the PUMA arm has all the axes swapped around, therefore the minus signs
+      //     SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, 0.0, 0.0, 0.0 );
 
-      // command to arm
-      if ( roll!=prevRoll ) {
-        armCmd(1) = 0.0; armCmd(2) = 0.0; armCmd(3) = 0.0;
-        armCmd(4) = roll*M_PI/180.0;
-        armCmd(5) = 0.0; armCmd(6) = 0.0;
-        tmpBottle.reset();
-        tmpBottle.writeVocab(YBVocab(YBVArmNewCmd));
-        tmpBottle.writeYVector(armCmd);
-        _slave_outport.Content() = tmpBottle;
-        _slave_outport.Write();
-        prevRoll=roll;
-      }
-
-    }
-
-    // gather images from the cameras
-    if ( _options.useCamera ) {	
-      _master_img_inport.Read();
-      _img.Refer(_master_img_inport.Content());
-      ACE_OS::sprintf(imageFileName,"%s_%03d.pgm", _prefix, j);
-      YARPImageFile::Write(imageFileName, _img,YARPImageFile::FORMAT_PPM);
+      // send glove commands to the gripper - not so far
+      //       dThumbMiddle  = 1.52 - (double)abs(_data.glove.thumb[0]-iThumbMiddleClosed) * (double)dThumbMiddleFactor;
+      //       dIndexMiddle  = 1.52 - (double)abs(_data.glove.index[0]-iIndexMiddleClosed) * (double)dIndexMiddleFactor;
+      //       dMiddleMiddle = 1.52 - (double)abs(_data.glove.middle[0]-iMiddleMiddleClosed) * (double)dMiddleMiddleFactor;
+      //       dAbduction    = (double)abs(_data.glove.abduction[1]-iAbductionClosed) * (double)dAbductionFactor;
+      //      cout << "Hand:\t" << dIndexMiddle << "\t" << dMiddleMiddle << "\t" << dThumbMiddle << "\t\r"; cout.flush();
+      // do not use abduction so far --- seems not to work very well.
+      //      SendHandPositions(dAbduction, dThumbMiddle, dIndexMiddle, dMiddleMiddle);
+      //      SendHandPositions(1.0, dIndexMiddle, dMiddleMiddle, dThumbMiddle);
+      
     }
 
   }
-  
+    
   return;
 
 }
@@ -283,56 +311,260 @@ void streamingThread::Body (void)
 // functions & procedures
 // -----------------------------------
 
-void prepareDataStructures (void)
-{
+// functions which realise the downhill simplex method (taken from Numerical Recipes)
+// they are added to the namespace NR
 
-  _img.Resize (_options.sizeX, _options.sizeY);
+namespace NR {
+  
+  inline void get_psum(Mat_I_DP& p, Vec_O_DP& psum) {
+    
+    int i,j;
+    DP sum;
+    int mpts = p.nrows();
+    int ndim = p.ncols();
+    
+    for (j=0;j<ndim;j++) {
+      for (sum=0.0,i=0;i<mpts;i++) {
+        sum += p[i][j];
+      }
+      psum[j] = sum;
+    }
+
+  }
+  
+  void amoeba(Mat_IO_DP& p, Vec_IO_DP& y, const DP ftol, DP funk(Vec_I_DP&), int& nfunk)
+  {
+    
+    const int NMAX=5000;
+    const DP TINY = 1.0e-10;
+    int i, ihi, ilo, inhi, j;
+    DP rtol, ysave, ytry;
+    int mpts = p.nrows();
+    int ndim = p.ncols();
+    Vec_DP psum(ndim);
+
+    nfunk = 0;
+
+    get_psum( p, psum );
+    
+    for (;;) {
+
+      ilo = 0;
+      ihi = (y[0]>y[1]) ? (inhi=1,0) : (inhi=0,1);
+
+      for (i=0;i<mpts;i++) {
+
+        if (y[i] <= y[ilo]) {
+          ilo = i;
+        }
+
+        if (y[i] > y[ihi]) {
+          inhi = ihi;
+          ihi = i;
+        } else if (y[i] > y[inhi] && i != ihi) {
+          inhi = i;
+        }
+
+      }
+      
+      rtol = 2.0*fabs(y[ihi]-y[ilo]) / (fabs(y[ihi])+fabs(y[ilo])+TINY);
+      
+      if (rtol < ftol) {
+        SWAP( y[0], y[ilo] );
+        for (i=0;i<ndim;i++) {
+          SWAP( p[0][i], p[ilo][i] );
+        }
+        break;
+      }
+      
+      if (nfunk >= NMAX) {
+        //        nrerror("NMAX exceeded");
+        return;
+      }
+      
+      nfunk += 2;
+      ytry = amotry( p, y, psum, funk, ihi, -1.0 );
+      
+      if (ytry <= y[ilo]) {
+
+        ytry = amotry( p, y, psum, funk, ihi, 2.0 );
+
+      } else if (ytry >= y[inhi]) {
+
+        ysave = y[ihi];
+        ytry = amotry( p, y, psum, funk, ihi, 0.5 );
+        if (ytry >= ysave) {
+          for (i=0;i<mpts;i++) {
+            if (i != ilo) {
+              for (j=0;j<ndim;j++) {
+                p[i][j] = psum[j] = 0.5*(p[i][j]+p[ilo][j]);
+              }
+              y[i] = funk(psum);
+            }
+          }
+          nfunk += ndim;
+          get_psum( p, psum );
+        }
+
+      } else {
+
+        --nfunk;
+
+      }
+
+    }
+    
+  }
+  
+  DP amotry(Mat_IO_DP& p, Vec_O_DP& y, Vec_IO_DP& psum, DP funk(Vec_I_DP&), const int ihi, const DP fac)
+  {
+    
+    int j;
+    DP fac1, fac2, ytry;
+    int ndim = p.ncols();
+    Vec_DP ptry(ndim);
+    
+    fac1 = (1.0-fac) / ndim;
+    fac2 = fac1 - fac;
+    
+    for (j=0;j<ndim;j++) {
+      ptry[j] = psum[j]*fac1 - p[ihi][j]*fac2;
+    }
+    
+    ytry = funk(ptry);
+    
+    if (ytry < y[ihi]) {
+
+      y[ihi] = ytry;
+
+      for (j=0;j<ndim;j++) {
+        psum[j] += ptry[j] - p[ihi][j];
+        p[ihi][j] = ptry[j];
+      }
+
+    }
+
+    return ytry;
+    
+  }
+  
+} // end of namespace NR
+
+// so you give me the forward kinematics in this function. it takes as input
+// the vector Q of joint coordinates IN DEGREES and writes into X the Cartesian-space
+// position of the end-effector
+void forward_kinematics(YVector& Q, YVector& X)
+{
+  // forward kinematics for the PUMA 200 robotic arm
+
+  // specifications of the joints - taken from the PUMA200 manual
+  // lenghts of the joints - Figure 2-1 of the manual
+  const float L1 = 13.0*myInchToCM,
+    L2 = 7.8*myInchToCM, L2prime = -0.75*myInchToCM,
+    L3 = 8.0*myInchToCM;
+  const float H1 = 0.0, H2 = 5.9*myInchToCM-2.5; // measured on the robot directly!!
+
+  // allocate configuration matrices and vectors
+  YMatrix e_csi_1(4,4), e_csi_2(4,4), e_csi_3(4,4), g_st_0(4,4), T(4,4);
+  YVector zero(4), translation(4), tmpX(4);
+
+  // turn degrees into radiants
+  Q[0] *= myDegToRad;
+  Q[1] *= myDegToRad;
+  Q[2] *= myDegToRad;
+
+  // evaluate configurations:
+  // first joint (rotate Q[0] radiants about Y axis)
+  e_csi_1[0][0] =  cos(Q[0]); e_csi_1[0][1] = 0;          e_csi_1[0][2] =  sin(Q[0]); e_csi_1[0][3] =  0;
+  e_csi_1[1][0] =          0; e_csi_1[1][1] = 1;          e_csi_1[1][2] =          0; e_csi_1[1][3] =  0;
+  e_csi_1[2][0] = -sin(Q[0]); e_csi_1[2][1] = 0;          e_csi_1[2][2] =  cos(Q[0]); e_csi_1[2][3] =  0;
+  e_csi_1[3][0] =          0; e_csi_1[3][1] = 0;          e_csi_1[3][2] =          0; e_csi_1[3][3] =  1;
+  // second joint (rot Q[1] about Z, displaced L1 on Y, H1 on Z)
+  e_csi_2[0][0] =  cos(Q[1]); e_csi_2[0][1] = -sin(Q[1]); e_csi_2[0][2] =          0; e_csi_2[0][3] =  0;
+  e_csi_2[1][0] =  sin(Q[1]); e_csi_2[1][1] =  cos(Q[1]); e_csi_2[1][2] =          0; e_csi_2[1][3] =  L1;
+  e_csi_2[2][0] =          0; e_csi_2[2][1] =          0; e_csi_2[2][2] =          1; e_csi_2[2][3] =  H1;
+  e_csi_2[3][0] =          0; e_csi_2[3][1] =          0; e_csi_2[3][2] =          0; e_csi_2[3][3] =  1;
+  // third joint (rot Q[2] about Z, displaced L2 on X, L2prime on Y, H2 on Z)
+  e_csi_3[0][0] =  cos(Q[2]); e_csi_3[0][1] = -sin(Q[2]); e_csi_3[0][2] =          0; e_csi_3[0][3] =  L2;
+  e_csi_3[1][0] =  sin(Q[2]); e_csi_3[1][1] =  cos(Q[2]); e_csi_3[1][2] =          0; e_csi_3[1][3] =  L2prime;
+  e_csi_3[2][0] =          0; e_csi_3[2][1] =          0; e_csi_3[2][2] =          1; e_csi_3[2][3] =  H2;
+  e_csi_3[3][0] =          0; e_csi_3[3][1] =          0; e_csi_3[3][2] =          0; e_csi_3[3][3] =  1;
+  // end effector (displaced -L3 on Y)
+  g_st_0[0][0]  =          1; g_st_0[0][1]  =          0; g_st_0[0][2]  =          0; g_st_0[0][3]  =  0;
+  g_st_0[1][0]  =          0; g_st_0[1][1]  =          1; g_st_0[1][2]  =          0; g_st_0[1][3]  = -L3;
+  g_st_0[2][0]  =          0; g_st_0[2][1]  =          0; g_st_0[2][2]  =          1; g_st_0[2][3]  =  0;
+  g_st_0[3][0]  =          0; g_st_0[3][1]  =          0; g_st_0[3][2]  =          0; g_st_0[3][3]  =  1;
+  // final configuration: chain-multiply all !!
+  T = e_csi_1 * (e_csi_2 * (e_csi_3 * g_st_0));
+
+  // give me the end-effector's position translated back to its frame
+  zero[0] = 0; zero[1] = 0; zero[2] = 0; zero[3] = 1;
+  translation[0] = L2; translation[1] = L1-L3; translation[2] = H1+H2; translation[3] = 1;
+  tmpX = (T * zero) - translation;
+
+  // project on first three cordinates (we are not interested in the last "1")
+  X[0] = tmpX[0]; X[1] = tmpX[1]; X[2] = tmpX[2];
+
+  // revert the Q to degrees
+  Q[0] /= myDegToRad;
+  Q[1] /= myDegToRad;
+  Q[2] /= myDegToRad;
 
 }
 
-void cleanDataStructures (void)
+// given the forward_kinematics function, this evaluates the
+// norm of the error w.r.t. a given desired position (expressed
+// IN DEGREES)
+DP evaluate_error(Vec_I_DP& Q_NR)
 {
 
-  // Pressure Sensors
-  _data.pressure.channelA = 0;
-  _data.pressure.channelB = 0;
-  _data.pressure.channelC = 0;
-  _data.pressure.channelD = 0;
+  // translate from NR's vector representation to YARP's
+  YVector X(3), Q(3);
+  Q[0] = Q_NR[0]; Q[1] = Q_NR[1]; Q[2] = Q_NR[2];
 
-  // Tracker
-  _data.tracker.x = 0.0;
-  _data.tracker.y = 0.0;
-  _data.tracker.z = 0.0;
-  _data.tracker.azimuth = 0.0;
-  _data.tracker.elevation = 0.0;
-  _data.tracker.roll = 0.0;
+  // evaluate forward kinematics
+  forward_kinematics(Q,X);
 
-  // DataGlove
-  _data.glove.thumb[0] = 0;	// inner
-  _data.glove.thumb[1] = 0;	// middle
-  _data.glove.thumb[2] = 0;	// outer
-  _data.glove.index[0] = 0;	// inner
-  _data.glove.index[1] = 0;	// middle
-  _data.glove.index[2] = 0;	// outer
-  _data.glove.middle[0] = 0;	// inner
-  _data.glove.middle[1] = 0;	// middle
-  _data.glove.middle[2] = 0;	// outer
-  _data.glove.ring[0] = 0;	// inner
-  _data.glove.ring[1] = 0;	// middle
-  _data.glove.ring[2] = 0;	// outer
-  _data.glove.pinkie[0] = 0;	// inner
-  _data.glove.pinkie[1] = 0;	// middle
-  _data.glove.pinkie[2] = 0;	// outer
-  _data.glove.abduction[0] = 0; // thumb-index
-  _data.glove.abduction[1] = 0; // index-middle
-  _data.glove.abduction[2] = 0; // middle-ring
-  _data.glove.abduction[3] = 0; // ring-pinkie
-  _data.glove.abduction[4] = 0;
-  _data.glove.palmArch = 0; // palm
-  _data.glove.wrist[0] = 0; // pitch
-  _data.glove.wrist[1] = 0; // yaw
+  // return norm of distance to desired position
+  return (X - desired_cfg).norm2();
+
+}
+
+// here we are. you get me the desired Cartesian position 
+// of the e.e., X, and a starting point, init, and I am going
+// to get you the appropriate Qs (IN DEGREES)
+void inverse_kinematics(YVector& X, YVector& Q, YVector& init)
+{
+
+  // set desired cfg (a global so far... must work around this!)
+  desired_cfg[0] = X[0]; desired_cfg[1] = X[1]; desired_cfg[2] = X[2];
+
+  // four points for the simplex, three are the arguments,
+  // tolerance is 1e-6, starting simplex is much bigger
+  const int MP = 4,NP = 3;
+  const DP FTOL = 1.0e-6;
+  const DP simplex_dim = 1;
+
+  // declare x, y, p
+  Vec_DP x(NP),y(MP);
+  Mat_DP p(MP,NP);
   
-  _img.Zero();
+  // initialise y and p. p's rows contains the initial simplex coordinates;
+  // given the the point init, we build a simplex around it. y is the evaluated
+  // in the vertices of the simplex
+  int i, nfunc, j;
+  for ( i=0; i<MP; i++ ) {
+    for ( j=0; j<NP; j++ ) {
+      p[i][j] = ( i==(j+1) ? init[j]+simplex_dim : init[j] );
+      x[j] = p[i][j];
+    }
+    y[i] = evaluate_error(x);
+  }
+  // go for the gold!
+  NR::amoeba(p,y,FTOL,evaluate_error,nfunc);
+
+  // ok, show me what you got!
+  Q[0] = p[0][0]; Q[1] = p[0][1]; Q[2] = p[0][2];
 
 }
 
@@ -353,9 +585,15 @@ void registerPorts()
   }
   
   // master input image port registration
-  cout << "Registering master input image port..." << endl;
-  ACE_OS::sprintf(portName,"/%s/i:img", DEFAULT_TOMASTER_NAME);
-  ret = _master_img_inport.Register(portName,"default");
+  cout << "Registering master input images ports..." << endl;
+  ACE_OS::sprintf(portName,"/%s/i:img0", DEFAULT_TOMASTER_NAME);
+  ret = _master_img0_inport.Register(portName,"default");
+  if (ret != YARP_OK) {
+    cout << endl << "FATAL: could not register port " << portName << endl;
+    exit(YARP_FAIL);
+  }
+  ACE_OS::sprintf(portName,"/%s/i:img1", DEFAULT_TOMASTER_NAME);
+  ret = _master_img1_inport.Register(portName,"default");
   if (ret != YARP_OK) {
     cout << endl << "FATAL: could not register port " << portName << endl;
     exit(YARP_FAIL);
@@ -364,7 +602,7 @@ void registerPorts()
   // master input command port registration
   cout << "Registering master input cmd port..." << endl;
   ACE_OS::sprintf(portName,"/%s/i:int", DEFAULT_TOMASTER_NAME);
-  ret = _master_rep_inport.Register(portName, "default");
+  ret = _master_cmd_inport.Register(portName, "default");
   if (ret != YARP_OK) {
     cout << endl << "FATAL ERROR: problems registering port " << portName << endl;
   }
@@ -394,10 +632,35 @@ void unregisterPorts()
 
   _slave_outport.Unregister();
   _master_cmd_outport.Unregister();
-  _master_rep_inport.Unregister();
-  _master_img_inport.Unregister();
+  _master_cmd_inport.Unregister();
+  _master_img0_inport.Unregister();
+  _master_img1_inport.Unregister();
   _master_data_inport.Unregister();
 
+}
+
+int SendArmPositions(double dof1, double dof2, double dof3, double dof4, double dof5, double dof6)
+{
+
+  YVector armCmd(6);
+  YARPBabyBottle tmpBottle;
+  tmpBottle.setID(YBVMotorLabel);
+
+  // send a command to the arm
+  armCmd(1) = dof1;
+  armCmd(2) = dof2;
+  armCmd(3) = dof3;
+  armCmd(4) = dof4;
+  armCmd(5) = dof5;
+  armCmd(6) = dof6;
+  tmpBottle.reset();
+  tmpBottle.writeVocab(YBVocab(YBVArmNewCmd));
+  tmpBottle.writeYVector(armCmd);
+  _slave_outport.Content() = tmpBottle;
+  _slave_outport.Write();
+  
+  return 0;
+  
 }
 
 // -----------------------------------
@@ -407,13 +670,15 @@ void unregisterPorts()
 int main()
 {
 
-  int reply;
-
   // the streaming thread
   streamingThread myStreamingThread;
 
   // register communication ports
   registerPorts();
+
+  // ----------------------------------
+  // setting communications up...
+  // ----------------------------------
 
   // launch batch file which yarp-connects ports
   cout << endl << "Now connecting ports. Hit any key upon completion." << endl;
@@ -421,57 +686,154 @@ int main()
   cin.get();
 
   // declare image
-  YARPImageOf<YarpPixelBGR> img;
+  CollectorImage img;
   _options.sizeX = 0;
   _options.sizeY = 0;
 
   YARPScheduler::setHighResScheduling();
 
   // ----------------------------
-  // first: connect to the master
+  // connect to the master
   cout << endl << "Initialising master... ";
   cout.flush();
-  _master_cmd_outport.Content() = CCMDConnect;
+  _master_cmd_outport.Content() = CCmdConnect;
   _master_cmd_outport.Write();
-  _master_rep_inport.Read();
-  reply = _master_rep_inport.Content();
-
-  if (reply != CMD_FAILED) {
+  _master_cmd_inport.Read();
+  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
     // success!
     cout << "done." << endl;
     // gather which sensors we use
-    _options.useDataGlove = reply & HW_DATAGLOVE;
-    _options.useTracker = reply & HW_TRACKER;
-    _options.usePresSens = reply & HW_PRESSENS;
-    _options.useCamera = reply & HW_CAMERA;
-    // and if we use the camera,
-    if (_options.useCamera) {
-      // gather image size
-      _master_rep_inport.Read();
-      _options.sizeX = _master_rep_inport.Content();
-      _master_rep_inport.Read();
-      _options.sizeY = _master_rep_inport.Content();
+    _master_cmd_inport.Read();
+    int reply = _master_cmd_inport.Content();
+    _options.useDataGlove = reply & HardwareUseDataGlove;
+    _options.useTracker0 = reply & HardwareUseTracker0;
+    _options.useTracker1 = reply & HardwareUseTracker1;
+    _options.usePresSens = reply & HardwareUsePresSens;
+    _options.useCamera0 = reply & HardwareUseCamera0;
+    _options.useCamera1 = reply & HardwareUseCamera1;
+    // and if we use the cameras,
+    if ( _options.useCamera0 || _options.useCamera1 ) {
+      // gather image size and set up image size
+      _master_cmd_inport.Read();
+      _options.sizeX = _master_cmd_inport.Content();
+      _img0.Resize (_options.sizeX, _options.sizeY);
+      _master_cmd_inport.Read();
+      _options.sizeY = _master_cmd_inport.Content();
+      _img1.Resize (_options.sizeX, _options.sizeY);
       cout << "image size is " << _options.sizeX << "x" << _options.sizeY << endl;
     }
-    // then set data structures up accordingly
-    prepareDataStructures();
   } else {
     cout << "failed." << endl;
     unregisterPorts();
     return 0;
   }
 
+  // ----------------------------------
+  // calibration....
+  // ----------------------------------
+
   // ----------------------------
-  // second: activate stream from master
-  cleanDataStructures();
-  // issue streaming command!
+  // gather reference coordinates
+  cout << endl << "Now gathering reference frame. Place hand at origin and press any key... ";
+  cout.flush();
+  cin.get();
+  _master_cmd_outport.Content() = CCmdGetData;
+  _master_cmd_outport.Write();
+  _master_cmd_inport.Read();
+  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+    _master_data_inport.Read();
+    CollectorNumericalData tmpData = _master_data_inport.Content();
+    refX  = tmpData.tracker0Data.x;
+    refY  = tmpData.tracker0Data.y;
+    refZ  = tmpData.tracker0Data.z;
+    refAz = myDegToRad * tmpData.tracker0Data.azimuth;
+    refEl = myDegToRad * tmpData.tracker0Data.elevation;
+    refRo = myDegToRad * tmpData.tracker0Data.roll;
+    cout << "done." << endl;
+  } else {
+    cout << "failed." << endl;
+    unregisterPorts();
+    return 0;
+  }
+  cout << "done. Reference frame is: "
+       << refX << ", " << refY << ", " << refZ << ", "
+       << refAz/myDegToRad << ", " << refEl/myDegToRad << ", " << refRo/myDegToRad << endl;
+  cout.flush();
+
+goto skip_gripper_calibration;
+
+  // ----------------------------
+  // gather gripper calibration: open hand, snapshot, close hand, snapshot
+  cout << endl << "Now calibrating gripper. Open hand and press any key... ";
+  cout.flush();
+  cin.get();
+  // acquire open hand data
+  _master_cmd_outport.Content() = CCmdGetData;
+  _master_cmd_outport.Write();
+  _master_cmd_inport.Read();
+  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+    _master_data_inport.Read();
+    CollectorNumericalData tmpData = _master_data_inport.Content();
+    // get data for open hand
+    iThumbMiddleOpen  = tmpData.gloveData.thumb[0];
+    iIndexMiddleOpen  = tmpData.gloveData.index[0];
+    iMiddleMiddleOpen = tmpData.gloveData.middle[0];
+    iAbductionOpen    = tmpData.gloveData.abduction[1];
+  } else {
+    cout << "failed." << endl;
+    unregisterPorts();
+    return 0;
+  }
+  // acquire closed hand data
+  cout << endl << "Close hand and press any key... ";
+  cout.flush();
+  cin.get();
+  _master_cmd_outport.Content() = CCmdGetData;
+  _master_cmd_outport.Write();
+  _master_cmd_inport.Read();
+  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+    _master_data_inport.Read();
+    CollectorNumericalData tmpData = _master_data_inport.Content();
+    // get data for closed hand
+    iThumbMiddleClosed  = tmpData.gloveData.thumb[0];
+    iIndexMiddleClosed  = tmpData.gloveData.index[0];
+    iMiddleMiddleClosed = tmpData.gloveData.middle[0];
+    iAbductionClosed    = tmpData.gloveData.abduction[1];
+  } else {
+    cout << "failed." << endl;
+    unregisterPorts();
+    return 0;
+  }
+  // evaluate gripper factors
+
+  cout << iThumbMiddleClosed << " " << iThumbMiddleOpen << " " 
+       << iIndexMiddleClosed << " " << iIndexMiddleOpen << " " 
+       << iMiddleMiddleClosed << " " << iMiddleMiddleOpen << " "
+       << iAbductionClosed << " " << iAbductionOpen << endl;
+
+  // evaluate calibration factor. empirically, the fingers range 0 - 1.52
+  dThumbMiddleFactor  = 1.52 / (double)abs(iThumbMiddleClosed-iThumbMiddleOpen);
+  dIndexMiddleFactor  = 1.52 / (double)abs(iIndexMiddleClosed-iIndexMiddleOpen);
+  dMiddleMiddleFactor = 1.52 / (double)abs(iMiddleMiddleClosed-iMiddleMiddleOpen);
+  dAbductionFactor    = 1.52 / (double)abs(iAbductionClosed-iAbductionOpen);
+  
+  cout << "Gripper calibration done." << endl;
+  cout.flush();
+
+ skip_gripper_calibration:
+
+  // ----------------------------------
+  // activate the streaming!!
+  // ----------------------------------
+
+  // ----------------------------
+  // activate stream from master: issue streaming command
   cout << "Starting streaming mode (hit a key to stop)... ";
   cout.flush();
-  _master_cmd_outport.Content() = CCMDStartStreaming;
+  _master_cmd_outport.Content() = CCmdStartStreaming;
   _master_cmd_outport.Write();
-  _master_rep_inport.Read();
-  reply = _master_rep_inport.Content();
-  if ( reply == CMD_ACK) {
+  _master_cmd_inport.Read();
+  if ( _master_cmd_inport.Content() == CCmdSucceeded) {
     // start streaming thread
     cout << "done." << endl;
     myStreamingThread.Begin();
@@ -487,12 +849,11 @@ int main()
   // stop streaming
   cout << endl << "Stopping streaming mode...";
   cout.flush();
-  _master_cmd_outport.Content() = CCMDStopStreaming;
+  _master_cmd_outport.Content() = CCmdStopStreaming;
   _master_cmd_outport.Write();
   myStreamingThread.End();
-  _master_rep_inport.Read();
-  reply = _master_rep_inport.Content();
-  if ( reply == CMD_ACK ) {
+  _master_cmd_inport.Read();
+  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
     cout << "done." << endl;
   } else {
     cout << "failed." << endl;
@@ -500,15 +861,30 @@ int main()
     return 0;
   }
 
+  // ----------------------------------
+  // shut down....
+  // ----------------------------------
+
   // ----------------------------
-  // fourth: release MASTER and bail out
+  // release MASTER and bail out
   cout << "Now releasing MASTER... ";
   cout.flush();
-  _master_cmd_outport.Content() = CCMDDisconnect;
+  _master_cmd_outport.Content() = CCmdDisconnect;
   _master_cmd_outport.Write();
-  _master_rep_inport.Read();
-  reply = _master_rep_inport.Content();
-  if ( reply == CMD_ACK ) {
+  _master_cmd_inport.Read();
+  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+    cout << "done." << endl;
+  } else {
+    cout << "failed." << endl;
+  }
+  sleep(1);
+  // kill mirrorCollector - I know it shouldn't be like that, still...
+  cout << "Now killing MirrorCollector... ";
+  cout.flush();
+  _master_cmd_outport.Content() = CCmdQuit;
+  _master_cmd_outport.Write();
+  _master_cmd_inport.Read();
+  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
     cout << "done." << endl;
   } else {
     cout << "failed." << endl;
