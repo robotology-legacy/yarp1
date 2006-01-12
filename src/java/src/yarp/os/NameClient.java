@@ -91,7 +91,7 @@ public class NameClient {
 			cport);
 	    address = new Address(chost,Integer.valueOf(cport).intValue());
 	}
-	address = new Address("127.0.0.1",10000);
+	//address = new Address("127.0.0.1",10000);
     }
 
     public void getConfiguration() {

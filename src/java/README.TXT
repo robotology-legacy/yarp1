@@ -35,7 +35,7 @@ All this is basically the same as:
 ======================================================================
 
 The code can also be compiled if you have gcj installed (on debian,
-type "apt-get install gcj").
+type "apt-get install gcj" -- make sure it is at least version 4).
 
 Type:
   make gcj
