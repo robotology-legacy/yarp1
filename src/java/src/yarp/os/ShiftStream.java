@@ -11,5 +11,9 @@ interface ShiftStream {
 
     public void become(String carrier, Address address) throws IOException;
     public Address getAddress() throws IOException;
+
+    public Carrier chooseCarrier(String name);
+    public Carrier chooseCarrier(int specifier);
+    public void setIncoming(Carrier carrier);
 }
 

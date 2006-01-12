@@ -4,6 +4,8 @@ package yarp.os;
 import java.io.*;
 
 public class BottleContent implements Content {
+    private static Logger log = Logger.get();
+
     private byte[] data;
     private Bottle bot = new Bottle();
 
@@ -17,13 +19,13 @@ public class BottleContent implements Content {
     }
 
     public void read(BlockReader proto) throws IOException {
-	System.out.println("Bottle should read");
+	log.println("Bottle should read");
 	int len = proto.expectInt();
-	System.out.println("> name len is " + len);
+	log.println("> name len is " + len);
 	byte[] b = proto.expectBlock(len);
-	System.out.println("> name is " + new String(b));
+	log.println("> name is " + new String(b));
 	int dataLen = proto.expectInt();
-	System.out.println("> data len is " + dataLen);
+	log.println("> data len is " + dataLen);
 	data = proto.expectBlock(dataLen);
 	bot.set(data);
     }

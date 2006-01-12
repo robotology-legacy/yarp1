@@ -8,17 +8,20 @@ class UdpCarrier extends Carrier {
     DatagramSocket dgram;
     InputStream is;
     OutputStream os;
+    boolean reading = false;
 
     public String getName() {
 	return "udp";
     }
 
     public int getSpecifier() {
-	return 97;
+	return 0;
+	//return 97;
+	//return 0x61;
     }
 
     public void sendExtraHeader(Protocol proto) throws IOException {
-	System.out.println("UDP sendExtraHeader");
+	log.println("UDP sendExtraHeader");
     }
 
 
@@ -28,7 +31,8 @@ class UdpCarrier extends Carrier {
     }
 
     public void respondExtraToHeader(Protocol proto) throws IOException {
-	System.out.println("respondExtraToHeader for " + getName());
+	log.println("respondExtraToHeader for " + getName());
+	reading = true;
 	proto.become(getName(),null);
     }
 
@@ -51,7 +55,8 @@ class UdpCarrier extends Carrier {
 	is = new DatagramInputStream(dgram,512);
 	os = new BufferedOutputStream(new DatagramOutputStream(dgram,
 							       remote,
-							       512),
+							       512,
+							       reading),
 				      512);
     }
 
@@ -62,6 +67,10 @@ class UdpCarrier extends Carrier {
 
     public OutputStream getOutputStream() throws IOException {
 	return os;
+    }
+
+    public Carrier create() {
+	return new UdpCarrier();
     }
 }
 

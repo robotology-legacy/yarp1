@@ -29,6 +29,15 @@ mconnect:
 connect:
 	$(EXEC) connect /write /read
 
+udp:
+	$(EXEC) connect /write /udp://read
+
+tcp:
+	$(EXEC) connect /write /tcp://read
+
+mcast:
+	$(EXEC) connect /write /mcast://read
+
 disconnect:
 	$(EXEC) disconnect /write /read
 

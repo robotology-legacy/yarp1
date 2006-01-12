@@ -1,6 +1,9 @@
 
 package yarp.os;
 
+import java.io.*;
+import java.net.*;
+
 public class NetType {
 
     public static int netInt(byte[] b) {
@@ -8,13 +11,15 @@ public class NetType {
     }
 
     public static int netInt(byte[] b, int offset, int len) {
-	int x = 0;
+	long x = 0;
 	if (len<0) { len = b.length-offset; }
 	for (int i=len-1; i>=0; i--) {
+	    //System.out.println("int " + i + " is " + unsigned(b[i+offset]));
 	    x *= 256;
-	    x += (int)b[i+offset]; // warning, may have sign trouble
+	    x += unsigned(b[i+offset]);
 	}
-	return x;
+	if (x>Integer.MAX_VALUE) { x -= 2*Integer.MIN_VALUE; }
+	return (int)x;
     }
 
     public static byte[] netInt(int x) {
@@ -39,9 +44,52 @@ public class NetType {
     public static int unsigned(byte b) {
 	int v = b;
 	if (v<0) { v = 256+v; }
-	return b;
+	return v;
+    }
+
+    public static String netString(byte[] txt) {
+	//String s = new String(txt);
+	//s = s.replaceAll("\0"," ");
+	//s = s.trim();
+	//return s;
+
+	String s = new String(txt);
+	if (s.length()>=1) {
+	    int tlen = s.length();
+	    if (s.charAt(tlen-1)=='\0') {
+		s = s.substring(0,tlen-1);
+	    }
+	}
+	return s;
+    }
+
+    public static byte[] append(byte[] b1, byte[] b2) {
+	byte[] b3 = new byte[b1.length+b2.length];
+
+	System.arraycopy (b1, 0, b3, 0, b1.length);
+	System.arraycopy (b2, 0, b3, b1.length,
+			  b2.length); 
+	return b3;
     }
 
 
+    public static String readLine(InputStream is) throws IOException {
+	StringBuffer buf = new StringBuffer("");
+	boolean done = false;
+	while (!done) {
+	    int v = is.read();
+	    char ch = (char)v;
+	    if (ch>=32) {
+		buf.append(ch);
+	    }
+	    if (ch=='\n') {
+		done = true;
+	    }
+	    if (v<0) { 
+		throw new IOException();
+	    }
+	}
+	return buf.toString();
+    }    
 }
 

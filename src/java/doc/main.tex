@@ -1,0 +1,397 @@
+
+\section{YARP communications protocol}
+
+YARP has good support for transmission of a stream of packets
+across various network protocols -- TCP, UDP, MCAST (multi-cast),
+and shared memory.  We call these the ``carriers''.
+
+\subsection{The logical view}
+
+A YARP network is made up of Port objects.  Each Port object has
+a name, such as ``/motor/wheels/left''.  The names of all Port
+objects are registered with a name server.  If you know the name
+of a Port, that is all you need in order to be able to 
+communicate with it from any machine.
+
+The purpose of Ports is to move ``Content'' (sequences of bytes) from
+one thread to another (or several others) across process and machine
+boundaries.  The flow of Content can be manipulated and monitored
+externally (e.g. from the command-line) at run-time.
+
+Ports are specialized into InputPorts and OutputPorts.
+Any OutputPort can send content to any number of InputPorts.  Any
+InputPort can receive content from any number of OutputPorts.  If an
+OutputPort is configured to send content to an InputPort, they are
+said to have a Connection.  Connections can be freely added or 
+removed, and may use different network protocols (TCP, UDP, Multicast).
+
+
+
+
+\subsection{The name server}
+
+If you know the name
+of a Port, you can query the name server for a way to communicate
+with that Port.
+For example, suppose you want to communicate with a Port called
+``write''.  The first step is to ask the name server about this
+Port.  The name server runs on a known port-number of a known machine.
+It is usually queried through a library call, but can also be
+queried using telnet.  For example:
+
+\begin{verbatim}
+run:
+  telnet <name-server-machine> <name-server-port-number>
+
+type:
+  NAME_SERVER query /write
+
+server responds with something like:
+  ip 192.168.0.3 port 10001 type tcp
+  *** end of message
+\end{verbatim}
+
+So the Port named ``/write'' is listening on the machine with
+IP address 192.168.0.3, on port 10001, and it expects TCP
+connections.
+
+How do Ports get registered in the same place?  Here's how
+to do it manually (usually it is done through a library call).
+
+\begin{verbatim}
+run:
+  telnet <name-server-machine> <name-server-port-number>
+
+type:
+  NAME_SERVER register /write
+
+server responds with something like:
+  ip 192.168.0.3 port 10001 type tcp
+  *** end of message
+\end{verbatim}
+
+Note that the name server takes responsibility for allocating
+port-numbers.
+
+The use of telnet with the name server is a YARP2 feature.
+
+We can also ``log on'' to the ports themselves (YARP2 feature).
+
+\begin{verbatim}
+
+Assume we have typed the following in different terminals:
+  yarp server
+  yarp write /write
+  yarp read /read
+  yarp read /read2
+
+Now we can connect and disconnect things as follows:
+  yarp connect /write /read
+  yarp disconnect /write /read
+  yarp connect /write /read mcast
+  yarp connect /write /read2
+
+We could also do this more manually as follows.
+
+command:  yarp where
+response: Name server is available at ip 192.168.0.3 port 10000
+
+
+command:  telnet 192.168.0.3 10000
+type:     NAME_SERVER query /write
+response: ip 192.168.0.3 port 10001 type tcp
+          *** end of message
+          [connection closes]
+
+
+command:  telnet 192.168.0.3 10001
+type:     CONNECT anonymous
+response: Welcome anonymous
+type:     *
+response: This is /write
+          There are no outgoing connections
+          There is this connection from anonymous to /write using protocol tcp
+          *** end of message
+type:     /read
+response: Connected to /read
+type:     *
+response: This is /write
+          There is a connection from /write to /read using protocol tcp
+          There is this connection from anonymous to /write using protocol tcp
+          *** end of message
+type:     !/read
+response: Removing connection from /write to /read
+type:     /mcast://read
+response: Connected to /read
+type:     /read2
+response: Connected to /read2
+type:     *
+response: This is /write
+          There is a connection from /write to /read using protocol mcast
+          There is a connection from /write to /read2 using protocol tcp
+          There is this connection from anonymous to /write using protocol tcp
+          *** end of message
+type:     q
+response: Bye bye
+          [connection closes]
+
+
+command:  telnet telnet 192.168.0.3 10000
+type:     NAME_SERVER query /read
+response: ip 192.168.0.3 port 10002 type tcp
+          *** end of message
+          [connection closes]
+
+
+command:  telnet 192.168.0.3 10002
+type:     CONNECT anonymous
+response: Welcome anonymous
+type:     *
+response: This is /read
+          There are no outgoing connections
+          There is a connection from /write to /read using protocol mcast
+          There is this connection from anonymous to /read using protocol tcp
+          *** end of message
+type:     q
+response: Bye bye
+          [connection closes]
+
+\end{verbatim}
+
+
+\subsection{connection protocol}
+
+This is the protocol for a single connection to an input port.
+Such connections can be made at any time.  At creation,
+the properties of a connection are:
+
+\begin{itemize}
+
+\item An address -- the machine name and socket number at which
+the input port is listening.
+
+\item An output port name -- typically connections are made
+between output ports and input ports.  The output port name
+needs to be retained for disconnection and housekeeping.
+
+\item The input port name -- the name of the target.
+
+\end{itemize}
+
+\begin{verbatim}
+
+SENDER:
+
+  * start in TCP
+  * need to know desired protocol P = one of tcp,udp,mcast
+  * need to know name of associated port, e.g. ``/writer''
+
+  sendHeader
+
+    sendProtocolSpecifier
+    * send 8 bytes: 'Y' 'A' B1 B2 0 0 'R' 'P'
+    * B1 and B2 identify the desired protocol
+         P=tcp   B1=0x64 B2=0x1e
+         P=udp   B1=0x61 B2=0x1e
+         P=mcast B1=0x62 B2=0x1e
+      More correctly, {B1,B2} forms a little-endian integer whose value is
+         7777 + K + 128*(requireAck)
+      where 
+         P=tcp   K=3
+	 P=udp   K=0
+	 P=mcast K=1
+      requireAck is an implementation choice; see expectAck and sendAck.
+      If it is true, message receipt must be acknowledged.
+    * ALT: for textmode, send 'CONNECT ' -- only tcp supported
+
+    sendSenderSpecifier
+    * send 4 byte integer (little endian) giving length of port name plus one
+    * send port name in characters followed by null character
+    * ALT: for textmode, send name (without null) followed by \\n
+
+    sendExtraHeader      // carrier specific
+    * for tcp nothing more need be done
+    * for udp nothing more need be done
+    * for mcast, send 6 bytes
+         first 4 bytes specify a multicast IP address.
+	 next 2 bytes are a (bigendian - sorry) integer giving a port number.
+         note that producing these numbers will require side communication
+         with the name server.
+
+  expectReplyToHeader    // carrier specific
+    * for tcp and udp, read 8 bytes:  'Y' 'A' B1 B2 0 0 'R' 'P' where
+      B1 B2 make up a (little-endian) integer specifying a port number N.
+      For udp, then switch over to udp network communication on that port.
+    * for mcast, switch over to mcast network communication on the IP and
+      port number sent in sendExtraHeader
+    * ALT: for textmode, expect nothing
+
+  if (isActive)          // carrier specific
+  * for mcast, a sender is ignored if it is redundant -- sending
+    data to a multi-cast group that has already been sent.
+  * in all other cases, isActive is true
+
+    sendIndex
+    * need to decide on the content to send - a set of LEN byte arrays.
+    * send 8 bytes: 'Y' 'A' 10 0 0 0 'R' 'P'
+      This identifies the length of the index header as 10.
+    * send 10 bytes: LEN 1   255 255 255 255  255 255 255 255
+      This says there are LEN send blocks, 1 reply block expected,
+      and that the sizes will be listed individually next.
+    * A 4-byte little-endian integer is sent giving the length of
+      each byte array.
+    * send 4-bytes: 0 0 0 0 -- this asks for a reply length of 0.
+    * ALT for text mode, send nothing.
+
+    sendContent
+    * send each of the LEN byte arrays in turn.
+
+  if (requireAck)
+
+    expectAck
+    * read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P'
+    * B1-4 is a little-endian integer giving a length LEN
+    * read LEN bytes.  This is the acknowledgement.
+
+RECEIVER:
+
+  * start in TCP
+
+  expectHeader
+
+    expectProtocolSpecifier
+    * read 8 bytes: 'Y' 'A' B1 B2 0 0 'R' 'P'
+    * B1 and B2 identify the desired protocol (see sendProtocolSpecifier)
+    * ALT: for textmode, expect 'YAtextRP' -- only tcp supported
+
+    expectSenderSpecifier
+    * read 4 bytes -- a (little-endian) integer specifying a length.
+    * read that length of bytes, and interpret as a null-terminated
+      string specifying the name of the sender port.
+    * ALT: for textmode, expect name (without null) followed by \\n
+
+    expectExtraHeader        // carrier specific
+    * for mcast, expect the content described in sendExtraHeader
+
+  respondToHeader
+  * send 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P' where B1-4 is a 
+    (little-endian) integer giving the port number of the receiver.
+  * for mcast and udp: switch to that network protocol at this time.
+  * ALT: for textmode, send nothing
+
+  repeat
+
+    expectIndex
+    * read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P' where B1-4 is a 
+    (little-endian) integer of value 10.
+    * read 10 bytes: LEN 1 .....
+    * read LEN 4-byte (little-endian) integers.  These specify
+      the length of the series of LEN blocks of which the
+      content is composed.  Sum these to get the TOTAL_SIZE of the 
+      message.
+    * read and discard 1 4-byte (little-endian) integer (this is
+      the reply size).
+    * ALT for text mode, expect nothing
+
+    respondToIndex
+    * do nothing
+
+    repeat based on user code
+    
+      expectBlock
+      * request a user determined number of blocks.  The user
+        is expected to decode the content received.  The TOTAL_SIZE
+	of the message should be made available to help with this.
+      * ALT for text mode, read to newline instead
+
+    sendAck
+    * read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P'
+    * B1-4 is a little-endian integer giving a length LEN (could be 0)
+    * send LEN bytes.  This is the acknowledgement.
+
+
+\end{verbatim}
+
+
+\subsection{port protocol}
+
+This is the protocol used for communicating with a port -- 
+starting, stopping connections.
+
+\begin{verbatim}
+Send 8 byte header: 0,0,0,0, '~', CHAR, 0, 1
+where CHAR is a character that identifies what the message is about.
+
+CHAR = 'd': this header is used to signal that content data is arriving next.
+
+CHAR = 0: this header is used to signal that a control message is following.
+
+  For this case, the remainder of the message is interpreted as a string S.
+
+   S begins with '/', e.g. '/read': this is a request to add a Connection 
+   to the named InputPort.
+
+   S begins with '!', e.g. '!/read': this is a request to remove a Connection 
+   to the named InputPort.
+
+   S begins with '~', e.g. '~/read': this is a request to remove a Connection 
+   from the named OutputPort.
+
+   S is '*': this is a request for the port to dump information.
+
+   S is 'q': specific connection that message is received on should 
+   now shut down.
+
+\end{verbatim}
+
+
+
+\subsection{name protocol}
+
+This is the protocol used for communication with a name server.
+
+The name server maintains a set of records, whose key is a text
+string.  The contents are a hostname, socket number, and protocol
+name.  This describes how to contact the port.  There is also
+a description of what kinds of connections the port can or is
+willing to participate in.  The set of protocols the port can
+accept an incoming data connection for are named - this is the 
+``accept'' set.
+The set of protocols the port can create an outgoing data 
+connection for are also named - this is the ``offer'' set.
+
+\subsection{data protocol}
+
+Effectively user-level, not up to the YARP communications library.
+
+
+\subsection{YARP versioning}
+
+
+version 0 = Prior to versions existing.
+Will switch to SHMEM regardless of other party.
+Text-mode name server not supported.
+
+Pending issues: 
+
+How to deal with network-card choice in a transparent
+way.  YARP1 - have user create a table of machine names and which
+network-card they should use to communicate with which other machines
+(by name).  YARP2?  
+
+Each machine has a set of IPs, which apply to different networks.
+For connection, need to find IPs that are mutually reachable.
+How to discover this?
+
+On registration, could identify a machine with its NIC 
+MAC addresses (can't rely on having a good domain name present)
+and give a list of IPs.  To determine connectivity, could go
+through each NIC, see of any of target's IPs are reachable,
+and if so if that is the correct machine.
+
+
+Make MCAST do right thing with network-cards.
+
+Make SHMEM inter-op work, either by handshaking or specifying 
+capabilities in registration.
+

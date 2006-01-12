@@ -14,14 +14,16 @@ class TcpCarrier extends Carrier {
     }
 
     public int getSpecifier() {
-	return 0x64; // second byte: 0x1e
+	return 3;
+	//return 0x64; // second byte: 0x1e
     }
 
     public void expectReplyToHeader(Protocol proto) throws IOException {
+	log.println("expectReplyToHeader for tcp");
 	readPort(proto);
 	// For TCP, a delay seems to be needed when talking to C++ yarp - 
 	// anyone know why?
-	Time.delay(2);
+	//Time.delay(2);  -- this is needed for C++ yarp
     }
 
     public Address getLocalAddress() {
@@ -40,7 +42,7 @@ class TcpCarrier extends Carrier {
     }
 
     public void open(Address address, Carrier previous) throws IOException {
-	System.out.println("Cannot open TCP; happens externally");
+	log.error("Cannot open TCP; happens externally");
 	System.exit(1);
     }
 
@@ -62,5 +64,13 @@ class TcpCarrier extends Carrier {
 	return socket.getOutputStream();
     }
 
+    public Carrier create() {
+	log.println("*** TcpCarrier::create()");
+	return new TcpCarrier();
+    }
+
+    public boolean isConnectionless() throws IOException {
+	return false;
+    }
 }
 

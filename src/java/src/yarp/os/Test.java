@@ -82,11 +82,11 @@ class Test {
 
     public static void outPortTest() {
 	OutputPort op = new OutputPort();
-	op.register("/op");
+	//op.register("/op");
+	op.register("/write");
 	op.creator(new BottleContent());
 
-	op.register("tcp://op");
-	op.connect("mcast://read");
+	//op.connect("mcast://read");
 	//op.connect("/read");
 
 	

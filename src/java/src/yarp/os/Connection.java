@@ -12,10 +12,11 @@ public class Connection {
     private Socket socket = null;
     private String fromKey = null;
     private String toKey = null;
+    private static Logger log = Logger.get();
 
     public Connection(Address address, 
 		      String fromKey, 
-		      String toKey) {
+		      String toKey) throws IOException {
 	this.address = address;
 	this.fromKey = fromKey;
 	this.toKey = toKey;
@@ -23,11 +24,11 @@ public class Connection {
 	try {
 	    socket = new Socket(address.getName(),address.getPort());
 	} catch (UnknownHostException e) {
-	    System.err.println("Don't know about host " + address.getName());
-	    System.exit(1);
+	    log.error("Don't know about host " + address.getName());
+	    throw(new IOException());
 	} catch (IOException e) {
-	    System.err.println("Couldn't get I/O for the connection to " + address.getName());
-	    System.exit(1);
+	    log.error("Couldn't make a connection to " + address);
+	    throw(new IOException());
 	}
 	    
 	if (socket==null) {
@@ -36,16 +37,15 @@ public class Connection {
 	    
 	try {
 	    
-	    //proto = new Protocol(new SocketShiftStream(socket));
 	    proto = new Protocol(new CarrierShiftStream(socket));
 	    
 	    proto.setSender(fromKey);
-	    proto.setRawProtocol(NameClient.getProtocolPart(toKey));
+	    proto.setRawProtocol(address.getCarrier());
 	    proto.sendHeader();
 	    proto.expectReplyToHeader();
-	    System.out.println("Connection created ok");
+	    log.println("Connection created ok");
 	} catch (IOException e) {
-	    System.err.println("Problem creating connection to " + address);
+	    log.warning("Problem creating connection to " + address);
 	}
     }
 
@@ -54,40 +54,26 @@ public class Connection {
     }
 
     public String getToName() {
-	return toKey;
+    	return toKey;
     }
 
     public void close() {
+	boolean needExternal = false;
+	try {
+	    needExternal = proto.isConnectionless();
+	} catch (IOException e) {
+	    log.warning("problem closing connection");
+	}
+	log.println("** closing connection");
 	proto.close();
-    }
-
-    private byte[] netInt(int x) {
-	byte b[] = new byte[4];
-	for (int i=0; i<4; i++) {
-	    int bi = x%256;
-	    b[i] = (byte)bi;
-	    x /= 256;
+	log.println("** connection closed");
+	if (needExternal) {
+	    // probably not interoperable with C++ YARP, need to look
+	    // up what the right command is
+	    log.println("Attempting to ask " + getToName() +
+			" to disconnect from " + getFromName());
+	    YarpClient.command(getToName(),"~" +getFromName());
 	}
-	return b;
-    }
-
-    private byte[] netString(String s) {
-	byte b[] = new byte[s.length()+1];
-	for (int i=0; i<s.length(); i++) {
-	    b[i] = (byte)s.charAt(i);
-	}
-	b[s.length()] = '\0';
-	return b;
-    }
-    
-
-    private byte[] append(byte[] b1, byte[] b2) {
-	byte[] b3 = new byte[b1.length+b2.length];
-
-	System.arraycopy (b1, 0, b3, 0, b1.length);
-	System.arraycopy (b2, 0, b3, b1.length,
-			  b2.length); 
-	return b3;
     }
 
     public void write(String msg) throws IOException {
@@ -113,19 +99,19 @@ public class Connection {
 			      -128,-128,-128,-128});
 
 	byte b2[] = {1,0,0,0, (byte)(eof?1:0),0,0,0};        // INT 0
-	b2 = append(b2, new byte[] {5,0,0,0}); // STR
-	b2 = append(b2,netInt(msg.length()+1));
-	b2 = append(b2,netString(msg));
+	b2 = NetType.append(b2, new byte[] {5,0,0,0}); // STR
+	b2 = NetType.append(b2,NetType.netInt(msg.length()+1));
+	b2 = NetType.append(b2,NetType.netString(msg));
 
 	byte b1[] = { 0,0,0,0,  '~', 'd', 0, 1};
-	b1 = append(b1,new byte[] { 4,0,0,0 });
-	b1 = append(b1,new byte[] { 'n','/','a',0 });
-	b1 = append(b1,netInt(b2.length));
+	b1 = NetType.append(b1,new byte[] { 4,0,0,0 });
+	b1 = NetType.append(b1,new byte[] { 'n','/','a',0 });
+	b1 = NetType.append(b1,NetType.netInt(b2.length));
 
 	byte b0[] = {};
-	b0 = append(b0,netInt(b1.length)); // block 1 length
-	b0 = append(b0,netInt(b2.length)); // block 2 length
-	b0 = append(b0,netInt(0));  // response length
+	b0 = NetType.append(b0,NetType.netInt(b1.length)); // block 1 length
+	b0 = NetType.append(b0,NetType.netInt(b2.length)); // block 2 length
+	b0 = NetType.append(b0,NetType.netInt(0));  // response length
     
 
 	out.write(b0);
@@ -146,20 +132,47 @@ public class Connection {
 	proto.endContent();
 	proto.sendIndex();
 	proto.sendContent();
+	proto.expectAck();
     }
 
     public void write(Content content) throws IOException {
 	
 	assert(content!=null);
 
-	proto.beginContent();
-	proto.addContent(new byte[] { 0,0,0,0,  '~', 'd', 0, 1}); // data hdr
-	content.write(proto);
-	//content.addContent(proto.netInt(4));
-	//content.addContent(proto.netString("nul"));
-	proto.endContent();
-	proto.sendIndex();
-	proto.sendContent();
+	if (proto.isActive()) {
+	    proto.beginContent();
+	    proto.addContent(new byte[] { 0,0,0,0,  '~', 'd', 0, 1}); 
+	    // data header
+	    content.write(proto);
+	    proto.endContent();
+	    proto.sendIndex();
+	    proto.sendContent();
+	    proto.expectAck();
+	} else {
+	    log.println("Skipping explicit output from " + fromKey + 
+			" to " + toKey);
+	}
     }
+
+    public String getCarrierName() throws IOException {
+	return proto.getCarrierName();
+    }
+
+    /*
+    public static void show(String from, String msg) {
+	boolean admin = true;
+	if (from.length()>0) {
+	  if (from.charAt(0) == '/') {
+	      admin = false;
+	  }
+	}
+	if (admin) {
+	    log.println(msg);
+	} else {
+	    log.info(msg);
+	}
+    }
+    */
+
 }
 

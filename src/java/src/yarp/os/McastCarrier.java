@@ -6,31 +6,112 @@ import java.net.*;
 import java.nio.channels.*;
 import java.util.*;
 
+/*
+  Pending issue: may need to be able to choose specific network interface
+ */
+
 class McastCarrier extends Carrier {
     private String senderName;
     private Address mcastAddress;
     MulticastSocket mcast;
+    String mcastKey;
     InputStream is;
     OutputStream os;
+    boolean reading = false;
 
+    static Map tracker = new HashMap();
+    static Map elected = new HashMap();
+
+    public static Set getPeers(String key) {
+	Set peers = (Set)tracker.get(key);
+	if (peers==null) {
+	    log.println(">>>>>>>>>>>> creating peer set for " + key);
+	    tracker.put(key,new HashSet());
+	    peers = (Set)tracker.get(key);
+	}
+	assert(peers!=null);
+	return peers;
+    }
+
+    public static void addCarrier(String key, McastCarrier carrier) {
+	log.println(">>>>>>>>>>>>>>>> add carrier for key " + key);
+	Set peers = getPeers(key);
+	log.println("pre size " + peers.size());
+	peers.add(carrier);
+	log.println("post size " + peers.size());
+	if (peers.size()==1) {
+	    elected.put(key,carrier);
+	}
+	assert(getPeers(key).size()>0);
+    }
+
+    public static void removeCarrier(String key, McastCarrier carrier) {
+	log.println(">>>>>>>>>>>>>> remove carrier for key " + key);
+	Set peers = getPeers(key);
+	peers.remove(carrier);
+	if (elected.get(key)==carrier) {
+	    Object next = null;
+	    Iterator it = peers.iterator();
+	    if (it.hasNext()) {
+		next = it.next();
+	    }
+	    elected.put(key,next);
+	}
+    }
+
+    public void dumpCarrier() {
+	Set peers = getPeers(mcastKey);
+	log.println("************************************");
+	log.println("*** information about mcast carriers");
+	log.println("*** key is " + mcastKey + " and there are " +
+		    peers.size() + " senders");
+	log.println("*** hash container has " + tracker.size() +
+		    " elements");
+	for (Iterator it = tracker.keySet().iterator(); it.hasNext(); ) {
+	    String key = (String)it.next();
+	    log.println("   hash key " + key + " with " +
+			getPeers(key).size());
+	    
+	}
+	//assert(peers.size()>=1);
+	for (Iterator it = peers.iterator(); it.hasNext(); ) {
+	    McastCarrier c = (McastCarrier)it.next();
+	    log.println(c + "  " + this);
+	}
+	log.println("************************************");
+    }
+
+    public static McastCarrier getElect(String key) {
+	return (McastCarrier)elected.get(key);
+    }
+
+    public boolean isElect() {
+	dumpCarrier();
+	return getElect(mcastKey)==this;
+    }
+    
     public String getName() {
 	return "mcast";
     }
 
     public int getSpecifier() {
-	return 98;
+	return 1;
+	//return 98;
+	//return 0x62;
     }
 
     public void sendExtraHeader(Protocol proto) throws IOException {
-	System.out.println("sendExtraHeader for " + getName());
+	log.println("sendExtraHeader for " + getName());
 
-	System.out.println("Sending mcast info");
+	log.println("Sending mcast info");
 	byte b[] = new byte[6];
 
-	InetAddress inet = InetAddress.getByName(mcastAddress.getName());
+	String address = mcastAddress.getName();
+	//log.println("REMOTE address is " + remote);
+	InetAddress inet = InetAddress.getByName(address);
 	byte[] raw = inet.getAddress();
 	if (raw.length!=4) {
-	    System.err.println("address strange size");
+	    log.error("Mcast address strange size");
 	    System.exit(1);
 	}
 	for (int i=0; i<4; i++) {
@@ -39,7 +120,7 @@ class McastCarrier extends Carrier {
 	int port = mcastAddress.getPort();
 	b[5] = (byte)(port%256);
 	b[4] = (byte)(port/256);
-	
+
 	proto.write(b);
     }
 
@@ -48,32 +129,32 @@ class McastCarrier extends Carrier {
 	String q = nc.getNamePart(name) + "-mcast";
         Address address = nc.probe("NAME_SERVER query " + q);
 	if (address==null) {
-	    return nc.register(nc.getNamePart(name),"mcast");
+	    return nc.register(q,"mcast");
 	}
 	return address;
     }
 
     public void prepareSend(Protocol proto) {
-	System.out.println("prepareSend for " + getName());
+	log.println("prepareSend for " + getName());
 	senderName = proto.getSender();
-	System.out.println("Getting mcast info");
+	log.println("Getting mcast info");
 	mcastAddress = mcastQuery(senderName);
-	System.out.println("mcast address is " + mcastAddress);
+	log.println("mcast address is " + mcastAddress);
     }
 
     public void expectExtraHeader(Protocol proto) throws IOException {
-	System.out.println("expectExtraHeader for " + getName());
-	System.out.println("Looking for mcast info");
+	log.println("expectExtraHeader for " + getName());
+	log.println("Looking for mcast info");
 	byte b[] = new byte[6];
 	proto.read(b);
 	int ip[] = new int[4];
 	for (int i=0; i<4; i++) {
 	    ip[i] = NetType.unsigned(b[i]);
-	    System.out.println("  >> IP " + ip[i]);
+	    log.println("  >> IP " + ip[i]);
 	}
 	// strange byte order
 	int port = NetType.netInt(new byte[] { b[5], b[4], 0, 0 });
-	System.out.println("  >> PORT " + port);
+	log.println("  >> PORT " + port);
 	
 	mcastAddress = new Address("" + ip[0] + "." + 
 				   ip[1] + "." +
@@ -89,11 +170,17 @@ class McastCarrier extends Carrier {
     }
 
     public void respondExtraToHeader(Protocol proto) throws IOException {
-	System.out.println("respondExtraToHeader for " + getName());
+	log.println("respondExtraToHeader for " + getName());
+	log.println("TAGGING as a reading mcast");
+	reading = true;
 	proto.become(getName(),mcastAddress);
     }
 
     public void close() throws IOException {
+	if (mcastKey!=null) {
+	    removeCarrier(mcastKey,this);
+	    mcastKey = null;
+	}
 	if (mcast!=null) {
 	    mcast.close();
 	    mcast = null;
@@ -101,18 +188,41 @@ class McastCarrier extends Carrier {
     }
 
     public void open(Address address, Carrier previous) throws IOException {
-	close();
+	log.println("********* open for mcast address " + address);
+	//close();
 	Address local = previous.getLocalAddress();
 	Address remote = previous.getLocalAddress();
+	Address tcpRemote = remote;
 	remote = address;
 	InetAddress group = InetAddress.getByName(address.getName());
-	mcast = new MulticastSocket(address.getPort());
+	InetAddress tcp = InetAddress.getByName(tcpRemote.getName());
+	mcast = new MulticastSocket(address.getPort()); 
+
+	log.debug("remote address is " + remote);
+
+	NetworkInterface anticipate = NetworkInterface.getByInetAddress(tcp);
+	if (anticipate.getDisplayName().equals("lo")) {
+	    // loopback may not support multicast, so skip setting interface
+	} else {
+	    mcast.setInterface(InetAddress.getByName(tcpRemote.getName()));
+	    // does the above pick the right NIC?  if not, should call 
+	    // setNetworkInterface.
+	}
+
 	mcast.joinGroup(group);
+	NetworkInterface nic = mcast.getNetworkInterface();
+	String nicName = nic.getDisplayName();
+	log.println("Nic name is " + nicName);
+
+	mcastKey = mcastAddress.getName() + " on NIC " + nicName;
+	addCarrier(mcastKey,this);
+	
 	setAddress(local,remote);
 	is = new DatagramInputStream(mcast,512);
 	os = new BufferedOutputStream(new DatagramOutputStream(mcast,
 							       remote,
-							       512),
+							       512,
+							       reading),
 				      512);
     }
 
@@ -125,5 +235,14 @@ class McastCarrier extends Carrier {
 	return os;
     }
 
+    public boolean isActive() throws IOException {
+	// should check if output is necessary
+	return isElect();
+    }
+
+    public Carrier create() {
+	log.println("*** McastCarrier::create()");
+	return new McastCarrier();
+    }
 }
 

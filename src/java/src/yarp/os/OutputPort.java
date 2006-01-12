@@ -16,30 +16,38 @@ public class OutputPort {
 
     public void register(String name) {
 	Address server = NameClient.getNameClient().register(name);
+	Logger.get().info("Registered output port " + name + " as " + 
+			  server.toString());
 	port = new BasicPort(server,name);
 	port.start();
     }
 
     public void connect(String name) {
 	if (port==null) {
-	    System.out.println("Please call register() before connect()");
+	    Logger.get().error("Please call register() before connect()");
 	    System.exit(1);
 	}
 	if (creator==null) {
-	    System.out.println("Please call creator() before connect()");
+	    Logger.get().error("Please call creator() before connect()");
 	    System.exit(1);
 	}
 
 	NameClient nc = NameClient.getNameClient();
+
+	String base = NameClient.getNamePart(name);
+	String carrier = NameClient.getProtocolPart(name);
 	
-	Address add = nc.query(name);
+	
+	Address add = nc.query(base);
 	
 	if (add==null) {
-	    System.err.println("Cannot find port " + name);
+	    Logger.get().error("Cannot find port " + base);
 	    return;
 	}
+	add = new Address(add.getName(),add.getPort(),carrier);
+	Logger.get().println("connecting to address " + add.toString());
 	
-	Connection c = new Connection(add,port.getPortName(),name);
+	Connection c = new Connection(add,port.getPortName(),base);
 	port.addConnection(c);
     }
 

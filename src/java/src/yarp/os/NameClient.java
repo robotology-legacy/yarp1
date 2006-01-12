@@ -9,6 +9,7 @@ import java.util.regex.*;
 public class NameClient {
     private Address address;
     private String host;
+    private static Logger log = Logger.get();
 
     public NameClient(Address address) {
 	this.address = address;
@@ -36,8 +37,8 @@ public class NameClient {
 			InetAddress inet = (InetAddress)e2.nextElement();
 			byte[] lst = inet.getAddress();
 			if (lst.length==4) {
-			    System.err.println("*** inet " + inet + " // " +
-					       inet.getHostAddress());
+			    log.println("*** inet " + inet + " // " +
+					inet.getHostAddress());
 			    if (host==null) {
 				host = inet.getHostAddress();
 			    }
@@ -51,7 +52,12 @@ public class NameClient {
 		host = "127.0.0.1";
 	    }
 	}
-	System.err.println("### host name is " + host);
+
+	//log.error("compatibility hack in operation");
+	//host = "127.0.0.1";
+
+	log.println("### host name is " + host);
+	this.host = host;
 	return host;
     }
 
@@ -60,29 +66,29 @@ public class NameClient {
 	if (result!=null) {
 	    return result;
 	}
-	return "udp";
+	return "tcp";
     }
 
     public static String getConfiguration(String key) {
 	String val = System.getenv(key);
 	if (val!=null) {
-	    System.err.println("Environment variable " + key + " is " + val);
+	    log.println("Environment variable " + key + " is " + val);
 	} else {
-	    System.err.println("Environment variable " + key + " is not set");
+	    log.println("Environment variable " + key + " is not set");
 	}
 	return val;
     }
 					 
 
     public void setConfiguration(String txt) {
-	System.err.println("Configuration text: " + txt);
+	log.println("Configuration text: " + txt);
 	Pattern p = Pattern.compile("^([^ ]+) +([0-9]+)");
 	Matcher m = p.matcher(txt);
 	if (m.find()) {
 	    String host = m.group(1);
 	    String port = m.group(2);
-	    System.err.println("Config host is " + host + " and port is " +
-			       port);
+	    log.println("Config host is " + host + " and port is " +
+			port);
 	    address = new Address(host,Integer.valueOf(port));
 	}
 	address = new Address("127.0.0.1",10000);
@@ -97,13 +103,13 @@ public class NameClient {
 	} else if (home!=null) {
 	    conf = home + "/.yarp/conf/namer.conf";
 	} else {
-	    System.err.println("Cannot decide where configuration file is - set YARP_ROOT or HOME");
+	    log.error("Cannot decide where configuration file is - set YARP_ROOT or HOME");
 	    System.exit(1);
 	}
-	System.err.println("Configuration file: " + conf);
+	log.println("Configuration file: " + conf);
 	File file = new File(conf);
 	if (!file.exists()) {
-	    System.err.println("Cannot find configuration file");
+	    log.warning("Cannot find configuration file");
 	    String base = root;
 	    if (base==null) {
 		base = home + "/.yarp";
@@ -151,7 +157,7 @@ public class NameClient {
 	    is.close();
 	} catch (Exception e) {
 	    // ok to fail
-	    System.err.println("Problem reading configuration file");
+	    log.warning("Problem reading configuration file");
 	}
     }
 
@@ -178,9 +184,9 @@ public class NameClient {
 	    result = send(cmd);
 	} catch (IOException e) {
 	}
-	Pattern p = Pattern.compile("ip ([^ ]+).*port ([^ ]+).*type ([^ ]+)");
+	Pattern p = Pattern.compile("ip ([^ ]+).*port ([^ ]+).*type ([a-zA-Z]+)");
 	Matcher m = p.matcher(result);
-	System.out.println("Result: " + result);
+	log.println("Result: " + result);
 	if (m.find()) {
 	    String ip = m.group(1);
 	    int port = Integer.valueOf(m.group(2)).intValue();
@@ -205,9 +211,8 @@ public class NameClient {
     }
 
     public Address register(String name, String rawProtocol) {
-	String host = getHostName();
-	return probe("NAME_SERVER register " + name + " 127.0.0.1 " + 
-		     rawProtocol);
+	//String host = getHostName();
+	return probe("NAME_SERVER register " + name + " " + rawProtocol);
     }
 
     public String send(String msg) throws IOException {
@@ -225,14 +230,14 @@ public class NameClient {
 		in = new BufferedReader(new InputStreamReader(ncSocket.getInputStream()));
 		done = true;
 	    } catch (UnknownHostException e) {
-		System.err.println("Don't know about host " + address.getName());
+		log.error("Don't know about host " + address.getName());
 		System.exit(1);
 	    } catch (IOException e) {
-		System.err.println("Name server missing");
-		System.err.println("Couldn't get I/O for the connection to " + address.getName());
+		log.warning("Name server missing");
+		log.warning("Couldn't get I/O for the connection to " + address.getName());
 		//System.exit(1);
-		System.err.println("Starting a LOCAL server, just so something will work");
-		System.err.println("You should really make a name server yourself");
+		log.warning("Starting a LOCAL server, just so something will work");
+		log.warning("You should really make a name server yourself");
 		getConfiguration();
 		Time.delay(3);
 		YarpServer.run(true);
@@ -268,20 +273,7 @@ public class NameClient {
 
     static NameClient theNameClient = new NameClient();
 
-    //new NameClient(new Address("localhost",10000));
-
-
     public static NameClient getNameClient() {
 	return theNameClient;
-    }
-
-    public static void main(String[] args) throws IOException {
-	
-	NameClient nc = new NameClient(new Address("localhost",10000));
-	System.out.println(nc.send("NAME_SERVER query /frank"));
-	System.out.println(nc.send("NAME_SERVER register /frank 44.44.44.44"));
-	System.out.println(nc.send("NAME_SERVER query /frank"));
-
-	//nc.send2("bozo");
     }
 }

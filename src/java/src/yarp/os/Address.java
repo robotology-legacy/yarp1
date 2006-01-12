@@ -27,7 +27,7 @@ public class Address {
 
     public String getCarrier() { return carrier; }
 
-    public String toString() { return carrier + ":/" + name + ":" + port;  }
+    public String toString() { return carrier + "://" + name + ":" + port;  }
 
     private String name;
     private int port;

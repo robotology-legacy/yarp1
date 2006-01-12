@@ -5,6 +5,8 @@ import java.io.*;
 import java.util.*;
 
 class Bottle {
+    private static Logger log = Logger.get();
+
     private List items = new ArrayList();
 
     public void add(Object o) {
@@ -46,12 +48,12 @@ class Bottle {
 	while (index<len-4) {
 	    int id = NetType.netInt(data,index,4);
 	    index+=4;
-	    System.out.println("Id is " + id);
+	    log.println("Id is " + id);
 	    switch (id) {
 	    case 1:
 		int v = NetType.netInt(data,index,4);
 		index+=4;
-		System.out.println(" > num is " + v);
+		log.println(" > num is " + v);
 		add(new Integer(v));
 		break;
 	    case 5:
@@ -60,8 +62,17 @@ class Bottle {
 		byte[] sub = new byte[l];
 		System.arraycopy(data,index,sub,0,l);
 		index+=l;
-		System.out.println(" > string is " + new String(sub));
-		add(new String(sub));
+		String txt = NetType.netString(sub); //new String(sub);
+		/*
+		if (txt.length()>=1) {
+		    int tlen = txt.length();
+		    if (txt.charAt(tlen-1)=='\0') {
+			txt = txt.substring(0,tlen-1);
+		    }
+		}
+		*/
+		log.println(" > string is " + txt);
+		add(txt);
 		break;
 	    }
 	}

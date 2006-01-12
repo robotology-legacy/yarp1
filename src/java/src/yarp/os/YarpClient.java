@@ -10,6 +10,7 @@ import java.util.*;
  */
 
 class YarpClient {
+    private static Logger log = Logger.get();
 
     public static void read(String[] args) {
 	if (args.length<2) {
@@ -25,16 +26,25 @@ class YarpClient {
 	while (!done) {
 	    if (in.read()) {
 		Bottle bot = (Bottle)in.content();
-		System.out.println("Got " + bot);
 		List lst = bot.asList();
-		if (lst.size()>=1) {
+		boolean shown = false;
+		if (lst.size()>=2) {
 		    Object o = lst.get(0);
 		    if (o instanceof Integer) {
 			if (((Integer) o).intValue()==1) {
 			    done = true;
+			    shown = true;
 			    // honor end-of-stream marker
 			}
 		    }
+		    if (!shown) {
+			Object o1 = lst.get(1);
+			System.out.println(o1);
+			shown = true;
+		    }
+		}
+		if (!shown) {
+		    System.out.println("Got " + bot);
 		}
 	    }
 	}
@@ -67,6 +77,10 @@ class YarpClient {
 
 
     public static void command(String source, String cmd) {
+	command(source,cmd,'\0');
+    }
+
+    public static void command(String source, String cmd, char ch) {
 	try {
 	    NameClient nc = NameClient.getNameClient();
 	    
@@ -78,7 +92,8 @@ class YarpClient {
 	    }
 	    
 	    Connection c = new Connection(add,"external",source);
-	    c.writeCommand('\0',cmd);
+	    c.writeCommand(ch,cmd);
+	    c.close();
 	} catch (IOException e) {
 	    System.err.println("connection failed");
 	}
@@ -91,6 +106,10 @@ class YarpClient {
 	}
 	String source = args[1];
 	String target = args[2];
+	if (args.length>3) {
+	    String carrier = args[3];
+	    target = "/" + carrier + ":/" + target;
+	}
 	System.out.println("Connecting " + source + " to " + target);
 	command(source,target);
     }
@@ -140,10 +159,30 @@ class YarpClient {
 	out.close();
     }
 
+    public static void where() {
+	Address address = NameClient.getNameClient().getAddress();
+	System.out.println("Name server is available at ip " +
+			   address.getName() + " port " + address.getPort());
+    }
 
     public static void main(String[] args) {
+	//System.out.println("256 is " + NetType.netInt(new byte[] {0,1,0,0}));
+	//System.out.println("-1 is " + NetType.netInt(new byte[] {-1,-1,-1,-1}));
+	//System.exit(1);
 	if (args.length>0) {
-	    System.out.println("first arg is " + args[0]);
+	    String arg = args[0];
+	    if (arg.equals("verbose")) {
+		log.showAll();
+		log.println("In verbose mode");
+		String args2[] = new String[args.length-1];
+		if (args2.length>0) {
+		    System.arraycopy(args,1,args2,0,args2.length);
+		    args = args2;
+		}
+	    }
+	}
+	if (args.length>0) {
+	    log.println("first arg is " + args[0]);
 	    String mode = args[0];
 	    if (mode.equals("read")) {
 		read(args);
@@ -160,13 +199,17 @@ class YarpClient {
 	    if (mode.equals("server")) {
 		YarpServer.main(args);
 	    }
+	    if (mode.equals("where")) {
+		where();
+	    }
 	} else {
 	    System.err.println("here are ways to use this program:");
 	    System.err.println("  <this program> read /name");
 	    System.err.println("  <this program> write /name [/target]");
-	    System.err.println("  <this program> connect /source /target");
+	    System.err.println("  <this program> connect /source /target [tcp|udp|mcast]");
 	    System.err.println("  <this program> disconnect /source /target");
 	    System.err.println("  <this program> server");
+	    System.err.println("  <this program> where");
 	}
     }
 

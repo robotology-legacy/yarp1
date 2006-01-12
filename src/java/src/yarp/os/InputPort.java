@@ -14,17 +14,18 @@ import java.io.*;
  */
 public class InputPort {
 
-
     /**
      * Assign a unique global name to this port.
      * @param name The name to assign.
      */
     public void register(String name) {
 	Address server = NameClient.getNameClient().register(name);
+	Logger.get().info("Registered input port " + name + " as " + 
+			  server.toString());
 	BasicPort basic = new BasicPort(server,name);
 	basic.setHandler(handler);
 	if (creator==null) {
-	    System.err.println("should call creator before register");
+	    Logger.get().error("should call creator before register");
 	    System.exit(1);
 	}
 	content = creator.create();
@@ -86,12 +87,12 @@ public class InputPort {
     private class InputPortHandler implements ProtocolHandler  {
 
 	public void read(Protocol proto) {
-	    System.out.println("Could read now!");
+	    Logger.get().println("Could read now!");
 	    if (content!=null) {
 		try {
 		    content.read(proto);
 		} catch (IOException e) {
-		    System.err.println("Problem reading");
+		    Logger.get().error("Problem reading");
 		}
 	    }
 	    synchronized(readSomething) {

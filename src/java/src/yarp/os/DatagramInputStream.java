@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.*;
 
 class DatagramInputStream extends InputStream {
+    private static Logger log = Logger.get();
 
     public static final int DGRAM_BUF_LEN = 512;
 
@@ -26,7 +27,7 @@ class DatagramInputStream extends InputStream {
 	DatagramPacket recv = new DatagramPacket(buf, buf.length);
 	dgram.receive(recv);
 	data = recv.getData();
-	System.out.println("Received: " + recv.getOffset() + " " + recv.getLength());
+	log.println("Received: " + recv.getOffset() + " " + recv.getLength());
 	at = recv.getOffset();
 	avail = recv.getLength();
 	return avail;
@@ -48,7 +49,7 @@ class DatagramInputStream extends InputStream {
     public int read(byte[] b, int off, int len) throws IOException {
 	int ct = 0;
 	while (len>0) {
-	    System.out.println("udp read at " + at + " avail " + avail + " rel " + off + " " + len);
+	    log.println("udp read at " + at + " avail " + avail + " rel " + off + " " + len);
 	    if (avail==0) {
 		readHelper();
 	    }
@@ -61,7 +62,7 @@ class DatagramInputStream extends InputStream {
 		ct++;
 	    }
 	}
-	System.out.println("udp read done " + off + " " + len);
+	log.println("udp read done " + off + " " + len);
 	return ct;
     }
 

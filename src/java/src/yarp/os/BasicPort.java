@@ -9,14 +9,21 @@ import java.util.*;
 class BasicPort extends Thread {
     private Address address;
     private ServerSocket serverSocket = null;
-    private ArrayList connections = new ArrayList();
-    private ArrayList portlets = new ArrayList();
+    private List connections = 
+	Collections.synchronizedList(new ArrayList());
+    private List portlets = 
+	Collections.synchronizedList(new ArrayList());
     private ProtocolHandler handler = null;
     private String key = null;
+    private static Logger log = Logger.get();
 
     public BasicPort(Address address, String key) {
 	this.address = address;
 	this.key = key;
+    }
+
+    public String getPortName() {
+	return key;
     }
 
     public synchronized void setHandler(ProtocolHandler handler) {
@@ -31,11 +38,50 @@ class BasicPort extends Thread {
 	portlets.remove(portlet);
     }
 
+    public void println(PrintStream out, String str, boolean info) {
+	if (out!=null) {
+	    out.println(str);
+	}
+	if (info) {
+	    log.info(str);
+	} else {
+	    log.debug(str);
+	}
+    }
+
+    public void println(PrintStream out, String str) {
+	println(out,str,false);
+    }
+
+    public synchronized void removePortlet(String target, PrintStream out) {
+	BasicPortlet rip = null;
+	for (Iterator it = portlets.iterator(); it.hasNext(); ) {
+	    BasicPortlet p = (BasicPortlet) it.next();
+	    String name = p.getFromName();
+	    if (name!=null) {
+		if (name.equals(target)) {
+		    rip = p;
+		}
+	    }
+	}
+	if (rip!=null) {
+	    //log.info("Here i am");
+	    println(out,"Removed connection from " + rip.getFromName() +
+		    " to " + rip.getToName());
+	    //log.info("Here i go");
+	    rip.close();
+	    removePortlet(rip);
+	} else {
+	    println(out,"Did not find input from " + target);
+	}
+    }
+
+
     public synchronized void addConnection(Connection connection) {
 	connections.add(connection);
     }
 
-    public synchronized void removeConnection(String target) {
+    public synchronized void removeConnection(String target, PrintStream out) {
 	Connection defunct = null;
 	for (Iterator it = connections.iterator(); it.hasNext(); ) {
 	    Connection connection = (Connection) it.next();
@@ -45,8 +91,23 @@ class BasicPort extends Thread {
 	    }
 	}
 	if (defunct!=null) {
+	    log.debug("closing something that is writing to " +
+		      target);
+	    println(out, "Stopping output from " +  defunct.getFromName() +
+		    " to " + defunct.getToName(),true);
 	    defunct.close();
 	    connections.remove(defunct);
+	} else {
+	    println(out, "Could not find " + target);
+	    /*
+	    log.error("could not find " +
+		      target + " (" + target.length() + " chars) in order to close it");
+	    for (Iterator it = connections.iterator(); it.hasNext(); ) {
+		Connection connection = (Connection) it.next();
+		log.println("  Found instead "+connection.getFromName()
+			    + " to " + connection.getToName());
+	    }
+	    */
 	}
     }
 
@@ -57,9 +118,41 @@ class BasicPort extends Thread {
 	}
     }
 
+    public synchronized String describe(Portlet caller) 
+	throws IOException {
 
-    public String getPortName() {
-	return key;
+	StringBuffer buf = new StringBuffer("");
+
+	buf.append("This is " + getPortName() + "\n");
+
+	for (Iterator it = connections.iterator(); it.hasNext(); ) {
+	    Connection connection = (Connection) it.next();
+	    buf.append("There is a connection from " +
+		       connection.getFromName() + " to " +
+		       connection.getToName() + " using protocol " +
+		       connection.getCarrierName() + "\n");
+	}
+	if (connections.size()==0) {
+	    buf.append("There are no outgoing connections\n");
+	}
+
+	for (Iterator it = portlets.iterator(); it.hasNext(); ) {
+	    BasicPortlet p = (BasicPortlet) it.next();
+	    String conj = "a";
+	    if (p == caller) {
+		conj = "this";
+	    }
+	    buf.append("There is " + conj + " connection from " +
+		       p.getFromName() + " to " +
+		       p.getToName() + " using protocol " +
+		       p.getCarrierName() + "\n");
+	}
+	if (portlets.size()==0) {
+	    buf.append("There are no incoming connections\n");
+	}
+	buf.append("*** end of message\n");
+
+	return buf.toString();
     }
 
     public void run() {
@@ -74,8 +167,8 @@ class BasicPort extends Thread {
 		serverSocket.bind(a);
 	    }
         } catch (IOException e) {
-            System.err.println("Could not listen on port: " + 
-			       address.getPort());
+            log.error("Could not listen on port: " + 
+		      address.getPort());
 	    finish = true;
         }
 
@@ -87,12 +180,12 @@ class BasicPort extends Thread {
 		    clientSocket = sc.socket();
 		}
 	    } catch (IOException e) {
-		System.err.println("shutting down port.");
+		log.info("Shutting down port " + getPortName());
 		finish = true;
 	    }
 
 	    if (!finish) {
-		System.out.println("got something");
+		log.println("got something");
 		
 		Portlet portlet = newPortlet(clientSocket);
 		addPortlet(portlet);
@@ -109,23 +202,38 @@ class BasicPort extends Thread {
     }
 
     public void send(Content content) {
+	List defuncts = new LinkedList();
 	for (Iterator it = connections.iterator(); it.hasNext(); ) {
 	    Connection connection = (Connection) it.next();
 	    try {
 		connection.write(content);
 	    } catch (IOException e) {
-		System.err.println("connection problem");
+		defuncts.add(connection);
 	    }
+	}
+	for (Iterator it = defuncts.iterator(); it.hasNext(); ) {
+	    Connection connection = (Connection) it.next();
+	    log.error("problem with output from " + 
+		      connection.getFromName() + " to " +
+		      connection.getToName());
+	    removeConnection(connection.getToName(),null);
 	}
     }
 
     public void close() {
-	System.out.println("starting Port close...");
+	log.println("starting Port close...");
 	for (Iterator it = portlets.iterator(); it.hasNext(); ) {
 	    Portlet portlet = (Portlet) it.next();
 	    portlet.close();
 	}
-	System.out.println("ending Port close...");
+	for (Iterator it = connections.iterator(); it.hasNext(); ) {
+	    Connection connection = (Connection) it.next();
+	    log.info("stopping output from " + connection.getFromName() +
+		     " to " + connection.getToName());
+	    connection.close();
+	}
+
+	log.println("ending Port close...");
 	portlets.clear();
 	interrupt();
     }
