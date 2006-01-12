@@ -29,8 +29,8 @@ public class InputPort {
 	    System.exit(1);
 	}
 	content = creator.create();
-	basic.start();
 	port = basic;
+	basic.start();
     }
 
 

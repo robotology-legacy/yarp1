@@ -26,6 +26,7 @@ class TcpCarrier extends Carrier {
 	//Time.delay(2);  -- this is needed for C++ yarp
     }
 
+    /*
     public Address getLocalAddress() {
 	return local;
     }
@@ -33,6 +34,7 @@ class TcpCarrier extends Carrier {
     public Address getRemoteAddress() {
 	return remote;
     }
+    */
 
     public void close() throws IOException {
 	if (socket!=null) {
@@ -49,10 +51,12 @@ class TcpCarrier extends Carrier {
     public void open(Socket socket) throws IOException {
 	this.socket = socket;
 	InetAddress a1 = socket.getLocalAddress();
-	local = new Address(a1.getHostAddress(),socket.getLocalPort());
+	Address clocal = 
+	    new Address(a1.getHostAddress(),socket.getLocalPort());
 	InetSocketAddress a2 = 
 	    (InetSocketAddress)socket.getRemoteSocketAddress();
-	remote = new Address(a2.getHostName(),socket.getPort());
+	Address cremote = new Address(a2.getHostName(),socket.getPort());
+	setAddress(clocal,cremote);
     }
 
 

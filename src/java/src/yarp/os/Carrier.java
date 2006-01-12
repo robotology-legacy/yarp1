@@ -4,7 +4,7 @@ package yarp.os;
 import java.io.*;
 
 abstract class Carrier {
-    Address local, remote;
+    private Address local, remote;
     protected static Logger log = Logger.get();
 
     public abstract String getName();
@@ -19,6 +19,7 @@ abstract class Carrier {
     }
 
     public void setAddress(Address local, Address remote) {
+	log.println("set local address " + local + " and remote " + remote);
 	this.local = local;
 	this.remote = remote;
     }

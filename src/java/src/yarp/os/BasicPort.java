@@ -179,6 +179,12 @@ class BasicPort extends Thread {
 		SocketChannel sc = serverSocket.getChannel().accept();
 		if (sc!=null) {
 		    clientSocket = sc.socket();
+		    log.println("got something");
+		    if (clientSocket.getLocalPort()==-1) {
+			log.error("problem, possibly with old gcj version");
+			System.exit(1);
+		    }
+		
 		}
 	    } catch (IOException e) {
 		log.info("Shutting down port " + getPortName());
@@ -190,8 +196,6 @@ class BasicPort extends Thread {
 	    }
 
 	    if (!finish) {
-		log.println("got something");
-		
 		Portlet portlet = newPortlet(clientSocket);
 		addPortlet(portlet);
 		portlet.start();

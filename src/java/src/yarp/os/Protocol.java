@@ -28,6 +28,8 @@ class Protocol implements BlockWriter, BlockReader {
     private Carrier delegate;
 
     public Protocol(ShiftStream shift) throws IOException {
+	log.println("Protocol manager object starting with address " +
+		    shift.getAddress());
 	this.shift = shift;
 	this.in = shift.getInputStream();
 	this.out = shift.getOutputStream();
@@ -52,6 +54,7 @@ class Protocol implements BlockWriter, BlockReader {
 	    }
 	}
 	Carrier c = shift.chooseCarrier(name);
+	//c.setAddress(shift.getAddress(),null);
 	return c;
     }
 
