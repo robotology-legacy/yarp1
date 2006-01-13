@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: YARPNameClient.h,v 2.1 2006-01-13 23:09:49 eshuy Exp $
 ///
 ///
 
@@ -85,6 +85,7 @@
 #include <yarp/wide_nameloc.h>
 #include <yarp/YARPTime.h>
 #include <yarp/YARPSemaphore.h>
+#include <yarp/YARPNameClient2.h>
 
 #include <ace/SOCK_Acceptor.h>
 #include <ace/SOCK_Connector.h>
@@ -243,6 +244,9 @@ public:
 
 	int _handle_reply(YARPString &out);
 
+  int check(const char *name, const char *key, 
+	    const char *value);
+
 private:
 	// connect to server
 	int connect_to_server ();
@@ -256,11 +260,13 @@ private:
 	int _queryQnx(const YARPString &s, YARPNameQnx &entry, int *type);
 	int _query_nic(const YARPNSNic &in, YARPString &outNic, YARPString &outIp);
 
+
 private:
 	ACE_SOCK_Stream client_stream_;
 	ACE_INET_Addr remote_addr_;
 	ACE_SOCK_Connector connector_;
 	YARPSemaphore mutex_;
+        YARPNameClient2 alt_client;
 	
 	char *data_buf_;
 	char *reply_buf_;
