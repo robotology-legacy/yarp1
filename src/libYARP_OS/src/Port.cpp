@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 2.1 2006-01-12 11:53:37 eshuy Exp $
+/// $Id: Port.cpp,v 2.2 2006-01-13 23:12:00 eshuy Exp $
 ///
 ///
 
@@ -312,10 +312,29 @@ void OutputTarget::Body ()
 			ACE_OS::memset (iplocal, 0, 17);
 			ACE_OS::memcpy (iplocal, local.get_host_addr(), 17);
 
+#ifdef USE_YARP2
+			// Test for locality is broken.
+			// Is test for same-machine sufficient?
+			bool same_machine = YARPNameService::VerifySame (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_host_addr(), iplocal, network_name);
+#else
 			bool same_machine = YARPNameService::VerifyLocal (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_host_addr(), iplocal, network_name.c_str());
-
+#endif
 			///if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
-			if (same_machine && allow_shmem)
+
+			bool accepted = true;
+
+#ifdef USE_YARP2
+			// YARP2 extension
+			if (same_machine&&allow_shmem) {
+			  accepted = (YARPNameService::CheckProperty(GetLabel().c_str(),"accepts", "shmem"))!=0;
+			  if (!accepted) {
+			    ACE_DEBUG ((LM_DEBUG, "switching to SHMEM mode is prohibited\n"));
+			  }
+			}
+			// YARP2 extension ends			
+#endif
+
+			if (same_machine && allow_shmem && accepted)
 			{
 				/// going into SHMEM mode.
 				protocol_type = YARP_SHMEM;
@@ -1423,7 +1442,7 @@ void Port::Body()
 
 			default:
 				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "Unknown message received by %s (tag is %d-->'%c')!\n", name.c_str(), tag, tag));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "Unknown message received by %s (tag is %d-->'%c', str is %s)!\n", name.c_str(), tag, tag, buf));
 				}
 				break;
 			}

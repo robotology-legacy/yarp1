@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 2.1 2006-01-13 23:13:34 eshuy Exp $
 ///
 ///
 
@@ -2585,6 +2585,15 @@ _SocketThreadListMulti::~_SocketThreadListMulti (void)
 ACE_HANDLE _SocketThreadListMulti::connect (const YARPUniqueNameSock& id)
 {
 	_local_addr = ((YARPUniqueNameSock&)id).getAddressRef();
+
+	// for YARP2 flexibility, don't select a particular IP
+#ifdef USE_YARP2
+	ACE_INET_Addr flex;
+	flex.set_port_number(_local_addr.get_port_number());
+	_local_addr.set(flex);
+#endif
+	// YARP2 change finished
+
 	_acceptor_socket.open (_local_addr, 1);	// reuse addr enabled.
 
 	if (_acceptor_socket.get_handle() == ACE_INVALID_HANDLE)
@@ -2661,6 +2670,7 @@ void _SocketThreadListMulti::addSocket (void)
 	int ra = -1;
 	do
 	{
+
 		ra = _acceptor_socket.accept (*stream, &incoming);
 
 		if (ra < 0)

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 2.1 2006-01-13 23:12:46 eshuy Exp $
 ///
 ///
 
@@ -674,6 +674,18 @@ bool YARPSocketNameService::VerifySame (YARPNameClient& namer, const char *ip, c
 	YARPString new_ip, new_nic;
 	namer.query_nic (ip, netname, new_nic, new_ip);
 	if_name = new_nic;
+	ACE_DEBUG ((LM_DEBUG, "VerifySame compares %s and %s\n", 
+		    new_ip.c_str(), ip));
+#ifdef USE_YARP2
+	{
+	  ACE_INET_Addr addr1, addr2;
+	  addr1.set((short unsigned int)0,(const char *)new_ip.c_str());
+	  addr2.set((short unsigned int)0,(const char *)ip);
+	  if (addr1==addr2) {
+	    return true;
+	  }
+	}
+#endif
 	if (ACE_OS::strcmp (new_ip.c_str(), ip) == 0)
 	   return true;
 	return false;
@@ -701,6 +713,9 @@ bool YARPSocketNameService::VerifyLocal (YARPNameClient& namer, const char *rem_
 	//if (ACE_OS::strcmp (ip1.c_str(), ip2.c_str()) == 0 && ACE_OS::strcmp (ip1.c_str(), "0.0.0.0") != 0)
 	//return true;
 
+	ACE_DEBUG ((LM_DEBUG, "VerifyLocal compares %s and %s (%s and %s)\n", 
+		    ip1.c_str(), ip2.c_str(),
+		    rem_ip, loc_ip));
 	if (ACE_OS::strcmp (ip1.c_str(), "0.0.0.0") != 0) {
 	  ACE_INET_Addr addr1, addr2;
 	  addr1.set((short unsigned int)0,(const char *)ip1.c_str());

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: YARPNameClient.cpp,v 2.1 2006-01-13 23:15:30 eshuy Exp $
 ///
 ///
 
@@ -376,7 +376,7 @@ int YARPNameClient::_checkIn(const YARPString &s, ACE_INET_Addr &addr)
   YNC("YNC %s:%d --> _checkIn %s\n",__FILE__,__LINE__,s.c_str());
 	YARPNameServiceCmd tmpCmd;
 	YARPNameTCP tmpRqst;
-	
+
 	if (connect_to_server() != 0)
 		return YARP_FAIL;
 			
@@ -426,6 +426,18 @@ int YARPNameClient::_checkInUdp(const YARPString &name, const YARPString &ip, Ne
   YNC("YNC %s:%d --> _checkIn %s\n",__FILE__,__LINE__,name.c_str());
 	YARPNameServiceCmd tmpCmd;
 	YARPNameUDP tmpRqst;
+	
+	if (alt_client.isActive()) {
+	  YNC("delegating to YARP2 client - ip %s\n", ip.c_str());
+	  ACE_INET_Addr addr;
+	  int result = alt_client.registerName(name.c_str(),ip.c_str(),
+					       "tcp",addr);
+	  int port = addr.get_port_number();
+	  for (int i=0; i<n; i++) {
+	    ports[i] = port+i;
+	  }
+	  return result;
+	}
 	
 	if (connect_to_server()!=0)
 		return YARP_FAIL;
@@ -562,6 +574,10 @@ int YARPNameClient::_query(const YARPString &s, ACE_INET_Addr &addr, int *type)
   YNC("YNC %s:%d --> _query %s\n",__FILE__,__LINE__,s.c_str());
 	YARPNameServiceCmd tmpCmd;
 	YARPNameTCP tmpRqst;
+
+	if (alt_client.isActive()) {
+	  return alt_client.queryName(s.c_str(),addr,type);
+	}
 	
 	if (connect_to_server()!=0)
 		return YARP_FAIL;
@@ -615,6 +631,12 @@ int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outNic, YARPStri
 {
   YNC("YNC %s:%d --> _query_nic\n",__FILE__,__LINE__);
   ACE_DEBUG((LM_DEBUG,"Oi! Nic!\n"));
+  if (alt_client.isActive()) {
+    YNC("alternate client is active, so just pretending\n");
+    outNic = "default";
+    outIp = in._ip;
+    return YARP_OK;
+  }
 	YARPString reply;
 	YARPNameServiceCmd tmpCmd;
 	if (connect_to_server()!=0)
@@ -647,6 +669,20 @@ int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outNic, YARPStri
 	outIp = YARPString(tmp2);
 
 	ACE_DEBUG((LM_DEBUG,"Oi! Nic! got %s // %s\n", outNic.c_str(), outIp.c_str()));
+
+	// YARP2 support being added here
+	{
+	  const char *diagnostic = outNic.c_str();
+	  if (diagnostic!=NULL) {
+	    if (diagnostic[0]=='?') {
+	      ACE_DEBUG((LM_DEBUG,"Hmm, looks like a YARP2 name server\n"));
+	      ACE_DEBUG((LM_DEBUG,"Fake results for now\n"));
+	      outNic = "default";
+	      outIp = in._ip;
+	      alt_client.activate(remote_addr_);
+	    }
+	  }
+	}
 
 	// close the connection
 	close();
@@ -752,3 +788,12 @@ int YARPNameClient::_handle_reply(YARPString &out)
 	return YARP_OK;
 }
 
+
+int YARPNameClient::check(const char *name, const char *key, 
+			  const char *value) {
+  if (!alt_client.isActive()) {
+    return -1;
+  } else {
+    return alt_client.check(name,key,value);
+  }
+}

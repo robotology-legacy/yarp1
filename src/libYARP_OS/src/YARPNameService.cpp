@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 2.1 2005-11-12 18:48:58 eshuy Exp $
+/// $Id: YARPNameService.cpp,v 2.2 2006-01-13 23:14:21 eshuy Exp $
 ///
 ///
 
@@ -410,4 +410,14 @@ int YARPEndpointManager::PrintConnections(const YARPUniqueNameID& endp)
 	}
 
 	return YARP_FAIL;
+}
+
+
+int YARPNameService::CheckProperty(const char *name,
+				   const char *key,
+				   const char *value) {
+  if (_namer!=NULL) {
+    return _namer->check(name,key,value);
+  }
+  return -1;
 }
