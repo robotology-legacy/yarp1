@@ -99,6 +99,18 @@ class YarpClient {
 	}
     }
 
+    public static String slashify(String s) {
+	String r = s;
+	if (s!=null) {
+	    if (s.length()>0) {
+		if (s.charAt(0)!='/') {
+		    r = "/" + s;
+		}
+	    }
+	}
+	return r;
+    }
+
     public static void connect(String[] args) {
 	if (args.length<3) {
 	    System.err.println("use as: <this program> connect /src /target");
@@ -106,11 +118,13 @@ class YarpClient {
 	}
 	String source = args[1];
 	String target = args[2];
+	System.out.println("Connecting " + source + " to " + target);
+	source = slashify(source);
+	target = slashify(target);
 	if (args.length>3) {
 	    String carrier = args[3];
 	    target = "/" + carrier + ":/" + target;
 	}
-	System.out.println("Connecting " + source + " to " + target);
 	try {
 	    command(source,target);
 	} catch(IOException e) {
@@ -126,6 +140,8 @@ class YarpClient {
 	String source = args[1];
 	String target = args[2];
 	System.out.println("Disconnecting " + source + " from " + target);
+	source = slashify(source);
+	target = slashify(target);
 	try {
 	    command(source,"!"+target);
 	} catch(IOException e) {

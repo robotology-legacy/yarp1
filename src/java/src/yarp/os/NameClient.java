@@ -22,6 +22,27 @@ public class NameClient {
     public Address getAddress() { 
 	return address;
     }
+
+    public List getIps() {
+	List ips = new LinkedList();
+	try {
+	    Enumeration e = NetworkInterface.getNetworkInterfaces();
+	    while (e.hasMoreElements()) {
+		NetworkInterface iface = (NetworkInterface)e.nextElement();
+		Enumeration e2 = iface.getInetAddresses();
+		while (e2.hasMoreElements()) {
+		    InetAddress inet = (InetAddress)e2.nextElement();
+		    byte[] lst = inet.getAddress();
+		    if (lst.length==4) {
+			ips.add(inet.getHostAddress());
+		    }
+		}
+	    }
+	} catch (Exception e) {
+	    // don't worry
+	}
+	return ips;
+    }
     
     public String getHostName() {
 	if (host==null) {
@@ -184,6 +205,7 @@ public class NameClient {
 	try {
 	    result = send(cmd);
 	} catch (IOException e) {
+	    // don't worry
 	}
 	Pattern p = Pattern.compile("ip ([^ ]+).*port ([^ ]+).*type ([a-zA-Z]+)");
 	Matcher m = p.matcher(result);
@@ -220,6 +242,8 @@ public class NameClient {
 	// basically, we just don't do shmem
 	probe("NAME_SERVER set " + name + " offers tcp udp mcast");
 	probe("NAME_SERVER set " + name + " accepts tcp udp mcast");
+	probe("NAME_SERVER set " + name + " ips " + NetType.addStrings(getIps()));
+	
 
 	return result;
     }

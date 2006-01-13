@@ -3,6 +3,7 @@ package yarp.os;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class NetType {
 
@@ -68,6 +69,20 @@ public class NetType {
 	return b3;
     }
 
+    public static String addStrings(List lst) {
+	StringBuffer buf = new StringBuffer("");
+	boolean first = true;
+	for (Iterator it = lst.iterator(); it.hasNext(); ) {
+	    Object o = it.next();
+	    if (!first) {
+		buf.append(" ");
+	    }
+	    buf.append(o.toString());
+	    first = false;
+	}
+	return buf.toString();
+	
+    }
 
     public static String readLine(InputStream is) throws IOException {
 	StringBuffer buf = new StringBuffer("");

@@ -35,13 +35,13 @@ class TelnetPort extends BasicPort {
 
 
 	public void run() {
-	    System.out.println("telnet running");
+	    //System.out.println("telnet running");
 	    InetSocketAddress a2 = 
 		(InetSocketAddress)socket.getRemoteSocketAddress();
 	    InetAddress a3 = a2.getAddress();
 	    Address remote = new Address(a3.getHostAddress(),
 					 socket.getPort());
-	    System.out.println("remote address is " + remote);
+	    //System.out.println("remote address is " + remote);
 	    try {
 		//System.out.println(buf);
 		String response = 
@@ -51,7 +51,7 @@ class TelnetPort extends BasicPort {
 	    } catch (IOException e) {
 		System.err.println("some problem with telnet");
 	    }
-	    System.out.println("telnet stopping");
+	    //System.out.println("telnet stopping");
 	    try {
 		socket.close();
 	    } catch (IOException e) {

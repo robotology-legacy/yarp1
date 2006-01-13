@@ -398,3 +398,23 @@ Make MCAST do right thing with network-cards.
 Make SHMEM inter-op work, either by handshaking or specifying 
 capabilities in registration.
 
+
+\subsection{Multiple networks}
+
+How should multiple networks work?  Currently in YARP1, a port is
+associated with a particular network.  If two ports are on different
+networks, they can't communicate, even if there is connectivity
+(I think).
+
+It would seem more desirable to associate the choice of network,
+if there is a choice, with the edges (connections) and not the
+nodes (ports).
+
+Let's require that all nodes can reach the name server and vice
+versa.
+
+Single-hop network choice for tcp and udp can be made by selecting one
+of a choice of IPs for the target.  Could add a connection attribute
+``over 192.*'' as a way to choose net?  Or text names.
+
+

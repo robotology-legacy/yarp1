@@ -11,6 +11,7 @@ import java.util.regex.*;
  */
 
 class YarpServer implements CommandProcessor {
+    private static Logger log = Logger.get();
 
     private static abstract class ReusableRecord {
 
@@ -100,7 +101,21 @@ class YarpServer implements CommandProcessor {
 	    prop.add(p);
 	}
 
+	public List match(String str) {
+	    List lst = new LinkedList();
+	    Pattern p = Pattern.compile("^" + str + ".*"); // friends, right?
+	    for (Iterator it = prop.iterator(); it.hasNext(); ) {
+		String item = (String)it.next();
+		Matcher m = p.matcher(item);
+		if (m.find()) {
+		    lst.add(item);
+		}
+	    }
+	    return lst;
+	}
+
 	public String toString() {
+	    /*
 	    String add = "";
 	    StringBuffer out = new StringBuffer("");
 	    for (Iterator it = prop.iterator(); it.hasNext(); ) {
@@ -110,6 +125,8 @@ class YarpServer implements CommandProcessor {
 		add = " ";
 	    }
 	    return out.toString();
+	    */
+	    return NetType.addStrings(prop);
 	}
     }
 
@@ -166,6 +183,11 @@ class YarpServer implements CommandProcessor {
 	    PropertyRecord pr = getPropertyRecord(key);
 	    return pr.check(val);
 	}
+
+	public List matchProp(String key, String val) {
+	    PropertyRecord pr = getPropertyRecord(key);
+	    return pr.match(val);
+	}
     }
 
     private HashMap nameMap = new HashMap();
@@ -217,8 +239,8 @@ class YarpServer implements CommandProcessor {
 	HostRecord hostRecord = getHostRecord(host);
 	Address address = nameRecord.getAddress();
 	if (address!=null) {
-	    System.out.println("Reusing port " + address.getPort() +
-			       " on host " + address.getName());
+	    log.println("Reusing port " + address.getPort() +
+			" on host " + address.getName());
 	    getHostRecord(address.getName()).release(address.getPort());
 	}
 	int port = hostRecord.get();
@@ -235,7 +257,7 @@ class YarpServer implements CommandProcessor {
 	}
 	address = new Address(host,port,protocol);
 	nameRecord.setAddress(address);
-	dump();
+	//dump();
 	return address;
     }
 
@@ -246,20 +268,20 @@ class YarpServer implements CommandProcessor {
 		address.getPort() + " type " + address.getCarrier();
 	}
 	result += "\n*** end of message\n";
-	System.out.println("Response: " + result);
+	//System.out.println("Response: " + result);
 	return result;
     }
 
     public synchronized String apply(String cmd, Address address) {
-	dump();
+	//dump();
 	String response = ">>> command [" + cmd + "] from " + address + "\n";
 
 	Pattern p = Pattern.compile("^NAME_SERVER ([^ ]+) ([^\n\r]*)");
 	Matcher m = p.matcher(cmd);
 	if (m.find()) {
-	    System.out.println(">>> " + cmd);
+	    log.info("command -- " + cmd);
 	    String act = m.group(1);
-	    System.out.println("act is " + act);
+	    log.println("act is " + act);
 	    Pattern p2 = Pattern.compile(" ");
 	    String[] str = p2.split(m.group(2));
 	    if (act.equals("register")) {
@@ -287,14 +309,14 @@ class YarpServer implements CommandProcessor {
 			base = NameClient.getNameClient().getHostName();
 		    }
 		}
-		System.out.println("Register " + target + " for " +
-				   base + " with protocol " + proto);
+		//log.info("registered " + target + " for " +
+		//base + " with protocol " + proto);
 		Address result = register(target,base,proto);
-		return textify(result);
+		response = textify(result);
 	    }
 	    if (act.equals("query")) {
 		String target = str[0];
-		System.out.println("Query " + target);
+		log.info("Query " + target);
 		Address result = query(target);
 		return textify(result);
 	    }
@@ -318,6 +340,15 @@ class YarpServer implements CommandProcessor {
 		    key + " = " + nameRecord.getProp(key) +
 		    "\n";
 	    }
+	    if (act.equals("match")) {
+		String target = str[0];
+		String key = str[1];
+		String val = str[2];
+		NameRecord nameRecord = getNameRecord(target);
+		response = "port " + target + " property " + 
+		    key + " = " + NetType.addStrings(nameRecord.matchProp(key,val)) +
+		    "\n";
+	    }
 	    if (act.equals("check")) {
 		String target = str[0];
 		String key = str[1];
@@ -334,15 +365,16 @@ class YarpServer implements CommandProcessor {
 		}
 	    }
 	} else {
-	    System.err.println("Unsupported message received\n");
+	    log.error("Unsupported message received");
 	}
+	log.info(response);
 	return response;
     }
 
     public static void run(boolean background) {
 	YarpServer server = new YarpServer();
 
-	System.out.println("Working on a name-server implementation");
+	log.info("name server running");
 	Address address = NameClient.getNameClient().getAddress();
 	try {
 	    InetAddress inet = InetAddress.getByName(address.getName());
@@ -356,10 +388,10 @@ class YarpServer implements CommandProcessor {
 		    tp.run();
 		}
 	    } else {
-		System.out.println("Name server is configured for a remote address");
+		log.info("Name server is configured for a remote address");
 	    }
 	} catch (Exception e) {
-	    System.out.println("Can't look up host");
+	    log.error("Can't look up host");
 	}
     }
 

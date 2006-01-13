@@ -180,10 +180,12 @@ class BasicPort extends Thread {
 		if (sc!=null) {
 		    clientSocket = sc.socket();
 		    log.println("got something");
+		    /*
 		    if (clientSocket.getLocalPort()==-1) {
 			log.error("problem, possibly with old gcj version");
 			System.exit(1);
 		    }
+		    */
 		
 		}
 	    } catch (IOException e) {
