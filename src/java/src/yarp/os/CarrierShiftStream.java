@@ -10,7 +10,7 @@ class CarrierShiftStream implements ShiftStream {
 
     Carrier current;
     Carrier incoming;
-    Logger log = Logger.get();
+    private static Logger log = Logger.get();
 
     CarrierShiftStream(Socket socket) {
 	try {
@@ -20,18 +20,6 @@ class CarrierShiftStream implements ShiftStream {
 	    log.error("failed to open CarrierShiftStream");
 	}
     }
-    
-    private static Carrier[] delegates;
-
-    private static void setup() {
-	if (delegates==null) {
-	    delegates = new Carrier[] { 
-		new TcpCarrier(),
-		new UdpCarrier(),
-		new McastCarrier()
-	    };
-	}
-    };
 
     public Carrier chooseCarrier(String name) {
 	if (current!=null) {
@@ -39,30 +27,7 @@ class CarrierShiftStream implements ShiftStream {
 		return current;
 	    }
 	}
-	setup();
-	for (int i=0; i<delegates.length; i++) {
-	    Carrier c = delegates[i];
-	    if (name.equals(c.getName())) {
-		return c.create();
-		/*
-		Carrier prev = current;
-		current = c.create();
-		if (prev!=null) {
-		    current.setAddress(prev.getLocalAddress(),
-				       prev.getRemoteAddress());
-		}
-		return current;
-		*/
-	    }
-	}
-	log.error("Could not find carrier " + name + " among "
-		  + delegates.length + " carriers");
-	for (int i=0; i<delegates.length; i++) {
-	    Carrier c = delegates[i];
-	    log.println("  " + c.getName());
-	}
-
-	return null;
+	return Carriers.chooseCarrier(name);
     }
 
     public Carrier chooseCarrier(int specifier) {
@@ -71,25 +36,9 @@ class CarrierShiftStream implements ShiftStream {
 		return current;
 	    }
 	}
-	setup();
-	for (int i=0; i<delegates.length; i++) {
-	    Carrier c = delegates[i];
-	    if (specifier == c.getSpecifier()) {
-		return c.create();
-		/*
-		Carrier prev = current;
-		current = c.create();
-		if (prev!=null) {
-		    current.setAddress(prev.getLocalAddress(),
-				       prev.getRemoteAddress());
-		}
-		return current;
-		*/
-	    }
-	}
-	return null;
+	return Carriers.chooseCarrier(specifier);
     }
-
+    
     public InputStream getInputStream() throws IOException {
 	return current.getInputStream();
     }

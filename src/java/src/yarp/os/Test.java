@@ -139,8 +139,9 @@ class Test {
 	if (args.length>=1) {
 	    YarpClient.main(args);
 	} else {
+	    YarpClient.main(args);
 	    //oldTest();
-	    outPortTest();
+	    //outPortTest();
 	    //inPortTest();
 	}
     }

@@ -135,26 +135,7 @@ class BasicPortlet extends Portlet {
 		    owner.removeConnection(src,ps);
 		    break;
 		case '/':
-		    String srcName = NameClient.getNamePart(src);
-		    String srcCarrier = NameClient.getProtocolPart(src);
-		    owner.removeConnection(srcName,null);
-		    String msg = "Sending output from " + 
-			ownerName + " to " +
-			srcName + " using " + srcCarrier;
-		    //show(ownerName,msg);
-		    Address add = NameClient.getNameClient().query(srcName);
-		    if (add!=null) {
-			add = new Address(add.getName(), add.getPort(),
-					  srcCarrier);
-			if (NameClient.canConnect(ownerName,srcName,srcCarrier)) {
-			    owner.addConnection(new Connection(add,owner.getPortName(),srcName));
-			    owner.println(ps,msg,true);
-			} else {
-			    owner.println(ps,"ports cannot be connected using that protocol",true);
-			}
-		    } else {
-			owner.println(ps,"Cannot find " + srcName,true);
-		    }
+		    owner.connect(src,ps);
 		    break;
 		case 'd':
 		    log.println(protocol.getSender() + " sent data "

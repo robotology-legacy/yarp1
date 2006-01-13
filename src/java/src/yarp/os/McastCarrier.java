@@ -131,6 +131,13 @@ class McastCarrier extends Carrier {
 	if (address==null) {
 	    return nc.register(q,"mcast");
 	}
+	/*
+	// working on switching to a cleaner implementation
+	String q = NameClient.getNamePart(name);
+        String mcastIp = nc.getOne(name,"mcast.ip");
+	if (mcastIp!=null) {
+	}
+	*/
 	return address;
     }
 

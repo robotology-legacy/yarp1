@@ -249,4 +249,39 @@ class BasicPort extends Thread {
 	portlets.clear();
 	interrupt();
     }
+
+
+    public void connect(String src, PrintStream ps) throws IOException {
+	BasicPort owner = this;
+	String ownerName = getPortName();
+
+	String srcName = NameClient.getNamePart(src);
+	String srcCarrier = NameClient.getProtocolPart(src);
+	Address add = NameClient.getNameClient().query(srcName);
+	if (add==null) {
+	    throw(new IOException());
+	}
+	if (add.getRegName()!=null) {
+	    srcName = add.getRegName();
+	}
+	owner.removeConnection(srcName,null);
+	String msg = "Sending output from " + 
+	    ownerName + " to " +
+	    srcName + " using " + srcCarrier;
+	if (add!=null) {
+	    add = new Address(add.getName(), add.getPort(),
+			      srcCarrier);
+	    if (NameClient.canConnect(ownerName,srcName,srcCarrier)) {
+		owner.addConnection(new Connection(add,owner.getPortName(),srcName));
+		owner.println(ps,msg,true);
+	    } else {
+		owner.println(ps,"ports cannot be connected using that protocol",true);
+	    }
+	} else {
+	    owner.println(ps,"Cannot find " + srcName,true);
+	}
+    }
+
+
+
 }

@@ -69,6 +69,10 @@ public class NetType {
 	return b3;
     }
 
+    public static String addStrings(String[] strs) {
+	return addStrings(Arrays.asList(strs));
+    }
+
     public static String addStrings(List lst) {
 	StringBuffer buf = new StringBuffer("");
 	boolean first = true;

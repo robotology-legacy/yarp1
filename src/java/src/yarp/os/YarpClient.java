@@ -230,7 +230,9 @@ class YarpClient {
 	    System.err.println("here are ways to use this program:");
 	    System.err.println("  <this program> read /name");
 	    System.err.println("  <this program> write /name [/target]");
-	    System.err.println("  <this program> connect /source /target [tcp|udp|mcast]");
+	    System.err.println("  <this program> connect /source /target [carrier]");
+	    System.err.println("     carrier can be: " +
+			       NetType.addStrings(Carriers.collectAccepts()));
 	    System.err.println("  <this program> disconnect /source /target");
 	    System.err.println("  <this program> server");
 	    System.err.println("  <this program> where");

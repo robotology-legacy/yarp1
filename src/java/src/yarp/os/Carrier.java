@@ -76,4 +76,12 @@ abstract class Carrier {
     public abstract OutputStream getOutputStream() throws IOException;
 
     public abstract Carrier create();
+
+    public boolean canAccept() {
+	return true;
+    }
+
+    public boolean canOffer() {
+	return true;
+    }
 }

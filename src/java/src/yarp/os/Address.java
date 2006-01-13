@@ -21,6 +21,13 @@ public class Address {
 	this.carrier = carrier;
     }
 
+    public Address(String name, int port, String carrier, String regName) {
+	this.name = name;
+	this.port = port;
+	this.carrier = carrier;
+	this.regName = regName;
+    }
+
     public String getName() { return name; }
 
     public int getPort() {return port; }
@@ -29,7 +36,10 @@ public class Address {
 
     public String toString() { return carrier + "://" + name + ":" + port;  }
 
+    public String getRegName() { return regName; }
+
     private String name;
     private int port;
     private String carrier;
+    private String regName;
 }

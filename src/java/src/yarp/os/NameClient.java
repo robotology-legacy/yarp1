@@ -207,22 +207,19 @@ public class NameClient {
 	} catch (IOException e) {
 	    // don't worry
 	}
-	Pattern p = Pattern.compile("ip ([^ ]+).*port ([^ ]+).*type ([a-zA-Z]+)");
+	Pattern p = Pattern.compile("name ([^ ]+) ip ([^ ]+).*port ([^ ]+).*type ([a-zA-Z]+)");
 	Matcher m = p.matcher(result);
 	log.println("Result: " + result);
 	if (m.find()) {
-	    String ip = m.group(1);
-	    int port = Integer.valueOf(m.group(2)).intValue();
-	    String carrier = m.group(3).toLowerCase();
+	    String name = m.group(1);
+	    String ip = m.group(2);
+	    int port = Integer.valueOf(m.group(3)).intValue();
+	    String carrier = m.group(4).toLowerCase();
 	    if (port!=0) {
-		return new Address(ip,port,carrier);
+		return new Address(ip,port,carrier,name);
 	    }
 	}
 	return null;
-    }
-
-    public Address normalQuery(String name) {
-	return probe("NAME_SERVER query " + getNamePart(name));
     }
 
     public Address query(String name) {
@@ -240,8 +237,10 @@ public class NameClient {
 
 	// set up the protocols that JYARP offers/accepts
 	// basically, we just don't do shmem
-	probe("NAME_SERVER set " + name + " offers tcp udp mcast");
-	probe("NAME_SERVER set " + name + " accepts tcp udp mcast");
+	probe("NAME_SERVER set " + name + " offers " +
+	      NetType.addStrings(Carriers.collectOffers()));
+	probe("NAME_SERVER set " + name + " accepts " +
+	      NetType.addStrings(Carriers.collectAccepts()));
 	probe("NAME_SERVER set " + name + " ips " + NetType.addStrings(getIps()));
 	
 
@@ -268,6 +267,41 @@ public class NameClient {
 	}
 
 	return ok;
+    }
+
+    public void set(String name, String key, String val) {
+	probe("NAME_SERVER set " + name + " " + key + " " + val);
+    }
+
+    public void set(String name, String key, String[] val) {
+	set(name,key,NetType.addStrings(val));
+    }
+
+    public String getOne(String name, String key) {
+	String result = null;
+	String[] str = get(name,key);
+	if (str!=null) {
+	    result = NetType.addStrings(str);
+	}
+	return result;
+    }
+
+    public String[] get(String name, String key) {
+	boolean ok = true;
+	try {
+	    String result = send("NAME_SERVER get " + name + " " + key);
+	    Pattern p = Pattern.compile("port ([^ ]+) property ([^ ]+) = ([^\n\r]+)");
+	    Matcher m = p.matcher(result);
+	    log.println("get result is: " + result);
+	    if (m.find()) {
+		Pattern p2 = Pattern.compile(" ");
+		return p2.split(m.group(4));
+	    }
+	} catch (IOException e) {
+	    log.error("problem with name server");
+	}
+
+	return null;
     }
 
 

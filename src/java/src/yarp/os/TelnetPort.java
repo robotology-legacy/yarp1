@@ -44,10 +44,24 @@ class TelnetPort extends BasicPort {
 	    //System.out.println("remote address is " + remote);
 	    try {
 		//System.out.println(buf);
-		String response = 
-		    apply(NetType.readLine(socket.getInputStream()),remote);
-		socket.getOutputStream().write(NetType.netString(response));
-		socket.getOutputStream().flush();
+		boolean wait = false;
+
+		do {
+		    String response = 
+			apply(NetType.readLine(socket.getInputStream()),
+			      remote);
+		    if (response==null) {
+			wait = !wait;
+			if (wait) {
+			    response = "Welcome\n";
+			}
+		    }
+		    if (response!=null) {
+			socket.getOutputStream().write(NetType.netString(response));
+		    }
+		    socket.getOutputStream().flush();
+		} while (wait);
+
 	    } catch (IOException e) {
 		System.err.println("some problem with telnet");
 	    }
@@ -60,46 +74,6 @@ class TelnetPort extends BasicPort {
 	    owner.removePortlet(this);
 	}
     }
-
-
-    /*
-	public void run() {
-	    System.out.println("telnet running");
-	    try {
-		StringBuffer buf = new StringBuffer("");
-		boolean done = false;
-		while (!done) {
-		    int v = socket.getInputStream().read();
-		    char ch = (char)v;
-		    //System.out.println("Got " + v);
-		    if (ch>=32) {
-			buf.append(ch);
-		    }
-		    if (ch=='\n') {
-			//System.out.println(buf);
-			String response = apply(buf.toString());
-			socket.getOutputStream().write(NetType.netString(response));
-			socket.getOutputStream().flush();
-			buf = new StringBuffer("");
-			done = true;
-		    }
-		    if (v<0) { 
-			throw new IOException();
-		    }
-		}
-	    } catch (IOException e) {
-		System.err.println("some problem with telnet");
-	    }
-	    System.out.println("telnet stopping");
-	    try {
-		socket.close();
-	    } catch (IOException e) {
-		System.err.println("some problem closing");
-	    }
-	    owner.removePortlet(this);
-	}
-    }
-*/
 
     public Portlet newPortlet(Socket socket) {
 	return new TelnetPortlet(this,

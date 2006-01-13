@@ -194,11 +194,34 @@ class YarpServer implements CommandProcessor {
     private HashMap hostMap = new HashMap();
     private McastRecord mcastRecord = new McastRecord();
 
+    private static Map getNameParts(String name) {
+	Pattern p = Pattern.compile("(/net=([^/]+))?(.*)");
+	Matcher m = p.matcher(name);
+	Map result = new HashMap();
+	result.put("name",name);
+	result.put("base",name);
+	if (m.find()) {
+	    result.put("base",m.group(3));
+	    result.put("net",m.group(2));
+	} 
+	return result;
+    }
+
     public NameRecord getNameRecord(String name) {
-	NameRecord rec = (NameRecord)nameMap.get(name);
-	if (rec==null) {
+	return getNameRecord(name,true);
+    }
+
+    public NameRecord getNameRecord(String name, boolean create) {
+	Map parts = getNameParts(name);
+	return getNameRecord(parts,create);
+    }
+
+    public NameRecord getNameRecord(Map parts, boolean create) {
+	String base = (String)parts.get("base");
+	NameRecord rec = (NameRecord)nameMap.get(base);
+	if (rec==null && create) {
 	    rec = new NameRecord();
-	    nameMap.put(name,rec);
+	    nameMap.put(base,rec);
 	}
 	return rec;
     }
@@ -224,9 +247,22 @@ class YarpServer implements CommandProcessor {
 
 
     public Address query(String name) {
-	NameRecord rec = (NameRecord)nameMap.get(name);
+	Map parts = getNameParts(name);
+	NameRecord rec = getNameRecord(parts,false);
 	if (rec!=null) {
-	    return rec.getAddress();
+	    Address address = rec.getAddress();
+	    String net = (String)parts.get("net");
+	    if (net!=null) {
+		log.println("special net request: " + net);
+		List ips = rec.matchProp("ips",net);
+		if (ips.size()>=1) {
+		    address = new Address(ips.get(0).toString(),
+					  address.getPort(),
+					  address.getCarrier(),
+					  address.getRegName());
+		}
+	    }
+	    return address;
 	}
 	return null;
     }
@@ -255,7 +291,7 @@ class YarpServer implements CommandProcessor {
 	    
 	    host = mcastAddress.getName();
 	}
-	address = new Address(host,port,protocol);
+	address = new Address(host,port,protocol,name);
 	nameRecord.setAddress(address);
 	//dump();
 	return address;
@@ -264,7 +300,8 @@ class YarpServer implements CommandProcessor {
     private String textify(Address address) {
 	String result = "";
 	if (address!=null) {
-	    result += "registration ip " + address.getName() + " port " + 
+	    result = "registration name " + address.getRegName() + 
+		" ip " + address.getName() + " port " + 
 		address.getPort() + " type " + address.getCarrier();
 	}
 	result += "\n*** end of message\n";
@@ -274,16 +311,18 @@ class YarpServer implements CommandProcessor {
 
     public synchronized String apply(String cmd, Address address) {
 	//dump();
-	String response = ">>> command [" + cmd + "] from " + address + "\n";
+	String response = "Unsupported request [" + cmd + "] from " + address + "\n";
 
-	Pattern p = Pattern.compile("^NAME_SERVER ([^ ]+) ([^\n\r]*)");
+	Pattern p = Pattern.compile("^(NAME_SERVER )?([^ \n\r]+)( ([^\n\r]*))?");
 	Matcher m = p.matcher(cmd);
 	if (m.find()) {
 	    log.info("command -- " + cmd);
-	    String act = m.group(1);
-	    log.println("act is " + act);
+	    String act = m.group(2);
+	    log.println("act is [" + act + "]");
 	    Pattern p2 = Pattern.compile(" ");
-	    String[] str = p2.split(m.group(2));
+	    String strs = m.group(4);
+	    if (strs==null) { strs = ""; }
+	    String[] str = p2.split(strs);
 	    if (act.equals("register")) {
 		String target = str[0];
 		String base = null;
@@ -364,10 +403,20 @@ class YarpServer implements CommandProcessor {
 			"\n";
 		}
 	    }
+	    if (act.equals("connect")) {
+		log.println("Long-term connection mode");
+		response = null;
+	    }
+	    if (act.equals("quit")) {
+		log.println("Long-term connection mode ended");
+		response = null;
+	    }
 	} else {
 	    log.error("Unsupported message received");
 	}
-	log.info(response);
+	if (response!=null) {
+	    log.info(response);
+	}
 	return response;
     }
 

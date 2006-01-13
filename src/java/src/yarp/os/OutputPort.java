@@ -22,42 +22,11 @@ public class OutputPort {
 	port.start();
     }
 
-    public void connect(String name) {
-	if (port==null) {
-	    Logger.get().error("Please call register() before connect()");
-	    System.exit(1);
-	}
-	if (creator==null) {
-	    Logger.get().error("Please call creator() before connect()");
-	    System.exit(1);
-	}
-
-	NameClient nc = NameClient.getNameClient();
-
-	String base = NameClient.getNamePart(name);
-	String carrier = NameClient.getProtocolPart(name);
-	
-	
-	Address add = nc.query(base);
-	
-	if (add==null) {
-	    Logger.get().error("Cannot find port " + base);
-	    return;
-	}
-	add = new Address(add.getName(),add.getPort(),carrier);
-	Logger.get().println("connecting to address " + add.toString());
-	
-	/*
-	 * Let's be polite and make sure the carrier is supported
-	 */
-	if (NameClient.canConnect(port.getPortName(),base,carrier)) {
-	    Connection c = null;
-	    try {
-		c = new Connection(add,port.getPortName(),base);
-		port.addConnection(c);
-	    } catch (IOException e) {
-		Logger.get().error("Could not make connection");
-	    }
+    public void connect(String src) {
+	try {
+	    port.connect(src,null);
+	} catch (IOException e) {
+	    Logger.get().error("Could not make connection");
 	}
     }
 
