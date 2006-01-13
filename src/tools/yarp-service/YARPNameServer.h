@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 2.2 2006-01-12 11:55:15 eshuy Exp $
+/// $Id: YARPNameServer.h,v 2.3 2006-01-13 11:23:24 eshuy Exp $
 ///
 ///
 
@@ -187,8 +187,8 @@ public:
 
 private:
 	void _handle_reply(const YARPString &text);
-	void _handle_reply(const YARPString &ip, int type, int port);
-	void _handle_reply(const YARPString &ip, int type, const PORT_LIST &ports);
+	void _handle_reply(const char *name, const YARPString &ip, int type, int port);
+	void _handle_reply(const char *name, const YARPString &ip, int type, const PORT_LIST &ports);
 	void _handle_reply(const YARPNameQnx &entry, int type);
 	LocalNameServer ns;
 	NetworkMap nmap;

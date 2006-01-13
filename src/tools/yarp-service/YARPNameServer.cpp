@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 2.4 2006-01-12 11:55:15 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 2.5 2006-01-13 11:23:24 eshuy Exp $
 ///
 ///
 
@@ -252,7 +252,7 @@ void YARPNameServer::handle_registration(const YARPString &service_name, const Y
 	{
 		NAME_SERVER_DEBUG(("Registered %s as %s(%s):%d\n", service_name.c_str(), tmpEntry.ip.c_str(), servicetypeConverter(type), (*i).port));
 	}	
-	_handle_reply(tmpEntry.ip, type, ports);
+	_handle_reply(service_name.c_str(), tmpEntry.ip, type, ports);
 }
 
 void YARPNameServer::handle_query(const YARPString &service_name)
@@ -264,7 +264,7 @@ void YARPNameServer::handle_query(const YARPString &service_name)
 	ns.queryName(service_name, ip, &type, &port);
 	NAME_SERVER_DEBUG(("Reply %s as %s(%s):%d\n", service_name.c_str(), ip.c_str(), servicetypeConverter(type), port));
 	//printf("mmmm %s/%d\n", __FILE__, __LINE__);
-	_handle_reply(ip, type, port);
+	_handle_reply(service_name.c_str(), ip, type, port);
 }
 
 void YARPNameServer::handle_query_qnx(const YARPString &name)
@@ -325,7 +325,7 @@ void YARPNameServer::handle_registration_dip(const YARPString &service_name, int
 	//printf("/// starting handle_registration_dip\n");
 	ns.registerNameDIp(service_name, ip, type, &port);
 	NAME_SERVER_DEBUG(("Registered %s as %s(%s):%d // handle_registration_dip\n", service_name.c_str(), ip.c_str(), servicetypeConverter(type), port));
-	_handle_reply(ip, type, port);
+	_handle_reply(service_name.c_str(), ip, type, port);
 }
 
 void YARPNameServer::handle_registration_qnx(const YARPNameQnx &entry)
@@ -388,11 +388,13 @@ void YARPNameServer::_handle_reply(const YARPString &text)
 	}
 }
 
-void YARPNameServer::_handle_reply(const YARPString &ip, int type, int port)
+void YARPNameServer::_handle_reply(const char *name, const YARPString &ip, 
+				   int type, int port)
 {
   if (using_text) {
     char buf[1000];
-    sprintf(buf,"registration ip %s port %d type %s\n", ip.c_str(), port, servicetypeConverter(type));
+    sprintf(buf,"registration name %s ip %s port %d type %s\n", 
+	    name, ip.c_str(), port, servicetypeConverter(type));
     _handle_reply(YARPString(buf));
     return;
   }
@@ -426,7 +428,7 @@ void YARPNameServer::_handle_reply(const YARPString &ip, int type, int port)
 	new_stream_.sendv_n (iov, 1);
 }
 
-void YARPNameServer::_handle_reply(const YARPString &ip, int type, const PORT_LIST &ports)
+void YARPNameServer::_handle_reply(const char *name, const YARPString &ip, int type, const PORT_LIST &ports)
 {
   if (using_text) {
     YARPString text;
@@ -437,7 +439,7 @@ void YARPNameServer::_handle_reply(const YARPString &ip, int type, const PORT_LI
     for(; !i.done(); i++)
       {
 	int port = (*i).port;
-	sprintf(buf,"registration ip %s port %d type %s\n", ip.c_str(), port, servicetypeConverter(type));
+	sprintf(buf,"registration name %s ip %s port %d type %s\n", name, ip.c_str(), port, servicetypeConverter(type));
 	text += buf;
 	j++;
       }
@@ -790,6 +792,8 @@ int YARPNameServer::handle_text_command(int argc, char *argv[],
       break;
     case 'D':
       handle_dump_request();
+      break;
+    case 'G':
       break;
     }
   }
