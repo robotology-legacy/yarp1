@@ -127,7 +127,10 @@ public class Connection {
 
 	proto.beginContent();
 
-	proto.appendBlock(new byte[] { 0,0,0,0, '~', (byte)ch, 0, 1}); // data hdr
+	byte[] hdr = NetType.append(NetType.netInt(str.length()+1),
+				    new byte[] { '~', (byte)ch, 0, 1});
+	proto.appendBlock(hdr); // data hdr
+	//proto.appendBlock(new byte[] { 0,0,0,0, '~', (byte)ch, 0, 1}); // data hdr
 	if (str!=null) {
 	    proto.appendString(str);
 	}

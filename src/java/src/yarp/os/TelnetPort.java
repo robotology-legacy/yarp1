@@ -45,15 +45,18 @@ class TelnetPort extends BasicPort {
 	    try {
 		//System.out.println(buf);
 		boolean wait = false;
+		String prefix = "";
 
 		do {
 		    String response = 
-			apply(NetType.readLine(socket.getInputStream()),
+			apply(prefix + 
+			      NetType.readLine(socket.getInputStream()),
 			      remote);
 		    if (response==null) {
 			wait = !wait;
 			if (wait) {
 			    response = "Welcome\n";
+			    prefix = "NAME_SERVER ";
 			}
 		    }
 		    if (response!=null) {

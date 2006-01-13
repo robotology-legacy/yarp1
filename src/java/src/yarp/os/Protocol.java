@@ -143,7 +143,7 @@ class Protocol implements BlockWriter, BlockReader {
 	for (int i=0; i<b2.length; i++) {
 	    b[i+2] = b2[i];
 	}
-	out.write(b);
+	write(b);
 	out.flush();
 	return true;
     }
@@ -202,8 +202,8 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     private boolean sendSenderSpecifier() throws IOException {
-	out.write(NetType.netInt(senderName.length()+1));
-	out.write(NetType.netString(senderName));
+	write(NetType.netInt(senderName.length()+1));
+	write(NetType.netString(senderName));
 	out.flush();
 	return true;
     }
@@ -272,7 +272,7 @@ class Protocol implements BlockWriter, BlockReader {
 	    b = NetType.netString("Welcome " + getSender() + "\n");
 	}
 
-	out.write(b);
+	write(b);
 	out.flush();
 
 	delegate.respondExtraToHeader(this);
@@ -282,24 +282,25 @@ class Protocol implements BlockWriter, BlockReader {
 
     public boolean sendIndex() throws IOException {
 	int len = content.size();
-	out.write(new byte[] { 'Y', 'A', 10, 0, 0, 0, 'R', 'P' });
-	out.write(new byte[] {(byte)len, 1,
-			      -1,-1,-1,-1,  
-			      -1,-1,-1,-1});
+	write(new byte[] { 'Y', 'A', 10, 0, 0, 0, 'R', 'P' });
+	write(new byte[] {(byte)len, 1,
+			  -1,-1,-1,-1,  
+			  -1,-1,-1,-1});
 	//-128,-128,-128,-128,  
 	//	      -128,-128,-128,-128});
 	byte b0[] = {};
 	for (int i=0; i<len; i++) {
-	    out.write(NetType.netInt(((byte[])content.get(i)).length));
+	    write(NetType.netInt(((byte[])content.get(i)).length));
 	}
-	out.write(NetType.netInt(0)); // reply length
+	write(NetType.netInt(0)); // reply length
 	return true;
     }
 
     public boolean sendContent() throws IOException {
 	int len = content.size();
 	for (int i=0; i<len; i++) {
-	    out.write(((byte[])content.get(i)));
+	    byte[] data = (byte[])content.get(i);
+	    write(data);
 	}
 	out.flush();
 	return true;
@@ -404,7 +405,7 @@ class Protocol implements BlockWriter, BlockReader {
 
     public boolean respondToBlock() throws IOException {
 	byte b[] = new byte[100];
-	out.write(b);
+	write(b);
 	if (!ok) { return false; }
 	return true;
     }
@@ -447,7 +448,7 @@ class Protocol implements BlockWriter, BlockReader {
 	if (requireAck()&&!textMode) {
 	    log.println("sending ack");
 	    byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
-	    out.write(b);
+	    write(b);
 	    out.flush();
 	}
 	return true;
@@ -515,6 +516,9 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public void write(byte[] b) throws IOException {
+	//log.println(">>>> Sending block of length " + b.length + " content " +
+	//    NetType.netString(b));
+
 	out.write(b);
     }
 

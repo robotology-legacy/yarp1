@@ -215,6 +215,10 @@ public class NameClient {
 	    String ip = m.group(2);
 	    int port = Integer.valueOf(m.group(3)).intValue();
 	    String carrier = m.group(4).toLowerCase();
+
+	    // YARP1 compatibility - it lies about the protocol type
+	    if (carrier.equals("udp")) { carrier = "tcp"; }
+
 	    if (port!=0) {
 		return new Address(ip,port,carrier,name);
 	    }

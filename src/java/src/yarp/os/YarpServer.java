@@ -147,9 +147,9 @@ class YarpServer implements CommandProcessor {
 	    addProp("offers","shmem");
 	}
 
-	public PropertyRecord getPropertyRecord(String name) {
+	public PropertyRecord getPropertyRecord(String name, boolean create) {
 	    PropertyRecord rec = (PropertyRecord)propMap.get(name);
-	    if (rec==null) {
+	    if (create&&rec==null) {
 		rec = new PropertyRecord();
 		propMap.put(name,rec);
 	    }
@@ -165,27 +165,33 @@ class YarpServer implements CommandProcessor {
 	}
 
 	public void clearProp(String key) {
-	    PropertyRecord pr = getPropertyRecord(key);
+	    PropertyRecord pr = getPropertyRecord(key,true);
 	    pr.clear();
 	}
 
 	public void addProp(String key, String val) {
-	    PropertyRecord pr = getPropertyRecord(key);
+	    PropertyRecord pr = getPropertyRecord(key,true);
 	    pr.add(val);
 	}
 
 	public String getProp(String key) {
-	    PropertyRecord pr = getPropertyRecord(key);
-	    return pr.toString();
+	    PropertyRecord pr = getPropertyRecord(key,false);
+	    if (pr!=null) {
+		return pr.toString();
+	    }
+	    return null;
 	}
 
 	public boolean checkProp(String key, String val) {
-	    PropertyRecord pr = getPropertyRecord(key);
-	    return pr.check(val);
+	    PropertyRecord pr = getPropertyRecord(key,false);
+	    if (pr!=null) {
+		return pr.check(val);
+	    }
+	    return false;
 	}
 
 	public List matchProp(String key, String val) {
-	    PropertyRecord pr = getPropertyRecord(key);
+	    PropertyRecord pr = getPropertyRecord(key,true);
 	    return pr.match(val);
 	}
     }
@@ -255,6 +261,15 @@ class YarpServer implements CommandProcessor {
 	    if (net!=null) {
 		log.println("special net request: " + net);
 		List ips = rec.matchProp("ips",net);
+		if (ips.size()==0) {
+		    NameRecord networks = getNameRecord("networks",false);
+		    if (networks!=null) {
+			String alias = networks.getProp(net);
+			if (alias!=null) {
+			    ips = rec.matchProp("ips",alias);
+			}
+		    }
+		}
 		if (ips.size()>=1) {
 		    address = new Address(ips.get(0).toString(),
 					  address.getPort(),
@@ -313,7 +328,7 @@ class YarpServer implements CommandProcessor {
 	//dump();
 	String response = "Unsupported request [" + cmd + "] from " + address + "\n";
 
-	Pattern p = Pattern.compile("^(NAME_SERVER )?([^ \n\r]+)( ([^\n\r]*))?");
+	Pattern p = Pattern.compile("^(NAME_SERVER )([^ \n\r]+)( ([^\n\r]*))?");
 	Matcher m = p.matcher(cmd);
 	if (m.find()) {
 	    log.info("command -- " + cmd);
@@ -357,7 +372,7 @@ class YarpServer implements CommandProcessor {
 		String target = str[0];
 		log.info("Query " + target);
 		Address result = query(target);
-		return textify(result);
+		response = textify(result);
 	    }
 	    if (act.equals("set")) {
 		String target = str[0];
@@ -413,6 +428,21 @@ class YarpServer implements CommandProcessor {
 	    }
 	} else {
 	    log.error("Unsupported message received");
+	    boolean suspect = false;
+	    for (int i=0; i<cmd.length(); i++ ) {
+		if (cmd.charAt(i)>=128) {
+		    suspect = true;
+		}
+	    }
+	    if (cmd.length()>=1) {
+		if (cmd.charAt(0)=='@') {
+		    suspect = true;
+		}
+	    }
+	    if (suspect) {
+		log.println("Looks like YARP1 connection");
+		response = "???????????????????????????????????????????";
+	    }
 	}
 	if (response!=null) {
 	    log.info(response);

@@ -92,6 +92,7 @@ class YarpClient {
 	    }
 	    
 	    Connection c = new Connection(add,"external",source);
+	    log.println("command is [" + cmd + "] and char is [" + ((int)ch) + "]");
 	    c.writeCommand(ch,cmd);
 	    c.close();
 	} catch (IOException e) {
@@ -109,6 +110,22 @@ class YarpClient {
 	    }
 	}
 	return r;
+    }
+
+    public static void name(String[] args) {
+	StringBuffer cmd = new StringBuffer("NAME_SERVER");
+	for (int i=1; i<args.length; i++){ 
+	    cmd.append(" ");
+	    cmd.append(args[i]);
+	}
+	String result = "";
+	try {
+	    result = NameClient.getNameClient().send(cmd.toString());
+	} catch (IOException e) {
+	    log.error("Problem communicating with nameserver");
+	    System.exit(1);
+	}
+	System.out.println(result);
     }
 
     public static void connect(String[] args) {
@@ -223,6 +240,9 @@ class YarpClient {
 	    if (mode.equals("server")) {
 		YarpServer.main(args);
 	    }
+	    if (mode.equals("name")) {
+		name(args);
+	    }
 	    if (mode.equals("where")) {
 		where();
 	    }
@@ -236,8 +256,8 @@ class YarpClient {
 	    System.err.println("  <this program> disconnect /source /target");
 	    System.err.println("  <this program> server");
 	    System.err.println("  <this program> where");
+	    System.err.println("  <this program> name {arguments}");
 	}
     }
-
 }
 
