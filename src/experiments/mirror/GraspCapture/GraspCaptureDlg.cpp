@@ -166,7 +166,7 @@ BOOL CGraspCaptureDlg::OnInitDialog()
 	nSeq = 0;
 
 	if ( ! registerPorts() ) {
-		MessageBox("Ports Registration Failed.", "Fatal error.",MB_ICONERROR);
+		MessageBox("Could not register ports.", "Fatal error.",MB_ICONERROR);
 		exit(YARP_FAIL);
 	}
 
@@ -315,7 +315,7 @@ void CGraspCaptureDlg::OnConnect()
 		m_timerID = SetTimer(1, _options.refreshFrequency, NULL);
 		_ASSERT (m_timerID != 0);	
 	} else {
-		MessageBox("Peripherals connection Failed.", "Error.",MB_ICONERROR);
+		MessageBox("Could not connect to mirrorCollector.", "Error.",MB_ICONERROR);
 	}	
 
 }
@@ -381,10 +381,10 @@ void CGraspCaptureDlg::OnDisconnect()
 
 	// disconnect collector
 	_cmd_outport.Content() = CCmdDisconnect;
-	_cmd_outport.Write();
+	_cmd_outport.Write(true);
 	_cmd_inport.Read();
 	if ( _cmd_inport.Content() == CCmdFailed) {
-		MessageBox("Peripherals disconnection Failed.", "Error.",MB_ICONERROR);
+		MessageBox("Could not disconnect from mirrorCollector.", "Error.",MB_ICONERROR);
 	}
 
 	// enable/disable required windows
@@ -434,30 +434,33 @@ void CGraspCaptureDlg::OnClose()
 
 }
 
-void CGraspCaptureDlg::OnTimer(UINT nIDEvent) 
-{	
+void CGraspCaptureDlg::OnTimer(UINT nIDEvent)
+{
 
 	// this is the timer event. each time the timer ticks, we gather data
 	// off the collector and update the enabled windows.
 
 	// get data
 	_cmd_outport.Content() = CCmdGetData;
-	_cmd_outport.Write();
+	_cmd_outport.Write(true);
 	_cmd_inport.Read();
 	if ( _cmd_inport.Content() == CCmdSucceeded ) {
-		// if anything new is available, update data structures
-		if ( _data_inport.Read(false) ) {
+		// update data structures, when needed
+		if ( _options.useDataGlove || _options.useGazeTracker ||
+		     _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
+			_data_inport.Read();
 			_data = _data_inport.Content();
 		}
-		if ( _img0_inport.Read(false) ) {
+		if ( _options.useCamera0 ) {
+			_img0_inport.Read();
 			_img0.Refer(_img0_inport.Content());
 		}
-		if ( _img1_inport.Read(false) ) {
+		if ( _options.useCamera1 ) {
+			_img1_inport.Read();
 			_img1.Refer(_img1_inport.Content());
 		}
 	} else {
-		MessageBox("Impossible to read data from collector server.", "Error.",MB_ICONERROR);
-		m_timerID = NULL;
+		MessageBox("Could not read data from mirrorCollector.", "Error.",MB_ICONERROR);
 	}
 
 	// update dialogs
@@ -487,12 +490,12 @@ void CGraspCaptureDlg::OnAcqStart()
 	saverThread.pFile = NULL;
 	ACE_OS::sprintf(saverThread.prefix, "%s\\%s%03d",_options.savePath, _options.prefix, nSeq);
 	if ( _options.useDataGlove || _options.useGazeTracker ||
-		 _options.useTracker0 || _options.useTracker1 || _options.usePresSens) {
+		 _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
 		// if necessary, open the data output file
 		ACE_OS::sprintf(fName, "%s.csv",saverThread.prefix);
 		saverThread.pFile = fopen(fName,"w");
 		if (saverThread.pFile == NULL) {
-			MessageBox("Impossible to open output file.", "Error.", MB_ICONERROR);
+			MessageBox("Could not open output file.", "Error.", MB_ICONERROR);
 			GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
 			GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
 			GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
@@ -513,7 +516,7 @@ void CGraspCaptureDlg::OnAcqStart()
 
 	// activate collector's streaming mode
 	_cmd_outport.Content() = CCmdStartStreaming;
-	_cmd_outport.Write();
+	_cmd_outport.Write(true);
 	_cmd_inport.Read();
 	if ( _cmd_inport.Content() == CCmdSucceeded) {
 		GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
@@ -521,9 +524,9 @@ void CGraspCaptureDlg::OnAcqStart()
 		// during streaming, kill timer
 		KillTimer (m_timerID);
 		// start acquisition thread
-		saverThread.Begin();
+//		saverThread.Begin();
 	} else {
-		MessageBox("Impossible to start saving thread.", "Error.", MB_ICONERROR);
+		MessageBox("Could not start saving thread.", "Error.", MB_ICONERROR);
 		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
 		GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
 		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
@@ -538,13 +541,13 @@ void CGraspCaptureDlg::OnAcqStop()
 
 	// stop collector's streaming mode
 	_cmd_outport.Content() = CCmdStopStreaming;
-	_cmd_outport.Write();
-	if ( _cmd_inport.Content() != CCmdSucceeded) {
-		MessageBox("Problems stopping saving thread.", "Error.", MB_ICONERROR);
+	_cmd_outport.Write(true);
+	if ( _cmd_inport.Content() == CCmdFailed ) {
+		MessageBox("Could not stop saving thread.", "Error.", MB_ICONERROR);
 	}
 
 	// stop saving stream
-	saverThread.End();
+//	saverThread.End();
 	// restart timer
 	m_timerID = SetTimer(1, _options.refreshFrequency, NULL);
 	_ASSERT (m_timerID != 0);	
@@ -576,10 +579,10 @@ void CGraspCaptureDlg::OnKill()
 
 	// kill collector
 	_cmd_outport.Content() = CCmdQuit;
-	_cmd_outport.Write();
+	_cmd_outport.Write(true);
 	_cmd_inport.Read();
 	if ( _cmd_inport.Content() == CCmdFailed ) {
-		MessageBox("Problems killing the server.", "Error.", MB_ICONERROR);
+		MessageBox("Could not kill mirrorCollector.", "Error.", MB_ICONERROR);
 	}
 
 	OnOK();

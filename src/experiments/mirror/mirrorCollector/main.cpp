@@ -61,14 +61,14 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.7 2006-01-12 15:48:46 claudio72 Exp $
+/// $Id: main.cpp,v 1.8 2006-01-13 11:44:28 claudio72 Exp $
 ///
 ///
 
 // ---------- headers
 
 #include <iostream>
-#include <stdio.h>
+#include <conio.h>
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -103,7 +103,8 @@ int main (int, char **);
 YARPOutputPortOf<CollectorNumericalData> _data_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 YARPOutputPortOf<YARPGenericImage> _img0_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 YARPOutputPortOf<YARPGenericImage> _img1_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-// channel for commands. MUST BE NO_BUFFERS, otherwise will lose sequentiality
+// channel for commands. MUST BE NO_BUFFERS, otherwise will lose sequentiality.
+// to improve synchronous communication, then, we force .write(true) on this port
 YARPOutputPortOf<int> _cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 YARPInputPortOf<int>  _cmd_inport (YARPInputPort::NO_BUFFERS, YARP_TCP);
 
@@ -194,6 +195,9 @@ CollectorImage         _img1;
 // the default options file name
 char* collectorConfFileName="C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
 
+// a counter, telling us how many times GetData has been called
+unsigned long numOfGetDatas = 0;
+
 // ---------- streaming thread
 
 class streamingThread : public YARPThread {
@@ -231,6 +235,7 @@ cout << "--> interval:" << _interval << " (average: " << _averageTime << ")   \r
 // ------------ debug
 
 			acquireAndSend();
+
 		}
 
 		// stop streaming peripherals
@@ -429,6 +434,9 @@ void acquireAndSend(void)
 		_hardware.grabber0.acquireBuffer(&buffer);
 		memcpy((unsigned char *)_img0.GetRawBuffer(), buffer, _options.sizeX * _options.sizeY * 3);
 		_hardware.grabber0.releaseBuffer();
+
+		_img0_outport.Content().Refer(_img0);
+		_img0_outport.Write();
 	}
 
 	if (_options.useCamera1) {
@@ -437,6 +445,9 @@ void acquireAndSend(void)
 		_hardware.grabber1.acquireBuffer(&buffer);
 		memcpy((unsigned char *)_img1.GetRawBuffer(), buffer, _options.sizeX * _options.sizeY * 3);
 		_hardware.grabber1.releaseBuffer();
+
+		_img1_outport.Content().Refer(_img1);
+		_img1_outport.Write();
 	}
 
 	if (_options.useTracker0) {
@@ -464,17 +475,6 @@ void acquireAndSend(void)
 	}
 
 	// send data
-	
-	if (_options.useCamera0) {
-		_img0_outport.Content().Refer(_img0);
-		_img0_outport.Write();
-	}
-
-	if (_options.useCamera1) {
-		_img1_outport.Content().Refer(_img1);
-		_img1_outport.Write();
-	}
-
 	if ( _options.useGazeTracker || _options.useDataGlove ||
 		 _options.usePresSens || _options.useTracker0 || _options.useTracker1 ) {
 		_data_outport.Content() = _data;
@@ -632,18 +632,33 @@ int main (int argc, char *argv[])
 		
 	do {
 
-		_cmd_inport.Read ();
+		while ( ! _cmd_inport.Read(false) ) {
+			if ( _kbhit() ) {
+				switch ( _getch() ) {
+				case 's':
+					break;
+				case 'd':
+					break;
+				case 'q':
+					break;
+				default:
+					cout << "Unrecognised command." << endl;
+					break;
+				}
+			}
+			YARPTime::DelayInSeconds(0.1);
+		}
 
 		switch( _cmd_inport.Content() ) {
 
 		case CCmdConnect:
 			// connect peripherals
-			if (!bConnected) {
+			if ( ! bConnected ) {
 				if ( connectSensors() ) {
 					bConnected = true;
 					// signal that connection was successful
 					_cmd_outport.Content() = CCmdSucceeded;
-					_cmd_outport.Write();
+					_cmd_outport.Write(true);
 					// send what hardware we use
 					int tmpOptions = 0;
 					if ( _options.useDataGlove ) {
@@ -676,52 +691,61 @@ int main (int argc, char *argv[])
 						_cmd_outport.Content() = _options.sizeY;
 						_cmd_outport.Write(true);
 					}
+					cout << "Connect succeeded." << endl;
 				} else {
 					_cmd_outport.Content() = CCmdFailed;
-					_cmd_outport.Write();
+					_cmd_outport.Write(true);
+					cout << "Connect failed." << endl;
 				}
 			} else {
 				_cmd_outport.Content() = CCmdFailed;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
+				cout << "Connect failed." << endl;
 			}
 			break;
 
 		case CCmdDisconnect:
 			// Disconnect peripherals
-			if (bConnected) {
+			if ( bConnected ) {
 				releaseSensors();
 				_cmd_outport.Content() = CCmdSucceeded;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
 				bConnected = false;
+				cout << endl << "Disconnect succeeded." << endl;
 			} else {
 				_cmd_outport.Content() = CCmdFailed;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
+				cout << endl << "Disconnect failed." << endl;
 			}
 			break;
 
 		case CCmdQuit:
 			// quit (need to disconnect first)
-			if (bConnected) {
+			if ( bConnected ) {
 				_cmd_outport.Content() = CCmdFailed;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
+				cout << "Quit failed (must disconnect first)." << endl;
 			} else {
 				bConnected = false;
 				bQuit = true;
 				_cmd_outport.Content() = CCmdSucceeded;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
+				cout << "Quit succeeded." << endl;
 			}
 			break;
 
 		case CCmdGetData:
 			// gather data off peripherals (need to be connected, obviously)
-			if (bConnected) {
+			if ( bConnected ) {
 				_cmd_outport.Content() = CCmdSucceeded;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
 				// acquire data and send
 				acquireAndSend();
+				cout << "Getdata succeeded - data sent (" << ++numOfGetDatas << ")." << "\r";
 			} else {
 				_cmd_outport.Content() = CCmdFailed;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
+				cout << "Getdata failed." << endl;
 			}
 			break;
 
@@ -730,12 +754,13 @@ int main (int argc, char *argv[])
 			if ( !bStreaming && bConnected ) {
 				stream.Begin();
 				bStreaming = true;
-				cout << "Streaming thread is running." << endl;
 				_cmd_outport.Content() = CCmdSucceeded;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
+				cout << "StartStreaming succeeded - now streaming." << endl;
 			} else {
 				_cmd_outport.Content() = CCmdFailed;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
+				cout << "StartStreaming failed (must be connected and not streaming)." << endl;
 			}
 			break;
 
@@ -744,13 +769,19 @@ int main (int argc, char *argv[])
 			if ( bStreaming ) {
 				stream.End();
 				bStreaming = false;
-				cout << "Streaming thread ended." << endl;
 				_cmd_outport.Content() = CCmdSucceeded;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
+				cout << endl << "StopStreaming succeeded - no longer streaming." << endl;
 			} else {
 				_cmd_outport.Content() = CCmdFailed;
-				_cmd_outport.Write();
+				_cmd_outport.Write(true);
+				cout << endl << "StopStreaming failed (must be streaming)." << endl;
 			}
+			break;
+
+		default:
+			// what the hell happened on that port?
+			cout << "Received unknown command." << endl;
 			break;
 
 		} // switch

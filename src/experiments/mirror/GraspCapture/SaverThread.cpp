@@ -96,4 +96,3 @@ int CSaverThread::getSavedFramesN()
 	return nFrames;
 
 }
-

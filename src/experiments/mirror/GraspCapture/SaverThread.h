@@ -26,9 +26,9 @@ public:
 	int useCamera0;
 	int useCamera1;
 
-	CollectorNumericalData    *pData;
-	YARPImageOf<YarpPixelBGR> *pImg0;
-	YARPImageOf<YarpPixelBGR> *pImg1;
+	CollectorNumericalData *pData;
+	CollectorImage         *pImg0;
+	CollectorImage         *pImg1;
 
 	char prefix[255];
 	FILE *pFile;
