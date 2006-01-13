@@ -705,7 +705,7 @@ The following files are to be created:
 
 \item YARP{\bf xxx}DeviceDriver.h and YARPxxxDevicedriver.cpp contain the definition and the implementation of the driver (clearly distinct for every different card). The definition might contain a new type called xxxOpenParameter which is a collection of parameters required in setting up the hardware. This is an argument to the {\em open} method of the device driver class. The implementation is typically done by instantiating a class called xxxResources to hide all the harware specific resources. These files must be saved in \$YARP\_ROOT/src/libYARP\_dev/src/xxx/uuu; in the same directory a directory called ``dd\_orig'' should be created with the original device driver files (headers, libraries, etc.) needed for compiling the YARP code;
 
-\item YARP{\bf yyy}Utils.h it can be shared with any different hardware implementing a resurce (e.g. every frame grabber). This file contains two structures: one with a list of the messages the peripheral accepts and the other one with the data type it uses. Yarp{\bf yyy}Utils.h resides in \$YARP\_ROOT/src/libYARP\_dev/include/yarp;
+\item YARP{\bf yyy}Utils.h it can be shared with any different hardware implementing a resurce (e.g. every frame grabber). This file contains two structures: one with a list of the messages the peripheral accepts and the other one with the data type it uses. YARP{\bf yyy}Utils.h resides in \$YARP\_ROOT/src/libYARP\_dev/include/yarp;
 
 \item YARPGeneric{\bf yyy}.h is the file that contains the definition of the generic peripheral class template, shared by any implementation of this hardware type (e.g. all frame grabbers). This file must reside in \$YARP\_ROOT/src/libYARP\_dev/include/yarp;
 
