@@ -8,15 +8,10 @@ import java.io.*;
  */
 public interface BlockReader {
 
-
     public boolean expectBlock(byte[] b, int len) throws IOException;
-
-
     public byte[] expectBlock(int len) throws IOException;
-
-
     public String expectString(int len) throws IOException;
-
-
+    public String expectLine() throws IOException;
     public int expectInt() throws IOException;
+    public boolean isTextMode() throws IOException;
 }

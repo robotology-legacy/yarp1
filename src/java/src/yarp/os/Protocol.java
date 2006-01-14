@@ -18,7 +18,6 @@ class Protocol implements BlockWriter, BlockReader {
     private ArrayList outputLen = new ArrayList();
     private int messageLen = 0;
     private boolean ok = true;
-    private boolean textMode = false;
     private boolean requireAck = false;
     private boolean pendingAck = false;
 
@@ -43,10 +42,6 @@ class Protocol implements BlockWriter, BlockReader {
 	return senderName;
     }
 
-    public boolean isTextMode() {
-	return textMode;
-    }
-
     public Carrier chooseCarrier(String name) {
 	if (delegate!=null) {
 	    if (name.equals(delegate.getName())) {
@@ -65,6 +60,16 @@ class Protocol implements BlockWriter, BlockReader {
 	    }
 	}
 	Carrier c = shift.chooseCarrier(specifier);
+	return c;
+    }
+
+    public Carrier chooseCarrier(byte[] header) {
+	if (delegate!=null) {
+	    if (delegate.alternateHeaderCheck(header)) {
+		return delegate;
+	    }
+	}
+	Carrier c = shift.chooseCarrier(header);
 	return c;
     }
 
@@ -113,7 +118,7 @@ class Protocol implements BlockWriter, BlockReader {
 	delegate.prepareSend(this);
     }
 
-    private int readFull(byte[] b) throws IOException {
+    public int readFull(byte[] b) throws IOException {
 	int off = 0;
 	int fullLen = b.length;
 	int remLen = fullLen;
@@ -148,39 +153,26 @@ class Protocol implements BlockWriter, BlockReader {
 	return true;
     }
 
-    // part of header
+
     private boolean expectProtocolSpecifier() throws IOException {
 	// expect protocol specifying header.
-	// just guessing the codes - could compute them from MAGIC_NUMBER 
-	// stuff
 
 	byte b[] = new byte[8];
 	readFull(b);
 	String chk1 = NetType.netString(new byte[] { b[0], b[1], b[6], b[7] });
 	String chk2 = NetType.netString(b);
 
-	if (chk2.equals("CONNECT ")) {
-	    log.println("Text mode communication requested");
-	    textMode = true;
-	}
-	if (!(chk1.equals("YARP")||textMode)) {
-	    log.println("Garbage message at protocol specifier level");
-	    return false;
-	}
-
-	//int specifier = NetType.unsigned(b[2]);
-
-	int specifier = NetType.unsigned(b[2]) + NetType.unsigned(b[3])*256;
-	specifier -= 7777; // magic number, who knows why
-	requireAck = (specifier&128)!=0;
-	specifier %= 16;
-	log.println("specifier is " + specifier + " with ack " + requireAck);
-
-	if (textMode) {
-	    delegate = chooseCarrier("tcp");
-	} else {
-	    log.println("protocol number is " + specifier);
+	int specifier = -1;
+	if (chk1.equals("YARP")) {
+	    specifier = NetType.unsigned(b[2]) + NetType.unsigned(b[3])*256;
+	    specifier -= 7777; // magic number, who knows why
+	    requireAck = (specifier&128)!=0;
+	    specifier %= 16;
+	    log.println("specifier is " + specifier + " with ack " + requireAck);
 	    delegate = chooseCarrier(specifier);
+	} else {
+	    log.println("choosing by alternate header");
+	    delegate = chooseCarrier(b);
 	}
 
 	if (delegate==null) {
@@ -210,21 +202,7 @@ class Protocol implements BlockWriter, BlockReader {
 
     // part of header
     private boolean expectSenderSpecifier() throws IOException {
-	if (!textMode) {
-	    int len = 0;
-	    // expect an ID string length -- an integer.
-	    byte bLen[] = new byte[4];
-	    readFull(bLen);
-	    len = NetType.netInt(bLen);
-	    if (len>1000) len = 1000;
-	    if (len<1) len = 1;
-	    // expect a null-terminated string
-	    byte b[] = new byte[len];
-	    readFull(b);
-	    senderName = NetType.netString(b);
-	} else {
-	    senderName = NetType.readLine(in);
-	}
+	delegate.expectSenderSpecifier(this);
 	log.println("name is " + senderName);
 
 	return true;
@@ -251,13 +229,15 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public boolean expectReplyToHeader() throws IOException {
-	if (!isTextMode()) {
-	    delegate.expectReplyToHeader(this);
-	}
+	delegate.expectReplyToHeader(this);
 	return true;
     }
 
     public boolean respondToHeader() throws IOException {
+	return delegate.respondToHeader(this);
+    }
+
+    public boolean defaultRespondToHeader() throws IOException {
 	if (!ok) { return false; }
 	byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
 	assert(shift.getAddress()!=null);
@@ -266,10 +246,6 @@ class Protocol implements BlockWriter, BlockReader {
 	byte b2[] = NetType.netInt(cport);
 	for (int i=0; i<b2.length; i++) {
 	    b[i+2] = b2[i];
-	}
-
-	if (textMode) {
-	    b = NetType.netString("Welcome " + getSender() + "\n");
 	}
 
 	write(b);
@@ -308,12 +284,13 @@ class Protocol implements BlockWriter, BlockReader {
 
     public boolean expectIndex() throws IOException {
 	pendingAck = true;
+	messageLen = 0;
 	if (!ok) { return false; }
-	if (isTextMode()) {
-	    log.println("Text mode - skipping index stage");
-	    messageLen = 0;
-	    return true;
-	}
+	return delegate.expectIndex(this);
+    }
+
+    public boolean defaultExpectIndex() throws IOException {
+	if (!ok) { return false; }
 	int len = 0;
 	{
 	    // expect index header
@@ -445,7 +422,14 @@ class Protocol implements BlockWriter, BlockReader {
 
     public boolean sendAck() throws IOException {
 	pendingAck = false;
-	if (requireAck()&&!textMode) {
+	if (requireAck()) {
+	    return delegate.sendAck(this);
+	}
+	return true;
+    }
+
+    public boolean defaultSendAck() throws IOException {
+	if (requireAck()) {
 	    log.println("sending ack");
 	    byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
 	    write(b);
@@ -487,6 +471,9 @@ class Protocol implements BlockWriter, BlockReader {
 	append(NetType.netString(data));
     }
 
+    public void appendLine(String data) {
+	appendString(data + "\n");
+    }
 
     public void addContent(byte[] data) {
 	content.add(data);
@@ -526,6 +513,10 @@ class Protocol implements BlockWriter, BlockReader {
 	in.read(b);
     }
 
+    public String readLine() throws IOException {
+	return expectLine();
+    }
+
     public boolean isActive() throws IOException {
 	if (delegate!=null) {
 	    return delegate.isActive();
@@ -542,6 +533,13 @@ class Protocol implements BlockWriter, BlockReader {
 
     public OutputStream getOutputStream() throws IOException {
 	return shift.getOutputStream();
+    }
+
+    public boolean isTextMode() {
+	if (delegate!=null) {
+	    return delegate.isTextMode();
+	}
+	return false;
     }
 }
 

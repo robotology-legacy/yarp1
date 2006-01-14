@@ -2,6 +2,8 @@
 package yarp.os;
 
 import java.io.*;
+import java.util.*;
+import java.util.regex.*;
 
 public class BottleContent implements Content {
     private static Logger log = Logger.get();
@@ -20,14 +22,35 @@ public class BottleContent implements Content {
 
     public void read(BlockReader proto) throws IOException {
 	log.println("Bottle should read");
-	int len = proto.expectInt();
-	log.println("> name len is " + len);
-	byte[] b = proto.expectBlock(len);
-	log.println("> name is " + new String(b));
-	int dataLen = proto.expectInt();
-	log.println("> data len is " + dataLen);
-	data = proto.expectBlock(dataLen);
-	bot.set(data);
+	if (!proto.isTextMode()) {
+	    int len = proto.expectInt();
+	    log.println("> name len is " + len);
+	    byte[] b = proto.expectBlock(len);
+	    log.println("> name is " + new String(b));
+	    int dataLen = proto.expectInt();
+	    log.println("> data len is " + dataLen);
+	    data = proto.expectBlock(dataLen);
+	    bot.set(data);
+	} else {
+	    // there is no requirement to have a special text mode 
+	    // representation, but it is nice for Bottle
+	    String line = proto.expectLine();
+	    Pattern p = Pattern.compile(" ");
+	    String[] parts = p.split(line); // in future need to handle quoting
+	    bot.clear();
+	    for (int i=0; i<parts.length; i++) {
+		String str = parts[i];
+		if (str.length()>0) {
+		    char ch = str.charAt(0);
+		    if (ch>='0'&&ch<='9') {
+			bot.add(new Integer(Integer.valueOf(str).intValue()));
+		    } else {
+			bot.add(str);
+		    }
+		}
+	    }
+	    log.println("GOT bottle [" + bot + "]");
+	}
     }
 
     public void write(BlockWriter proto) throws IOException {	

@@ -185,5 +185,4 @@ class BasicPortlet extends Portlet {
 	     "Stopping input from " + getFromName() + " to " + getToName());
 	owner.removePortlet(this);
     }
-
 }

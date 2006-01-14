@@ -39,6 +39,15 @@ class CarrierShiftStream implements ShiftStream {
 	return Carriers.chooseCarrier(specifier);
     }
     
+    public Carrier chooseCarrier(byte[] header) {
+	if (current!=null) {
+	    if (current.alternateHeaderCheck(header)) {
+		return current;
+	    }
+	}
+	return Carriers.chooseCarrier(header);
+    }
+    
     public InputStream getInputStream() throws IOException {
 	return current.getInputStream();
     }

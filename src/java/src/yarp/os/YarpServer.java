@@ -36,6 +36,9 @@ class YarpServer implements CommandProcessor {
 	// should change this to depend on name server port
 	private int base = 10001;
 
+	// YARP2 doesn't need this, just YARP1
+	private static final int legacyStep = 10;
+
 	void release(int port) {
 	    releaseObject(new Integer(port));
 	}
@@ -46,7 +49,7 @@ class YarpServer implements CommandProcessor {
 
 	Object fresh() {
 	    int result = base;
-	    base++;
+	    base += legacyStep;
 	    return new Integer(result);
 	}
     }
@@ -285,7 +288,8 @@ class YarpServer implements CommandProcessor {
 
     public Address register(String name,
 			    String host,
-			    String protocol) {
+			    String protocol,
+			    int count) {
 	NameRecord nameRecord = getNameRecord(name);
 	HostRecord hostRecord = getHostRecord(host);
 	Address address = nameRecord.getAddress();
@@ -293,6 +297,10 @@ class YarpServer implements CommandProcessor {
 	    log.println("Reusing port " + address.getPort() +
 			" on host " + address.getName());
 	    getHostRecord(address.getName()).release(address.getPort());
+	}
+	if (count!=1) {
+	    log.println("Count is " + count + 
+			" but this is currently ignored (legacy)");
 	}
 	int port = hostRecord.get();
 	if (protocol.equals("mcast")) {
@@ -342,6 +350,7 @@ class YarpServer implements CommandProcessor {
 		String target = str[0];
 		String base = null;
 		String proto = null;
+		String count = null;
 		if (str.length>=2) {
 		    proto = str[1];
 		    if (proto.equals("*")) {
@@ -351,6 +360,12 @@ class YarpServer implements CommandProcessor {
 			base = str[2];
 			if (base.equals("*")) {
 			    base = null;
+			}
+			if (str.length>=4) {
+			    count = str[3];
+			    if (count.equals("*")) {
+				count = null;
+			    }
 			}
 		    }
 		} 
@@ -363,9 +378,13 @@ class YarpServer implements CommandProcessor {
 			base = NameClient.getNameClient().getHostName();
 		    }
 		}
+		if (count==null) {
+		    count = "1";
+		}
 		//log.info("registered " + target + " for " +
 		//base + " with protocol " + proto);
-		Address result = register(target,base,proto);
+		int ct = Integer.valueOf(count).intValue();
+		Address result = register(target,base,proto,ct);
 		response = textify(result);
 	    }
 	    if (act.equals("query")) {

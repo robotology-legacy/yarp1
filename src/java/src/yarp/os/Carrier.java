@@ -10,6 +10,10 @@ abstract class Carrier {
     public abstract String getName();
     public abstract int getSpecifier();
 
+    public boolean alternateHeaderCheck(byte[] header) {
+	return false; // by default, there is no alternate
+    }
+
     public Address getLocalAddress() {
 	return local;
     }
@@ -34,6 +38,34 @@ abstract class Carrier {
 
     public void expectExtraHeader(Protocol proto) throws IOException {
 	log.println("expectExtraHeader for " + getName());
+    }
+
+    public boolean expectSenderSpecifier(Protocol proto) throws IOException {
+	log.println("expectSenderSpecifer for " + getName());
+	int len = 0;
+	// expect an ID string length -- an integer.
+	byte bLen[] = new byte[4];
+	proto.readFull(bLen);
+	len = NetType.netInt(bLen);
+	if (len>1000) len = 1000;
+	if (len<1) len = 1;
+	// expect a null-terminated string
+	byte b[] = new byte[len];
+	proto.readFull(b);
+	proto.setSender(NetType.netString(b));
+	return true;
+    }
+
+    public boolean expectIndex(Protocol proto) throws IOException {
+	return proto.defaultExpectIndex();
+    }
+
+    public boolean sendAck(Protocol proto) throws IOException {
+	return proto.defaultSendAck();
+    }
+
+    public boolean respondToHeader(Protocol proto) throws IOException {
+	return proto.defaultRespondToHeader();
     }
 
     public int readPort(Protocol proto) throws IOException {
@@ -83,5 +115,9 @@ abstract class Carrier {
 
     public boolean canOffer() {
 	return true;
+    }
+
+    public boolean isTextMode() {
+	return false;
     }
 }

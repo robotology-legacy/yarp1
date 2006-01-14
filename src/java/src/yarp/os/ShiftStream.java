@@ -14,6 +14,7 @@ interface ShiftStream {
 
     public Carrier chooseCarrier(String name);
     public Carrier chooseCarrier(int specifier);
+    public Carrier chooseCarrier(byte[] header);
     public void setIncoming(Carrier carrier);
 }
 
