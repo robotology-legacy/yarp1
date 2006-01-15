@@ -9,15 +9,16 @@ import java.util.*;
   implementation of some standard yarp client utilities
  */
 
-class YarpClient {
+public class YarpClient {
     private static Logger log = Logger.get();
 
-    public static void read(String[] args) {
-	if (args.length<2) {
-	    System.err.println("use as: <this program> read /name");
-	    System.exit(1);
-	}
-	String name = args[1];
+    private static String[] subArray(String[] str, int start, int len) {
+	String[] out = new String[len];
+	System.arraycopy(str,start,out,0,len);
+	return out;
+    }
+
+    public static void read(String name) {
 
 	InputPort in = new InputPort();
 	in.creator(new BottleContent());
@@ -34,7 +35,7 @@ class YarpClient {
 			if (((Integer) o).intValue()==1) {
 			    done = true;
 			    shown = true;
-			    // honor end-of-stream marker
+			    log.println("should honor end-of-stream marker");
 			}
 		    }
 		    if (!shown) {
@@ -48,11 +49,24 @@ class YarpClient {
 		}
 	    }
 	}
+	log.println("ending YarpClient.read");
 	in.close();
+	log.println("ended YarpClient.read");
     }
 
 
-    public static String get() {
+    private static void read(String[] args) {
+	if (args.length<2) {
+	    System.err.println("use as: <this program> read /name");
+	    System.exit(1);
+	}
+	String name = args[1];
+	read(name);
+    }
+
+
+
+    private static String get() {
 	InputStream in = System.in;
 	StringBuffer buf = new StringBuffer("");
 	try {
@@ -80,7 +94,7 @@ class YarpClient {
 	command(source,cmd,'\0');
     }
 
-    public static void command(String source, String cmd, char ch) throws IOException {
+    private static void command(String source, String cmd, char ch) throws IOException {
 	try {
 	    NameClient nc = NameClient.getNameClient();
 	    
@@ -101,7 +115,7 @@ class YarpClient {
 	}
     }
 
-    public static String slashify(String s) {
+    private static String slashify(String s) {
 	String r = s;
 	if (s!=null) {
 	    if (s.length()>0) {
@@ -113,15 +127,10 @@ class YarpClient {
 	return r;
     }
 
-    public static void name(String[] args) {
-	StringBuffer cmd = new StringBuffer("NAME_SERVER");
-	for (int i=1; i<args.length; i++){ 
-	    cmd.append(" ");
-	    cmd.append(args[i]);
-	}
+    public static void name(String message) {
 	String result = "";
 	try {
-	    result = NameClient.getNameClient().send(cmd.toString());
+	    result = NameClient.getNameClient().send(message);
 	} catch (IOException e) {
 	    log.error("Problem communicating with nameserver");
 	    System.exit(1);
@@ -129,18 +138,20 @@ class YarpClient {
 	System.out.println(result);
     }
 
-    public static void connect(String[] args) {
-	if (args.length<3) {
-	    System.err.println("use as: <this program> connect /src /target");
-	    System.exit(1);
+    private static void name(String[] args) {
+	StringBuffer cmd = new StringBuffer("NAME_SERVER");
+	for (int i=1; i<args.length; i++){ 
+	    cmd.append(" ");
+	    cmd.append(args[i]);
 	}
-	String source = args[1];
-	String target = args[2];
+	name(cmd.toString());
+    }
+
+    public static void connect(String source, String target, String carrier) {
 	System.out.println("Connecting " + source + " to " + target);
 	source = slashify(source);
 	target = slashify(target);
-	if (args.length>3) {
-	    String carrier = args[3];
+	if (carrier!=null) {
 	    target = "/" + carrier + ":/" + target;
 	}
 	try {
@@ -150,13 +161,22 @@ class YarpClient {
 	}
     }
 
-    public static void disconnect(String[] args) {
+
+    private static void connect(String[] args) {
 	if (args.length<3) {
-	    System.err.println("use as: <this program> disconnect /src /target");
+	    System.err.println("use as: <this program> connect /src /target");
 	    System.exit(1);
 	}
 	String source = args[1];
 	String target = args[2];
+	String carrier = null;
+	if (args.length>=4) {
+	    carrier = args[3];
+	}
+	connect(source,target,carrier);
+    }
+
+    public static void disconnect(String source, String target) {
 	System.out.println("Disconnecting " + source + " from " + target);
 	source = slashify(source);
 	target = slashify(target);
@@ -167,18 +187,23 @@ class YarpClient {
 	}
     }
 
-    public static void write(String[] args) {
-	if (args.length<2) {
-	    System.err.println("use as: <this program> write /name [/target]");
+
+    private static void disconnect(String[] args) {
+	if (args.length<3) {
+	    System.err.println("use as: <this program> disconnect /src /target");
 	    System.exit(1);
 	}
-	String name = args[1];
+	String source = args[1];
+	String target = args[2];
+	disconnect(source,target);
+    }
 
+    public static void write(String name, String[] targets) {
 	OutputPort out = new OutputPort();
 	out.creator(new BottleContent());
 	out.register(name);
-	for (int i=2; i<args.length; i++) {
-	    out.connect(args[i]);
+	for (int i=0; i<targets.length; i++) {
+	    out.connect(targets[i]);
 	}
 	
 	boolean done = false;
@@ -199,6 +224,15 @@ class YarpClient {
 	Time.delay(1);
 
 	out.close();
+    }
+
+    private static void write(String[] args) {
+	if (args.length<2) {
+	    System.err.println("use as: <this program> write /name [/target]");
+	    System.exit(1);
+	}
+	String name = args[1];
+	write(name,subArray(args,2,args.length-2));
     }
 
     public static void where() {

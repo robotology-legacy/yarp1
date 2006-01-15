@@ -19,10 +19,13 @@ public class InputPort implements Port {
      * @param name The name to assign.
      */
     public void register(String name) {
+	/*
 	Address server = NameClient.getNameClient().register(name);
 	Logger.get().info("Registered input port " + name + " as " + 
 			  server.toString());
 	BasicPort basic = new BasicPort(server,name);
+	*/
+	BasicPort basic = new BasicPort(name);
 	basic.setHandler(handler);
 	if (creator==null) {
 	    Logger.get().error("should call creator before register");

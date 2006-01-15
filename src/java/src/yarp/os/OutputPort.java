@@ -15,10 +15,13 @@ public class OutputPort implements Port {
     }
 
     public void register(String name) {
+	/*
 	Address server = NameClient.getNameClient().register(name);
 	Logger.get().info("Registered output port " + name + " as " + 
 			  server.toString());
 	BasicPort basic = new BasicPort(server,name);
+	*/
+	BasicPort basic = new BasicPort(name);
 	port = basic;
 	basic.start();
     }

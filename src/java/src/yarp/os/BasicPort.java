@@ -6,7 +6,7 @@ import java.nio.channels.*;
 import java.net.*;
 import java.util.*;
 
-class BasicPort extends Thread {
+class BasicPort extends Thread implements Port {
     private Address address;
     private ServerSocket serverSocket = null;
     private List connections = 
@@ -18,9 +18,21 @@ class BasicPort extends Thread {
     private boolean shutdown = false;
     private static Logger log = Logger.get();
 
-    public BasicPort(Address address, String key) {
+    public BasicPort(String name) {
+	register(name);
+    }
+
+    public BasicPort(Address address, String name) {
 	this.address = address;
-	this.key = key;
+	this.key = name;
+    }
+
+    public void register(String name) {
+	Address server = NameClient.getNameClient().register(name);
+	log.info("Registered port " + name + " as " + 
+		 server.toString());
+	this.address = server;
+	this.key = name;
     }
 
     public String getPortName() {
@@ -208,6 +220,7 @@ class BasicPort extends Thread {
 		}
 	    }
 	}
+	log.info("So long, from port " + getPortName());
     }
 
     public Portlet newPortlet(Socket socket) throws IOException {

@@ -92,8 +92,11 @@ class Protocol implements BlockWriter, BlockReader {
 	log.println("Switching stream");
 
 	next.open(address,shift);
-	delegate = next;
-	shift = next;
+	if (next!=delegate) {
+	    shift.close();
+	    delegate = next;
+	    shift = next;
+	}
 
 	checkForNewStreams();
     }
@@ -141,10 +144,6 @@ class Protocol implements BlockWriter, BlockReader {
     private boolean sendProtocolSpecifier() throws IOException {
 	byte b[] = { 'Y', 'A', 0x64, 0x1e, 0, 0, 'R', 'P' };
 	
-	//byte p = 0x64;
-	//p = (byte)delegate.getSpecifier();
-	//b[2] = p;
-
 	int p = delegate.getSpecifier();
 	p += 7777;
 	if (requireAck) { p += 128; }
@@ -522,6 +521,7 @@ class Protocol implements BlockWriter, BlockReader {
 		    sendAck();
 		} catch (IOException e) {
 		    // don't worry about this, just make best effort
+		    log.error("Problem closing protocol handler");
 		}
 	    }
 	    shift.close();

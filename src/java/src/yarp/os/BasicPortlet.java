@@ -11,9 +11,9 @@ class BasicPortlet extends Portlet {
     private String sourceName;
     private String ownerName;
     private String carrierName;
-    private static Logger log = Logger.get();
+    private Logger log = Logger.get();
 
-    public static void show(String from, String msg) {
+    public void show(String from, String msg) {
 	boolean admin = true;
 	if (from!=null) {
 	    if (from.length()>0) {
@@ -33,6 +33,7 @@ class BasicPortlet extends Portlet {
 	this.owner = owner;
 	this.shift = shift;
 	ownerName = owner.getPortName();
+	log = new Logger(ownerName,Logger.get());
     }
 
     public void close() {
@@ -42,7 +43,9 @@ class BasicPortlet extends Portlet {
 	} catch (IOException e) {
 	    log.println("Problem while halting portlet");
 	}
+	log.println("Progress halting portlet");
 	interrupt();
+	log.println("Done halting portlet");
     }
 
     public String getFromName() {
@@ -174,15 +177,19 @@ class BasicPortlet extends Portlet {
 
 	//clientSocket.close();
 	} catch (IOException e) {
-	    log.error("Portlet IO shutdown - reason " + e);
+	    log.println("Portlet IO shutdown - reason " + e);
 	    if (protocol!=null) {
 		protocol.close();
 	    }
 	    // should call owner to forget me
 	}
 
+	log.println("leaving portlet");
+
 	show(getFromName(),
 	     "Stopping input from " + getFromName() + " to " + getToName());
 	owner.removePortlet(this);
+
+	log.println("left portlet");
     }
 }

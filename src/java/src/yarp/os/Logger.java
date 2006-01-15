@@ -28,7 +28,7 @@ class Logger {
 		System.err.println(prefix + msg);
 	    }
 	} else {
-	    parent.show(level,prefix+msg);
+	    parent.show(level,prefix+": "+msg);
 	}
     }
 
