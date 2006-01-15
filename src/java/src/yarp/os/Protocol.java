@@ -8,6 +8,7 @@ import java.util.*;
 
 
 class Protocol implements BlockWriter, BlockReader {
+    private Carrier current;
     private ShiftStream shift;
     private InputStream in;
     private OutputStream out;
@@ -26,9 +27,26 @@ class Protocol implements BlockWriter, BlockReader {
     private String carrier = "tcp";
     private Carrier delegate;
 
-    public Protocol(ShiftStream shift) throws IOException {
-	log.println("Protocol manager object starting with address " +
+    /*
+    public Protocol(Socket socket) throws IOException {
+	try {
+	    current = Carriers.chooseCarrier("tcp");
+	    ((TcpCarrier)current).open(socket);
+	} catch (IOException e) {
+	    log.error("failed to open Protocol");
+	}
+	log.println("Protocol starting with address " +
 		    shift.getAddress());
+	this.shift = this;
+	this.in = shift.getInputStream();
+	this.out = shift.getOutputStream();
+    }
+    */
+
+
+    public Protocol(ShiftStream shift) throws IOException {
+	log.println("Protocol starting with address " +
+		    shift.getLocalAddress());
 	this.shift = shift;
 	this.in = shift.getInputStream();
 	this.out = shift.getOutputStream();
@@ -48,8 +66,8 @@ class Protocol implements BlockWriter, BlockReader {
 		return delegate;
 	    }
 	}
-	Carrier c = shift.chooseCarrier(name);
-	//c.setAddress(shift.getAddress(),null);
+	Carrier c = Carriers.chooseCarrier(name);
+
 	return c;
     }
 
@@ -59,7 +77,7 @@ class Protocol implements BlockWriter, BlockReader {
 		return delegate;
 	    }
 	}
-	Carrier c = shift.chooseCarrier(specifier);
+	Carrier c = Carriers.chooseCarrier(specifier);
 	return c;
     }
 
@@ -69,9 +87,19 @@ class Protocol implements BlockWriter, BlockReader {
 		return delegate;
 	    }
 	}
-	Carrier c = shift.chooseCarrier(header);
+	Carrier c = Carriers.chooseCarrier(header);
 	return c;
     }
+
+    /*
+    public InputStream getInputStream() throws IOException {
+	return delegate.getInputStream();
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+	return delegate.getOutputStream();
+    }
+    */
 
     public void checkForNewStreams() throws IOException {
 	InputStream i = shift.getInputStream();
@@ -85,14 +113,30 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
 
+    public void become(Carrier next, Address address) throws IOException {
+	log.println("Switching stream");
+
+	//shift.open(carrier,address,delegate);
+	next.open(address,shift);
+	delegate = next;
+	shift = next;
+
+	checkForNewStreams();
+    }
+
+
+    /*
     public void become(String carrier, Address address) throws IOException {
 	log.println("Switching to " + carrier);
-	shift.setIncoming(delegate);
-	shift.become(carrier,address);
+
+	//shift.open(carrier,address,delegate);
+
+	// here is the only point we acknowledge that we are the shiftstream
+	shift.open(carrier,address,delegate);
+
 	checkForNewStreams();
-	//this.in = shift.getInputStream();
-	//this.out = shift.getOutputStream();
     }
+    */
 
     public String getCarrierName() {
 	if (delegate!=null) { 
@@ -204,19 +248,41 @@ class Protocol implements BlockWriter, BlockReader {
     private boolean expectSenderSpecifier() throws IOException {
 	delegate.expectSenderSpecifier(this);
 	log.println("name is " + senderName);
+	return true;
+    }
 
+    public boolean defaultExpectSenderSpecifier() throws IOException {
+	//log.println("expectSenderSpecifer for " + getName());
+	int len = 0;
+	// expect an ID string length -- an integer.
+	byte bLen[] = new byte[4];
+	readFull(bLen);
+	len = NetType.netInt(bLen);
+	if (len>1000) len = 1000;
+	if (len<1) len = 1;
+	// expect a null-terminated string
+	byte b[] = new byte[len];
+	readFull(b);
+	setSender(NetType.netString(b));
 	return true;
     }
 
     public boolean sendHeader() throws IOException {
+	return delegate.sendHeader(this);
+    }
+
+    public boolean defaultSendHeader() throws IOException {
 	sendProtocolSpecifier();
 	sendSenderSpecifier();
-	delegate.sendExtraHeader(this);
+	//delegate.sendExtraHeader(this);
 
 	return true;
     }
 
     public boolean expectHeader() throws IOException {
+	// cannot delegate this since delegate doesn't get chosen
+	// until header is read
+
 	ok = true;
 	inputLen = new ArrayList();
 	outputLen = new ArrayList();
@@ -224,6 +290,7 @@ class Protocol implements BlockWriter, BlockReader {
 
 	if (!expectProtocolSpecifier()) { ok=false; return false; }
 	if (!expectSenderSpecifier()) { ok=false; return false; }
+	
 	delegate.expectExtraHeader(this);
 	return true;
     }
@@ -240,8 +307,8 @@ class Protocol implements BlockWriter, BlockReader {
     public boolean defaultRespondToHeader() throws IOException {
 	if (!ok) { return false; }
 	byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
-	assert(shift.getAddress()!=null);
-	int cport = shift.getAddress().getPort();
+	assert(shift.getLocalAddress()!=null);
+	int cport = shift.getLocalAddress().getPort();
 	log.println("setting port number to " + cport);
 	byte b2[] = NetType.netInt(cport);
 	for (int i=0; i<b2.length; i++) {
@@ -251,7 +318,7 @@ class Protocol implements BlockWriter, BlockReader {
 	write(b);
 	out.flush();
 
-	delegate.respondExtraToHeader(this);
+	//delegate.respondExtraToHeader(this);
 
 	return true;
     }
@@ -531,9 +598,9 @@ class Protocol implements BlockWriter, BlockReader {
 	return true;
     }
 
-    public OutputStream getOutputStream() throws IOException {
-	return shift.getOutputStream();
-    }
+    //public OutputStream getOutputStream() throws IOException {
+    //return shift.getOutputStream();
+    //}
 
     public boolean isTextMode() {
 	if (delegate!=null) {
@@ -541,5 +608,67 @@ class Protocol implements BlockWriter, BlockReader {
 	}
 	return false;
     }
+
+
+
+
+
+    
+    public InputStream getInputStream() throws IOException {
+	return delegate.getInputStream();
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+	return delegate.getOutputStream();
+    }
+
+    /*
+    public void closeShift() throws IOException {
+	log.println("** shift stream closing");
+	if (current!=null) {
+	    log.println("carrier " + current.getName());
+	    current.close();
+	} else {
+	    log.println("  no carrier");
+	}
+	log.println("** shift stream closed");
+	current = null;
+    }
+
+
+    public void open(String carrier, Address address, Carrier prev)
+	throws IOException {
+
+	Carrier incoming = prev;
+
+	log.println("becoming " + carrier);
+	
+	Carrier next = current;
+	if (!carrier.equals(current.getName())) {
+	    log.println("switching from " + current.getName() +
+			       " to " + carrier);
+	    if (incoming!=null) {
+		if (incoming.getName().equals(carrier)) {
+		    next = incoming;
+		    incoming = null;
+		}
+	    }
+	    if (next==current) {
+		next = Carriers.chooseCarrier(carrier);
+	    }
+	}
+	if (next!=current && !next.getName().equals("tcp")) {
+	    current.close();
+	    next.open(address,current);
+	}
+	current = next;
+    }
+
+
+    public Address getAddress() throws IOException {
+	return current.getLocalAddress();
+    }
+    */
+
 }
 

@@ -174,7 +174,7 @@ class BasicPortlet extends Portlet {
 
 	//clientSocket.close();
 	} catch (IOException e) {
-	    log.println("Portlet IO shutdown");
+	    log.error("Portlet IO shutdown - reason " + e);
 	    if (protocol!=null) {
 		protocol.close();
 	    }

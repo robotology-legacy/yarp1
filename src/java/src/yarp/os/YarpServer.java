@@ -211,7 +211,12 @@ class YarpServer implements CommandProcessor {
 	result.put("base",name);
 	if (m.find()) {
 	    result.put("base",m.group(3));
-	    result.put("net",m.group(2));
+	    String net = m.group(2);
+	    if (net!=null) {
+		if (!(net.equals(""))) {
+		    result.put("net",m.group(2));
+		}
+	    }
 	} 
 	return result;
     }

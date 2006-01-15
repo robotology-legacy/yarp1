@@ -198,18 +198,23 @@ class BasicPort extends Thread {
 	    }
 
 	    if (!finish) {
-		Portlet portlet = newPortlet(clientSocket);
-		addPortlet(portlet);
-		portlet.start();
+		Portlet portlet;
+		try {
+		    portlet = newPortlet(clientSocket);
+		    addPortlet(portlet);
+		    portlet.start();
+		} catch (IOException e) {
+		    log.error(e.toString());
+		}
 	    }
 	}
     }
 
-    public Portlet newPortlet(Socket socket) {
+    public Portlet newPortlet(Socket socket) throws IOException {
 	return new BasicPortlet(this,
-				new CarrierShiftStream(socket));
+				new TcpCarrier(socket));
 	//return new BasicPortlet(this,
-	//		new SocketShiftStream(socket));
+	//		new CarrierShiftStream(socket));
     }
 
     public void send(Content content) {

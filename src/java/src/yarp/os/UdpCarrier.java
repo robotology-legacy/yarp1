@@ -20,20 +20,24 @@ class UdpCarrier extends Carrier {
 	//return 0x61;
     }
 
-    public void sendExtraHeader(Protocol proto) throws IOException {
-	log.println("UDP sendExtraHeader");
-    }
+    //public void sendExtraHeader(Protocol proto) throws IOException {
+    //log.println("UDP sendExtraHeader");
+    //}
 
 
     public void expectReplyToHeader(Protocol proto) throws IOException {
 	int port = readPort(proto);
-	proto.become("udp",new Address("ignore",port));
+	//proto.become("udp",new Address("ignore",port));
+	proto.become(this,new Address("ignore",port));
     }
 
-    public void respondExtraToHeader(Protocol proto) throws IOException {
+    public boolean respondToHeader(Protocol proto) throws IOException {
+	super.respondToHeader(proto);
 	log.println("respondExtraToHeader for " + getName());
 	reading = true;
-	proto.become(getName(),null);
+	//proto.become(getName(),null);
+	proto.become(this,null);
+	return true;
     }
 
     public void close() throws IOException {
@@ -43,7 +47,7 @@ class UdpCarrier extends Carrier {
 	}
     }
 
-    public void open(Address address, Carrier previous) throws IOException {
+    public void open(Address address, ShiftStream previous) throws IOException {
 	close();
 	Address clocal = previous.getLocalAddress();
 	Address cremote = previous.getRemoteAddress();

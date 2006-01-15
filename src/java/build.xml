@@ -19,7 +19,7 @@
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}">
     <!-- javac srcdir="${src}" destdir="${build}" compiler="jikes" -->
-        <!-- compilerarg value="-g:lines,vars,source"/ -->
+        <compilerarg value="-g:lines,vars,source"/>
         <!-- compilerarg value="-verbose"/ -->
         <!-- compilerarg value="-Xlint:unchecked"/ -->
     </javac>

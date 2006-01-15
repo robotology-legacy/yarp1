@@ -100,7 +100,8 @@ class McastCarrier extends Carrier {
 	//return 0x62;
     }
 
-    public void sendExtraHeader(Protocol proto) throws IOException {
+    public boolean sendHeader(Protocol proto) throws IOException {
+	super.sendHeader(proto);
 	log.println("sendExtraHeader for " + getName());
 
 	log.println("Sending mcast info");
@@ -122,6 +123,7 @@ class McastCarrier extends Carrier {
 	b[4] = (byte)(port/256);
 
 	proto.write(b);
+	return true;
     }
 
     public Address mcastQuery(String name) {
@@ -149,7 +151,7 @@ class McastCarrier extends Carrier {
 	log.println("mcast address is " + mcastAddress);
     }
 
-    public void expectExtraHeader(Protocol proto) throws IOException {
+    public boolean expectExtraHeader(Protocol proto) throws IOException {
 	log.println("expectExtraHeader for " + getName());
 	log.println("Looking for mcast info");
 	byte b[] = new byte[6];
@@ -168,19 +170,25 @@ class McastCarrier extends Carrier {
 				   ip[2] + "." +
 				   ip[3],
 				   port);
+	return true;
     }
 
     public void expectReplyToHeader(Protocol proto) throws IOException {
 	// in mcast case, don't expect port number
 	// super.expectReplyToHeader(proto);
-	proto.become(getName(),mcastAddress);
+
+	//proto.become(getName(),mcastAddress);
+	proto.become(this,mcastAddress);
     }
 
-    public void respondExtraToHeader(Protocol proto) throws IOException {
+    public boolean respondToHeader(Protocol proto) throws IOException {
+	super.respondToHeader(proto);
 	log.println("respondExtraToHeader for " + getName());
 	log.println("TAGGING as a reading mcast");
 	reading = true;
-	proto.become(getName(),mcastAddress);
+	//proto.become(getName(),mcastAddress);
+	proto.become(this,mcastAddress);
+	return true;
     }
 
     public void close() throws IOException {
@@ -194,21 +202,19 @@ class McastCarrier extends Carrier {
 	}
     }
 
-    public void open(Address address, Carrier previous) throws IOException {
+    public void open(Address address, ShiftStream previous) throws IOException {
 	address = new Address(address.getName(),
 			      address.getPort(),
 			      "mcast");
 	log.println("********* open for mcast address " + address);
-	//close();
 	Address clocal = previous.getLocalAddress();
-	Address cremote = previous.getLocalAddress();
-	Address tcpRemote = cremote;
-	cremote = address;
+	Address tcpRemote = previous.getRemoteAddress();
+	Address cremote = address;
 	InetAddress group = InetAddress.getByName(address.getName());
 	InetAddress tcp = InetAddress.getByName(tcpRemote.getName());
 	mcast = new MulticastSocket(address.getPort()); 
 
-	log.debug("tcp address is " + tcpRemote);
+	//log.debug("tcp address is " + tcpRemote);
 	log.debug("mcast address is " + cremote);
 
 	if (!reading) {

@@ -43,12 +43,16 @@ class TcpCarrier extends Carrier {
 	}
     }
 
-    public void open(Address address, Carrier previous) throws IOException {
+    public void open(Address address, ShiftStream previous) throws IOException {
 	log.error("Cannot open TCP; happens externally");
 	System.exit(1);
     }
 
-    public void open(Socket socket) throws IOException {
+
+    public TcpCarrier() {
+    }
+
+    public TcpCarrier(Socket socket) throws IOException {
 	this.socket = socket;
 	InetAddress a1 = socket.getLocalAddress();
 	Address clocal = 
