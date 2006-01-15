@@ -2,13 +2,10 @@
 package yarp.os;
 
 import java.io.*;
-import java.net.*;
-import java.nio.channels.*;
 import java.util.*;
 
 
 class Protocol implements BlockWriter, BlockReader {
-    private Carrier current;
     private ShiftStream shift;
     private InputStream in;
     private OutputStream out;
@@ -115,7 +112,7 @@ class Protocol implements BlockWriter, BlockReader {
 	}
 	this.carrier = carrier;
 	delegate = chooseCarrier(carrier);
-	assert(delegate!=null);
+	log.assertion(delegate!=null);
 	checkForNewStreams();
 	//this.in = shift.getInputStream();
 	//this.out = shift.getOutputStream();
@@ -164,8 +161,7 @@ class Protocol implements BlockWriter, BlockReader {
 	byte b[] = new byte[8];
 	readFull(b);
 	String chk1 = NetType.netString(new byte[] { b[0], b[1], b[6], b[7] });
-	String chk2 = NetType.netString(b);
-
+	
 	int specifier = -1;
 	if (chk1.equals("YARP")) {
 	    specifier = NetType.unsigned(b[2]) + NetType.unsigned(b[3])*256;
@@ -267,7 +263,7 @@ class Protocol implements BlockWriter, BlockReader {
     public boolean defaultRespondToHeader() throws IOException {
 	if (!ok) { return false; }
 	byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
-	assert(shift.getLocalAddress()!=null);
+	log.assertion(shift.getLocalAddress()!=null);
 	int cport = shift.getLocalAddress().getPort();
 	log.println("setting port number to " + cport);
 	byte b2[] = NetType.netInt(cport);
@@ -289,9 +285,7 @@ class Protocol implements BlockWriter, BlockReader {
 	write(new byte[] {(byte)len, 1,
 			  -1,-1,-1,-1,  
 			  -1,-1,-1,-1});
-	//-128,-128,-128,-128,  
-	//	      -128,-128,-128,-128});
-	byte b0[] = {};
+
 	for (int i=0; i<len; i++) {
 	    write(NetType.netInt(((byte[])content.get(i)).length));
 	}

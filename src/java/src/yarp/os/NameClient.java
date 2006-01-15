@@ -78,7 +78,6 @@ public class NameClient {
 	//host = "127.0.0.1";
 
 	log.println("### host name is " + host);
-	this.host = host;
 	return host;
     }
 
@@ -291,7 +290,6 @@ public class NameClient {
     }
 
     public String[] get(String name, String key) {
-	boolean ok = true;
 	try {
 	    String result = send("NAME_SERVER get " + name + " " + key);
 	    Pattern p = Pattern.compile("port ([^ ]+) property ([^ ]+) = ([^\n\r]+)");

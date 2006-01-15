@@ -2,8 +2,6 @@
 package yarp.os;
 
 import java.io.*;
-import java.net.*;
-import java.util.*;
 
 class BasicPortlet extends Portlet {
     private BasicPort owner;

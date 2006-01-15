@@ -3,7 +3,7 @@ package yarp.os;
 
 import java.io.IOException;
 
-public class IntegerContent implements Content {
+class IntegerContent implements Content {
     public Integer content = new Integer(0);
     public Content create() {
 	return new IntegerContent();

@@ -3,7 +3,6 @@ package yarp.os;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 
 public class Connection {
@@ -153,7 +152,7 @@ public class Connection {
 
     public void write(Content content, boolean tagAsData) throws IOException {
 	
-	assert(content!=null);
+	log.assertion(content!=null);
 
 	if (proto.isActive()) {
 	    proto.beginContent();

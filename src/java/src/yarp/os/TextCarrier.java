@@ -2,7 +2,6 @@
 package yarp.os;
 
 import java.io.*;
-import java.net.*;
 
 class TextCarrier extends TcpCarrier {
     //private static byte[] altHeader = NetType.netString("CONNECT ");

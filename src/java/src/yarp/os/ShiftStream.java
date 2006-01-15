@@ -2,7 +2,6 @@
 package yarp.os;
 
 import java.io.*;
-import java.util.*;
 
 interface ShiftStream {
 

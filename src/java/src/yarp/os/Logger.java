@@ -63,7 +63,14 @@ class Logger {
     public void showAll() {
 	low = DEBUG;
     }
-
+    
+    public void assertion(boolean flag) {
+    	if (!flag) {
+    		log.error("assertion failure");
+    		System.exit(1);
+    	}
+    }
+    
     private static Logger log = new Logger("yarp: ",null);
 
     public static Logger get() {

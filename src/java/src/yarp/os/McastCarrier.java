@@ -3,7 +3,6 @@ package yarp.os;
 
 import java.io.*;
 import java.net.*;
-import java.nio.channels.*;
 import java.util.*;
 
 /*
@@ -29,7 +28,7 @@ class McastCarrier extends Carrier {
 	    tracker.put(key,new HashSet());
 	    peers = (Set)tracker.get(key);
 	}
-	assert(peers!=null);
+	log.assertion(peers!=null);
 	return peers;
     }
 
@@ -42,7 +41,7 @@ class McastCarrier extends Carrier {
 	if (peers.size()==1) {
 	    elected.put(key,carrier);
 	}
-	assert(getPeers(key).size()>0);
+	log.assertion(getPeers(key).size()>0);
     }
 
     public static void removeCarrier(String key, McastCarrier carrier) {

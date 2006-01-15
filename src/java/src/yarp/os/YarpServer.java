@@ -77,7 +77,7 @@ class YarpServer implements CommandProcessor {
 		base[3] = 1;
 	    }
 	    for (int i=0; i<base.length; i++) {
-		assert(base[i]>=1 && base[i]<=255);
+		log.assertion(base[i]>=1 && base[i]<=255);
 	    }
 	    return cp;
 	}

@@ -1,10 +1,9 @@
 
 package yarp.os;
 
-import java.io.*;
 import java.util.*;
 
-class Bottle {
+public class Bottle {
     private static Logger log = Logger.get();
 
     private List items = new ArrayList();

@@ -1,9 +1,6 @@
 
 package yarp.os;
 
-import java.io.*;
-import java.util.*;
-
 class Test {
     public static void oldTest() {
 	try {
