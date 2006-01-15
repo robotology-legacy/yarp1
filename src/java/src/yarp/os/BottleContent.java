@@ -11,7 +11,7 @@ public class BottleContent implements Content {
     private byte[] data;
     private Bottle bot = new Bottle();
 
-    public int rawSize() {
+    private int rawSize() {
 	if (data==null) return 0;
 	return data.length;
     }
@@ -61,8 +61,6 @@ public class BottleContent implements Content {
 	proto.appendString(name);
 	proto.appendInt(len);
 	proto.appendBlock(bot.get());
-    }
-    public void release() {
     }
 
     public Object object() {

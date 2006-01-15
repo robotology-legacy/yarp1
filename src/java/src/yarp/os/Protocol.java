@@ -27,22 +27,6 @@ class Protocol implements BlockWriter, BlockReader {
     private String carrier = "tcp";
     private Carrier delegate;
 
-    /*
-    public Protocol(Socket socket) throws IOException {
-	try {
-	    current = Carriers.chooseCarrier("tcp");
-	    ((TcpCarrier)current).open(socket);
-	} catch (IOException e) {
-	    log.error("failed to open Protocol");
-	}
-	log.println("Protocol starting with address " +
-		    shift.getAddress());
-	this.shift = this;
-	this.in = shift.getInputStream();
-	this.out = shift.getOutputStream();
-    }
-    */
-
 
     public Protocol(ShiftStream shift) throws IOException {
 	log.println("Protocol starting with address " +
@@ -91,15 +75,6 @@ class Protocol implements BlockWriter, BlockReader {
 	return c;
     }
 
-    /*
-    public InputStream getInputStream() throws IOException {
-	return delegate.getInputStream();
-    }
-
-    public OutputStream getOutputStream() throws IOException {
-	return delegate.getOutputStream();
-    }
-    */
 
     public void checkForNewStreams() throws IOException {
 	InputStream i = shift.getInputStream();
@@ -116,7 +91,6 @@ class Protocol implements BlockWriter, BlockReader {
     public void become(Carrier next, Address address) throws IOException {
 	log.println("Switching stream");
 
-	//shift.open(carrier,address,delegate);
 	next.open(address,shift);
 	delegate = next;
 	shift = next;
@@ -124,19 +98,6 @@ class Protocol implements BlockWriter, BlockReader {
 	checkForNewStreams();
     }
 
-
-    /*
-    public void become(String carrier, Address address) throws IOException {
-	log.println("Switching to " + carrier);
-
-	//shift.open(carrier,address,delegate);
-
-	// here is the only point we acknowledge that we are the shiftstream
-	shift.open(carrier,address,delegate);
-
-	checkForNewStreams();
-    }
-    */
 
     public String getCarrierName() {
 	if (delegate!=null) { 
@@ -598,9 +559,6 @@ class Protocol implements BlockWriter, BlockReader {
 	return true;
     }
 
-    //public OutputStream getOutputStream() throws IOException {
-    //return shift.getOutputStream();
-    //}
 
     public boolean isTextMode() {
 	if (delegate!=null) {
@@ -608,10 +566,6 @@ class Protocol implements BlockWriter, BlockReader {
 	}
 	return false;
     }
-
-
-
-
 
     
     public InputStream getInputStream() throws IOException {
@@ -621,54 +575,6 @@ class Protocol implements BlockWriter, BlockReader {
     public OutputStream getOutputStream() throws IOException {
 	return delegate.getOutputStream();
     }
-
-    /*
-    public void closeShift() throws IOException {
-	log.println("** shift stream closing");
-	if (current!=null) {
-	    log.println("carrier " + current.getName());
-	    current.close();
-	} else {
-	    log.println("  no carrier");
-	}
-	log.println("** shift stream closed");
-	current = null;
-    }
-
-
-    public void open(String carrier, Address address, Carrier prev)
-	throws IOException {
-
-	Carrier incoming = prev;
-
-	log.println("becoming " + carrier);
-	
-	Carrier next = current;
-	if (!carrier.equals(current.getName())) {
-	    log.println("switching from " + current.getName() +
-			       " to " + carrier);
-	    if (incoming!=null) {
-		if (incoming.getName().equals(carrier)) {
-		    next = incoming;
-		    incoming = null;
-		}
-	    }
-	    if (next==current) {
-		next = Carriers.chooseCarrier(carrier);
-	    }
-	}
-	if (next!=current && !next.getName().equals("tcp")) {
-	    current.close();
-	    next.open(address,current);
-	}
-	current = next;
-    }
-
-
-    public Address getAddress() throws IOException {
-	return current.getLocalAddress();
-    }
-    */
 
 }
 

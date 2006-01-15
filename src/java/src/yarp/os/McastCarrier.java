@@ -129,7 +129,8 @@ class McastCarrier extends Carrier {
     public Address mcastQuery(String name) {
 	NameClient nc = NameClient.getNameClient();
 	String q = NameClient.getNamePart(name) + "-mcast";
-        Address address = nc.probe("NAME_SERVER query " + q);
+        Address address = nc.query(q);
+        //Address address = nc.probe("NAME_SERVER query " + q);
 	if (address==null) {
 	    return nc.register(q,"mcast");
 	}

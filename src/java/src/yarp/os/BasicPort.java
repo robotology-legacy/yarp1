@@ -256,6 +256,10 @@ class BasicPort extends Thread {
     }
 
 
+    public void connect(String src) throws IOException {
+	connect(src,null);
+    }
+
     public void connect(String src, PrintStream ps) throws IOException {
 	BasicPort owner = this;
 	String ownerName = getPortName();

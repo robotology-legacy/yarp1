@@ -80,9 +80,11 @@ public class Connection {
 	}
     }
 
+    /*
     public void write(String msg) throws IOException {
 	write(msg,false);
     }
+
 
     // specialized for Bottle
     // not used any more, was just to understand things better
@@ -123,7 +125,9 @@ public class Connection {
 	out.write(b2);
 	out.flush();
     }
+    */
 
+    /*
     public void writeCommand(char ch, String str) throws IOException {
 
 	proto.beginContent();
@@ -141,15 +145,22 @@ public class Connection {
 	proto.sendContent();
 	proto.expectAck();
     }
+    */
 
     public void write(Content content) throws IOException {
+	write(content,true);
+    }
+
+    public void write(Content content, boolean tagAsData) throws IOException {
 	
 	assert(content!=null);
 
 	if (proto.isActive()) {
 	    proto.beginContent();
-	    proto.addContent(new byte[] { 0,0,0,0,  '~', 'd', 0, 1}); 
-	    // data header
+	    if (tagAsData) {
+		// data header
+		proto.addContent(new byte[] { 0,0,0,0,  '~', 'd', 0, 1}); 
+	    }
 	    content.write(proto);
 	    proto.endContent();
 	    proto.sendIndex();

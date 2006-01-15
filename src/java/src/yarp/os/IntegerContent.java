@@ -14,8 +14,6 @@ public class IntegerContent implements Content {
     public void write(BlockWriter proto) throws IOException {
 	proto.appendInt(content.intValue());
     }
-    public void release() {
-    }
     public Object object() {
 	return content;
     }

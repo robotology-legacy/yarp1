@@ -12,7 +12,7 @@ import java.io.*;
  * the work of decoding andin constructing input objects as they
  * arrive.
  */
-public class InputPort {
+public class InputPort implements Port {
 
     /**
      * Assign a unique global name to this port.
@@ -101,6 +101,7 @@ public class InputPort {
 	}
 	
 	public void write(Protocol proto) {
+	    // cannot do this from input port
 	}
     }
 

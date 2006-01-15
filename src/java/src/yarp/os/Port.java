@@ -9,4 +9,6 @@ import java.util.*;
 public interface Port {
     void register(String name);
     void close();
+    //void connect(String str) throws IOException;
+    //void send(Content content);
 }

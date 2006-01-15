@@ -4,7 +4,7 @@ package yarp.os;
 import java.lang.*;
 import java.io.*;
 
-public class OutputPort {
+public class OutputPort implements Port {
 
     private ContentCreator creator;
     private Content content;
@@ -18,13 +18,14 @@ public class OutputPort {
 	Address server = NameClient.getNameClient().register(name);
 	Logger.get().info("Registered output port " + name + " as " + 
 			  server.toString());
-	port = new BasicPort(server,name);
-	port.start();
+	BasicPort basic = new BasicPort(server,name);
+	port = basic;
+	basic.start();
     }
 
     public void connect(String src) {
 	try {
-	    port.connect(src,null);
+	    port.connect(src);
 	} catch (IOException e) {
 	    Logger.get().error("Could not make connection");
 	}

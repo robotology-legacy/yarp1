@@ -7,9 +7,9 @@ default:
 clean:
 	ant clean
 
-doc:
-	gjdoc -s src/ -all -private -d api-docs/
-#	gjdoc -s src/ -all -d api-docs/
+docs:
+#	gjdoc -s src/ -all -private -d api-docs/
+	gjdoc -s src/ -all -d api-docs/
 
 run:
 	$(EXEC)

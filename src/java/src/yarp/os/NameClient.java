@@ -11,11 +11,11 @@ public class NameClient {
     private String host;
     private static Logger log = Logger.get();
 
-    public NameClient(Address address) {
+    private NameClient(Address address) {
 	this.address = address;
     }
 
-    public NameClient() {
+    private NameClient() {
 	getConfiguration();
     }
 
@@ -23,7 +23,7 @@ public class NameClient {
 	return address;
     }
 
-    public List getIps() {
+    private List getIps() {
 	List ips = new LinkedList();
 	try {
 	    Enumeration e = NetworkInterface.getNetworkInterfaces();
@@ -90,7 +90,7 @@ public class NameClient {
 	return "tcp";
     }
 
-    public static String getConfiguration(String key) {
+    private static String getConfiguration(String key) {
 	String val = System.getenv(key);
 	if (val!=null) {
 	    log.println("Environment variable " + key + " is " + val);
@@ -101,7 +101,7 @@ public class NameClient {
     }
 					 
 
-    public void setConfiguration(String txt) {
+    private void setConfiguration(String txt) {
 	log.println("Configuration text: " + txt);
 	Pattern p = Pattern.compile("^([^ ]+) +([0-9]+)");
 	Matcher m = p.matcher(txt);
@@ -115,7 +115,7 @@ public class NameClient {
 	//address = new Address("127.0.0.1",10000);
     }
 
-    public void getConfiguration() {
+    private void getConfiguration() {
 	String root = getConfiguration("YARP_ROOT");
 	String home = getConfiguration("HOME");
 	String conf = null;
@@ -200,7 +200,7 @@ public class NameClient {
 	return null;
     }
 
-    public Address probe(String cmd) {
+    private Address probe(String cmd) {
 	String result = "";
 	try {
 	    result = send(cmd);

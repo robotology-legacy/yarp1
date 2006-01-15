@@ -93,7 +93,8 @@ class YarpClient {
 	    
 	    Connection c = new Connection(add,"external",source);
 	    log.println("command is [" + cmd + "] and char is [" + ((int)ch) + "]");
-	    c.writeCommand(ch,cmd);
+	    c.write(new CommandContent(ch,cmd), false);
+	    //c.writeCommand(ch,cmd);
 	    c.close();
 	} catch (IOException e) {
 	    throw(new IOException("connection failed"));

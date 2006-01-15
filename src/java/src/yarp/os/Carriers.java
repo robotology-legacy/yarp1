@@ -5,7 +5,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class Carriers {
+class Carriers {
     private static Carrier[] delegates;
     private static Logger log = Logger.get();
 
