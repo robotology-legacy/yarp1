@@ -522,13 +522,13 @@ class Protocol implements BlockWriter, BlockReader {
 		    sendAck();
 		} catch (IOException e) {
 		    // don't worry about this, just make best effort
-		    log.error("Problem closing protocol handler");
+		    log.println("Problem closing protocol handler");
 		}
 	    }
 	    shift.close();
 	    log.println("done protocol close");
 	} catch (IOException e) {
-	    log.error("Problem closing protocol handler");
+	    log.println("Problem closing protocol handler");
 	}
     }
 

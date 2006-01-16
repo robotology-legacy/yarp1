@@ -105,6 +105,10 @@ public class YarpClient {
 		return;
 	    }
 	    
+	    // to be nice to newcomers, let's send commands in plain-text
+	    add = new Address(add.getName(), add.getPort(),
+			      "text");
+	    
 	    Connection c = new Connection(add,"external",source);
 	    log.println("command is [" + cmd + "] and char is [" + ((int)ch) + "]");
 	    c.write(new CommandContent(ch,cmd), false);

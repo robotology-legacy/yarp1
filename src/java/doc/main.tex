@@ -789,15 +789,48 @@ But this process will change.
 
 \subsection{Carriers supported}
 
-An implementation of YARP2 must support at least the ``tcp''
-and ``text'' protocol.  Other carriers that may be supported:
-``udp'', ``mcast'', ``shmem''.
+An implementation of YARP2 must support at least the ``tcp'' carrier.
+Other carriers that may be supported:
+``text'', ``udp'', ``mcast'', ``shmem''.
 
+As a place to start an implementation, the ``text'' carrier is very
+simple to implement, and can masquerade as ``tcp'' for the purposes
+of initial handshaking.
 
-\subsection{May we also recommend}
-
-The netcat package -- useful by itself, and for testing.
-
+To see this, install the ``netcat'' debian package (or download it
+for your particular system).  In one terminal, run:
+%
+\begin{code}
+nc -l -p 9000
+\end{code}
+%
+This starts a tcp listener on socket-port 9000, and prints out
+any data that arrives there.  Then tell the name server to
+create an entry for this listener, and tag it as accepting text:
+%
+\begin{code}
+yarp name register /nc tcp ... 9000
+yarp name set /nc accepts text
+\end{code}
+%
+Now lets write some data to that port.
+%
+\begin{code}
+yarp write /write text://nc
+\end{code}
+%
+Type something in, such as ``hello world'', and hit return.
+On the terminal running {\tt nc} (netcat) you should see:
+%
+\begin{code}
+CONNECT /write
+d
+0 "hello world"
+\end{code}
+%
+This is what text mode looks like, for the particular
+data type used by yarp read and write (``bottles'').  
+As we saw in an earlier section, we can also write to ports in text mode.
 
 \end{document}
 

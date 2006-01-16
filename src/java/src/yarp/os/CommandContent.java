@@ -43,7 +43,7 @@ class CommandContent implements Content {
 	    if (ch!='\0') {
 		proto.appendString("" + ch + "\n");
 	    } else {
-		proto.appendString(str);
+		proto.appendString(str + "\n");
 	    }
 	}
     }
