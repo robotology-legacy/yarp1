@@ -311,6 +311,7 @@ class YarpServer implements CommandProcessor {
 
     public Address register(String name,
 			    String host,
+			    int sock,
 			    String protocol,
 			    int count) {
 	NameRecord nameRecord = getNameRecord(name);
@@ -325,7 +326,10 @@ class YarpServer implements CommandProcessor {
 	    log.println("Count is " + count + 
 			" but this is currently ignored (legacy)");
 	}
-	int port = hostRecord.get();
+	int port = sock;
+	if (sock==-1) {
+	    port = hostRecord.get();
+	}
 	if (protocol.equals("mcast")) {
 	    int ip[] = mcastRecord.get();
 	    Address mcastAddress = new Address("" + ip[0] + "." + 
@@ -372,6 +376,7 @@ class YarpServer implements CommandProcessor {
 	    if (act.equals("register")) {
 		String target = str[0];
 		String base = null;
+		String sock = null;
 		String proto = null;
 		String count = null;
 		if (target.equals("*")) {
@@ -388,9 +393,15 @@ class YarpServer implements CommandProcessor {
 			    base = null;
 			}
 			if (str.length>=4) {
-			    count = str[3];
-			    if (count.equals("*")) {
-				count = null;
+			    sock = str[3];
+			    if (sock.equals("*")) {
+				sock = null;
+			    }
+			    if (str.length>=5) {
+				count = str[4];
+				if (count.equals("*")) {
+				    count = null;
+				}
 			    }
 			}
 		    }
@@ -407,10 +418,14 @@ class YarpServer implements CommandProcessor {
 		if (count==null) {
 		    count = "1";
 		}
+		int nsock = -1;
+		if (sock!=null) {
+		    nsock = Integer.valueOf(sock).intValue();
+		}
 		//log.info("registered " + target + " for " +
 		//base + " with protocol " + proto);
 		int ct = Integer.valueOf(count).intValue();
-		Address result = register(target,base,proto,ct);
+		Address result = register(target,base,nsock,proto,ct);
 		response = textify(result);
 	    }
 	    if (act.equals("query")) {

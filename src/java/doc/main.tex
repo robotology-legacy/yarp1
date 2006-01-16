@@ -116,6 +116,15 @@ If you know the name
 of a Port, you can query the name server to learn how to communicate
 with that Port.
 
+The name server maintains a set of records, whose key is a text
+string.  The contents are at least hostname, socket number, and
+protocol name.  This describes how to contact the port.  There is also
+a description of what kinds of connections the port can or is willing
+to participate in.  The set of protocols the port can accept an
+incoming data connection for are named - this is the ``accept'' set.
+The set of protocols the port can create an outgoing data connection
+for are also named - this is the ``offer'' set.
+
 For example, suppose you want to communicate with a Port called
 ``/write''.  The first step is to ask the name server about this
 Port.  The name server runs on a known socket-port of a known machine,
@@ -309,6 +318,10 @@ This will start up a name server on the current machine.
 
 This will report where the name server is believed to be running.
 
+\subsection{yarp version}
+
+This will report on the yarp version available.
+
 \subsection{yarp name COMMAND ARG1 ARG2 \ldots}
 
 This will send the given command and arguments to the name
@@ -434,6 +447,50 @@ response: Bye bye
 \end{code}
 
 
+The protocol used for communicating with a port is layed on top of the
+protocol described in the next section.  The ``user data'' is 
+as follows:
+
+\begin{itemize}
+
+\item In text-mode, we send an 8 byte header: 0,0,0,0, '~', CHAR, 0, 1.
+
+\item CHAR is a character that identifies what the message is about.
+
+  \begin{itemize}
+    
+  \item CHAR = 'd': this header is used to signal that content data is
+  arriving next.
+    
+  \item CHAR = 0: this header is used to signal that a control message
+  is following.
+
+  \end{itemize}
+
+\item for the control message case (CHAR = 0) the remainder of the message 
+  is interpreted as a string S.
+
+  \begin{itemize}
+   \item S begins with '/', e.g. '/read': this is a request to add a
+   Connection to the named InputPort.
+
+   \item S begins with '!', e.g. '!/read': this is a request to remove
+   a Connection to the named InputPort.
+
+   \item S begins with '~', e.g. '~/read': this is a request to remove
+   a Connection from the named OutputPort.
+
+   \item S is '*': this is a request for the port to dump information.
+
+   \item S is 'q': specific connection that message is received on
+   should now shut down.
+  \end{itemize}
+
+\end{itemize}
+
+
+
+
 \subsection{Communication between Ports}
 
 This is the protocol for a single connection to an input port.
@@ -475,14 +532,20 @@ recipient).
 
 \end{itemize}
 
+Phases are as follows:
 
-\begin{verbatim}
+\begin{itemize}
 
-  sendHeader
+\item sendHeader
+    
+  \begin{itemize}
 
-    sendProtocolSpecifier
-    * send 8 bytes: 'Y' 'A' B1 B2 0 0 'R' 'P'
-    * B1 and B2 identify the desired protocol
+    \item sendProtocolSpecifier
+
+      \begin{itemize}
+
+      \item send 8 bytes: 'Y' 'A' B1 B2 0 0 'R' 'P'
+      \item B1 and B2 identify the desired protocol
          P=tcp   B1=0x64 B2=0x1e
          P=udp   B1=0x61 B2=0x1e
          P=mcast B1=0x62 B2=0x1e
@@ -494,223 +557,236 @@ recipient).
 	 P=mcast K=1
       requireAck is an implementation choice; see expectAck and sendAck.
       If it is true, message receipt must be acknowledged.
-    * ALT: for textmode, send 'CONNECT ' -- only tcp supported
+    
+      \item ALT: for textmode, send 'CONNECT ' -- only tcp supported
+	
+      \end{itemize}
 
-    sendSenderSpecifier
-    * send 4 byte integer (little endian) giving length of port name plus one
-    * send port name in characters followed by null character
-    * ALT: for textmode, send name (without null) followed by \\n
+    \item sendSenderSpecifier
+      
+      \begin{itemize}
+      \item send 4 byte integer (little endian) giving length of port name plus one
+      \item send port name in characters followed by null character
+      \item ALT: for textmode, send name (without null) followed by \\n
+      \end{itemize}
 
-    sendExtraHeader      // carrier specific
-    * for tcp nothing more need be done
-    * for udp nothing more need be done
-    * for mcast, send 6 bytes
+    \item sendExtraHeader      // carrier specific
+      \begin{itemize}
+	\item for tcp nothing more need be done
+	\item for udp nothing more need be done
+	\item for mcast, send 6 bytes
          first 4 bytes specify a multicast IP address.
 	 next 2 bytes are a (bigendian - sorry) integer giving a port number.
          note that producing these numbers will require side communication
          with the name server.
+      \end{itemize}
+  \end{itemize}
 
-  expectReplyToHeader    // carrier specific
-    * for tcp and udp, read 8 bytes:  'Y' 'A' B1 B2 0 0 'R' 'P' where
-      B1 B2 make up a (little-endian) integer specifying a port number N.
-      For udp, then switch over to udp network communication on that port.
-    * for mcast, switch over to mcast network communication on the IP and
-      port number sent in sendExtraHeader
-    * ALT: for textmode, expect nothing
+  \item expectReplyToHeader    // carrier specific
+    \begin{itemize}
+      \item for tcp and udp, read 8 bytes:  'Y' 'A' B1 B2 0 0 'R' 'P' where
+	B1 B2 make up a (little-endian) integer specifying a port number N.
+	For udp, then switch over to udp network communication on that port.
+      \item for mcast, switch over to mcast network communication on the IP and
+	port number sent in sendExtraHeader
+      \item ALT: for textmode, expect nothing
+    \end{itemize}
 
-  if (isActive)          // carrier specific
-  * for mcast, a sender is ignored if it is redundant -- sending
+  \item sendIndex
+
+    \begin{itemize}
+    \item NOTE check isActive (carrier specific) first: for mcast, a sender is ignored if it is redundant -- sending
     data to a multi-cast group that has already been sent.
-  * in all other cases, isActive is true
 
-    sendIndex
-    * need to decide on the content to send - a set of LEN byte arrays.
-    * send 8 bytes: 'Y' 'A' 10 0 0 0 'R' 'P'
+    \item need to decide on the content to send - a set of LEN byte arrays.
+    \item send 8 bytes: 'Y' 'A' 10 0 0 0 'R' 'P'
       This identifies the length of the index header as 10.
-    * send 10 bytes: LEN 1   255 255 255 255  255 255 255 255
+    \item send 10 bytes: LEN 1   255 255 255 255  255 255 255 255
       This says there are LEN send blocks, 1 reply block expected,
       and that the sizes will be listed individually next.
-    * A 4-byte little-endian integer is sent giving the length of
+    \item A 4-byte little-endian integer is sent giving the length of
       each byte array.
-    * send 4-bytes: 0 0 0 0 -- this asks for a reply length of 0.
-    * ALT for text mode, send nothing.
+    \item send 4-bytes: 0 0 0 0 -- this asks for a reply length of 0.
+    \item ALT for text mode, send nothing.
+    \end{itemize}
 
-    sendContent
-    * send each of the LEN byte arrays in turn.
+  \item sendContent
 
-  if (requireAck)
+    \begin{itemize}
+      \item NOTE check isActive first
+      \item send each of the LEN byte arrays in turn.
+    \end{itemize}
 
-    expectAck
-    * read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P'
-    * B1-4 is a little-endian integer giving a length LEN
-    * read LEN bytes.  This is the acknowledgement.
+  \item expectAck
+    \begin{itemize}
+    \item NOTE check requireAck
+    \item read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P'
+    \item B1-4 is a little-endian integer giving a length LEN
+    item read LEN bytes.  This is the acknowledgement.
+    \end{itemize}
+\end{itemize}
 
-RECEIVER:
+\subsection{Receiver's Responsibilities}
 
-  * start in TCP
 
-  expectHeader
+\begin{itemize}
+\item  start in TCP
+\end{itemize}
 
-    expectProtocolSpecifier
-    * read 8 bytes: 'Y' 'A' B1 B2 0 0 'R' 'P'
-    * B1 and B2 identify the desired protocol (see sendProtocolSpecifier)
-    * ALT: for textmode, expect 'YAtextRP' -- only tcp supported
+Here are the phases:
 
-    expectSenderSpecifier
-    * read 4 bytes -- a (little-endian) integer specifying a length.
-    * read that length of bytes, and interpret as a null-terminated
+
+\begin{itemize}
+\item expectHeader
+  
+  \begin{itemize}
+  \item expectProtocolSpecifier
+    \begin{itemize}
+    \item read 8 bytes: 'Y' 'A' B1 B2 0 0 'R' 'P'
+    \item B1 and B2 identify the desired protocol (see sendProtocolSpecifier)
+    \item ALT: for textmode, expect 'YAtextRP' -- only tcp supported
+    \end{itemize}
+
+  \item expectSenderSpecifier
+    \begin{itemize}
+    \item read 4 bytes -- a (little-endian) integer specifying a length.
+    \item read that length of bytes, and interpret as a null-terminated
       string specifying the name of the sender port.
-    * ALT: for textmode, expect name (without null) followed by \\n
+    \item ALT: for textmode, expect name (without null) followed by $\backslash$n
+    \end{itemize}
 
-    expectExtraHeader        // carrier specific
-    * for mcast, expect the content described in sendExtraHeader
+  \item expectExtraHeader        // carrier specific
+    \begin{itemize}
+    \item for mcast, expect the content described in sendExtraHeader
+    \end{itemize}
+  \end{itemize}
 
-  respondToHeader
-  * send 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P' where B1-4 is a 
+\item respondToHeader
+  \begin{itemize}
+  \item send 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P' where B1-4 is a 
     (little-endian) integer giving the port number of the receiver.
-  * for mcast and udp: switch to that network protocol at this time.
-  * ALT: for textmode, send nothing
+  \item for mcast and udp: switch to that network protocol at this time.
+  \item ALT: for textmode, send nothing
+  \end{itemize}
 
-  repeat
-
-    expectIndex
-    * read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P' where B1-4 is a 
+\item expectIndex (next phases repeat indefinitely)
+  \begin{itemize}
+  \item read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P' where B1-4 is a 
     (little-endian) integer of value 10.
-    * read 10 bytes: LEN 1 .....
-    * read LEN 4-byte (little-endian) integers.  These specify
-      the length of the series of LEN blocks of which the
-      content is composed.  Sum these to get the TOTAL_SIZE of the 
-      message.
-    * read and discard 1 4-byte (little-endian) integer (this is
-      the reply size).
-    * ALT for text mode, expect nothing
+  \item read 10 bytes: LEN 1 .....
+  \item read LEN 4-byte (little-endian) integers.  These specify
+    the length of the series of LEN blocks of which the
+    content is composed.  Sum these to get the TOTAL\_SIZE of the 
+    message.
+  \item read and discard 1 4-byte (little-endian) integer (this is
+    the reply size).
+  \item ALT for text mode, expect nothing
+  \end{itemize}
 
-    respondToIndex
-    * do nothing
+\item respondToIndex
+  \begin{itemize}
+  \item do nothing
+  \end{itemize}
 
-    repeat based on user code
-    
-      expectBlock
-      * request a user determined number of blocks.  The user
-        is expected to decode the content received.  The TOTAL_SIZE
-	of the message should be made available to help with this.
-      * ALT for text mode, read to newline instead
+\item expectBlock
+  \begin{itemize}
+  \item request a user determined number of blocks.  The user
+    is expected to decode the content received.  The TOTAL\_SIZE
+    of the message should be made available to help with this.
+  \item ALT for text mode, read to newline instead
+  \end{itemize}
 
-    sendAck
-    * read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P'
-    * B1-4 is a little-endian integer giving a length LEN (could be 0)
-    * send LEN bytes.  This is the acknowledgement.
-
-
-\end{verbatim}
-
-
-\subsection{port protocol}
-
-This is the protocol used for communicating with a port -- 
-starting, stopping connections.
-
-\begin{verbatim}
-Send 8 byte header: 0,0,0,0, '~', CHAR, 0, 1
-where CHAR is a character that identifies what the message is about.
-
-CHAR = 'd': this header is used to signal that content data is arriving next.
-
-CHAR = 0: this header is used to signal that a control message is following.
-
-  For this case, the remainder of the message is interpreted as a string S.
-
-   S begins with '/', e.g. '/read': this is a request to add a Connection 
-   to the named InputPort.
-
-   S begins with '!', e.g. '!/read': this is a request to remove a Connection 
-   to the named InputPort.
-
-   S begins with '~', e.g. '~/read': this is a request to remove a Connection 
-   from the named OutputPort.
-
-   S is '*': this is a request for the port to dump information.
-
-   S is 'q': specific connection that message is received on should 
-   now shut down.
-
-\end{verbatim}
+\item sendAck
+  \begin{itemize}
+  \item read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P'
+  \item B1-4 is a little-endian integer giving a length LEN (could be 0)
+  \item send LEN bytes.  This is the acknowledgement.
+  \end{itemize}
+\end{itemize}
 
 
 
-\subsection{name protocol}
+%% \subsection{YARP versioning}
 
-This is the protocol used for communication with a name server.
+%% Need to specify a way to know what version of yarp is available.
 
-The name server maintains a set of records, whose key is a text
-string.  The contents are a hostname, socket number, and protocol
-name.  This describes how to contact the port.  There is also
-a description of what kinds of connections the port can or is
-willing to participate in.  The set of protocols the port can
-accept an incoming data connection for are named - this is the 
-``accept'' set.
+%% version 0 = Prior to versions existing.
+%% Will switch to SHMEM regardless of other party.
+%% Text-mode name server not supported.
 
-The set of protocols the port can create an outgoing data 
-connection for are also named - this is the ``offer'' set.
+%% Pending issues: 
 
+%% How to deal with network-card choice in a transparent
+%% way.  YARP1 - have user create a table of machine names and which
+%% network-card they should use to communicate with which other machines
+%% (by name).  YARP2?  
 
+%% Each machine has a set of IPs, which apply to different networks.
+%% For connection, need to find IPs that are mutually reachable.
+%% How to discover this?
 
-\subsection{data protocol}
-
-Effectively user-level, not up to the YARP communications library.
-
-
-\subsection{YARP versioning}
-
-
-version 0 = Prior to versions existing.
-Will switch to SHMEM regardless of other party.
-Text-mode name server not supported.
-
-Pending issues: 
-
-How to deal with network-card choice in a transparent
-way.  YARP1 - have user create a table of machine names and which
-network-card they should use to communicate with which other machines
-(by name).  YARP2?  
-
-Each machine has a set of IPs, which apply to different networks.
-For connection, need to find IPs that are mutually reachable.
-How to discover this?
-
-On registration, could identify a machine with its NIC 
-MAC addresses (can't rely on having a good domain name present)
-and give a list of IPs.  To determine connectivity, could go
-through each NIC, see of any of target's IPs are reachable,
-and if so if that is the correct machine.
+%% On registration, could identify a machine with its NIC 
+%% MAC addresses (can't rely on having a good domain name present)
+%% and give a list of IPs.  To determine connectivity, could go
+%% through each NIC, see of any of target's IPs are reachable,
+%% and if so if that is the correct machine.
 
 
-Make MCAST do right thing with network-cards.
+%% Make MCAST do right thing with network-cards.
 
-Make SHMEM inter-op work, either by handshaking or specifying 
-capabilities in registration.
+%% Make SHMEM inter-op work, either by handshaking or specifying 
+%% capabilities in registration.
 
 
-\subsection{Multiple networks}
+\subsection{YARP URIs}
 
-How should multiple networks work?  Currently in YARP1, a port is
-associated with a particular network.  If two ports are on different
-networks, they can't communicate, even if there is connectivity
-(I think).
+Port names in YARP can contain multiple special elements.
+We've seen names such as ``/write''.  We can also have
+names such as ``udp://write'' which means ``connect
+to the port named /write using the udp carrier''.
 
-It would seem more desirable to associate the choice of network,
-if there is a choice, with the edges (connections) and not the
-nodes (ports).
+We can also prepend a network selector of the form
+``/net=NETNAME/''.  For example, a name such as
+``udp://net=196/write'' means ``connect to the 
+port named /write using the udp carrier, and make the
+connection on the network with ip addresses beginning with
+196''.
+%
+This is useful in scenarios with multiple networks, where it may be
+desirable to route connections through particular networks (for
+example, to devote a network to time-critical traffic).  This
+functionality is supported primarily with the help of the name server.
+The ip it reports for a machine is usually a reasonable default, but
+the user can choose using ``net='' to request a name on a particular
+network.
 
-Let's require that all nodes can reach the name server and vice
-versa.
+Symbolic network names can be configured.  This process 
+is not yet documented.
 
-Single-hop network choice for tcp and udp can be made by selecting one
-of a choice of IPs for the target.  Could add a connection attribute
-``over 192.*'' as a way to choose net?  Or text names.
+%% How should multiple networks work?  Currently in YARP1, a port is
+%% associated with a particular network.  If two ports are on different
+%% networks, they can't communicate, even if there is connectivity
+%% (I think).
 
-Done!
+%% It would seem more desirable to associate the choice of network,
+%% if there is a choice, with the edges (connections) and not the
+%% nodes (ports).
 
+%% Let's require that all nodes can reach the name server and vice
+%% versa.
+
+%% Single-hop network choice for tcp and udp can be made by selecting one
+%% of a choice of IPs for the target.  Could add a connection attribute
+%% ``over 192.*'' as a way to choose net?  Or text names.
+
+%% Done!
+
+
+\subsection{Carriers supported}
+
+An implementation of YARP2 must support at least the ``tcp''
+and ``text'' protocol.  Other carriers that may be supported:
+``udp'', ``mcast'', ``shmem''.
 
 \end{document}
 

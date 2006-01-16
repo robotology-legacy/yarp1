@@ -241,6 +241,10 @@ public class YarpClient {
 			   address.getName() + " port " + address.getPort());
     }
 
+    public static void version() {
+	System.out.println("YARP network version 2.0");
+    }
+
     public static void main(String[] args) {
 	//System.out.println("256 is " + NetType.netInt(new byte[] {0,1,0,0}));
 	//System.out.println("-1 is " + NetType.netInt(new byte[] {-1,-1,-1,-1}));
@@ -281,6 +285,9 @@ public class YarpClient {
 	    if (mode.equals("where")) {
 		where();
 	    }
+	    if (mode.equals("version")) {
+		version();
+	    }
 	} else {
 	    System.err.println("here are ways to use this program:");
 	    System.err.println("  <this program> read /name");
@@ -291,6 +298,7 @@ public class YarpClient {
 	    System.err.println("  <this program> disconnect /source /target");
 	    System.err.println("  <this program> server");
 	    System.err.println("  <this program> where");
+	    System.err.println("  <this program> version");
 	    System.err.println("  <this program> name {arguments}");
 	}
     }
