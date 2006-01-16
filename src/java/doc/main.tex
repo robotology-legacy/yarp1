@@ -40,13 +40,13 @@
 
 
 \title{
-YARP Protocol Specification
+YARP Network Protocol Specification
 }
 
 
 %
 %  For one-to-one authur/affil correspondence
-\author{Paul Fitzpatrick}
+\author{Paul Fitzpatrick (paulfitz@liralab.it)}
 
 
 \begin{document}
@@ -56,15 +56,16 @@ YARP Protocol Specification
 
 \begin{abstract}
 
-This document describes YARP protocol version 2.0.  At the time
-of writing, the C++ version of YARP does not fully support this
-protocol.  This specification describes a goal rather than an
-implemented system.
-
+\noindent
+This document describes YARP network protocol version 2.0.  At the time of
+writing, the C++ version of YARP does not fully support this protocol,
+but there is a reference Java implementation of the specification.
 \end{abstract}
 
 \pagenumbering{arabic}
 
+
+\tableofcontents
 
 
 \section{Definition of terms}
@@ -297,6 +298,21 @@ Not yet documented.
 Not yet documented.
 \end{codecase}
 
+
+\subsection{Name server discovery procedure}
+
+There must be a file namer.conf in the directory \$HOME/.yarp/conf/
+(or in the directory specified by an environment variable \$YARP\_ROOT)
+that looks like this:
+\begin{code}
+192.168.0.3 10000
+\end{code}
+This gives the machine and socket-port that the name server is assumed
+to be running on.  This file should be created before running any
+YARP code.
+
+Pending: we hope to replace/extend this method with a more 
+automated procedure.
 
 \section{The standard yarp utility}
 
@@ -831,6 +847,62 @@ d
 This is what text mode looks like, for the particular
 data type used by yarp read and write (``bottles'').  
 As we saw in an earlier section, we can also write to ports in text mode.
+And if we were to restart nc and then try the following:
+%
+\begin{code}
+yarp connect text://nc /foo
+\end{code}
+%
+\begin{code}
+CONNECT external
+/foo
+\end{code}
+%
+This is what a command to connect looks like in YARP2.  If we omit the
+``text:/'' then the tcp carrier may be used, which is compatible with YARP1
+but is a bit less trivial to work with.  Once our YARP implementations
+are up to date, the default command carrier will be switched to text.
+
+
+
+\section{Reference implementations}
+
+
+\subsection{C++}
+
+There is a partially-conforming implementation of YARP2 written
+in C++.  It is available in CVS from:
+\begin{code}
+  CVSROOT = cvs.sourceforge.net:/cvsroot/yarp0
+  Modules = yarp/src/libYARP_OS yarp/src/tools yarp/conf
+\end{code}
+See yarp0.sourceforge.net for instructions on how to access this.
+This code is mature, well-tested, but does not yet conform fully
+with the protocols described in this document.
+
+\subsection{Matlab}
+
+There is a Matlab wrapper around the C++ implementation.
+
+\begin{code}
+  CVSROOT = cvs.sourceforge.net:/cvsroot/yarp0
+  Modules = yarp/src/libYARP_matlab
+\end{code}
+
+\subsection{Python}
+
+Python wrappers around the C++ implementation exist.
+
+
+\subsection{Java}
+
+There is a conforming implementation of YARP2 written in Java.
+It is available in CVS from:
+\begin{code}
+  CVSROOT = cvs.sourceforge.net:/cvsroot/yarp0
+  Module = yarp/src/java
+\end{code}
+See yarp0.sourceforge.net for instructions on how to access this.
+This code is new and not well tested yet.
 
 \end{document}
-

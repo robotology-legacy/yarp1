@@ -5,10 +5,11 @@ import java.io.*;
 
 
 /**
- * A port for receiving information.  The port is assigned a name
+ * A network-visible object for receiving information.  
+ * The port is assigned a name
  * using the register method.  Then it is associated (using the
  * creator method) with a ContentCreator object that will be delegated
- * the work of decoding andin constructing input objects as they
+ * the work of decoding and in constructing input objects as they
  * arrive.
  */
 public class InputPort implements Port {
@@ -18,12 +19,6 @@ public class InputPort implements Port {
      * @param name The name to assign.
      */
     public void register(String name) {
-	/*
-	Address server = NameClient.getNameClient().register(name);
-	Logger.get().info("Registered input port " + name + " as " + 
-			  server.toString());
-	BasicPort basic = new BasicPort(server,name);
-	*/
 	BasicPort basic = new BasicPort(name);
 	basic.setHandler(handler);
 	if (creator==null) {

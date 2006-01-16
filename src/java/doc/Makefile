@@ -197,7 +197,7 @@ miss:
 	@egrep "(Warning: ((Reference)|(Citation)))|(\.tex)" $(MAIN).log
 
 bounce:
-	make fb ; make f ; make fb ; make f ; make fb ; make f
+	make fb ; make force ; make fb ; make force ; make fb ; make force
 
 $(MAIN).dvi: $(MAIN).tex $(EPS) $(MAIN).bbl $(SUBMAIN)
 	echo -n > /tmp/view.update

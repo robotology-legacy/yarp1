@@ -6,19 +6,23 @@ import java.net.*;
 import java.util.*;
 import java.util.regex.*;
 
+/**
+ * Client for YARP name server.  There is one global client available
+ * from the getNameClient method.
+ */
 public class NameClient {
     private Address address;
     private String host;
     private static Logger log = Logger.get();
 
-    //private NameClient(Address address) {
-	//this.address = address;
-    //}
-
     private NameClient() {
 	getConfiguration();
     }
 
+    /**
+     * The address of the name server.
+     * @return the address of the name server
+     */
     public Address getAddress() { 
 	return address;
     }
@@ -44,7 +48,7 @@ public class NameClient {
 	return ips;
     }
     
-    public String getHostName() {
+    String getHostName() {
 	if (host==null) {
 	    try {
 		//InetAddress inet = InetAddress.getLocalHost();
@@ -81,7 +85,7 @@ public class NameClient {
 	return host;
     }
 
-    public static String getProtocolPart(String name) {
+    static String getProtocolPart(String name) {
 	String result = getPart(name,1);
 	if (result!=null) {
 	    return result;
@@ -182,7 +186,7 @@ public class NameClient {
 	}
     }
 
-    public static String getNamePart(String name) {
+    static String getNamePart(String name) {
 	String result = getPart(name,2);
 	if (result!=null) {
 	    return result;
@@ -228,14 +232,30 @@ public class NameClient {
 	return null;
     }
 
+    /**
+     * Look up the address of a named port.
+     * @param name the name of the port
+     * @return the address associated with the port
+     */
     public Address query(String name) {
 	return probe("NAME_SERVER query " + getNamePart(name));
     }
 
+    /**
+     * Register a port with a given name.
+     * @param name the name of the port
+     * @return the address associated with the port
+     */
     public Address register(String name) {
 	return register(getNamePart(name),getProtocolPart(name));
     }
 
+    /**
+     * Register a port with a given name and carrier.
+     * @param name the name of the port
+     * @param name the carrier to use
+     * @return the address associated with the port
+     */
     public Address register(String name, String rawProtocol) {
 	//String host = getHostName();
 	Address result = 
@@ -254,6 +274,13 @@ public class NameClient {
 	return result;
     }
 
+    /**
+     * Check if a property of a given port has a given value.
+     * @param name the port
+     * @param key the property
+     * @param val the value
+     * @return true if the port's property does have the given value
+     */
     public boolean check(String name, String key, String val) {
 	boolean ok = true;
 	try {
@@ -276,14 +303,30 @@ public class NameClient {
 	return ok;
     }
 
+    /**
+     * Set a property of a port to a particular value
+     * @param name the port
+     * @param key the property
+     * @param val the value
+     */
     public void set(String name, String key, String val) {
 	probe("NAME_SERVER set " + name + " " + key + " " + val);
     }
 
+    /**
+     * Set a property of a port to a particular list of values
+     * @param name the port
+     * @param key the property
+     * @param val the values
+     */
     public void set(String name, String key, String[] val) {
 	set(name,key,NetType.addStrings(val));
     }
 
+    /**
+     * Get all the values of a port's property, concatenated into
+     * a space-delimited string.
+     */
     public String getOne(String name, String key) {
 	String result = null;
 	String[] str = get(name,key);
@@ -293,6 +336,9 @@ public class NameClient {
 	return result;
     }
 
+    /**
+     * Get all the values of a port's property.
+     */
     public String[] get(String name, String key) {
 	try {
 	    String result = send("NAME_SERVER get " + name + " " + key);
@@ -311,15 +357,21 @@ public class NameClient {
     }
 
 
+    /**
+     * Check if the given port can offer the given protocol
+     */
     public boolean offers(String name, String carrier) {
 	return check(name,"offers",carrier);
     }
 
+    /**
+     * Check if the given port can accept the given protocol
+     */
     public boolean accepts(String name, String carrier) {
 	return check(name,"accepts",carrier);
     }
 
-    public String send(String msg) throws IOException {
+    String send(String msg) throws IOException {
 	Socket ncSocket = null;
         PrintWriter out = null;
 	BufferedReader in = null;
@@ -377,10 +429,17 @@ public class NameClient {
 
     static NameClient theNameClient = new NameClient();
 
+    /**
+     * Get an instance of the name client.
+     */
     public static NameClient getNameClient() {
 	return theNameClient;
     }
 
+    /**
+     * Check if it is possible to connect the given ports with the
+     * given protocol.
+     */
     public static boolean canConnect(String from, String to, String carrier) {
 	NameClient nc = getNameClient();
 	boolean canOffer = nc.offers(from,carrier);

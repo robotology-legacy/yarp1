@@ -5,8 +5,8 @@ import java.io.*;
 import java.util.*;
 
 
-/*
-  implementation of some standard yarp client utilities
+/**
+ * Implementation of a standard set of YARP utilities.
  */
 
 public class YarpClient {
@@ -18,6 +18,13 @@ public class YarpClient {
 	return out;
     }
 
+    /**
+     * Create a port to read Bottles and prints them to standard input.
+     * It assumes the Bottles consist of an integer followed by a string.
+     * The integer indicates whether the "end-of-file" has been reached.
+     * The string is what gets printed.
+     * @param name the name which which to register the port
+     */
     public static void read(String name) {
 
 	InputPort in = new InputPort();
@@ -89,12 +96,11 @@ public class YarpClient {
 	}
     }
 
-
-    public static void command(String source, String cmd) throws IOException {
+    static void command(String source, String cmd) throws IOException {
 	command(source,cmd,'\0');
     }
 
-    private static void command(String source, String cmd, char ch) throws IOException {
+    static void command(String source, String cmd, char ch) throws IOException {
 	try {
 	    NameClient nc = NameClient.getNameClient();
 	    
@@ -105,9 +111,10 @@ public class YarpClient {
 		return;
 	    }
 	    
-	    // to be nice to newcomers, let's send commands in plain-text
-	    add = new Address(add.getName(), add.getPort(),
-			      "text");
+	    // to be nice to newcomers, let's allows commands in alt carriers
+	    // (i.e. text)
+	    add = new Address(add.getName(), add.getPort(), 
+			      NameClient.getProtocolPart(source));
 	    
 	    Connection c = new Connection(add,"external",source);
 	    log.println("command is [" + cmd + "] and char is [" + ((int)ch) + "]");
@@ -131,6 +138,10 @@ public class YarpClient {
 	return r;
     }
 
+    /**
+     * Send a message to the name server.
+     * @param message text of the message to send (NAME_SERVER will be prepended)
+     */
     public static void name(String message) {
 	String result = "";
 	try {
@@ -151,6 +162,12 @@ public class YarpClient {
 	name(cmd.toString());
     }
 
+    /**
+     * Request that an output port connect to an input port.
+     * @source the name of an output port
+     * @target the name of an input port
+     * @carrier the name of the carrier to use
+     */
     public static void connect(String source, String target, String carrier) {
 	System.out.println("Connecting " + source + " to " + target);
 	source = slashify(source);
@@ -180,6 +197,11 @@ public class YarpClient {
 	connect(source,target,carrier);
     }
 
+    /**
+     * Request that an output port disconnect from an input port.
+     * @source the name of an output port
+     * @target the name of an input port
+     */
     public static void disconnect(String source, String target) {
 	System.out.println("Disconnecting " + source + " from " + target);
 	source = slashify(source);
@@ -202,6 +224,15 @@ public class YarpClient {
 	disconnect(source,target);
     }
 
+    /**
+     * Create a port to read from the standard input, convert that
+     * input into a Bottle, and send it out.  The Bottles will
+     * consist of an integer followed by a string.  The integer
+     * indicates whether the "end-of-file" has been reached.  The
+     * string is what was read from standard input.
+     * @param name the name which which to register the port
+     * @param targets an optional list of the names of ports to output to.
+     */
     public static void write(String name, String[] targets) {
 	OutputPort out = new OutputPort();
 	out.creator(new BottleContent());
@@ -239,16 +270,26 @@ public class YarpClient {
 	write(name,subArray(args,2,args.length-2));
     }
 
+    /**
+     * Report where the name server is believed to be.
+     */
     public static void where() {
 	Address address = NameClient.getNameClient().getAddress();
 	System.out.println("Name server is available at ip " +
 			   address.getName() + " port " + address.getPort());
     }
 
+    /**
+     * Report the YARP version.
+     */
     public static void version() {
 	System.out.println("YARP network version 2.0");
     }
 
+    /**
+     * The standard main method for the YARP utility.
+     * @param args Command line arguments
+     */
     public static void main(String[] args) {
 	//System.out.println("256 is " + NetType.netInt(new byte[] {0,1,0,0}));
 	//System.out.println("-1 is " + NetType.netInt(new byte[] {-1,-1,-1,-1}));

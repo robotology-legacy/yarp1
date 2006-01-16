@@ -3,6 +3,9 @@ package yarp.os;
 
 import java.io.*;
 
+/**
+ * A proxy for writing and reading Bottles.
+ */
 public class BottleContent implements Content {
     private static Logger log = Logger.get();
 
@@ -14,10 +17,16 @@ public class BottleContent implements Content {
 	return data.length;
     }
 
+    /**
+     * Create a proxy for reading/writing a bottle.
+     */
     public Content create() {
 	return new BottleContent();
     }
 
+    /**
+     * Read a bottle from a port.
+     */
     public void read(BlockReader proto) throws IOException {
 	log.println("Bottle should read");
 	if (!proto.isTextMode()) {
@@ -38,6 +47,9 @@ public class BottleContent implements Content {
 	}
     }
 
+    /**
+     * Write a bottle to a port.
+     */
     public void write(BlockWriter proto) throws IOException {	
 	if (!proto.isTextMode()) {
 	    byte[] data2 = bot.get();
@@ -52,6 +64,9 @@ public class BottleContent implements Content {
 	}
     }
 
+    /**
+     * return the bottle being read/written.
+     */
     public Object object() {
 	return bot;
     }

@@ -5,19 +5,35 @@ import java.util.*;
 import java.util.regex.*;
 import java.io.*;
 
+
+/**
+ * A flexible data format for holding a bunch of numbers and strings.
+ * Handy to use until you work out how to make your own more 
+ * efficient formats for transmission.
+ */
 public class Bottle {
     private static Logger log = Logger.get();
 
     private List items = new ArrayList();
 
+    /**
+     * Add an object to the bottle.  Currently, integers and strings are
+     * supported for transmission.
+     */
     public void add(Object o) {
 	items.add(o);
     }
 
+    /**
+     * Clear the contents of the bottle.
+     */
     public void clear() {
 	items.clear();
     }
 
+    /**
+     * Set the contents of the bottle by parsing a text string.
+     */
     public void fromString(String line) {
 	clear();
 	try {
@@ -37,26 +53,11 @@ public class Bottle {
 	} catch (Exception e) {
 	    Logger.get().error("Strange bottle format");
 	}
-
-
-	/*
-	Pattern p = Pattern.compile(" ");
-	clear();
-	String[] parts = p.split(line); // in future need to handle quoting
-	for (int i=0; i<parts.length; i++) {
-	    String str = parts[i];
-	    if (str.length()>0) {
-		char ch = str.charAt(0);
-		if (ch>='0'&&ch<='9') {
-		    add(new Integer(Integer.valueOf(str).intValue()));
-		} else {
-		    add(str);
-		}
-	    }
-	}
-	*/
     }
 
+    /**
+     * Express the contents of the bottle as a string.
+     */
     public String toString() {
 	StringBuffer buf = new StringBuffer("");
 	boolean add = false;
@@ -79,10 +80,16 @@ public class Bottle {
 	return buf.toString();
     }
 
+    /**
+     * View the contents of the bottle as a list.
+     */
     public List asList() {
 	return Collections.unmodifiableList(items);
     }
 
+    /**
+     * View the contents of the bottle as an array of bytes.
+     */
     public byte[] get() {
 	byte[] b = {};
 	for (Iterator it = items.iterator(); it.hasNext(); ) {
@@ -99,6 +106,9 @@ public class Bottle {
 	return b;
     }
 
+    /**
+     * Set the contents of the buffer from an array of bytes.
+     */
     public void set(byte[] data) {
 	clear();
 	int index = 0;
@@ -120,15 +130,7 @@ public class Bottle {
 		byte[] sub = new byte[l];
 		System.arraycopy(data,index,sub,0,l);
 		index+=l;
-		String txt = NetType.netString(sub); //new String(sub);
-		/*
-		if (txt.length()>=1) {
-		    int tlen = txt.length();
-		    if (txt.charAt(tlen-1)=='\0') {
-			txt = txt.substring(0,tlen-1);
-		    }
-		}
-		*/
+		String txt = NetType.netString(sub);
 		log.println(" > string is " + txt);
 		add(txt);
 		break;

@@ -2,7 +2,7 @@
 package yarp.os;
 
 /**
- * A collection of simple but important time-related utilities.
+ * Simple but important time-related utilities.
  */
 public class Time {
 
@@ -17,7 +17,7 @@ public class Time {
 	try {
 	    Thread.sleep((int)(seconds*1000));
 	} catch (Exception e) {
-	    System.out.println("delay failed");
+	    Logger.get().error("delay failed");
 	}
     }
 }

@@ -4,7 +4,7 @@ package yarp.os;
 import java.io.*;
 import java.util.*;
 
-public class NetType {
+class NetType {
 
     public static int netInt(byte[] b) {
 	return netInt(b,0,-1);

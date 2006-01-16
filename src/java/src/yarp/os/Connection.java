@@ -4,8 +4,10 @@ package yarp.os;
 import java.io.*;
 import java.net.*;
 
-
-public class Connection {
+/**
+ * A link between one output-port and one input-port.
+ */
+class Connection {
     private Address address;
     private Protocol proto;
     private Socket socket = null;
@@ -80,73 +82,6 @@ public class Connection {
 	}
     }
 
-    /*
-    public void write(String msg) throws IOException {
-	write(msg,false);
-    }
-
-
-    // specialized for Bottle
-    // not used any more, was just to understand things better
-    public void write(String msg, boolean eof) throws IOException {
-
-	InputStream in = null;
-        OutputStream out = null;
-	assert(socket!=null);
-	in = socket.getInputStream();
-	out = socket.getOutputStream();
-	assert(in!=null);
-	assert(out!=null);
-	assert(msg!=null);
-
-	out.write(new byte[] { 'Y', 'A', 10, 0, 0, 0, 'R', 'P' });
-	out.write(new byte[] {2, 1,    
-			      -128,-128,-128,-128,  
-			      -128,-128,-128,-128});
-
-	byte b2[] = {1,0,0,0, (byte)(eof?1:0),0,0,0};        // INT 0
-	b2 = NetType.append(b2, new byte[] {5,0,0,0}); // STR
-	b2 = NetType.append(b2,NetType.netInt(msg.length()+1));
-	b2 = NetType.append(b2,NetType.netString(msg));
-
-	byte b1[] = { 0,0,0,0,  '~', 'd', 0, 1};
-	b1 = NetType.append(b1,new byte[] { 4,0,0,0 });
-	b1 = NetType.append(b1,new byte[] { 'n','/','a',0 });
-	b1 = NetType.append(b1,NetType.netInt(b2.length));
-
-	byte b0[] = {};
-	b0 = NetType.append(b0,NetType.netInt(b1.length)); // block 1 length
-	b0 = NetType.append(b0,NetType.netInt(b2.length)); // block 2 length
-	b0 = NetType.append(b0,NetType.netInt(0));  // response length
-    
-
-	out.write(b0);
-	out.write(b1);
-	out.write(b2);
-	out.flush();
-    }
-    */
-
-    /*
-    public void writeCommand(char ch, String str) throws IOException {
-
-	proto.beginContent();
-
-	byte[] hdr = NetType.append(NetType.netInt(str.length()+1),
-				    new byte[] { '~', (byte)ch, 0, 1});
-	proto.appendBlock(hdr); // data hdr
-	//proto.appendBlock(new byte[] { 0,0,0,0, '~', (byte)ch, 0, 1}); // data hdr
-	if (str!=null) {
-	    proto.appendString(str);
-	}
-
-	proto.endContent();
-	proto.sendIndex();
-	proto.sendContent();
-	proto.expectAck();
-    }
-    */
-
     public void write(Content content) throws IOException {
 	write(content,true);
     }
@@ -176,23 +111,6 @@ public class Connection {
     public String getCarrierName() throws IOException {
 	return proto.getCarrierName();
     }
-
-    /*
-    public static void show(String from, String msg) {
-	boolean admin = true;
-	if (from.length()>0) {
-	  if (from.charAt(0) == '/') {
-	      admin = false;
-	  }
-	}
-	if (admin) {
-	    log.println(msg);
-	} else {
-	    log.info(msg);
-	}
-    }
-    */
-
 
     static CommandContent dataHeader = new CommandContent('d',null);
 

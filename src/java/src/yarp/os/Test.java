@@ -175,8 +175,8 @@ class Test {
 	if (args.length>=1) {
 	    YarpClient.main(args);
 	} else {
-	    parseTest();
-	    //YarpClient.main(args);
+	    //parseTest();
+	    YarpClient.main(args);
 	    //oldTest();
 	    //outPortTest();
 	    //inPortTest();
