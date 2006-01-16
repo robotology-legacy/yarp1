@@ -216,7 +216,10 @@ public class NameClient {
 	    String carrier = m.group(4).toLowerCase();
 
 	    // YARP1 compatibility - it lies about the protocol type
-	    if (carrier.equals("udp")) { carrier = "tcp"; }
+	    if (carrier.equals("udp")) { 
+		log.error("for YARP1 compatibility, alleged udp ports are reported as tcp");
+		carrier = "tcp"; 
+	    }
 
 	    if (port!=0) {
 		return new Address(ip,port,carrier,name);
@@ -237,6 +240,7 @@ public class NameClient {
 	//String host = getHostName();
 	Address result = 
 	    probe("NAME_SERVER register " + name + " " + rawProtocol);
+	name = result.getRegName();
 
 	// set up the protocols that JYARP offers/accepts
 	// basically, we just don't do shmem

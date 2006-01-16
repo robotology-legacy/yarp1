@@ -53,5 +53,4 @@ public class OutputPort implements Port {
     public void close() {
 	port.close();
     }
-
 }

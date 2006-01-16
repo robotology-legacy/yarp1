@@ -64,8 +64,11 @@ public class Bottle {
 	    Object o = it.next();
 	    String txt = o.toString();
 	    if (o instanceof String) {
-		// need to make quoting, unquoting better
-		txt = "\"" + txt + "\"";
+		String quoted = txt;
+		quoted = quoted.replace("\\","\\\\");
+		quoted = quoted.replace("\"","\\\"");
+		
+		txt = "\"" + quoted + "\"";
 	    }
 	    if (add) {
 		buf.append(" ");

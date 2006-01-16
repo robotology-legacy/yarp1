@@ -32,7 +32,7 @@ class BasicPort extends Thread implements Port {
 	log.info("Registered port " + name + " as " + 
 		 server.toString());
 	this.address = server;
-	this.key = name;
+	this.key = server.getRegName();
     }
 
     public String getPortName() {
@@ -220,7 +220,7 @@ class BasicPort extends Thread implements Port {
 		}
 	    }
 	}
-	log.info("So long, from port " + getPortName());
+	log.println("So long, from port " + getPortName());
     }
 
     public Portlet newPortlet(Socket socket) throws IOException {

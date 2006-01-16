@@ -119,7 +119,7 @@ public class YarpClient {
 	String r = s;
 	if (s!=null) {
 	    if (s.length()>0) {
-		if (s.charAt(0)!='/') {
+		if (s.charAt(0)!='/' && s.charAt(0)!='.') {
 		    r = "/" + s;
 		}
 	    }
