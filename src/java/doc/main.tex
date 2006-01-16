@@ -758,8 +758,11 @@ The ip it reports for a machine is usually a reasonable default, but
 the user can choose using ``net='' to request a name on a particular
 network.
 
-Symbolic network names can be configured.  This process 
-is not yet documented.
+Symbolic network names can be configured.  This process is not yet
+specified.  You can do it right now by setting properties of a fake
+port called ``networks'' (no leading slash), where the properties are
+symbolic names and their values are the numeric network IP prefix.
+But this process will change.
 
 %% How should multiple networks work?  Currently in YARP1, a port is
 %% associated with a particular network.  If two ports are on different
