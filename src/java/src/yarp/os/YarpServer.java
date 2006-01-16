@@ -31,6 +31,23 @@ class YarpServer implements CommandProcessor {
 	}
     }
 
+    private static class DisposableNameRecord extends ReusableRecord {
+
+	// should change this to depend on name server port
+	private int base = 1;
+
+	String get() {
+	    return "/tmp/port/" + ((Integer)getObject()).intValue();
+	}
+
+	Object fresh() {
+	    int result = base;
+	    base++;
+	    return new Integer(result);
+	}
+
+    }
+
     private static class HostRecord extends ReusableRecord {
 
 	// should change this to depend on name server port
@@ -202,6 +219,7 @@ class YarpServer implements CommandProcessor {
     private HashMap nameMap = new HashMap();
     private HashMap hostMap = new HashMap();
     private McastRecord mcastRecord = new McastRecord();
+    private DisposableNameRecord tmpNames = new DisposableNameRecord();
 
     private static Map getNameParts(String name) {
 	Pattern p = Pattern.compile("(/net=([^/]+))?(.*)");
@@ -356,6 +374,9 @@ class YarpServer implements CommandProcessor {
 		String base = null;
 		String proto = null;
 		String count = null;
+		if (target.equals("*")) {
+		    target = tmpNames.get();
+		}
 		if (str.length>=2) {
 		    proto = str[1];
 		    if (proto.equals("*")) {
