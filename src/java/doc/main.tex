@@ -546,37 +546,34 @@ Phases are as follows:
 
       \item send 8 bytes: 'Y' 'A' B1 B2 0 0 'R' 'P'
       \item B1 and B2 identify the desired protocol
-         P=tcp   B1=0x64 B2=0x1e
-         P=udp   B1=0x61 B2=0x1e
-         P=mcast B1=0x62 B2=0x1e
-      More correctly, {B1,B2} forms a little-endian integer whose value is
-         7777 + K + 128*(requireAck)
-      where 
-         P=tcp   K=3
-	 P=udp   K=0
-	 P=mcast K=1
-      requireAck is an implementation choice; see expectAck and sendAck.
-      If it is true, message receipt must be acknowledged.
+      (B1,B2) forms a little-endian integer whose value is
+         7777 + K + 128*(requireAck),
+      where K=0 for udp, K=1 for mcast, K=2 for shmem, K=3 for tcp.
+      requireAck is an implementation choice controlling
+      whether message receipt is acknowledge; see expectAck and sendAck
+      phases.
     
-      \item ALT: for textmode, send 'CONNECT ' -- only tcp supported
+      \item ALTERNATIVE: for text-mode, send 8 characters 'CONNECT '.
 	
       \end{itemize}
 
     \item sendSenderSpecifier
       
       \begin{itemize}
-      \item send 4 byte integer (little endian) giving length of port name plus one
+      \item send 4 byte integer (little endian) giving length of port
+      name plus one
       \item send port name in characters followed by null character
-      \item ALT: for textmode, send name (without null) followed by \\n
+      \item ALTERNATIVE: for text-mode, send name (without null)
+      followed by $\backslash$n character
       \end{itemize}
 
     \item sendExtraHeader      // carrier specific
       \begin{itemize}
 	\item for tcp nothing more need be done
 	\item for udp nothing more need be done
-	\item for mcast, send 6 bytes
-         first 4 bytes specify a multicast IP address.
-	 next 2 bytes are a (bigendian - sorry) integer giving a port number.
+	\item for mcast, send 6 bytes.
+         First 4 bytes specify a multicast IP address.
+	 Next 2 bytes are a (bigendian - sorry) integer giving a port number.
          note that producing these numbers will require side communication
          with the name server.
       \end{itemize}
@@ -584,45 +581,46 @@ Phases are as follows:
 
   \item expectReplyToHeader    // carrier specific
     \begin{itemize}
-      \item for tcp and udp, read 8 bytes:  'Y' 'A' B1 B2 0 0 'R' 'P' where
-	B1 B2 make up a (little-endian) integer specifying a port number N.
+      \item for tcp and udp, read 8 bytes:  'Y' 'A' B1 B2 0 0 'R' 'P', where
+	(B1,B2) make up a (little-endian) integer specifying a port number N.
 	For udp, then switch over to udp network communication on that port.
       \item for mcast, switch over to mcast network communication on the IP and
 	port number sent in sendExtraHeader
-      \item ALT: for textmode, expect nothing
+      \item ALTERNATEIVE: for text-mode, expect nothing
     \end{itemize}
 
   \item sendIndex
 
     \begin{itemize}
-    \item NOTE check isActive (carrier specific) first: for mcast, a sender is ignored if it is redundant -- sending
+    \item NOTE check isActive first: this is a carrier specific check
+    - for mcast, a sender is ignored if it is redundant -- sending
     data to a multi-cast group that has already been sent.
-
     \item need to decide on the content to send - a set of LEN byte arrays.
     \item send 8 bytes: 'Y' 'A' 10 0 0 0 'R' 'P'
       This identifies the length of the index header as 10.
     \item send 10 bytes: LEN 1   255 255 255 255  255 255 255 255
       This says there are LEN send blocks, 1 reply block expected,
-      and that the sizes will be listed individually next.
+      and that the sizes will be listed individually next (this
+      format is for backward compatability with older yarp versions).
     \item A 4-byte little-endian integer is sent giving the length of
       each byte array.
     \item send 4-bytes: 0 0 0 0 -- this asks for a reply length of 0.
-    \item ALT for text mode, send nothing.
+    \item ALTERNATIVE for text mode, send nothing.
     \end{itemize}
 
   \item sendContent
 
     \begin{itemize}
-      \item NOTE check isActive first
+      \item NOTE check isActive first, as for sendIndex.
       \item send each of the LEN byte arrays in turn.
     \end{itemize}
 
   \item expectAck
     \begin{itemize}
-    \item NOTE check requireAck
-    \item read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P'
-    \item B1-4 is a little-endian integer giving a length LEN
-    item read LEN bytes.  This is the acknowledgement.
+    \item NOTE check requireAck and skip if appropiate.
+    \item read 8 bytes: 'Y' 'A' B1 B2 B3 B4 'R' 'P'.
+    \item B1-4 is a little-endian integer giving a length LEN.
+    \item read LEN bytes.  This is the acknowledgement.
     \end{itemize}
 \end{itemize}
 
