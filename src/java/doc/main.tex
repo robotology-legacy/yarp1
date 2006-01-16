@@ -212,60 +212,174 @@ Optionally, the user can take responsibility for more, and
 issue commands in one of the following forms:
 \begin{code}
 NAME_SERVER register PORT CARRIER
-NAME_SERVER register PORT CARRIER NUMBER
-NAME_SERVER register PORT CARRIER NUMBER IP
+NAME_SERVER register PORT CARRIER IP
+NAME_SERVER register PORT CARRIER IP NUMBER
 \end{code}
-Any value can be replaced by ``*'' to leave it up to the
-name-server to choose it.
+Any value (including the port name) can be replaced by ``*'' to leave it 
+up to the name-server to choose it.  For example:
+\begin{code}
+NAME_SERVER register * tcp 127.0.0.1 8080
+\end{code}
+Gives something of the form:
+\begin{code}
+registration name /tmp/port/1 ip 127.0.0.1 port 8080 type tcp
+*** end of message
+\end{code}
+If you choose to set the ip yourself, be careful -- there is the 
+possibility of problems with multiple ways to identify the same
+machine.  It is best to let the name server choose a name,
+which it should do in a consistent way.  If a machine has
+multiple ip addresses on multiple networks, that can be 
+handled -- see the 
+discussion of the {\tt ips} property in the section on {\tt set}.
+That is important for the purposes of controlling which 
+network is used for connections from one port to another.
+
+
 \end{codecase}
 
 \begin{codecase}{NAME\_SERVER set PORT PROPERTY VALUE1 VALUE2 \ldots}
 
+The name server can store extra properties of a port, beyond the
+bare details associated with registration.  The {\tt set} command
+is used to do this.  For example, the command:
+\begin{code}
+NAME_SERVER set /write offers tcp udp mcast
+\end{code}
+Gets the following response:
+\begin{code}
+port /write property offers = tcp udp mcast
+\end{code}
+The {\tt get} and {\tt check} commands can then be used to query
+such properties.
+
+There are some special properties used by YARP.  Property ``ips''
+can list multiple identifiers of a machine.  Property ``offers''
+lists carriers that an output port can support.  Propery ``accepts''
+lists carriers that an input port can support.
+
 \end{codecase}
 
-%\codecase{get /PORT/NAME PROPERTY}
-
-%\codecase{check /PORT/NAME PROPERTY VALUE}
-
-%\codecase{match /PORT/NAME PROPERTY VALUE}
-
-%\codecase{connect}
-
-%\codecase{quit}
-
-
-
-\section{Talking to Ports}
-
-
-We can also ``log on'' to the ports themselves (YARP2 feature).
-
+\begin{codecase}{NAME\_SERVER get PORT PROPERTY}
+Gets the values of a stored property. For example, 
+after the {\tt set} command example shown earlier, the command:
 \begin{code}
+NAME_SERVER get /write offers
+\end{code}
+Returns the following response:
+\begin{code}
+port /write property offers = tcp udp mcast
+\end{code}
+\end{codecase}
 
-Assume we have typed the following in different terminals:
+\begin{codecase}{NAME\_SERVER check PORT PROPERTY VALUE}
+Not yet documented.
+\end{codecase}
+
+\begin{codecase}{NAME\_SERVER match PORT PROPERTY VALUE}
+Not yet documented.
+\end{codecase}
+
+\begin{codecase}{NAME\_SERVER connect}
+Not yet documented.
+\end{codecase}
+
+\begin{codecase}{quit}
+Not yet documented.
+\end{codecase}
+
+
+\section{The standard yarp utility}
+
+We specify a standard utility called ``yarp'' for performing a set of
+useful operations with a YARP Network.  We now give some ways to run that 
+utility.  For any of the examples below, the word ``verbose'' can 
+be inserted as the first argument to increase the number of 
+messages given.
+
+\subsection{yarp}
+
+This should list a summary of the usages mentioned in this section.
+
+\subsection{yarp server}
+
+This will start up a name server on the current machine.
+
+\subsection{yarp where}
+
+This will report where the name server is believed to be running.
+
+\subsection{yarp name COMMAND ARG1 ARG2 \ldots}
+
+This will send the given command and arguments to the name
+server and report the results.  Equivalent to the telnet
+examples given earlier, except the ``NAME\_SERVER'' prefix
+is added automatically to the message send to the name server.
+
+\subsection{yarp read PORT}
+
+This will create an input port of the specified name.  The port
+reads ``yarp bottles'' (specified later) and prints their content
+to standard output.
+
+\subsection{yarp write PORT}
+
+This will create an output port of the specified name.  The port
+reads from standard input and writes ``yarp bottles'' (specified later).
+Optionally, a list of input ports to connect to automatically can be
+appended to the command.
+
+\subsection{yarp connect OUTPUT\_PORT INPUT\_PORT}
+
+This will request the specified output port to send its output in 
+future to the specified input port.
+
+Optionally, the protocol to be used can be added as an extra argument
+(e.g. tcp, udp, mcast, ...).
+
+\subsection{yarp disconnect OUTPUT\_PORT INPUT\_PORT}
+
+This will request the specified output port to cease sending its output to
+the specified input port.
+
+
+
+\section{Communication with Ports}
+
+Every Port is always available for general communication -- to request
+that new connections be created, old connections be removed, to
+inquire after status and health, etc.  That communication can take
+place in binary or (in YARP2) text form.  We describe here text-mode
+operation for simplicity.
+
+Suppose we have created ports as follows by typing the following in
+different terminals:
+\begin{code}
   yarp server
   yarp write /write
   yarp read /read
   yarp read /read2
-
+\end{code}
+%
 Now we can connect and disconnect things as follows:
+\begin{code}
   yarp connect /write /read
   yarp disconnect /write /read
   yarp connect /write /read mcast
   yarp connect /write /read2
+\end{code}
 
-We could also do this more manually as follows.
+Here's how we could do these connections manually:
 
+\begin{code}
 command:  yarp where
 response: Name server is available at ip 192.168.0.3 port 10000
 
-
 command:  telnet 192.168.0.3 10000
 type:     NAME_SERVER query /write
-response: ip 192.168.0.3 port 10001 type tcp
+response: registration name /write ip 192.168.0.3 port 10001 type tcp
           *** end of message
           [connection closes]
-
 
 command:  telnet 192.168.0.3 10001
 type:     CONNECT anonymous
@@ -298,13 +412,11 @@ type:     q
 response: Bye bye
           [connection closes]
 
-
-command:  telnet telnet 192.168.0.3 10000
+command:  telnet 192.168.0.3 10000
 type:     NAME_SERVER query /read
-response: ip 192.168.0.3 port 10002 type tcp
+response: registration name /write ip 192.168.0.3 port 10002 type tcp
           *** end of message
           [connection closes]
-
 
 command:  telnet 192.168.0.3 10002
 type:     CONNECT anonymous
@@ -322,7 +434,7 @@ response: Bye bye
 \end{code}
 
 
-\subsection{connection protocol}
+\subsection{Communication between Ports}
 
 This is the protocol for a single connection to an input port.
 Such connections can be made at any time.  At creation,
@@ -330,24 +442,41 @@ the properties of a connection are:
 
 \begin{itemize}
 
-\item An address -- the machine name and socket number at which
+\item An address -- the machine name and socket-port at which
 the input port is listening.
 
 \item An output port name -- typically connections are made
 between output ports and input ports.  The output port name
 needs to be retained for disconnection and housekeeping.
+If the connection is not actually associated with a port,
+the name can be anything that starts with something
+other than ``/''.
 
 \item The input port name -- the name of the target.
 
 \end{itemize}
 
-\begin{code}
 
-SENDER:
+The connection protocol has several phases.
 
-  * start in TCP
-  * need to know desired protocol P = one of tcp,udp,mcast
-  * need to know name of associated port, e.g. ``/writer''
+\subsection{Sender's responsibilities}
+
+\begin{itemize}
+
+\item Sender creates initial connection using information 
+from the name server.  The connection starts in TCP.
+
+\item The sender needs to decide what the desired carrier
+for the connection will be (tcp, udp, mcast).
+
+\item If the connection will be associated with an output port, the
+name of that port must be known (it will be communicated to the
+recipient).
+
+\end{itemize}
+
+
+\begin{verbatim}
 
   sendHeader
 
@@ -473,7 +602,7 @@ RECEIVER:
     * send LEN bytes.  This is the acknowledgement.
 
 
-\end{code}
+\end{verbatim}
 
 
 \subsection{port protocol}
@@ -481,7 +610,7 @@ RECEIVER:
 This is the protocol used for communicating with a port -- 
 starting, stopping connections.
 
-\begin{code}
+\begin{verbatim}
 Send 8 byte header: 0,0,0,0, '~', CHAR, 0, 1
 where CHAR is a character that identifies what the message is about.
 
@@ -505,7 +634,7 @@ CHAR = 0: this header is used to signal that a control message is following.
    S is 'q': specific connection that message is received on should 
    now shut down.
 
-\end{code}
+\end{verbatim}
 
 
 
