@@ -1,6 +1,10 @@
 
 package yarp.os;
 
+import java.io.StreamTokenizer;
+import java.io.FileReader;
+
+
 class Test {
     public static void oldTest() {
 	try {
@@ -132,11 +136,47 @@ class Test {
     }
 
 
+    public static void parseTest() {
+
+	StreamTokenizer stream =null;
+	try{
+	    stream = new StreamTokenizer( new 
+					  FileReader("customers.txt"));
+	    while (true) {
+		
+		int token = stream.nextToken();
+		if (token == StreamTokenizer.TT_EOF)
+		    break;
+		if (token == StreamTokenizer.TT_WORD) {
+		    System.out.println("Got the string: " + 
+				       stream.sval);
+		}
+		else if (token == StreamTokenizer.TT_NUMBER) {
+		    System.out.println("Got the number: " + 
+				       stream.nval);
+		} else {
+		    System.out.println("Got other: " + 
+				       stream.sval);
+		}
+
+	    }
+	}catch (Exception e){
+	    System.out.println("Can't read customers.txt: " + 
+			       e.toString());
+	}
+	finally{
+	    try{
+		//stream.close();
+	    }catch(Exception e){e.printStackTrace();}          
+	}
+    }
+
     public static void main(String[] args) {
 	if (args.length>=1) {
 	    YarpClient.main(args);
 	} else {
-	    YarpClient.main(args);
+	    parseTest();
+	    //YarpClient.main(args);
 	    //oldTest();
 	    //outPortTest();
 	    //inPortTest();

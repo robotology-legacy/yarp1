@@ -196,7 +196,9 @@ class McastCarrier extends Carrier {
 	    removeCarrier(mcastKey,this);
 	    mcastKey = null;
 	}
+	log.println("McastCarrier.close");
 	if (mcast!=null) {
+	    log.println("McastCarrier.close socket");
 	    mcast.close();
 	    mcast = null;
 	}

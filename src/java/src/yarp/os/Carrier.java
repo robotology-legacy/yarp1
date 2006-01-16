@@ -2,6 +2,7 @@
 package yarp.os;
 
 import java.io.*;
+import java.net.*;
 
 abstract class Carrier implements ShiftStream {
 
@@ -44,6 +45,10 @@ abstract class Carrier implements ShiftStream {
 
     public boolean expectIndex(Protocol proto) throws IOException {
 	return proto.defaultExpectIndex();
+    }
+
+    public boolean sendIndex(Protocol proto) throws IOException {
+	return proto.defaultSendIndex();
     }
 
     public boolean sendAck(Protocol proto) throws IOException {
@@ -125,6 +130,10 @@ abstract class Carrier implements ShiftStream {
 
 	log.error("carrier open not implemented yet");
 	System.exit(1);
+    }
+
+    public Socket takeSocket() {
+	return null;
     }
 
     // state

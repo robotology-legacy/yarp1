@@ -37,15 +37,30 @@ class TcpCarrier extends Carrier {
     */
 
     public void close() throws IOException {
+	log.println("TcpCarrier.close");
 	if (socket!=null) {
+	    log.println("TcpCarrier.close socket");
 	    socket.close();
 	    socket = null;
 	}
     }
 
+    public Socket takeSocket() {
+	log.println("TcpCarrier giving away socket");
+	Socket r = socket;
+	socket = null;
+	return r;
+    }
+
     public void open(Address address, ShiftStream previous) throws IOException {
-	log.error("Cannot open TCP; happens externally");
-	System.exit(1);
+	socket = previous.takeSocket();
+	InetAddress a1 = socket.getLocalAddress();
+	Address clocal = 
+	    new Address(a1.getHostAddress(),socket.getLocalPort());
+	InetSocketAddress a2 = 
+	    (InetSocketAddress)socket.getRemoteSocketAddress();
+	Address cremote = new Address(a2.getHostName(),socket.getPort());
+	setAddress(clocal,cremote);
     }
 
 

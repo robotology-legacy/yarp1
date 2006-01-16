@@ -280,6 +280,7 @@ class BasicPort extends Thread implements Port {
 	String srcName = NameClient.getNamePart(src);
 	String srcCarrier = NameClient.getProtocolPart(src);
 	Address add = NameClient.getNameClient().query(srcName);
+
 	if (add==null) {
 	    throw(new IOException());
 	}
@@ -291,6 +292,7 @@ class BasicPort extends Thread implements Port {
 	    ownerName + " to " +
 	    srcName + " using " + srcCarrier;
 	if (add!=null) {
+	    // MAY need a hack for YARP1 compatibility
 	    add = new Address(add.getName(), add.getPort(),
 			      srcCarrier);
 	    if (NameClient.canConnect(ownerName,srcName,srcCarrier)) {
@@ -303,7 +305,5 @@ class BasicPort extends Thread implements Port {
 	    owner.println(ps,"Cannot find " + srcName,true);
 	}
     }
-
-
 
 }

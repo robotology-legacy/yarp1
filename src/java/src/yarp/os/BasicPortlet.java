@@ -10,6 +10,7 @@ class BasicPortlet extends Portlet {
     private String ownerName;
     private String carrierName;
     private Logger log = Logger.get();
+    private Protocol closeMe = null;
 
     public void show(String from, String msg) {
 	boolean admin = true;
@@ -38,6 +39,7 @@ class BasicPortlet extends Portlet {
 	log.println("Trying to halt portlet");
 	try {
 	    shift.close();
+	    closeMe.close();
 	} catch (IOException e) {
 	    log.println("Problem while halting portlet");
 	}
@@ -70,7 +72,8 @@ class BasicPortlet extends Portlet {
 	try {
 	// hand over control of this socket
 	protocol = new Protocol(shift);
-
+	closeMe = protocol;
+	
 	protocol.expectHeader();
 	protocol.respondToHeader();
 	sourceName = protocol.getSender();
@@ -87,9 +90,9 @@ class BasicPortlet extends Portlet {
 	}
 
 	while (protocol.isOk()&&!done) {
-
+	    log.println("waiting for index");
 	    protocol.expectIndex();
-	    //System.out.println("got index, responding..");
+	    log.println("got index, responding..");
 	    if (!protocol.respondToIndex()) { 
 		log.error("Protocol problem");
 		protocol.close();

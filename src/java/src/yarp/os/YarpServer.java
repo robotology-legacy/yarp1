@@ -379,27 +379,27 @@ class YarpServer implements CommandProcessor {
 		String sock = null;
 		String proto = null;
 		String count = null;
-		if (target.equals("*")) {
+		if (target.equals("...")) {
 		    target = tmpNames.get();
 		}
 		if (str.length>=2) {
 		    proto = str[1];
-		    if (proto.equals("*")) {
+		    if (proto.equals("...")) {
 			proto = null;
 		    }
 		    if (str.length>=3) {
 			base = str[2];
-			if (base.equals("*")) {
+			if (base.equals("...")) {
 			    base = null;
 			}
 			if (str.length>=4) {
 			    sock = str[3];
-			    if (sock.equals("*")) {
+			    if (sock.equals("...")) {
 				sock = null;
 			    }
 			    if (str.length>=5) {
 				count = str[4];
-				if (count.equals("*")) {
+				if (count.equals("...")) {
 				    count = null;
 				}
 			    }
@@ -419,12 +419,17 @@ class YarpServer implements CommandProcessor {
 		    count = "1";
 		}
 		int nsock = -1;
-		if (sock!=null) {
-		    nsock = Integer.valueOf(sock).intValue();
+		int ct = 1;
+		try {
+		    if (sock!=null) {
+			nsock = Integer.valueOf(sock).intValue();
+		    }
+		    //log.info("registered " + target + " for " +
+		    //base + " with protocol " + proto);
+		    ct = Integer.valueOf(count).intValue();
+		} catch (NumberFormatException e) {
+		    log.error("bad number format: check " + sock + " and " + count);
 		}
-		//log.info("registered " + target + " for " +
-		//base + " with protocol " + proto);
-		int ct = Integer.valueOf(count).intValue();
 		Address result = register(target,base,nsock,proto,ct);
 		response = textify(result);
 	    }

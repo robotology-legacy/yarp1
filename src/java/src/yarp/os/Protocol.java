@@ -35,6 +35,7 @@ class Protocol implements BlockWriter, BlockReader {
 
     public void setSender(String name) {
 	senderName = NameClient.getNamePart(name);
+	log = new Logger(senderName+" protocol",Logger.get());
     }
 
     public String getSender() {
@@ -86,14 +87,13 @@ class Protocol implements BlockWriter, BlockReader {
 
 
     public void become(Carrier next, Address address) throws IOException {
-	log.println("Switching stream");
+	log.println("Switching stream from " + shift.getName() + " to "
+		    + next.getName());
 
 	next.open(address,shift);
-	if (next!=delegate) {
-	    shift.close();
-	    delegate = next;
-	    shift = next;
-	}
+	shift.close();
+	delegate = next;
+	shift = next;
 
 	checkForNewStreams();
     }
@@ -107,6 +107,7 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public void setRawProtocol(String carrier) throws IOException {
+	log.println("setting carrier to " + carrier);
 	if (carrier==null) {
 	    carrier = new Address("127.0.0.1",1).getCarrier(); // find default
 	}
@@ -134,6 +135,7 @@ class Protocol implements BlockWriter, BlockReader {
 		remLen -= result;
 		off += result;
 	    }
+	    log.println("result " + result);
 	}
 	return (result<0)?result:fullLen;
     }
@@ -280,6 +282,10 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public boolean sendIndex() throws IOException {
+	return delegate.sendIndex(this);
+    }
+
+    public boolean defaultSendIndex() throws IOException {
 	int len = content.size();
 	write(new byte[] { 'Y', 'A', 10, 0, 0, 0, 'R', 'P' });
 	write(new byte[] {(byte)len, 1,
@@ -510,6 +516,7 @@ class Protocol implements BlockWriter, BlockReader {
 
     public void close() {
 	try {
+	    log.println("starting protocol close");
 	    if (pendingAck) {
 		try {
 		    sendAck();
@@ -519,6 +526,7 @@ class Protocol implements BlockWriter, BlockReader {
 		}
 	    }
 	    shift.close();
+	    log.println("done protocol close");
 	} catch (IOException e) {
 	    log.error("Problem closing protocol handler");
 	}
@@ -570,5 +578,8 @@ class Protocol implements BlockWriter, BlockReader {
 	return delegate.getOutputStream();
     }
 
+    public void setRequireAck(boolean flag) {
+	requireAck = flag;
+    }
 }
 

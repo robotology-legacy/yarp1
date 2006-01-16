@@ -2,6 +2,7 @@
 package yarp.os;
 
 import java.io.*;
+import java.net.*;
 
 interface ShiftStream {
 
@@ -18,6 +19,10 @@ interface ShiftStream {
 
     public void open(Address address, ShiftStream previous) 
 	throws IOException;
+
+    public String getName();
+
+    public Socket takeSocket();
 
     public void close() throws IOException;
 

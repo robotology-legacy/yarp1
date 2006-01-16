@@ -39,6 +39,7 @@ public class Connection {
 	    //proto = new Protocol(new CarrierShiftStream(socket));
 	    
 	    proto.setSender(fromKey);
+	    log.println("connection starting address is " + address);
 	    proto.setRawProtocol(address.getCarrier());
 	    proto.sendHeader();
 	    proto.expectReplyToHeader();
@@ -158,7 +159,8 @@ public class Connection {
 	    proto.beginContent();
 	    if (tagAsData) {
 		// data header
-		proto.addContent(new byte[] { 0,0,0,0,  '~', 'd', 0, 1}); 
+		//proto.addContent(new byte[] { 0,0,0,0,  '~', 'd', 0, 1}); 
+		dataHeader.write(proto);
 	    }
 	    content.write(proto);
 	    proto.endContent();
@@ -191,6 +193,8 @@ public class Connection {
     }
     */
 
+
+    static CommandContent dataHeader = new CommandContent('d',null);
 
 }
 

@@ -2,7 +2,6 @@
 package yarp.os;
 
 import java.io.*;
-import java.util.regex.*;
 
 public class BottleContent implements Content {
     private static Logger log = Logger.get();
@@ -34,32 +33,23 @@ public class BottleContent implements Content {
 	    // there is no requirement to have a special text mode 
 	    // representation, but it is nice for Bottle
 	    String line = proto.expectLine();
-	    Pattern p = Pattern.compile(" ");
-	    String[] parts = p.split(line); // in future need to handle quoting
-	    bot.clear();
-	    for (int i=0; i<parts.length; i++) {
-		String str = parts[i];
-		if (str.length()>0) {
-		    char ch = str.charAt(0);
-		    if (ch>='0'&&ch<='9') {
-			bot.add(new Integer(Integer.valueOf(str).intValue()));
-		    } else {
-			bot.add(str);
-		    }
-		}
-	    }
+	    bot.fromString(line);
 	    log.println("GOT bottle [" + bot + "]");
 	}
     }
 
     public void write(BlockWriter proto) throws IOException {	
-	byte[] data2 = bot.get();
-	String name = "void";
-	int len = data2.length;
-	proto.appendInt(name.length()+1);
-	proto.appendString(name);
-	proto.appendInt(len);
-	proto.appendBlock(bot.get());
+	if (!proto.isTextMode()) {
+	    byte[] data2 = bot.get();
+	    String name = "void";
+	    int len = data2.length;
+	    proto.appendInt(name.length()+1);
+	    proto.appendString(name);
+	    proto.appendInt(len);
+	    proto.appendBlock(bot.get());
+	} else {
+	    proto.appendString(bot.toString()+"\n");
+	}
     }
 
     public Object object() {

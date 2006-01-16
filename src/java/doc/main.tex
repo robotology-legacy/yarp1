@@ -224,10 +224,10 @@ NAME_SERVER register PORT CARRIER
 NAME_SERVER register PORT CARRIER IP
 NAME_SERVER register PORT CARRIER IP NUMBER
 \end{code}
-Any value (including the port name) can be replaced by ``*'' to leave it 
+Any value (including the port name) can be replaced by ``...'' to leave it 
 up to the name-server to choose it.  For example:
 \begin{code}
-NAME_SERVER register * tcp 127.0.0.1 8080
+NAME_SERVER register ... tcp 127.0.0.1 8080
 \end{code}
 Gives something of the form:
 \begin{code}
@@ -515,6 +515,10 @@ other than ``/''.
 
 
 The connection protocol has several phases.
+There is some cruft in the protocol - it has evolved rather than
+been designed.
+
+
 
 \subsection{Sender's responsibilities}
 
@@ -586,7 +590,7 @@ Phases are as follows:
 	For udp, then switch over to udp network communication on that port.
       \item for mcast, switch over to mcast network communication on the IP and
 	port number sent in sendExtraHeader
-      \item ALTERNATEIVE: for text-mode, expect nothing
+      \item ALTERNATIVE: for text-mode, expect nothing
     \end{itemize}
 
   \item sendIndex
@@ -788,6 +792,12 @@ But this process will change.
 An implementation of YARP2 must support at least the ``tcp''
 and ``text'' protocol.  Other carriers that may be supported:
 ``udp'', ``mcast'', ``shmem''.
+
+
+\subsection{May we also recommend}
+
+The netcat package -- useful by itself, and for testing.
+
 
 \end{document}
 

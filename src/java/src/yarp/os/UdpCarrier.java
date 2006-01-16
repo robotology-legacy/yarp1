@@ -41,7 +41,9 @@ class UdpCarrier extends Carrier {
     }
 
     public void close() throws IOException {
+	log.println("UdpCarrier.close");
 	if (dgram!=null) {
+	    log.println("UdpCarrier.close socket");
 	    dgram.close();
 	    dgram = null;
 	}

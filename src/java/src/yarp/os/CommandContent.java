@@ -27,11 +27,24 @@ class CommandContent implements Content {
     }
 
     public void write(BlockWriter proto) throws IOException {
-	byte[] hdr = NetType.append(NetType.netInt(str.length()+1),
-				    new byte[] { '~', (byte)ch, 0, 1});
-	proto.appendBlock(hdr);
-	if (str!=null) {
-	    proto.appendString(str);
+	Logger.get().println("Command content");
+	if (!proto.isTextMode()) {
+	    int len = 0;
+	    if (str!=null) {
+		len = str.length()+1;
+	    }
+	    byte[] hdr = NetType.append(NetType.netInt(len),
+					new byte[] { '~', (byte)ch, 0, 1});
+	    proto.appendBlock(hdr);
+	    if (str!=null) {
+		proto.appendString(str);
+	    }
+	} else {
+	    if (ch!='\0') {
+		proto.appendString("" + ch + "\n");
+	    } else {
+		proto.appendString(str);
+	    }
 	}
     }
 
