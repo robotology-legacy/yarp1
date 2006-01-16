@@ -82,7 +82,7 @@ int YARPNameClient2::registerName(const char *name,
 				  ACE_INET_Addr& addr) {
   YNC("registerName %s\n", name);
   YARPString cmd("NAME_SERVER register ");
-  cmd = cmd + name + " tcp * 10\n";
+  cmd = cmd + name + " tcp ... ... 10\n";
   YARPString result = send(cmd,true);
   Params p(result.c_str());
   if (p.size()>=9) {
