@@ -11,9 +11,9 @@ public class NameClient {
     private String host;
     private static Logger log = Logger.get();
 
-    private NameClient(Address address) {
-	this.address = address;
-    }
+    //private NameClient(Address address) {
+	//this.address = address;
+    //}
 
     private NameClient() {
 	getConfiguration();
