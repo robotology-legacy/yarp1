@@ -258,6 +258,10 @@ class YarpServer implements CommandProcessor {
 	return rec;
     }
 
+    public void removeNameRecord(String name) {
+	nameMap.remove(name);
+    }
+
     public HostRecord getHostRecord(String host) {
 	HostRecord rec = (HostRecord)hostMap.get(host);
 	if (rec==null) {
@@ -267,18 +271,24 @@ class YarpServer implements CommandProcessor {
 	return rec;
     }
 
-    public void dump() {
-	PrintStream out = System.out;
-	out.println("Name records");
+    public String dump() {
+	StringBuffer buf = new StringBuffer("");
 	for (Iterator it = nameMap.keySet().iterator(); it.hasNext(); ) {
 	     String name = (String)it.next();
 	     NameRecord rec = getNameRecord(name);
-	     out.println("  Key [" + name + "] has address " + rec.getAddress());
+	     buf.append(textify(rec.getAddress()));
 	}
+	return buf.toString();
     }
 
     public Address unregister(String name) {
-	   return query(name);
+	NameRecord rec = getNameRecord(name,false);
+	if (rec!=null) {
+	    Address address = rec.getAddress();
+	    recycle(address);
+	}
+	removeNameRecord(name);
+	return query(name);
     }
 
     public Address query(String name) {
@@ -312,6 +322,14 @@ class YarpServer implements CommandProcessor {
     }
 
 
+    public void recycle(Address address) {
+	if (address!=null) {
+	    log.println("Reusing port " + address.getPort() +
+			" on host " + address.getName());
+	    getHostRecord(address.getName()).release(address.getPort());
+	}
+    }
+
     public Address register(String name,
 			    String host,
 			    int sock,
@@ -320,11 +338,7 @@ class YarpServer implements CommandProcessor {
 	NameRecord nameRecord = getNameRecord(name);
 	HostRecord hostRecord = getHostRecord(host);
 	Address address = nameRecord.getAddress();
-	if (address!=null) {
-	    log.println("Reusing port " + address.getPort() +
-			" on host " + address.getName());
-	    getHostRecord(address.getName()).release(address.getPort());
-	}
+	recycle(address);
 	if (count!=1) {
 	    log.println("Count is " + count + 
 			" but this is currently ignored (legacy)");
@@ -350,15 +364,17 @@ class YarpServer implements CommandProcessor {
 	return address;
     }
 
+    private String terminate(String str) {
+	return str + "*** end of message\n";
+    }
+
     private String textify(Address address) {
 	String result = "";
 	if (address!=null) {
 	    result = "registration name " + address.getRegName() + 
 		" ip " + address.getName() + " port " + 
-		address.getPort() + " type " + address.getCarrier();
+		address.getPort() + " type " + address.getCarrier() + "\n";
 	}
-	result += "\n*** end of message\n";
-	//System.out.println("Response: " + result);
 	return result;
     }
 
@@ -434,19 +450,22 @@ class YarpServer implements CommandProcessor {
 		    log.error("bad number format: check " + sock + " and " + count);
 		}
 		Address result = register(target,base,nsock,proto,ct);
-		response = textify(result);
+		response = terminate(textify(result));
 	    }
 	    if (act.equals("unregister")) {
 		String target = str[0];
 		log.info("Unregister " + target);
 		Address result = unregister(target);
-		response = textify(result);
+		response = terminate(textify(result));
 	    }
 	    if (act.equals("query")) {
 		String target = str[0];
 		log.info("Query " + target);
 		Address result = query(target);
-		response = textify(result);
+		response = terminate(textify(result));
+	    }
+	    if (act.equals("list")) {
+		response = terminate(dump());
 	    }
 	    if (act.equals("set")) {
 		String target = str[0];
