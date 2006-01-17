@@ -25,7 +25,7 @@ public class YarpClient {
 	    if (args.length>=3) {
 		portStr = args[2];
 	    }
-	    Integer port = Integer.valueOf(portStr).intValue();
+	    int port = Integer.valueOf(portStr).intValue();
 	    Address address = new Address(target,port);
 	    NameClient.getNameClient().setServerAddress(address);
 	    System.out.println("*** set name server address to " + address);

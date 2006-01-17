@@ -66,8 +66,8 @@ public class Bottle {
 	    String txt = o.toString();
 	    if (o instanceof String) {
 		String quoted = txt;
-		quoted = quoted.replace("\\","\\\\");
-		quoted = quoted.replace("\"","\\\"");
+		quoted = quoted.replaceAll("\\","\\\\");
+		quoted = quoted.replaceAll("\"","\\\"");
 		
 		txt = "\"" + quoted + "\"";
 	    }
