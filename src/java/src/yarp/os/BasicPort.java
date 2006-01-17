@@ -39,6 +39,10 @@ class BasicPort extends Thread implements Port {
 	return key;
     }
 
+    public String name() {
+	return getPortName();
+    }
+
     public synchronized void setHandler(ProtocolHandler handler) {
 	this.handler = handler;
     }

@@ -46,6 +46,16 @@ class YarpServer implements CommandProcessor {
 	    return new Integer(result);
 	}
 
+	boolean recycle(String name) {
+	    Pattern p = Pattern.compile("^/tmp/port/([0-9]+)$");
+	    Matcher m = p.matcher(name);
+	    if (m.find()) {
+		Integer x = Integer.valueOf(m.group(1));
+		releaseObject(x);
+		return true;
+	    }
+	    return false;
+	}
     }
 
     private static class HostRecord extends ReusableRecord {
@@ -288,6 +298,7 @@ class YarpServer implements CommandProcessor {
 	    recycle(address);
 	}
 	removeNameRecord(name);
+	tmpNames.recycle(name);
 	return query(name);
     }
 

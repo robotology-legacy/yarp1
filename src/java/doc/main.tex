@@ -37,20 +37,30 @@
         \setlength{\topsep}{0mm}
         \setlength{\parskip}{0mm}    }
 
-\newcommand{\usage}[1]{
+%\newcommand{\usage}[1]{
+%  \noindent
+%  \begin{tabular}{|l|}\hline
+%  Command: {\bf #1}\\
+%\hline\end{tabular}\\
+%\noindent}
 
+\newcommand{\newusage}{
   \ \\
+}
+
+\newcommand{\usage}[1]{
   \noindent
-  \begin{tabular}{|l|}\hline
-  Command: {\bf #1}\\
-\hline\end{tabular}
+  \begin{tabular}{l}
+  {\it Command:} {\tt #1}\\
+  \end{tabular}\\
 \noindent}
 
+\newcommand{\ctt}[1]{{\tt #1}}
 
 
 \title{
 YARP Network Protocol Specification 2.0 \\
-YARP Network Utility Specification 2.0 \\
+YARP Network Companion Utility Specification 2.0 \\
 (*** draft ***)
 }
 
@@ -222,55 +232,255 @@ detail at which the operation of the utility and problems
 encountered is described.
 
 
+\newusage{}
 \usage{yarp}
 %
 This lists a human-readable summary of the 
-ways the utility can be used.
+ways the utility can be used.  Example output:
 
+\begin{code}
+here are ways to use this program:
+  <this program> read /name
+  <this program> write /name [/target]
+  <this program> connect /source /target [carrier]
+     carrier can be: tcp udp mcast text
+  <this program> disconnect /source /target
+  <this program> server
+  <this program> where
+  <this program> version
+  <this program> name {arguments}
+\end{code}
+
+
+\newusage{}
 \usage{yarp server}
+\usage{yarp server SOCKETPORT}
+\usage{yarp server IP SOCKETPORT}
 %
-This starts a name server running on the current machine.
+This starts a name server running on the current machine, optionally
+specifying the socket-port to listen to (default whatever was used in
+the previous invocation, as recorded in a configuration file, or 10000
+if this is the first time to run).
+%
+Also, the IP by which the name server should be identified can
+optionally be specified (default is a guess).
 
+\newusage{}
 \usage{yarp where}
 %
-This will report where the name server is believed to be running.
+This will report where the name server is believed to be running,
+and the location of the configuration file used to determine that.
+Example output:
 
+\begin{code}
+Name server is available at ip 5.255.112.225 port 10000
+This is configured in file /home/paulfitz/.yarp/conf/namer.conf
+You can change the directory where this configuration file is stored
+with the YARP\_ROOT environment variable.
+\end{code}
+
+\newusage{}
 \usage{yarp version}
 %
-This will report on the yarp version available.
+This will report on the yarp version available.  Example:
 
-\usage{yarp name COMMAND ARG1 ARG2 \ldots}
+\begin{code}
+YARP network version 2.0
+\end{code}
+
+\newusage{}
+\usage{yarp name COMMAND $ARG_1$ $ARG_2$ \ldots}
 %
-This will send the given command and arguments to the name
-server and report the results.  Equivalent to the telnet
-examples given earlier, except the ``NAME\_SERVER'' prefix
-is added automatically to the message send to the name server.
+This will send the given command and arguments to the name server
+using the YARP name server protocol, and report the results.
+See Section XXX.
+%
+%Equivalent to the telnet examples given in Section XXX, except the
+%``NAME\_SERVER'' prefix is added automatically to the message send to
+%the name server.
 
+\newusage{}
 \usage{yarp read PORT}
 %
-This will create an input port of the specified name.  The port
-reads ``yarp bottles'' (specified later) and prints their content
-to standard output.
+This will create an input port of the specified name.  It will
+then loop, 
+reading ``yarp bottles'' (specified in section XXX) and prints their content
+to standard output.  This simple utility is intended for use in testing, or
+getting familiar with using YARP.
 
+\newusage{}
 \usage{yarp write PORT}
 %
-This will create an output port of the specified name.  The port
-reads from standard input and writes ``yarp bottles'' (specified later).
-Optionally, a list of input ports to connect to automatically can be
-appended to the command.
+This will create an output port of the specified name.  It will then
+loop, reading
+from standard input and writing ``yarp bottles'' (specified in section
+XXX).  Optionally, a list of input ports to connect to automatically
+can be appended to the command.  This simple utility is intended for use 
+in testing, or
+getting familiar with using YARP.
 
+\newusage{}
 \usage{yarp connect OUTPUT\_PORT INPUT\_PORT}
+\usage{yarp connect OUTPUT\_PORT INPUT\_PORT CARRIER}
 %
 This will request the specified output port to send its output in 
 future to the specified input port.
-
-Optionally, the protocol to be used can be added as an extra argument
+Optionally, the carrier to be used can be added as an extra argument
 (e.g. tcp, udp, mcast, ...).
 
+\newusage{}
 \usage{yarp disconnect OUTPUT\_PORT INPUT\_PORT}
 %
 This will request the specified output port to cease sending its output to
 the specified input port.
+
+
+\section{Using the YARP companion utility}
+
+This is informal, tutorial-style section meant to give the flavor
+of using YARP.
+
+First, please
+open two terminal windows; we'll refer to these as A and B.
+%
+Before doing any communication, is is necessary to start the YARP name
+service -- this is a program which keeps track of what YARP resources
+are currently available and how to access them.
+%
+In terminal A, type:
+
+\begin{verbatim}
+yarp server
+\end{verbatim}
+
+If all goes well, you will see the message ``yarp: name server starting at ...'' -- if not, check any configuration file
+mentioned in the output of ``yarp where''.
+%
+Next, in terminal B, type:
+%
+\begin{verbatim}
+yarp check
+\end{verbatim}
+%
+This will try to communicate with the name server, send a message,
+receive a message, and basically make sure that everything is
+working well.  Here is what you should see:
+
+\begin{quote}
+{\small
+\begin{verbatim}
+==================================================================
+=== Trying to register some ports
+yarp: Registered port ... as tcp://5.255.112.225:10011
+yarp: Registered port ... as tcp://5.255.112.225:10001
+==================================================================
+=== Trying to connect some ports
+yarp: /tmp/port/2: Receiving input from /tmp/port/1 to /tmp/port/2 using tcp
+yarp: Sending output from /tmp/port/1 to /tmp/port/2 using tcp
+==================================================================
+=== Trying to write some data
+==================================================================
+=== Trying to read some data
+*** Read number 42
+==================================================================
+=== Trying to close some ports
+yarp: Shutting down port /tmp/port/2
+yarp: /tmp/port/2: Stopping input from /tmp/port/1 to /tmp/port/2
+yarp: stopping output from /tmp/port/1 to /tmp/port/2
+yarp: Shutting down port /tmp/port/1
+*** YARP seems okay!
+\end{verbatim}
+}
+\end{quote}
+%
+\noindent
+Here is an example of things going wrong:
+%
+\begin{quote}
+{\small
+\begin{verbatim}
+==================================================================
+=== Trying to register some ports
+yarp: Couldn't connect to 5.255.112.225
+yarp: Name server missing
+\end{verbatim}
+}
+\end{quote}
+
+If networking is broken on your machine, then YARP will have trouble.
+If you are running the YARP name server on a machine that does not
+have a static IP address or a name registered with DNS, then you
+should check the configuration file mentioned by ``yarp where'', and
+make sure that the first line of the configuration file is of the form:
+\begin{quote}
+  current.valid.ip.address 10000
+\end{quote}
+
+The number ``10000'' is the default port number that the YARP name
+service uses.  This is usually fine; if you have a conflict with this,
+then please change it in the configuration file.
+
+If all is well, we can try exercising YARP a little more.
+
+In terminal B, type:
+%
+\begin{verbatim}
+yarp read /port1
+\end{verbatim}
+%
+This will report \ctt{yarp: Registered port /port1 ...} in terminal B and in
+terminal A some corresponding message will also appear.
+%
+Next, in terminal C, type:
+
+\begin{verbatim}
+yarp write /port2
+\end{verbatim}
+
+If all goes well, this will report \ctt{yarp: Registered port /port2 ...} in
+terminal C and in terminal A some corresponding message will also
+appear.
+%
+Now, in terminal D, type:
+
+\begin{verbatim}
+yarp connect /port2 /port1
+\end{verbatim}
+
+Terminal C will report \ctt{Connecting /port2 to /port1}.  Now if
+you type ``hello world'' into terminal C, and hit enter, that text
+will appear on terminal B.
+
+If you have another computer with YARP installed on it, open a
+terminal on it (let's call that terminal E) and type:
+
+\begin{verbatim}
+yarp remote machinename
+\end{verbatim}
+
+where machinename is the full name or (better still) IP address of the
+first machine on which the YARP name service is running.  
+% If all goes
+% well it should report \ctt{connection established with YARP name
+% service running on {\bf machinename}}.  If things do not go well, 
+% try running ``yarp-service --check'' in terminal E.  You now have
+% two configuration files, one on each machine, which should both
+% refer to the IP address of the first machine (since that is the one
+% on which the server is running on).
+
+If everything is going okay so far, type on terminal E:
+%
+\begin{verbatim}
+yarp read /port3
+\end{verbatim}
+%
+and on terminal D, type:
+%
+\begin{verbatim}
+yarp connect /port2 /port3
+\end{verbatim}
+%
+Now any line you enter in terminal C should appear in both terminal B and E.
 
 
 

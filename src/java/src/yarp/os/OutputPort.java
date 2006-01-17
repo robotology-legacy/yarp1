@@ -81,4 +81,8 @@ public class OutputPort implements Port {
     public void close() {
 	port.close();
     }
+
+    public String name() {
+	return port.name();
+    }
 }

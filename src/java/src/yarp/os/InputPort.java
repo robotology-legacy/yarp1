@@ -35,20 +35,45 @@ public class InputPort implements Port {
      * Wait for input to arrive.  Input can be extracted using the
      * content method.  Must have called register and creator
      * once.
+     * @param wait true if should wait, false if should poll.
      * @return true is input is available.
      */
-    public boolean read() {
+    public boolean read(boolean wait) {
+	boolean worthwhile = false;
+	log.println("InputPort getting ready to read");
 	try {
 	    synchronized(stateMutex) {
 		clientReading = false;
+		if (pending>0) {
+		    worthwhile = true;
+		    pending--;
+		}
 	    }
-	    synchronized(readSomething) {
-		readSomething.wait();
+	    if (!worthwhile && wait) {
+		log.println("InputPort getting ready to wait " + worthwhile + " " + wait + " " + pending);
+		synchronized(readSomething) {
+		    readSomething.wait();
+		}
+		synchronized(stateMutex) {
+		    if (pending>0) {
+			worthwhile = true;
+			pending--;
+		    }
+		}
 	    }
-	    return true;
+	    log.println("InputPort got something? " + worthwhile);
+	    return worthwhile;
 	} catch (InterruptedException e) {
 	    return false;
 	}
+    }
+
+
+    /**
+     * wait and read
+     */
+    public boolean read() {
+	return read(true);
     }
 
 
@@ -92,6 +117,9 @@ public class InputPort implements Port {
 		    Logger.get().error("Problem reading");
 		}
 	    }
+	    synchronized(stateMutex) {
+		pending++;
+	    }
 	    synchronized(readSomething) {
 		readSomething.notify();
 	    }
@@ -102,6 +130,10 @@ public class InputPort implements Port {
 	}
     }
 
+    public String name() {
+	return port.name();
+    }
+
     private ContentCreator creator;
     private BasicPort port;
     private Object readSomething = new Object();
@@ -109,5 +141,7 @@ public class InputPort implements Port {
     private boolean clientReading = false;
     private Content content;
     private ProtocolHandler handler = new InputPortHandler();
+    private int pending = 0;
+    static private Logger log = Logger.get();
 }
 

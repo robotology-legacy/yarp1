@@ -6,5 +6,6 @@ package yarp.os;
  */
 public interface Port {
     void register(String name);
+    String name();
     void close();
 }

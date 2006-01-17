@@ -18,6 +18,21 @@ public class YarpClient {
 	return out;
     }
 
+    private static void remote(String[] args) {
+	if (args.length>=2) {
+	    String target = args[1];
+	    String portStr = "10000";
+	    if (args.length>=3) {
+		portStr = args[2];
+	    }
+	    Integer port = Integer.valueOf(portStr).intValue();
+	    Address address = new Address(target,port);
+	    NameClient.getNameClient().setServerAddress(address);
+	    System.out.println("*** set name server address to " + address);
+	}
+	where();
+    }
+
     /**
      * Create a port to read Bottles and prints them to standard input.
      * It assumes the Bottles consist of an integer followed by a string.
@@ -123,6 +138,53 @@ public class YarpClient {
 	    c.close();
 	} catch (IOException e) {
 	    throw(new IOException("connection failed"));
+	}
+    }
+
+    private static void check() {
+	InputPort in = new InputPort();
+	OutputPort out = new OutputPort();
+	IntegerContent ints = new IntegerContent();
+	System.out.println("==================================================================");
+	System.out.println("=== Trying to register some ports");
+	in.creator(ints);
+	out.creator(ints);
+	in.register("...");
+	out.register("...");
+	Time.delay(1);
+	System.out.println("==================================================================");
+	System.out.println("=== Trying to connect some ports");
+	out.connect(in.name());
+	Time.delay(1);
+	System.out.println("==================================================================");
+	System.out.println("=== Trying to write some data");
+	out.write(new IntegerContent(42));
+	Time.delay(1);
+	System.out.println("==================================================================");
+	boolean ok = false;
+	for (int i=0; i<3; i++) {
+	    System.out.println("=== Trying to read some data");
+	    Time.delay(1);
+	    if (in.read(true)) {
+		int x = ((Integer)in.content()).intValue();
+		System.out.println("*** Read number " + x);
+		if (x==42) {
+		    ok = true;
+		    break;
+		}
+	    }
+	}
+	System.out.println("==================================================================");
+	System.out.println("=== Trying to close some ports");
+	in.close();
+	out.close();
+	Time.delay(1);
+	if (!ok) {
+	    System.out.println("*** YARP seems broken.");
+	    //diagnose();
+	    System.exit(1);
+	} else {
+	    System.out.println("*** YARP seems okay!");
 	}
     }
 
@@ -276,8 +338,12 @@ public class YarpClient {
     public static void where() {
 	Address address = NameClient.getNameClient().getAddress();
 	File file = NameClient.getNameClient().getConfigFile();
-	System.out.println("Name server is available at ip " +
-			   address.getName() + " port " + address.getPort());
+	if (address!=null) {
+	    System.out.println("Name server is available at ip " +
+			       address.getName() + " port " + address.getPort());
+	} else {
+	    System.out.println("Address of name server is not configured");
+	}
 	System.out.println("This is configured in file " +
 			   file);
 	System.out.println("You can change the directory where this configuration file is stored\nwith the YARP_ROOT environment variable.");
@@ -331,11 +397,17 @@ public class YarpClient {
 	    if (mode.equals("name")) {
 		name(args);
 	    }
+	    if (mode.equals("remote")) {
+		remote(args);
+	    }
 	    if (mode.equals("where")) {
 		where();
 	    }
 	    if (mode.equals("version")) {
 		version();
+	    }
+	    if (mode.equals("check")) {
+		check();
 	    }
 	} else {
 	    System.err.println("here are ways to use this program:");
