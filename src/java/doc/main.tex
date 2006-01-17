@@ -415,22 +415,56 @@ index, and body.
     concludes the preamble to actual data transmission.  After this
     phase, the two ports are considered connected.
     
-    \begin{itemize}
-    \item Receiver may transmit some data, depending on the carrier.
-      Receiver then may switch from the initial network
-      protocol used to something else (udp, mcast, etc), again
-      depending on the carrier.
-      
-    \item Sender may expect some data, depending on the carrier.
-      Sender then may switch from the initial network
-      protocol used to something else (udp, mcast, etc), again
-      depending on the carrier.
-    \end{itemize}
+  \item Receiver may transmit some data, depending on the carrier.
+    Receiver then may switch from the initial network
+    protocol used to something else (udp, mcast, etc), again
+    depending on the carrier.
+    
+  \item Sender may expect some data, depending on the carrier.
+    Sender then may switch from the initial network
+    protocol used to something else (udp, mcast, etc), again
+    depending on the carrier.
 
-  \item Index phase
+  \end{itemize}
+
+\item Index phase
     
-    \begin{itemize}
+  \begin{itemize}
     
+  \item Sender sends carrier-dependent data describing the user data to come (maybe none).
+    
+  \item Receiver expects carrier-dependent data describing the user data to come.
+    
+  \end{itemize}
+  
+\item Payload data phase
+  
+  \begin{itemize}
+    
+  \item Sender sends carrier-dependent expression of user data (maybe none).
+    
+  \item Receiver expects carrier-dependent expression of user data.
+    
+  \end{itemize}
+
+\item Acknowledgement phase
+
+  \begin{itemize}
+    
+  \item Receiver sends carrier-dependent acknowledgement of user data (maybe none).
+    
+  \item Sender expects carrier-dependent acknowledgement of user data (maybe none).
+    
+  \end{itemize}
+
+  
+\end{itemize}
+
+
+
+
+\begin{itemize}
+
     \item Depending on the carrier, some connections will not enter this
       phase or beyond.  For example, in the multicast protocol, certain
       connections are effectively identical despite having different
@@ -461,15 +495,7 @@ index, and body.
       choice, you can ask for a bigger reply if you like).
       
     \item More to do...
-      
-    \end{itemize}
-    
-  \item More to do...
-    
-  \end{itemize}
 
-\item More to do...
-  
 \end{itemize}
 
 \subsection{Sender's responsibilities}
