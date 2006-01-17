@@ -277,6 +277,9 @@ class YarpServer implements CommandProcessor {
 	}
     }
 
+    public Address unregister(String name) {
+	   return query(name);
+    }
 
     public Address query(String name) {
 	Map parts = getNameParts(name);
@@ -431,6 +434,12 @@ class YarpServer implements CommandProcessor {
 		    log.error("bad number format: check " + sock + " and " + count);
 		}
 		Address result = register(target,base,nsock,proto,ct);
+		response = textify(result);
+	    }
+	    if (act.equals("unregister")) {
+		String target = str[0];
+		log.info("Unregister " + target);
+		Address result = unregister(target);
 		response = textify(result);
 	    }
 	    if (act.equals("query")) {
