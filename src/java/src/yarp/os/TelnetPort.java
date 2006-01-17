@@ -29,7 +29,7 @@ class TelnetPort extends BasicPort {
 	public void close() {
 	}
 
-	public String apply(String cmd, Address address) {
+	synchronized public String apply(String cmd, Address address) {
 	    return processor.apply(cmd,address);
 	}
 
