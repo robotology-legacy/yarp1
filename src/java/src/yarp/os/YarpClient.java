@@ -275,8 +275,12 @@ public class YarpClient {
      */
     public static void where() {
 	Address address = NameClient.getNameClient().getAddress();
+	File file = NameClient.getNameClient().getConfigFile();
 	System.out.println("Name server is available at ip " +
 			   address.getName() + " port " + address.getPort());
+	System.out.println("This is configured in file " +
+			   file);
+	System.out.println("You can change the directory where this configuration file is stored\nwith the YARP_ROOT environment variable.");
     }
 
     /**

@@ -51,7 +51,7 @@ class YarpServer implements CommandProcessor {
     private static class HostRecord extends ReusableRecord {
 
 	// should change this to depend on name server port
-	private int base = 10001;
+	private int base = NameClient.getNameClient().getAddress().getPort()+1;
 
 	// YARP2 doesn't need this, just YARP1
 	private static final int legacyStep = 10;
@@ -547,8 +547,6 @@ class YarpServer implements CommandProcessor {
 
 	NameClient nc = NameClient.getNameClient();
 
-	YarpServer server = new YarpServer();
-
 	Address address = nc.getAddress();
 
 	if (pref!=null||address==null) {
@@ -568,6 +566,7 @@ class YarpServer implements CommandProcessor {
 			  address);
 		System.exit(1);
 	    }
+	    YarpServer server = new YarpServer();
 	    TelnetPort tp = new TelnetPort(address,server);
 	    log.info("name server starting at " + address);
 	    if (background) {
