@@ -543,32 +543,55 @@ class YarpServer implements CommandProcessor {
 	return response;
     }
 
-    public static void run(boolean background) {
+    public static void run(boolean background, Address pref) {
+
+	NameClient nc = NameClient.getNameClient();
+
 	YarpServer server = new YarpServer();
 
-	log.info("name server running");
-	Address address = NameClient.getNameClient().getAddress();
+	Address address = nc.getAddress();
+
+	if (pref!=null||address==null) {
+	    nc.setServerAddress(pref);
+	}
+
+	address = nc.getAddress();
+
 	try {
 	    InetAddress inet = InetAddress.getByName(address.getName());
-	    if (inet.isLoopbackAddress()||inet.isAnyLocalAddress()) {
+	    if (!(inet.isLoopbackAddress()||
+		  inet.isAnyLocalAddress()||
+		  address.getName().equals(nc.getHostName()))) {
 		// don't know what this test actually does; don't have
 		// any documentation
-		TelnetPort tp = new TelnetPort(address,server);
-		if (background) {
-		    tp.start();
-		} else {
-		    tp.run();
-		}
+		log.error("Name server is configured for a remote address " + 
+			  address);
+		System.exit(1);
+	    }
+	    TelnetPort tp = new TelnetPort(address,server);
+	    log.info("name server starting at " + address);
+	    if (background) {
+		tp.start();
 	    } else {
-		log.info("Name server is configured for a remote address");
+		tp.run();
 	    }
 	} catch (Exception e) {
-	    log.error("Can't look up host");
+	    log.error("Can't create name server: " + e);
 	}
     }
 
     public static void main(String[] args) {
-	run(false);
+	if (args.length>=2) {
+	    if (args.length>=3) {
+		run(false,new Address(args[1],
+				      Integer.valueOf(args[2]).intValue()));
+	    } else {
+		run(false,new Address(null,
+				      Integer.valueOf(args[1]).intValue()));
+	    }
+	} else {
+	    run(false,null);
+	}
     }
 }
 

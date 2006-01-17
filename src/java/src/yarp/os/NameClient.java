@@ -16,7 +16,7 @@ public class NameClient {
     private static Logger log = Logger.get();
 
     private NameClient() {
-	getConfiguration();
+	readConfig();
     }
 
     /**
@@ -93,7 +93,7 @@ public class NameClient {
 	return "tcp";
     }
 
-    private static String getConfiguration(String key) {
+    private static String getEnv(String key) {
 	String val = System.getenv(key);
 	if (val!=null) {
 	    log.println("Environment variable " + key + " is " + val);
@@ -118,53 +118,74 @@ public class NameClient {
 	//address = new Address("127.0.0.1",10000);
     }
 
-    private void getConfiguration() {
-	String root = getConfiguration("YARP_ROOT");
-	String home = getConfiguration("HOME");
-	String conf = null;
+
+    public void setServerAddress(Address pref) {
+	File path = getConfigFile();
+	createPath(path);
+	writeConfig(path,pref);
+	readConfig();
+    }
+
+
+    private File getConfigFile() {
+	String root = getEnv("YARP_ROOT");
+	String home = getEnv("HOME");
+	File conf = null;
 	if (root!=null) {
-	    conf = root + "/conf/namer.conf";
+	    conf = new File(new File(root,"conf"),"namer.conf");
 	} else if (home!=null) {
-	    conf = home + "/.yarp/conf/namer.conf";
+	    conf = new File(new File(new File(home,".yarp"),"conf"),"namer.conf");
 	} else {
 	    log.error("Cannot decide where configuration file is - set YARP_ROOT or HOME");
 	    System.exit(1);
 	}
 	log.println("Configuration file: " + conf);
-	File file = new File(conf);
+	return conf;
+    }
+
+    private void writeConfig(File path, Address address) {
+	File f2 = path;
+	if (address==null) {
+	    address = new Address(getHostName(),10000);
+	}
+	if (address.getName()==null) {
+	    readConfig();
+	    Address prev = getAddress();
+	    if (prev!=null) {
+		address = new Address(prev.getName(),address.getPort());
+	    } else {
+		address = new Address(getHostName(),address.getPort());
+	    }
+	}
+	try {
+	    PrintStream prn = 
+		new PrintStream(new FileOutputStream(f2));
+	    prn.println(address.getName() + " " + address.getPort());
+	    prn.println("");
+	    prn.println("// start network description, don't forget to separate \"Node=\" and names with space");
+	    prn.println("[NETWORK_DESCRIPTION]");
+	    prn.println("[END]");
+	    prn.close();
+	} catch (Exception e) {
+	    log.error("Problem writing config file: " + e);
+	}
+    }
+
+    private void createPath(File path) {
+	File parent = path.getParentFile();
+	if (parent!=null) {
+	    if (!parent.exists()) {
+		createPath(parent);
+		parent.mkdir();
+	    }
+	}
+    }
+
+    private boolean readConfig() {
+	File file = getConfigFile();
 	if (!file.exists()) {
 	    log.warning("Cannot find configuration file");
-	    String base = root;
-	    if (base==null) {
-		base = home + "/.yarp";
-		File f1 = new File(base);
-		if (!f1.exists()) {
-		    f1.mkdir();
-		}
-	    }
-	    if (base!=null) {
-		File f1 = new File(base + "/conf");
-		if (!f1.exists()) {
-		    f1.mkdir();
-		}
-		File f2 = new File(base + "/conf/namer.conf");
-		if (!f2.exists()) {
-		    try {
-			PrintStream prn = 
-			    new PrintStream(new FileOutputStream(f2));
-			prn.println("127.0.0.1 10000");
-			prn.println("");
-			prn.println("// start network description, don't forget to separate \"Node=\" and names with space");
-			prn.println("[NETWORK_DESCRIPTION]");
-			prn.println("[END]");
-			conf = f2.getName();
-			file = f2;
-			prn.close();
-		    } catch (Exception e) {
-			// ok to fail
-		    }
-		}
-	    }
+	    return false;
 	}
 	StringBuffer txt = new StringBuffer("");
 	try {
@@ -183,7 +204,9 @@ public class NameClient {
 	} catch (Exception e) {
 	    // ok to fail
 	    log.warning("Problem reading configuration file");
+	    return false;
 	}
+	return true;
     }
 
     static String getNamePart(String name) {
@@ -399,15 +422,17 @@ public class NameClient {
 		log.error("Don't know about host " + address.getName());
 		System.exit(1);
 	    } catch (IOException e) {
-		log.warning("Name server missing");
-		log.warning("Couldn't get I/O for the connection to " + address.getName());
-		//System.exit(1);
+		log.error("Couldn't connect to " + address.getName());
+		log.error("Name server missing");
+		System.exit(1);
+		/*
 		log.warning("Starting a LOCAL server, just so something will work");
 		log.warning("You should really make a name server yourself");
-		getConfiguration();
+		getSetConfiguration(null);
 		Time.delay(3);
-		YarpServer.run(true);
+		YarpServer.run(true,-1);
 		Time.delay(1);
+		*/
 	    }
 	}
 
