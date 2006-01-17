@@ -251,6 +251,7 @@ class BasicPort extends Thread implements Port {
 
     public synchronized void close() {
 	log.println("starting Port close...");
+	NameClient.getNameClient().unregister(key);
 	shutdown = true;
 	for (Iterator it = portlets.iterator(); it.hasNext(); ) {
 	    Portlet portlet = (Portlet) it.next();

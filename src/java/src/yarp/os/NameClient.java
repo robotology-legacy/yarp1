@@ -250,6 +250,16 @@ public class NameClient {
 	return register(getNamePart(name),getProtocolPart(name));
     }
 
+
+    /**
+     * Register disassociation of name from port.
+     * @param name the name to remove
+     * @return the new result of queries for that name (should be empty)
+     */
+    public Address unregister(String name) {
+	return probe("NAME_SERVER unregister " + getNamePart(name));
+    }
+
     /**
      * Register a port with a given name and carrier.
      * @param name the name of the port
