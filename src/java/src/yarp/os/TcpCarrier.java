@@ -21,8 +21,6 @@ class TcpCarrier extends Carrier {
 	//return 0x64; // second byte: 0x1e
     }
 
-
-
     public TcpCarrier() {
     }
 
@@ -41,16 +39,6 @@ class TcpCarrier extends Carrier {
     }
 
     public void start(Socket socket) throws IOException {
-	/*
-	this.socket = socket;
-	InetAddress a1 = socket.getLocalAddress();
-	Address clocal = 
-	    new Address(a1.getHostAddress(),socket.getLocalPort());
-	InetSocketAddress a2 = 
-	    (InetSocketAddress)socket.getRemoteSocketAddress();
-	Address cremote = new Address(a2.getHostName(),socket.getPort());
-	setAddress(clocal,cremote);
-	*/
 	log.println("*** TcpCarrier started with socket");
 	way = new SocketTwoWayStream(socket);
     }
@@ -59,9 +47,6 @@ class TcpCarrier extends Carrier {
     public void expectReplyToHeader(Protocol proto) throws IOException {
 	log.println("expectReplyToHeader for tcp");
 	readPort(proto);
-	// For TCP, a delay seems to be needed when talking to C++ yarp - 
-	// anyone know why?
-	//Time.delay(2);  -- this is needed for C++ yarp
     }
 
     public void close() throws IOException {
@@ -73,6 +58,13 @@ class TcpCarrier extends Carrier {
 	}
     }
 
+    public boolean respondToHeader(Protocol proto) throws IOException {
+	int cport = proto.getLocalAddress().getPort();
+	log.println("setting port number to " + cport);
+	proto.writeYarpInt(cport);
+	return true;
+    }
+
     public TwoWayStream takeStreams() {
 	log.println("TcpCarrier giving away socket");
 	TwoWayStream r = way;
@@ -80,21 +72,9 @@ class TcpCarrier extends Carrier {
 	return way;
     }
 
-    public void open(Address address, ShiftStream previous) 
-	throws IOException {
+    public void open(Address address, ShiftStream previous) throws IOException{
 	way = previous.takeStreams();
-	/*
-	InetAddress a1 = socket.getLocalAddress();
-	Address clocal = 
-	    new Address(a1.getHostAddress(),socket.getLocalPort());
-	InetSocketAddress a2 = 
-	    (InetSocketAddress)socket.getRemoteSocketAddress();
-	Address cremote = new Address(a2.getHostName(),socket.getPort());
-	setAddress(clocal,cremote);
-	*/
     }
-
-
 
     public Carrier create() {
 	log.println("*** TcpCarrier::create()");

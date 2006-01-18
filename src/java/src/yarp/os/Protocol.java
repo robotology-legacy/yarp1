@@ -259,31 +259,19 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public boolean respondToHeader() throws IOException {
-	return delegate.respondToHeader(this);
+	boolean result = delegate.respondToHeader(this);
+	out.flush();
+	return result;
     }
 
-    public boolean defaultRespondToHeader() throws IOException {
-	if (!ok) { return false; }
+    public void writeYarpInt(int n) throws IOException {
 	byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
-	int cport = -1;
-	if (delegate.getLocalAddress()!=null) {
-	    cport = delegate.getLocalAddress().getPort();
-	} else {
-	    log.assertion(shift.getLocalAddress()!=null);
-	    cport = shift.getLocalAddress().getPort();
-	}
-	log.println("setting port number to " + cport);
-	byte b2[] = NetType.netInt(cport);
+	log.println("writing yarp integer " + n);
+	byte b2[] = NetType.netInt(n);
 	for (int i=0; i<b2.length; i++) {
 	    b[i+2] = b2[i];
 	}
-
 	write(b);
-	out.flush();
-
-	//delegate.respondExtraToHeader(this);
-
-	return true;
     }
 
     public boolean sendIndex() throws IOException {
@@ -576,11 +564,19 @@ class Protocol implements BlockWriter, BlockReader {
 
     
     public InputStream getInputStream() throws IOException {
-	return delegate.getInputStream();
+	return shift.getInputStream();
     }
 
     public OutputStream getOutputStream() throws IOException {
-	return delegate.getOutputStream();
+	return shift.getOutputStream();
+    }
+
+    public Address getLocalAddress() throws IOException {
+	return shift.getLocalAddress();
+    }
+
+    public Address getRemoteAddress() throws IOException {
+	return shift.getRemoteAddress();
     }
 
     public void setRequireAck(boolean flag) {

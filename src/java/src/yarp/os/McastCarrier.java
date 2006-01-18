@@ -195,7 +195,7 @@ class McastCarrier extends Carrier {
     }
 
     public boolean respondToHeader(Protocol proto) throws IOException {
-	super.respondToHeader(proto);
+	//super.respondToHeader(proto);
 	log.println("respondExtraToHeader for " + getName());
 	log.println("TAGGING as a reading mcast");
 	reading = true;
@@ -232,9 +232,10 @@ class McastCarrier extends Carrier {
 			    mcast.getLocalPort());
 	    setAddress(clocal,getRemoteAddress());
 	    */
+	    log.assertion(mcast!=null);
 	    way = new DatagramTwoWayStream(mcast,
-					   getLocalAddress(),
-					   getRemoteAddress(),
+					   address,
+					   address,
 					   reading);
 	}
 	return getLocalAddress();
@@ -248,6 +249,9 @@ class McastCarrier extends Carrier {
 	log.println("********* open for mcast address " + address);
 	Address clocal = previous.getLocalAddress();
 	Address tcpRemote = previous.getRemoteAddress();
+
+	previous.close();
+
 	Address cremote = address;
 	InetAddress group = InetAddress.getByName(address.getName());
 	InetAddress tcp = InetAddress.getByName(tcpRemote.getName());
@@ -258,7 +262,7 @@ class McastCarrier extends Carrier {
 	//  mcast = new MulticastSocket(address.getPort()); 
 	//}
 
-	//log.debug("tcp address is " + tcpRemote);
+	log.debug("tcp address is " + tcpRemote);
 	log.debug("mcast address is " + cremote);
 
 	if (!reading) {
@@ -272,7 +276,6 @@ class McastCarrier extends Carrier {
 		} else {
 		    // setting the interface seems to break things right now.
 		    getSocket().setNetworkInterface(anticipate);
-		    //mcast.setInterface(InetAddress.getByName(tcpRemote.getName()));
 		}
 
 	    } catch (SocketException e) {

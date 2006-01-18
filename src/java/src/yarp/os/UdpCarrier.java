@@ -5,7 +5,6 @@ import java.io.*;
 import java.net.*;
 
 class UdpCarrier extends Carrier {
-    //DatagramSocket dgram;
     TwoWayStream way = null;
 
     public TwoWayStream getStreams() {
@@ -24,11 +23,6 @@ class UdpCarrier extends Carrier {
 	//return 0x61;
     }
 
-    //public void sendExtraHeader(Protocol proto) throws IOException {
-    //log.println("UDP sendExtraHeader");
-    //}
-
-
     public void expectReplyToHeader(Protocol proto) throws IOException {
 	int port = readPort(proto);
 	//proto.become("udp",new Address("ignore",port));
@@ -36,11 +30,14 @@ class UdpCarrier extends Carrier {
     }
 
     public boolean respondToHeader(Protocol proto) throws IOException {
-	log.println("respondExtraToHeader for " + getName());
+	log.println("respondToHeader for " + getName());
 	makeDgram(null,getRemoteAddress());
 	//makeDgram(getLocalAddress());
 	log.println("local address is now " + getLocalAddress());
-	super.respondToHeader(proto);
+
+	int cport = getLocalAddress().getPort();
+	log.println("setting port number to " + cport);
+	proto.writeYarpInt(cport);
 	reading = true;
 	//proto.become(getName(),null);
 	proto.become(this,null);
@@ -76,24 +73,15 @@ class UdpCarrier extends Carrier {
     }
 
     public void open(Address address, ShiftStream previous) throws IOException {
-	//close();
 	Address clocal = previous.getLocalAddress();
 	Address cremote = previous.getRemoteAddress();
+
+	previous.close();
 
 	if (address!=null) {
 	    cremote = new Address(cremote.getName(),address.getPort());
 	}
 	clocal = makeDgram(clocal,cremote);
-
-	/*
-	//setAddress(clocal,cremote);
-	is = new DatagramInputStream(dgram,512);
-	os = new BufferedOutputStream(new DatagramOutputStream(dgram,
-							       cremote,
-							       512,
-							       reading),
-				      512);
-	*/
     }
 
     public Carrier create() {

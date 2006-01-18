@@ -55,9 +55,7 @@ abstract class Carrier implements ShiftStream {
 	return proto.defaultSendAck();
     }
 
-    public boolean respondToHeader(Protocol proto) throws IOException {
-	return proto.defaultRespondToHeader();
-    }
+    public abstract boolean respondToHeader(Protocol proto) throws IOException;
 
     public boolean expectSenderSpecifier(Protocol proto) throws IOException {
 	return proto.defaultExpectSenderSpecifier();
@@ -108,10 +106,12 @@ abstract class Carrier implements ShiftStream {
     // helper functions
 
     public Address getLocalAddress() throws IOException {
+	if (getStreams()==null) return null;
 	return getStreams().getLocalAddress();
     }
 
     public Address getRemoteAddress() throws IOException {
+	if (getStreams()==null) return null;
 	return getStreams().getRemoteAddress();
     }
 
