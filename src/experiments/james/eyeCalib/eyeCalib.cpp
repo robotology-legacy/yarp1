@@ -145,6 +145,8 @@ double calibrate(void)
 		_houghFlt.getMaxTheta(&angle);
 		acc += _normalize0ToPI(PI/2.0-angle);
 		printf(".");
+		printf("%.2f acc");
+
 	}
 	orientation = acc / N_IMAGES;
 	return orientation;
