@@ -9,11 +9,85 @@ import java.util.*;
   Pending issue: may need to be able to choose specific network interface
  */
 
-// could reading flag be wrong?
 
 class McastCarrier extends Carrier {
 
-    DatagramTwoWayStream way = null;
+    /**
+     * A manager class for detecting redundant connections.
+     */
+    static class McastManager {
+
+	private Map tracker = new HashMap();
+	private Map elected = new HashMap();
+	
+	public Set getPeers(String key) {
+	    Set peers = (Set)tracker.get(key);
+	    if (peers==null) {
+		log.println(">>>>>>>>>>>> creating peer set for " + key);
+		tracker.put(key,new HashSet());
+		peers = (Set)tracker.get(key);
+	    }
+	    log.assertion(peers!=null);
+	    return peers;
+	}
+
+	public void addCarrier(String key, McastCarrier carrier) {
+	    log.println(">>>>>>>>>>>>>>>> add carrier for key " + key);
+	    Set peers = getPeers(key);
+	    log.println("pre size " + peers.size());
+	    peers.add(carrier);
+	    log.println("post size " + peers.size());
+	    if (peers.size()==1) {
+		elected.put(key,carrier);
+	    }
+	    log.assertion(getPeers(key).size()>0);
+	}
+
+	public void removeCarrier(String key, McastCarrier carrier) {
+	    log.println(">>>>>>>>>>>>>> remove carrier for key " + key);
+	    Set peers = getPeers(key);
+	    peers.remove(carrier);
+	    if (elected.get(key)==carrier) {
+		Object next = null;
+		Iterator it = peers.iterator();
+		if (it.hasNext()) {
+		    next = it.next();
+		}
+		elected.put(key,next);
+	    }
+	}
+
+	public void dumpCarrier(String mcastKey) {
+	    Set peers = getPeers(mcastKey);
+	    log.println("************************************");
+	    log.println("*** information about mcast carriers");
+	    log.println("*** key is " + mcastKey + " and there are " +
+			peers.size() + " senders");
+	    log.println("*** hash container has " + tracker.size() +
+			" elements");
+	    for (Iterator it = tracker.keySet().iterator(); it.hasNext(); ) {
+		String key = (String)it.next();
+		log.println("   hash key " + key + " with " +
+			    getPeers(key).size());
+		
+	    }
+	    //assert(peers.size()>=1);
+	    for (Iterator it = peers.iterator(); it.hasNext(); ) {
+		McastCarrier c = (McastCarrier)it.next();
+		log.println(c + "  " + this);
+	    }
+	    log.println("************************************");
+	}
+
+	public McastCarrier getElect(String key) {
+	    return (McastCarrier)elected.get(key);
+	}
+	
+    }
+
+
+
+    private DatagramTwoWayStream way = null;
 
     public TwoWayStream getStreams() {
 	return way;
@@ -25,83 +99,19 @@ class McastCarrier extends Carrier {
 
     private String senderName;
     private Address mcastAddress;
-    //MulticastSocket mcast;
     String mcastKey;
-    InputStream is;
-    OutputStream os;
     boolean reading = false;
 
-    static Map tracker = new HashMap();
-    static Map elected = new HashMap();
 
-    public static Set getPeers(String key) {
-	Set peers = (Set)tracker.get(key);
-	if (peers==null) {
-	    log.println(">>>>>>>>>>>> creating peer set for " + key);
-	    tracker.put(key,new HashSet());
-	    peers = (Set)tracker.get(key);
-	}
-	log.assertion(peers!=null);
-	return peers;
-    }
 
-    public static void addCarrier(String key, McastCarrier carrier) {
-	log.println(">>>>>>>>>>>>>>>> add carrier for key " + key);
-	Set peers = getPeers(key);
-	log.println("pre size " + peers.size());
-	peers.add(carrier);
-	log.println("post size " + peers.size());
-	if (peers.size()==1) {
-	    elected.put(key,carrier);
-	}
-	log.assertion(getPeers(key).size()>0);
-    }
-
-    public static void removeCarrier(String key, McastCarrier carrier) {
-	log.println(">>>>>>>>>>>>>> remove carrier for key " + key);
-	Set peers = getPeers(key);
-	peers.remove(carrier);
-	if (elected.get(key)==carrier) {
-	    Object next = null;
-	    Iterator it = peers.iterator();
-	    if (it.hasNext()) {
-		next = it.next();
-	    }
-	    elected.put(key,next);
-	}
-    }
-
-    public void dumpCarrier() {
-	Set peers = getPeers(mcastKey);
-	log.println("************************************");
-	log.println("*** information about mcast carriers");
-	log.println("*** key is " + mcastKey + " and there are " +
-		    peers.size() + " senders");
-	log.println("*** hash container has " + tracker.size() +
-		    " elements");
-	for (Iterator it = tracker.keySet().iterator(); it.hasNext(); ) {
-	    String key = (String)it.next();
-	    log.println("   hash key " + key + " with " +
-			getPeers(key).size());
-	    
-	}
-	//assert(peers.size()>=1);
-	for (Iterator it = peers.iterator(); it.hasNext(); ) {
-	    McastCarrier c = (McastCarrier)it.next();
-	    log.println(c + "  " + this);
-	}
-	log.println("************************************");
-    }
-
-    public static McastCarrier getElect(String key) {
-	return (McastCarrier)elected.get(key);
-    }
+    static McastManager manager = new McastManager();
 
     public boolean isElect() {
-	dumpCarrier();
-	return getElect(mcastKey)==this;
+	manager.dumpCarrier(mcastKey);
+	return manager.getElect(mcastKey)==this;
     }
-    
+
+
     public String getName() {
 	return "mcast";
     }
@@ -206,7 +216,7 @@ class McastCarrier extends Carrier {
 
     public void close() throws IOException {
 	if (mcastKey!=null) {
-	    removeCarrier(mcastKey,this);
+	    manager.removeCarrier(mcastKey,this);
 	    mcastKey = null;
 	}
 	log.println("McastCarrier.close");
@@ -296,7 +306,7 @@ class McastCarrier extends Carrier {
 	log.println("Nic name is " + nicName);
 
 	mcastKey = mcastAddress.getName() + " on NIC " + nicName;
-	addCarrier(mcastKey,this);
+	manager.addCarrier(mcastKey,this);
 
 	/*
 	setAddress(clocal,cremote);
