@@ -1,0 +1,226 @@
+
+
+
+
+\subsection{Sender's responsibilities}
+
+\begin{itemize}
+
+\item Sender creates initial connection using information 
+from the name server.  The connection starts in TCP.
+
+\item The sender needs to decide what the desired carrier
+for the connection will be (tcp, udp, mcast).
+
+\item If the connection will be associated with an output port, the
+name of that port must be known (it will be communicated to the
+recipient).
+
+\end{itemize}
+
+Phases are as follows:
+
+\begin{itemize}
+
+\item sendHeader
+    
+  \begin{itemize}
+
+    \item sendProtocolSpecifier
+
+      \begin{itemize}
+
+      \item send 8 bytes: \packet{'Y' 'A' B1 B2 0 0 'R' 'P'}
+      \item B1 and B2 identify the desired protocol
+      (B1,B2) forms a little-endian integer whose value is
+         7777 + K + 128*(requireAck),
+      where K=0 for udp, K=1 for mcast, K=2 for shmem, K=3 for tcp.
+      requireAck is an implementation choice controlling
+      whether message receipt is acknowledge; see expectAck and sendAck
+      phases.
+    
+      \item ALTERNATIVE: for text-mode, send 8 characters 'CONNECT '.
+	
+      \end{itemize}
+
+    \item sendSenderSpecifier
+      
+      \begin{itemize}
+      \item send 4 byte integer (little endian) giving length of port
+      name plus one
+      \item send port name in characters followed by null character
+      \item ALTERNATIVE: for text-mode, send name (without null)
+      followed by $\backslash$n character
+      \end{itemize}
+
+    \item sendExtraHeader      // carrier specific
+      \begin{itemize}
+	\item for tcp nothing more need be done
+	\item for udp nothing more need be done
+	\item for mcast, send 6 bytes.
+         First 4 bytes specify a multicast IP address.
+	 Next 2 bytes are a (bigendian - sorry) integer giving a port number.
+         note that producing these numbers will require side communication
+         with the name server.
+      \end{itemize}
+  \end{itemize}
+
+  \item expectReplyToHeader    // carrier specific
+    \begin{itemize}
+      \item for tcp and udp, read 8 bytes:  \packet{'Y' 'A' B1 B2 0 0 'R' 'P'},
+         where
+	(B1,B2) make up a (little-endian) integer specifying a port number N.
+	For udp, then switch over to udp network communication on that port.
+      \item for mcast, switch over to mcast network communication on the IP and
+	port number sent in sendExtraHeader
+      \item ALTERNATIVE: for text-mode, expect nothing
+    \end{itemize}
+
+  \item sendIndex
+
+    \begin{itemize}
+    \item NOTE check isActive first: this is a carrier specific check
+    - for mcast, a sender is ignored if it is redundant -- sending
+    data to a multi-cast group that has already been sent.
+    \item need to decide on the content to send - a set of LEN byte arrays.
+    \item send 8 bytes: \packet{'Y' 'A' 10 0 0 0 'R' 'P'}
+      This identifies the length of the index header as 10.
+    \item send 10 bytes: \packet{LEN 1   255 255 255 255  255 255 255 255}
+      This says there are LEN send blocks, 1 reply block expected,
+      and that the sizes will be listed individually next (this
+      format is for backward compatability with older yarp versions).
+    \item A 4-byte little-endian integer is sent giving the length of
+      each byte array.
+    \item send 4-bytes: \packet{0 0 0 0} -- this asks for a reply length of 0.
+      (this is actually an implementation choice, you can ask for a bigger
+      reply if you like).
+    \item ALTERNATIVE for text mode, send nothing.
+    \end{itemize}
+
+  \item sendContent
+
+    \begin{itemize}
+      \item NOTE check isActive first, as for sendIndex.
+      \item send each of the LEN byte arrays in turn.
+    \end{itemize}
+
+  \item expectAck
+    \begin{itemize}
+    \item NOTE check requireAck and skip if appropiate.
+    \item read 8 bytes: \packet{'Y' 'A' B1 B2 B3 B4 'R' 'P'}.
+    \item B1-4 is a little-endian integer giving a length LEN.
+    \item read LEN bytes.  This is the acknowledgement.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Receiver's Responsibilities}
+
+
+\begin{itemize}
+\item  start in TCP
+\end{itemize}
+
+Here are the phases:
+
+
+\begin{itemize}
+\item expectHeader
+  
+  \begin{itemize}
+  \item expectProtocolSpecifier
+    \begin{itemize}
+    \item read 8 bytes: \packet{'Y' 'A' B1 B2 0 0 'R' 'P'}
+    \item B1 and B2 identify the desired protocol (see sendProtocolSpecifier)
+    \item ALTERNATIVE: for textmode, expect 'CONNECT ' -- only tcp supported
+    \end{itemize}
+
+  \item expectSenderSpecifier
+    \begin{itemize}
+    \item read 4 bytes -- a (little-endian) integer specifying a length.
+    \item read that length of bytes, and interpret as a null-terminated
+      string specifying the name of the sender port.
+    \item ALTERNATIVE: for textmode, expect name (without null) followed by $\backslash$n
+    \end{itemize}
+
+  \item expectExtraHeader        // carrier specific
+    \begin{itemize}
+    \item for mcast, expect the content described in sendExtraHeader
+    \end{itemize}
+  \end{itemize}
+
+\item respondToHeader
+  \begin{itemize}
+  \item send 8 bytes: \packet{'Y' 'A' B1 B2 B3 B4 'R' 'P'} where B1-4 is a 
+    (little-endian) integer giving the port number of the receiver.
+  \item for mcast and udp: switch to that network protocol at this time.
+  \item ALTERNATIVE: for textmode, send nothing
+  \end{itemize}
+
+\item expectIndex (next phases repeat indefinitely)
+  \begin{itemize}
+  \item read 8 bytes: \packet{'Y' 'A' B1 B2 B3 B4 'R' 'P'} where B1-4 is a 
+    (little-endian) integer of value 10.
+  \item read 10 bytes: \packet{LEN 1 .....}
+  \item read LEN 4-byte (little-endian) integers.  These specify
+    the length of the series of LEN blocks of which the
+    content is composed.  Sum these to get the TOTAL\_SIZE of the 
+    message.
+  \item read and discard 1 4-byte (little-endian) integer (this is
+    the reply size).
+  \item ALTERNATIVE: for text mode, expect nothing
+  \end{itemize}
+
+\item respondToIndex
+  \begin{itemize}
+  \item do nothing - the index is not individually acknowledged.
+  \end{itemize}
+
+\item expectBlock
+  \begin{itemize}
+  \item request a user determined number of blocks.  The user
+    is expected to decode the content received.  The TOTAL\_SIZE
+    of the message should be made available to help with this.
+  \item ALT for text mode, read to newline instead
+  \end{itemize}
+
+\item sendAck
+  \begin{itemize}
+  \item read 8 bytes: \packet{'Y' 'A' B1 B2 B3 B4 'R' 'P'}
+  \item B1-4 is a little-endian integer giving a length LEN (could be 0)
+  \item send LEN bytes.  This is the acknowledgement.
+  \end{itemize}
+\end{itemize}
+
+
+
+%% \subsection{YARP versioning}
+
+%% Need to specify a way to know what version of yarp is available.
+
+%% version 0 = Prior to versions existing.
+%% Will switch to SHMEM regardless of other party.
+%% Text-mode name server not supported.
+
+%% Pending issues: 
+
+%% How to deal with network-card choice in a transparent
+%% way.  YARP1 - have user create a table of machine names and which
+%% network-card they should use to communicate with which other machines
+%% (by name).  YARP2?  
+
+%% Each machine has a set of IPs, which apply to different networks.
+%% For connection, need to find IPs that are mutually reachable.
+%% How to discover this?
+
+%% On registration, could identify a machine with its NIC 
+%% MAC addresses (can't rely on having a good domain name present)
+%% and give a list of IPs.  To determine connectivity, could go
+%% through each NIC, see of any of target's IPs are reachable,
+%% and if so if that is the correct machine.
+
+
+%% Make MCAST do right thing with network-cards.
+
+%% Make SHMEM inter-op work, either by handshaking or specifying 
+%% capabilities in registration.
+
