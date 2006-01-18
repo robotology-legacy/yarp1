@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.10 2006-01-09 09:07:26 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.11 2006-01-18 10:32:21 gmetta Exp $
 ///
 ///
 
@@ -391,6 +391,8 @@ YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void)
 	m_cmds[CMDGetTorqueLimits] = &YARPEsdCanDeviceDriver::getTorqueLimits;
 	m_cmds[CMDSetTorqueLimit] = &YARPEsdCanDeviceDriver::setTorqueLimit;
 	m_cmds[CMDSetTorqueLimits] = &YARPEsdCanDeviceDriver::setTorqueLimits;
+	m_cmds[CMDSetCurrentLimit] = &YARPEsdCanDeviceDriver::setCurrentLimit;
+	m_cmds[CMDSetCurrentLimits] = &YARPEsdCanDeviceDriver::setCurrentLimits;
 
 	m_cmds[CMDSetDebugMessageFilter] = &YARPEsdCanDeviceDriver::setDebugMessageFilter;
 	m_cmds[CMDSetDebugPrintFunction] = &YARPEsdCanDeviceDriver::setDebugPrintFunction;
@@ -1198,6 +1200,33 @@ int YARPEsdCanDeviceDriver::getError (void *cmd)
 	return YARP_OK;
 }
 
+/// cmd is a SingleAxis poitner with 1 double arg
+int YARPEsdCanDeviceDriver::setCurrentLimit (void *cmd)
+{
+	/// prepare can message.
+
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	
+	return _writeDWord (CAN_SET_CURRENT_LIMIT, axis, S_32(*((double *)tmp->parameters)));
+}
+
+/// cmd is an array of double
+int YARPEsdCanDeviceDriver::setCurrentLimits (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	double *tmp = (double *)cmd;
+
+	int i;
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		if (_writeDWord (CAN_SET_CURRENT_LIMIT, i, S_32(tmp[i])) != YARP_OK)
+			return YARP_FAIL;
+	}
+
+	return YARP_OK;
+}
 
 /// cmd is a pointer to SingleAxisParameters struct with no argument.
 int YARPEsdCanDeviceDriver::readBootMemory (void *cmd)

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesArmAdapter.h,v 1.2 2006-01-09 10:51:17 gmetta Exp $
+/// $Id: YARPCanOnJamesArmAdapter.h,v 1.3 2006-01-18 10:32:21 gmetta Exp $
 ///
 ///
 
@@ -104,6 +104,7 @@ namespace _JamesArm
 	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
+	const double _currentLimits[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
 	const int CANBUS_DEVICE_NUM			= 1; ///1;	[must be 1 if two cards are present]
 	const int CANBUS_MY_ADDRESS			= 0;
@@ -154,7 +155,8 @@ public:
 		_limitsMax = NULL;
 		_limitsMin = NULL;
 		_destinations = NULL;
-		
+		_currentLimits = NULL;
+
 		_nj = _JamesArm::_nj;
 		_realloc(_nj);
 
@@ -168,6 +170,7 @@ public:
 		ACE_OS::memcpy (_stiffPID, _JamesArm::_stiffPID, sizeof(int) * _nj);
 		ACE_OS::memcpy (_maxDAC, _JamesArm::_maxDAC, sizeof(double) * _nj);
 		ACE_OS::memcpy (_destinations, _JamesArm::_destinations, sizeof(unsigned char) * _JamesArm::CANBUS_MAXCARDS);
+		ACE_OS::memcpy (_currentLimits, _JamesArm::_currentLimits, sizeof(double) * _nj);
 
 		// invert the axis map.
 		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
@@ -206,6 +209,7 @@ public:
 		if (_limitsMax != NULL) delete [] _limitsMax;
 		if (_limitsMin != NULL) delete [] _limitsMin;
 		if (_destinations != NULL) delete[] _destinations;
+		if (_currentLimits != NULL) delete[] _currentLimits;
 	}
 
 	/**
@@ -271,6 +275,8 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
 			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "CurrentLimits", _currentLimits, _nj) == YARP_FAIL)
+			return YARP_FAIL;
 
 		int tmp[_JamesArm::CANBUS_MAXCARDS];
 		if (cfgFile.get("[GENERAL]", "CanAddresses", tmp, _JamesArm::CANBUS_MAXCARDS) == YARP_FAIL)
@@ -326,7 +332,7 @@ public:
 			ACE_OS::memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
 			ACE_OS::memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
 			ACE_OS::memcpy (_destinations, peer._destinations, sizeof(unsigned char) * _JamesArm::CANBUS_MAXCARDS);
-
+			ACE_OS::memcpy (_currentLimits, peer._currentLimits, sizeof(double) * _nj);
 			_p = peer._p;
 			_message_filter = peer._message_filter;
 		}
@@ -344,6 +350,7 @@ public:
 			if (_limitsMax != NULL) delete [] _limitsMax;
 			if (_limitsMin != NULL) delete [] _limitsMin;
 			if (_destinations != NULL) delete[] _destinations;
+			if (_currentLimits != NULL) delete[] _currentLimits;
 
 			_highPIDs = NULL;
 			_lowPIDs = NULL;
@@ -357,6 +364,7 @@ public:
 			_limitsMax = NULL;
 			_limitsMin = NULL;
 			_destinations = NULL;
+			_currentLimits = NULL;
 
 			_p = peer._p;
 			_message_filter = peer._message_filter;
@@ -384,6 +392,7 @@ private:
 		if (_limitsMax != NULL) delete [] _limitsMax;
 		if (_limitsMin != NULL) delete [] _limitsMin;
 		if (_destinations != NULL) delete[] _destinations;
+		if (_currentLimits != NULL) delete[] _currentLimits;
 
 		_highPIDs = new LowLevelPID [nj];
 		_lowPIDs = new LowLevelPID [nj];
@@ -397,6 +406,9 @@ private:
 		_stiffPID = new int [nj];
 		_maxDAC = new double [nj];
 		_destinations = new unsigned char[_JamesArm::CANBUS_MAXCARDS];
+		_currentLimits = new double [nj];
+
+		// LATER: add missing check on memory allocation.
 	}
 
 public:
@@ -414,6 +426,7 @@ public:
 	double			*_limitsMax;
 	double			*_limitsMin;
 	unsigned char	*_destinations;
+	double			*_currentLimits;
 
 	int (* _p) (const char *fmt, ...);
 	int _message_filter;
@@ -553,7 +566,11 @@ public:
 			IOCtl(CMDSetSWNegativeLimit, &cmd);
 
 			cmd.parameters = &max;
-			IOCtl(CMDSetSWPositiveLimit, &cmd);			
+			IOCtl(CMDSetSWPositiveLimit, &cmd);
+			
+			// sets the current limit on each joint according to the configuration file.
+			cmd.parameters = &_parameters->_currentLimits[i];
+			IOCtl(CMDSetCurrentLimit, &cmd);
 		}
 
 		_initialized = true;

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.10 2005-07-05 19:57:58 natta Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.11 2006-01-18 10:32:21 gmetta Exp $
 ///
 ///
 
@@ -112,24 +112,28 @@ enum ControlBoardCmd
 	CMDGetPWM				= 88,	// get pwm output
 	CMDGetPWMs				= 89,	// get pwm output multiple joints
 
+	CMDSetCurrentLimit		= 93,	// set the maximum current threshold (the exact numeric value depends on the card)
+									// this is typically measured internally by the control card.
+	CMDSetCurrentLimits		= 94,	// set the maximum current threshold for all joints.
+
 	//
 	// actual motion commands.
 	//
 	CMDSetPosition			= 1,	// position control (start a movement).
 	CMDSetPositions			= 6,	// see above, all axes.
-	CMDBeginMotion 			= 14,	// start motion (only for the Galil control card).
+	CMDBeginMotion 			= 14,	// start motion (certain cards require explicit start command).
 	CMDBeginMotions 		= 15,	// same as above but all axes.
 
 	CMDStopAxes				= 18,	// issue a stop command to all axes.
 	CMDSetStopRate 			= 55,	// stop rate, at what rate to stop motion (deceleration).
 	CMDServoHere 			= 20,	// set current position as current.
-	CMDClearStop 			= 42,	// on MEI -> clear_status
+	CMDClearStop 			= 42,	// clear the error status (depends on the card).
 
 	CMDVMove 				= 47,	// set move using the velocity mode (begin motion).
 	CMDSafeVMove			= 71,	// velocity move, check frames left before submitting command.
 
-	CMDRelativeMotion		= 91,   // peform relative motion on a single axis
-	CMDRelativeMotionMultiple       = 92,   // perform relative motion on multiple axis
+	CMDRelativeMotion		= 91,   // peform relative motion on a single axis.
+	CMDRelativeMotionMultiple       = 92,   // perform relative motion on multiple axis (LATER: name to be standardized!).
 
 	CMDCheckMotionDone 		= 48,	// check for motion done.
 	CMDWaitForMotionDone 	= 49,	// wait (loop with sleep).
@@ -141,7 +145,7 @@ enum ControlBoardCmd
 	CMDSetOutputBit 		= 10,	// set single bit to 1.
 	CMDClearOutputBit 		= 11,	// set single bit to 0.
 	
-	CMDReadSwitches 		= 19,	// read switches (Galil).
+	CMDReadSwitches 		= 19,	// read switches (limit or other).
 	
 	CMDReadAnalog			= 66,	// read analog input.
 	CMDSetAxisAnalog		= 67,	// configure axis analog.
@@ -152,12 +156,12 @@ enum ControlBoardCmd
 	CMDGetOutputPort 		= 35,	// digital I/O
 
 	CMDGetErrors 			= 31,	// read current error.
-	CMDAbortAxes			= 62,	// abort motion, Galil
+	CMDAbortAxes			= 62,	// abort motion.
 
 	CMDSetHomeIndexConfig 	= 52,
 	CMDSetHomeLevel 		= 53,
 	CMDSetHome 				= 54,
-	CMDIndexSearch		    = 56,	// Galil Index Search (Index search + jog move = search for indexes)
+	CMDIndexSearch		    = 56,	// Index Search (Index search + jog move = search for indexes)
 
 	//
 	// Amplifier/PWM control.
@@ -172,20 +176,20 @@ enum ControlBoardCmd
 	//
 	// Miscellaneous.
 	//
-	CMDSetPositionControlMode = 86,   // set position mode
-	CMDSetForceControlMode	  = 87,	  // set force control mode
+	CMDSetPositionControlMode = 86,   // set position mode.
+	CMDSetForceControlMode	  = 87,	  // set force control mode.
 
-	CMDResetController 		= 57,	// used to reset the Galil Controller
-	CMDErrorLimit			= 58,	// Error limit
-	CMDOffOnError			= 59,	// This command causes the controller to shut off
+	CMDResetController 		= 57,	// reset the controller.
+	CMDErrorLimit			= 58,	// PID error limit (position error threshold).
+	CMDOffOnError			= 59,	// this command causes the controller to shut off
 									// the  motor command if a position error exceeds
-									// the limit specified by the ErrorLimit command
+									// the limit specified by the CMDErrorLimit command
 
-	CMDMotorType			= 64,	// Used to set the motor type (e.g. DC, stepper)
+	CMDMotorType			= 64,	// used to set the motor type (e.g. DC, stepper) - depends on the card.
 	CMDGetMotorType			= 65,
 
-	CMDSetDR				= 68,	// Configures the second communication channel and the data update (Galil).
-	CMDCheckFramesLeft		= 69,	// return true if frames are left to be executed for one or more axes.
+	CMDSetDR				= 68,	// it configures the second communication channel and the data update (WARNING: specific to Galil).
+	CMDCheckFramesLeft		= 69,	// return true if frames are left to be executed for one or more axes (for buffered communication).
 	CMDWaitForFramesLeft	= 70,	// wait, loop with sleep(time), see .h for details
 
 	CMDLoadBootMemory		= 72,	// loads control values from permanent storage.
@@ -194,14 +198,17 @@ enum ControlBoardCmd
 	CMDSetBoardID			= 75,	// broadcasts a set board ID command.
 	CMDGetBoardID			= 76,	// broadcasts a get board ID command.
 
+	//
+	// Specific to the device driver behavior (nothing is sent to the card) - used for debugging.
+	//
 	CMDSetDebugMessageFilter = 77,	// sets the debug message filter.
 	CMDSetDebugPrintFunction = 78,	// sets the debug print function.
+	CMDDummy 				 = 63,	// dummy command for debug purposes.
 	
 	//
 	// Make sure the CBNCmds is always up to date.
 	//
-	CMDDummy 				= 63,	// dummy command for debug purposes.
-	CBNCmds 				= 93 	// required! tells the total number of commands
+	CBNCmds 				= 95 	// required! tells the total number of commands
 };
 
 

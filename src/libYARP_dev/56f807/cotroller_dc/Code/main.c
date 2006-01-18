@@ -88,6 +88,7 @@ word _current_old[JN] = { 0, 0};		/* current at t-1*/
 dword _filt_current[JN] = { 0, 0};      /* filtered current through the transistors*/
 dword _filt_current_old[JN] = { 0, 0};  /* filtered current at t-1*/
 dword _limit_current = 4000000;			/* limit on the current in micro-ampere*/
+dword _current_limit[JN] = { 0, 0 };	/* limit on the current as set by the interface (later converted into the filter parameter) */
 
 /*
  * version specifi global variables.
@@ -1002,6 +1003,7 @@ byte can_interface (void)
 		
 			HANDLE_MSG (CAN_SET_TLIM, CAN_SET_TLIM_HANDLER)
 			HANDLE_MSG (CAN_GET_TLIM, CAN_GET_TLIM_HANDLER)
+			HANDLE_MSG (CAN_SET_CURRENT_LIMIT, CAN_SET_CURRENT_LIMIT_HANDLER)
 			HANDLE_MSG (CAN_GET_ERROR_STATUS, CAN_GET_ERROR_STATUS_HANDLER)
 
 			HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)

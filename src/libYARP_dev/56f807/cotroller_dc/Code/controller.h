@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.22 2006-01-18 08:57:32 babybot Exp $
+/// $Id: controller.h,v 1.23 2006-01-18 10:32:21 gmetta Exp $
 ///
 ///
 
@@ -60,7 +60,7 @@
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
 #define DEBUG_TRAJECTORY 		1		/* print encoder/joint position */
 #define DEBUG_SERIAL			1		/* for debugging through terminal */
-#define EMERGENCY_DISABLED		1		/* emergency fault signal disabled */
+//#define EMERGENCY_DISABLED		1		/* emergency fault signal disabled */
 
 #define DEFAULT_BOARD_ID	15		/* default ID for receiving messages (4 bit field) */
 #define SMALL_BUFFER_SIZE 	10		/* for serial I/O */
@@ -189,7 +189,9 @@ typedef struct canmsg_tag
 #define CAN_GET_ACTIVE_ENCODER_POSITION 70
 #define CAN_SET_ACTIVE_ENCODER_POSITION 71
 
-#define NUM_OF_MESSAGES				72
+#define CAN_SET_CURRENT_LIMIT		72
+
+#define NUM_OF_MESSAGES				73
 
 /* error status values */
 #define ERROR_NONE					0			/* no error, all ok */
