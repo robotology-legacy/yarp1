@@ -2,7 +2,9 @@
 package yarp.os;
 
 import java.io.*;
-import java.net.*;
+
+// no mention of sockets!  keep it that way...
+
 
 /**
  * A link between one output-port and one input-port.
@@ -10,45 +12,39 @@ import java.net.*;
 class Connection {
     private Address address;
     private Protocol proto;
-    private Socket socket = null;
     private String fromKey = null;
     private String toKey = null;
     private static Logger log = Logger.get();
 
     public Connection(Address address, 
+		      String carrier,
 		      String fromKey, 
 		      String toKey) throws IOException {
 	this.address = address;
 	this.fromKey = fromKey;
 	this.toKey = toKey;
+	
+	log.println("*** CONNECTION address " + address + " carrier " + 
+		    carrier);
 
 	try {
-	    socket = new Socket(address.getName(),address.getPort());
-	} catch (UnknownHostException e) {
-	    throw(new IOException("Don't know about host " + address.getName()));
-	} catch (IOException e) {
-	    //log.error("Couldn't make a connection to " + address);
-	    throw(new IOException("Couldn't make a connection to " + address));
-	}
-	    
-	if (socket==null) {
-	    System.exit(1);
-	}
-	    
-	try {
-	    
-	    proto = new Protocol(new TcpCarrier(socket));
-	    //proto = new Protocol(new CarrierShiftStream(socket));
+	    Carrier delegate = Carriers.chooseCarrier(address.getCarrier());
+	    delegate.start(address);
+	    proto = new Protocol(delegate);
 	    
 	    proto.setSender(fromKey);
 	    log.println("connection starting address is " + address);
-	    proto.setRawProtocol(address.getCarrier());
+	    proto.setRawProtocol(carrier);
 	    proto.sendHeader();
 	    proto.expectReplyToHeader();
 	    log.println("Connection created ok");
 	} catch (IOException e) {
 	    log.warning("Problem creating connection to " + address);
 	}
+    }
+
+    public Carrier createCarrier() {
+	return new TcpCarrier();
     }
 
     public String getFromName() {
@@ -70,14 +66,14 @@ class Connection {
 	proto.close();
 	log.println("** connection closed");
 	if (needExternal) {
-	    // probably not interoperable with C++ YARP, need to look
-	    // up what the right command is
+	    // not super-interoperable with C++ YARP
 	    log.println("Attempting to ask " + getToName() +
 			" to disconnect from " + getFromName());
 	    try {
 		YarpClient.command(getToName(),"~" +getFromName());
 	    } catch (IOException e) {
 		// this is fine, other side closed down first
+		log.println("request to close other side of connection has problem - maybe already closed");
 	    }
 	}
     }
@@ -93,8 +89,6 @@ class Connection {
 	if (proto.isActive()) {
 	    proto.beginContent();
 	    if (tagAsData) {
-		// data header
-		//proto.addContent(new byte[] { 0,0,0,0,  '~', 'd', 0, 1}); 
 		dataHeader.write(proto);
 	    }
 	    content.write(proto);

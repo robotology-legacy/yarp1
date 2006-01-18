@@ -2,13 +2,13 @@
 package yarp.os;
 
 import java.io.*;
-import java.nio.channels.*;
-import java.net.*;
 import java.util.*;
+
+// no mention of sockets!  keep it this way...
 
 class BasicPort extends Thread implements Port {
     private Address address;
-    private ServerSocket serverSocket = null;
+    private Face face = new TcpFace();
     private List connections = 
 	Collections.synchronizedList(new ArrayList());
     private List portlets = 
@@ -116,15 +116,6 @@ class BasicPort extends Thread implements Port {
 	    connections.remove(defunct);
 	} else {
 	    println(out, "Could not find " + target);
-	    /*
-	    log.error("could not find " +
-		      target + " (" + target.length() + " chars) in order to close it");
-	    for (Iterator it = connections.iterator(); it.hasNext(); ) {
-		Connection connection = (Connection) it.next();
-		log.println("  Found instead "+connection.getFromName()
-			    + " to " + connection.getToName());
-	    }
-	    */
 	}
     }
 
@@ -175,14 +166,7 @@ class BasicPort extends Thread implements Port {
     public void run() {
 	boolean finish = false;
 	try {
-            //serverSocket = new ServerSocket(address.getPort());
-            //serverSocket = new ServerSocket(address.getPort());
-	    ServerSocketChannel sc = ServerSocketChannel.open();
-	    if (sc!=null) {
-		serverSocket = sc.socket();
-		SocketAddress a = new InetSocketAddress(address.getPort());
-		serverSocket.bind(a);
-	    }
+	    face.open(address);
         } catch (IOException e) {
             log.error("Could not listen on port: " + 
 		      address.getPort());
@@ -190,20 +174,9 @@ class BasicPort extends Thread implements Port {
         }
 
 	while (!finish) {
-	    Socket clientSocket = null;
+	    Carrier carrier = null;
 	    try {
-		SocketChannel sc = serverSocket.getChannel().accept();
-		if (sc!=null) {
-		    clientSocket = sc.socket();
-		    log.println("got something");
-		    /*
-		    if (clientSocket.getLocalPort()==-1) {
-			log.error("problem, possibly with old gcj version");
-			System.exit(1);
-		    }
-		    */
-		
-		}
+		carrier = face.read();
 	    } catch (IOException e) {
 		log.info("Shutting down port " + getPortName());
 		finish = true;
@@ -216,7 +189,7 @@ class BasicPort extends Thread implements Port {
 	    if (!finish) {
 		Portlet portlet;
 		try {
-		    portlet = newPortlet(clientSocket);
+		    portlet = newPortlet(carrier);
 		    addPortlet(portlet);
 		    portlet.start();
 		} catch (IOException e) {
@@ -225,13 +198,16 @@ class BasicPort extends Thread implements Port {
 	    }
 	}
 	log.println("So long, from port " + getPortName());
+	try {
+	    face.close();
+	} catch (IOException e) {
+	    log.error(e.toString());
+	}
     }
 
-    public Portlet newPortlet(Socket socket) throws IOException {
+    public Portlet newPortlet(Carrier carrier) throws IOException {
 	return new BasicPortlet(this,
-				new TcpCarrier(socket));
-	//return new BasicPortlet(this,
-	//		new CarrierShiftStream(socket));
+				carrier);
     }
 
     public void send(Content content) {
@@ -298,10 +274,10 @@ class BasicPort extends Thread implements Port {
 	    srcName + " using " + srcCarrier;
 	if (add!=null) {
 	    // MAY need a hack for YARP1 compatibility
-	    add = new Address(add.getName(), add.getPort(),
-			      srcCarrier);
+	    //add = new Address(add.getName(), add.getPort(),
+	    //	      srcCarrier);
 	    if (NameClient.canConnect(ownerName,srcName,srcCarrier)) {
-		owner.addConnection(new Connection(add,owner.getPortName(),srcName));
+		owner.addConnection(new Connection(add,srcCarrier,owner.getPortName(),srcName));
 		owner.println(ps,msg,true);
 	    } else {
 		owner.println(ps,"ports cannot be connected using that protocol",true);

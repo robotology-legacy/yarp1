@@ -128,10 +128,11 @@ public class YarpClient {
 	    
 	    // to be nice to newcomers, let's allows commands in alt carriers
 	    // (i.e. text)
-	    add = new Address(add.getName(), add.getPort(), 
-			      NameClient.getProtocolPart(source));
+	    //add = new Address(add.getName(), add.getPort(), 
+	    //	      NameClient.getProtocolPart(source));
 	    
-	    Connection c = new Connection(add,"external",source);
+	    String srcCarrier = NameClient.getProtocolPart(source);
+	    Connection c = new Connection(add,srcCarrier,"external",source);
 	    log.println("command is [" + cmd + "] and char is [" + ((int)ch) + "]");
 	    c.write(new CommandContent(ch,cmd), false);
 	    //c.writeCommand(ch,cmd);

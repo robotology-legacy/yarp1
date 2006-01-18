@@ -3,6 +3,8 @@ package yarp.os;
 
 import java.io.*;
 
+// no mention of sockets!  keep it this way...
+
 class BasicPortlet extends Portlet {
     private BasicPort owner;
     private ShiftStream shift;

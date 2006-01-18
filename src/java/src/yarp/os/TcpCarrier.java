@@ -67,7 +67,21 @@ class TcpCarrier extends Carrier {
     public TcpCarrier() {
     }
 
+    public void start(Address address) throws IOException {
+	try {
+	    socket = new Socket(address.getName(),address.getPort());
+	    start(socket);
+	} catch (UnknownHostException e) {
+	    throw(new IOException("Don't know about host " + 
+				  address.getName()));    
+	}
+    }
+
     public TcpCarrier(Socket socket) throws IOException {
+	start(socket);
+    }
+
+    public void start(Socket socket) throws IOException {
 	this.socket = socket;
 	InetAddress a1 = socket.getLocalAddress();
 	Address clocal = 

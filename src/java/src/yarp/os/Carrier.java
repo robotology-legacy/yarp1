@@ -136,6 +136,10 @@ abstract class Carrier implements ShiftStream {
 	return null;
     }
 
+    public void start(Address address) throws IOException {
+	throw(new IOException("carrier " + getName() + " is not startable"));
+    }
+
     // state
 
     private Address local, remote;
