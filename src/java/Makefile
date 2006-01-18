@@ -32,13 +32,13 @@ connect:
 	$(EXEC) connect /write /read
 
 udp:
-	$(EXEC) connect /write /udp://read
+	$(EXEC) connect /write udp://read
 
 tcp:
-	$(EXEC) connect /write /tcp://read
+	$(EXEC) connect /write tcp://read
 
 mcast:
-	$(EXEC) connect /write /mcast://read
+	$(EXEC) connect /write mcast://read
 
 disconnect:
 	$(EXEC) disconnect /write /read
@@ -49,3 +49,15 @@ server:
 gcj:
 	cd src && gcj --main=yarp.os.YarpClient yarp/os/*.java -o ../jyarp
 
+gcjh:
+	cd src && gcj -C yarp/os/*.java
+	cd src && for f in `find . -iname "*.class"`; do \
+		name=`echo $$f | sed "s/\.class//" | sed "s/^\.\///"`; \
+		echo gcjh $$name; \
+		gcjh $$name; \
+	done
+	cd src && find . -iname "*.class" -exec mv {} /tmp \;
+	@echo Hopefully, header files have been generated for the java files
+
+gcc:
+	cd src && gcj yarp/os/*.java yarp/os/*.cpp -o ../cyarp
