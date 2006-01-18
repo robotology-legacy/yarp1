@@ -699,7 +699,10 @@ void main(void)
 		if (_filt_current[0] > _limit_current[0])
 		{
 			PWMC0_outputPadDisable();
-			AS1_printStringEx (" Current threshold exceeded!");
+			if (_verbose)
+			{
+				AS1_printStringEx ("Current threshold channel 0 exceeded!");
+			}
 		}
 				
 		/* Second joint */
@@ -709,7 +712,13 @@ void main(void)
 		
 		compute_filtcurr(1);
 		if (_filt_current[1] > _limit_current[1])
-			PWMC1_outputPadDisable();	
+		{
+			PWMC1_outputPadDisable();
+			if (_verbose)
+			{
+				AS1_printStringEx ("Current threshold channel 1 exceeded!");
+			}
+		}
 
 		/* do extra functions, communicate, etc. */
 		/* LATER */
