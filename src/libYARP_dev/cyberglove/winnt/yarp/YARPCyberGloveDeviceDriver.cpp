@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPCyberGloveDeviceDriver.cpp,v 1.3 2006-01-18 10:39:44 claudio72 Exp $
+/// $Id: YARPCyberGloveDeviceDriver.cpp,v 1.4 2006-01-18 11:26:41 claudio72 Exp $
 ///
 ///
 
@@ -98,12 +98,24 @@ public:
 	YARPSemaphore _bmutex;
 
 	void _fillDataStructure(unsigned char *inBytes, DataGloveData *destStruct);
-	void _cleanData();
 
 };
 
 void CyberGloveResources::_fillDataStructure(unsigned char *inBytes, DataGloveData *destStruct)
 {
+
+	// fill data structure with bytes read off the serial port.
+
+	// NOTES:
+	//
+	// (1) inBytes is an array of 24 bytes, but:
+	// (2) inBytes[0] must be skipped (it is the echoed 'G' command) and so
+	//     must be inBytes[23] (it is the terminating 0)
+	// (3) the index abduction is not yet implemented in the hardware
+	//     (cfr. the dataglove user manual, table 1, page 20) so we follow
+	//     the manual's suggestion and fill it with the middle-index abduction.
+	//     this is why destStruct->abduction[1]=inBytes[11] below
+	// (4) as a consequence of this, valid data bytes are inBytes[1] to inBytes[22]
 
 	// Thumb
 	destStruct->thumb[0] = inBytes[1];
@@ -136,43 +148,6 @@ void CyberGloveResources::_fillDataStructure(unsigned char *inBytes, DataGloveDa
 	destStruct->wrist[0] = inBytes[21];
 	// Wrist yaw
 	destStruct->wrist[1] = inBytes[22];
-
-}
-
-void CyberGloveResources::_cleanData()
-{
-
-	// Thumb
-	_data.thumb[0] = 0;
-	_data.thumb[1] = 0;
-	_data.thumb[2] = 0;
-	_data.abduction[0] = 0;
-	// Index
-	_data.index[0] = 0;
-	_data.index[1] = 0;
-	_data.index[2] = 0;
-	_data.abduction[1] = 0;
-	// Middle
-	_data.middle[0] = 0;
-	_data.middle[1] = 0;
-	_data.middle[2] = 0;
-	_data.abduction[2] = 0;
-	// Ring
-	_data.ring[0] = 0;
-	_data.ring[1] = 0;
-	_data.ring[2] = 0;
-	_data.abduction[3] = 0;
-	// Pinkie
-	_data.pinkie[0] = 0;
-	_data.pinkie[1] = 0;
-	_data.pinkie[2] = 0;
-	_data.abduction[4] = 0;
-	// Palm arhc
-	_data.palmArch = 0;
-	// Wrist pitch
-	_data.wrist[0] = 0;
-	// Wrist yaw
-	_data.wrist[1] = 0;
 
 }
 
@@ -332,16 +307,13 @@ void YARPCyberGloveDeviceDriver::Body (void)
 {
 
 	CyberGloveResources& d = RES(system_resources);
-	DataGloveData* pData = &(d._data);
-
-	d._cleanData();
 	
 	// gather streamed data
 	unsigned char response[24];
 	while ( ! IsTerminated() ) {
 		d._serialPort.Read(response,24);
 		d._bmutex.Wait();
-		d._fillDataStructure(response, pData);
+		d._fillDataStructure(response, &(d._data));
 		d._bmutex.Post();
 	}
 
@@ -373,25 +345,24 @@ int YARPCyberGloveDeviceDriver::stopStreaming (void *)
 	End ();
 	d._bStreamStarted = false;
 
-	// FIXUP: the "terminate streaming" command, ctrl-c, seems not to
-	// work, i.e., the correct response string cannot be obtained off
-	// the glove. so we ignore the response check and return success anyway
-	// we should obtain info about this from Immersion, Inc.
+	// FIXUP: the "terminate streaming" command, ctrl-c, is sent and processed
+	// correctly, but it is not clear how to gather the response string
+	// (there is still garbage in the serial buffer before the response).
+	// so we ignore the response check and return success.
+	// lines which won't work are commented out.
 
 	// send stream termination command (control-c, ASCII code 3)
 	// expect to receive echo of termination command [3,NUL]
 	unsigned char command[1] = { 3 };
-	unsigned char response[2] = { 0 };
-	unsigned char expected[2] = { 3, 0 };
+//	unsigned char response[2];
+//	unsigned char expected[2] = { 3, 0 };
 	d._serialPort.Purge();
 	d._serialPort.Write(command,1);
-	d._serialPort.Read(response,2);
+//	d._serialPort.Read(response,2);
 	d._serialPort.Purge();
-	// --------- this is what we should do
 //	if ( memcmp(response,expected,2) != 0 ) {
 //		return YARP_FAIL;
 //	}
-	// ---------
 
 	return YARP_OK;
 
