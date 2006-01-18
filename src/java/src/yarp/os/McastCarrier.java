@@ -10,7 +10,7 @@ import java.util.*;
  */
 
 
-class McastCarrier extends Carrier {
+class McastCarrier extends AbstractCarrier {
 
     /**
      * A manager class for detecting redundant connections.

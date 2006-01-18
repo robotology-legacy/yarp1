@@ -112,17 +112,30 @@ public class YarpClient {
     }
 
     static void command(String source, String cmd) throws IOException {
-	command(source,cmd,'\0');
+	command(source,cmd,'\0',false);
     }
 
     static void command(String source, String cmd, char ch) throws IOException {
+	command(source,cmd,ch,false);
+    }
+
+    static void command(String source, String cmd, boolean quiet) throws IOException {
+	command(source,cmd,'\0',quiet);
+    }
+
+    static void command(String source, String cmd, char ch, boolean quiet) throws IOException {
 	try {
 	    NameClient nc = NameClient.getNameClient();
 	    
 	    Address add = nc.query(source);
 	    
 	    if (add==null) {
-		System.err.println("Cannot find port " + source);
+		String msg = "Cannot find port " + source;
+		if (quiet) {
+		    log.println(msg);
+		} else {
+		    log.error(msg);
+		}
 		return;
 	    }
 	    

@@ -70,7 +70,7 @@ class Connection {
 	    log.println("Attempting to ask " + getToName() +
 			" to disconnect from " + getFromName());
 	    try {
-		YarpClient.command(getToName(),"~" +getFromName());
+		YarpClient.command(getToName(),"~" +getFromName(),true);
 	    } catch (IOException e) {
 		// this is fine, other side closed down first
 		log.println("request to close other side of connection has problem - maybe already closed");

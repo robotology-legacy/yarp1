@@ -30,10 +30,10 @@ class BasicPort extends Thread implements Port {
 
     public void register(String name) {
 	Address server = NameClient.getNameClient().register(name);
-	log.info("Registered port " + name + " as " + 
-		 server.toString());
-	this.address = server;
 	this.key = server.getRegName();
+	this.address = server;
+	log.info("Registered port " + key + " as " + 
+		 address);
     }
 
     public String getPortName() {

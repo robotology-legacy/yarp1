@@ -5,15 +5,12 @@ import java.io.*;
 import java.net.*;
 
 /**
- * A subset of Carrier
+ * Classes implementing this interface can be hollowed out,
+ * and have their streams "borrowed"
  */
 interface ShiftStream extends TwoWayStream {
 
-    public void open(Address address, ShiftStream previous) 
-	throws IOException;
-
-    public String getName();
-
+    // shift streams can be moved around
     public TwoWayStream takeStreams();
 }
 

@@ -4,7 +4,7 @@ package yarp.os;
 import java.io.*;
 import java.net.*;
 
-class TcpCarrier extends Carrier {
+class TcpCarrier extends AbstractCarrier {
 
     protected TwoWayStream way = null;
 
@@ -46,7 +46,7 @@ class TcpCarrier extends Carrier {
 
     public void expectReplyToHeader(Protocol proto) throws IOException {
 	log.println("expectReplyToHeader for tcp");
-	readPort(proto);
+	proto.readYarpInt();
     }
 
     public void close() throws IOException {
@@ -81,7 +81,7 @@ class TcpCarrier extends Carrier {
 	return new TcpCarrier();
     }
 
-    public boolean isConnectionless() throws IOException {
+    public boolean isConnectionless() {
 	return false;
     }
 }

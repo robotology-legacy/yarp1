@@ -4,7 +4,7 @@ package yarp.os;
 import java.io.*;
 import java.net.*;
 
-class UdpCarrier extends Carrier {
+class UdpCarrier extends AbstractCarrier {
     TwoWayStream way = null;
 
     public TwoWayStream getStreams() {
@@ -24,7 +24,7 @@ class UdpCarrier extends Carrier {
     }
 
     public void expectReplyToHeader(Protocol proto) throws IOException {
-	int port = readPort(proto);
+	int port = proto.readYarpInt();
 	//proto.become("udp",new Address("ignore",port));
 	proto.become(this,new Address("ignore",port));
     }

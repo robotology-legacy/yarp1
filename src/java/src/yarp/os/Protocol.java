@@ -87,8 +87,7 @@ class Protocol implements BlockWriter, BlockReader {
 
 
     public void become(Carrier next, Address address) throws IOException {
-	log.println("Switching stream from " + shift.getName() + " to "
-		    + next.getName());
+	log.println("Switching stream to carrier: " + next.getName());
 
 	next.open(address,shift);
 	//shift.close();
@@ -263,6 +262,21 @@ class Protocol implements BlockWriter, BlockReader {
 	out.flush();
 	return result;
     }
+
+
+    public int readYarpInt() throws IOException {
+	int port = 0;
+	byte b[] = new byte[8];
+	read(b);
+	//System.out.println(b[0]=='Y');
+	port = NetType.unsigned(b[2])+256*NetType.unsigned(b[3]);
+	log.println("Port number is " + port);
+	if (b[0]!='Y') {
+	    throw new IOException();
+	}
+	return port;
+    }
+
 
     public void writeYarpInt(int n) throws IOException {
 	byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
