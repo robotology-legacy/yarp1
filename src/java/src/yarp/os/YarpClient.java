@@ -178,8 +178,11 @@ public class YarpClient {
 	System.out.println("==================================================================");
 	System.out.println("=== Trying to close some ports");
 	in.close();
+	Time.delay(1);
+	System.out.println("=== Finished trying to close input port");
 	out.close();
 	Time.delay(1);
+	System.out.println("=== Finished trying to close output port");
 	if (!ok) {
 	    System.out.println("*** YARP seems broken.");
 	    //diagnose();
