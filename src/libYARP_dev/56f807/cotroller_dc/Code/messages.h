@@ -749,7 +749,9 @@
 	int i = CHANNEL(CAN_DATA[0]); \
 	if (CAN_LEN == 5) \
 	{ \
-		_current_limit[i] = BYTE_C(CAN_DATA[1], CAN_DATA[2], CAN_DATA[3], CAN_DATA[4]); \
+		dword tmp; \
+		tmp = BYTE_C(CAN_DATA[1], CAN_DATA[2], CAN_DATA[3], CAN_DATA[4]); \
+		_conversion_factor[i] = (tmp * 3.3) / 360360.0f; \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \

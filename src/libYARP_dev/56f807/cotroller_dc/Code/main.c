@@ -87,8 +87,9 @@ word _current[JN] = { 0, 0};			/* current through the transistors*/
 word _current_old[JN] = { 0, 0};		/* current at t-1*/
 dword _filt_current[JN] = { 0, 0};      /* filtered current through the transistors*/
 dword _filt_current_old[JN] = { 0, 0};  /* filtered current at t-1*/
-dword _limit_current = 4000000;			/* limit on the current in micro-ampere*/
-dword _current_limit[JN] = { 0, 0 };	/* limit on the current as set by the interface (later converted into the filter parameter) */
+dword _limit_current[JN] = { 4000000, 4000000 }; 
+										/* limit on the current in micro-ampere*/
+float _conversion_factor[JN] = { 0f, 0f };	/* limit on the current as set by the interface (later converted into the filter parameter) */
 
 /*
  * version specifi global variables.
@@ -692,10 +693,10 @@ void main(void)
 		/* First joint */
 		AD_getChannel16A (1, &temporary);
 		_current_old[0] = _current[0];
-		_current[0] = temporary * 0.3663;
+		_current[0] = temporary * _conversion_factor[0];
 		
 		compute_filtcurr(0);
-		if (_filt_current[0] > _limit_current)
+		if (_filt_current[0] > _limit_current[0])
 		{
 			PWMC0_outputPadDisable();
 			AS1_printStringEx (" Current threshold exceeded!");
@@ -704,10 +705,10 @@ void main(void)
 		/* Second joint */
 		AD_getChannel16B (1, &temporary);
 		_current_old[1] = _current[1];
-		_current[1] = temporary * 0.3663;
+		_current[1] = temporary * _conversion_factor[1];
 		
 		compute_filtcurr(1);
-		if (_filt_current[1] > _limit_current)
+		if (_filt_current[1] > _limit_current[1])
 			PWMC1_outputPadDisable();	
 
 		/* do extra functions, communicate, etc. */
