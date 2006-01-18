@@ -16,58 +16,6 @@ static char THIS_FILE[] = __FILE__;
 const char* connectScriptName = "C:\\yarp\\src\\experiments\\mirror\\GraspCapture\\graspCaptureConnect.bat";
 
 /////////////////////////////////////////////////////////////////////////////
-// CAboutDlg dialog used for App About
-
-class CAboutDlg : public CDialog
-{
-
-public:
-
-	CAboutDlg();
-
-// Dialog Data
-	//{{AFX_DATA(CAboutDlg)
-	enum { IDD = IDD_ABOUTBOX };
-	//}}AFX_DATA
-
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CAboutDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
-
-// Implementation
-protected:
-	//{{AFX_MSG(CAboutDlg)
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-
-};
-
-CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
-{
-
-	//{{AFX_DATA_INIT(CAboutDlg)
-	//}}AFX_DATA_INIT
-
-}
-
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
-
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CAboutDlg)
-	//}}AFX_DATA_MAP
-
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
-	//{{AFX_MSG_MAP(CAboutDlg)
-		// No message handlers
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
 // CGraspCaptureDlg dialog
 
 CGraspCaptureDlg::CGraspCaptureDlg(CWnd* pParent /*=NULL*/)
@@ -112,7 +60,6 @@ BEGIN_MESSAGE_MAP(CGraspCaptureDlg, CDialog)
 	ON_BN_CLICKED(IDC_ACQ_START, OnAcqStart)
 	ON_BN_CLICKED(IDC_ACQ_STOP, OnAcqStop)
 	ON_BN_CLICKED(IDC_KILL, OnKill)
-	ON_BN_CLICKED(IDC_OPTIONS, OnOptions)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -177,12 +124,7 @@ BOOL CGraspCaptureDlg::OnInitDialog()
 void CGraspCaptureDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 
-	if ((nID & 0xFFF0) == IDM_ABOUTBOX) {
-		CAboutDlg dlgAbout;
-		dlgAbout.DoModal();
-	} else {
-		CDialog::OnSysCommand(nID, lParam);
-	}
+	CDialog::OnSysCommand(nID, lParam);
 
 }
 
@@ -399,27 +341,6 @@ void CGraspCaptureDlg::OnDisconnect()
 
 }
 
-void CGraspCaptureDlg::OnOptions() 
-{
-
-	// fill the _options dialog with the current options
-	OptionsDialog.m_NetName = _options.netName;
-	OptionsDialog.m_PortName = _options.portName;
-	OptionsDialog.m_Prefix = _options.prefix;
-	OptionsDialog.m_SavePath = _options.savePath;
-	OptionsDialog.m_RefreshTime = _options.refreshFrequency;
-
-	// if the user wishes so, set new options values
-	if ( OptionsDialog.DoModal() ) {
-		ACE_OS::strcpy(_options.netName,(LPCSTR)(OptionsDialog.m_NetName) );
-		ACE_OS::strcpy(_options.portName,(LPCSTR)(OptionsDialog.m_PortName) );
-		ACE_OS::strcpy(_options.prefix,(LPCSTR)(OptionsDialog.m_Prefix) );
-		ACE_OS::strcpy(_options.savePath,(LPCSTR)(OptionsDialog.m_SavePath) );
-		_options.refreshFrequency = OptionsDialog.m_RefreshTime;
-	}
-
-}
-
 void CGraspCaptureDlg::OnClose() 
 {
 
@@ -448,16 +369,19 @@ void CGraspCaptureDlg::OnTimer(UINT nIDEvent)
 		// update data structures, when needed
 		if ( _options.useDataGlove || _options.useGazeTracker ||
 		     _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
-			_data_inport.Read();
-			_data = _data_inport.Content();
+			if ( _data_inport.Read(false) ) {
+				_data = _data_inport.Content();
+			}
 		}
 		if ( _options.useCamera0 ) {
-			_img0_inport.Read();
-			_img0.Refer(_img0_inport.Content());
+			if ( _img0_inport.Read(false) ) {
+				_img0.Refer(_img0_inport.Content());
+			}
 		}
 		if ( _options.useCamera1 ) {
-			_img1_inport.Read();
-			_img1.Refer(_img1_inport.Content());
+			if ( _img1_inport.Read(false) ) {
+				_img1.Refer(_img1_inport.Content());
+			}
 		}
 	} else {
 		MessageBox("Could not read data from mirrorCollector.", "Error.",MB_ICONERROR);
@@ -480,11 +404,9 @@ void CGraspCaptureDlg::OnAcqStart()
 	// disable windows
 	GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(FALSE);
 	GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
+	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
 	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
-	GetDlgItem(IDC_QUIT)->EnableWindow(FALSE);
-	GetDlgItem(IDC_OPTIONS)->EnableWindow(FALSE);
 
-	CFileFind finder;
 	char fName[255];
 	
 	saverThread.pFile = NULL;
@@ -498,9 +420,8 @@ void CGraspCaptureDlg::OnAcqStart()
 			MessageBox("Could not open output file.", "Error.", MB_ICONERROR);
 			GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
 			GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
+			GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
 			GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-			GetDlgItem(IDC_QUIT)->EnableWindow(TRUE);
-			GetDlgItem(IDC_OPTIONS)->EnableWindow(TRUE);
 			return;
 		}
 		saverThread.writeHeaderToFile();
@@ -524,14 +445,13 @@ void CGraspCaptureDlg::OnAcqStart()
 		// during streaming, kill timer
 		KillTimer (m_timerID);
 		// start acquisition thread
-//		saverThread.Begin();
+		saverThread.Begin();
 	} else {
 		MessageBox("Could not start saving thread.", "Error.", MB_ICONERROR);
 		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
 		GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
+		GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
 		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-		GetDlgItem(IDC_QUIT)->EnableWindow(TRUE);
-		GetDlgItem(IDC_OPTIONS)->EnableWindow(TRUE);
 	}
 
 }
@@ -539,15 +459,18 @@ void CGraspCaptureDlg::OnAcqStart()
 void CGraspCaptureDlg::OnAcqStop() 
 {
 
+	// stop saving stream. HAVE to do this before stopping the
+	// remote stream, otherwise OUR stream will dead lock 
+	saverThread.End();
+
 	// stop collector's streaming mode
 	_cmd_outport.Content() = CCmdStopStreaming;
 	_cmd_outport.Write(true);
+	_cmd_inport.Read();
 	if ( _cmd_inport.Content() == CCmdFailed ) {
 		MessageBox("Could not stop saving thread.", "Error.", MB_ICONERROR);
 	}
 
-	// stop saving stream
-//	saverThread.End();
 	// restart timer
 	m_timerID = SetTimer(1, _options.refreshFrequency, NULL);
 	_ASSERT (m_timerID != 0);	
@@ -563,8 +486,6 @@ void CGraspCaptureDlg::OnAcqStop()
 	GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
 	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
 	GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-	GetDlgItem(IDC_QUIT)->EnableWindow(TRUE);
-	GetDlgItem(IDC_OPTIONS)->EnableWindow(TRUE);
 	if ( _options.useCamera0 || _options.useCamera1 )
 		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
 	if (_options.useDataGlove || _options.useGazeTracker || _options.usePresSens)

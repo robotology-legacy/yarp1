@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.8 2006-01-13 11:44:28 claudio72 Exp $
+/// $Id: main.cpp,v 1.9 2006-01-18 10:40:27 claudio72 Exp $
 ///
 ///
 
@@ -193,7 +193,10 @@ CollectorImage         _img0;
 CollectorImage         _img1;
 
 // the default options file name
-char* collectorConfFileName="C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
+char* CollectorConfFileName = "C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
+
+// the streaming frequency - used only if cameras are turned off
+const double CollectorStreaingFreq = 0.04;
 
 // a counter, telling us how many times GetData has been called
 unsigned long numOfGetDatas = 0;
@@ -220,21 +223,27 @@ public:
 			_hardware.tracker1.startStreaming();
 		}
 
-cout.precision(2);
-_previousTime = YARPTime::GetTimeAsSeconds();
+//cout.precision(2);
+//_previousTime = YARPTime::GetTimeAsSeconds();
 
 		// stream until terminated
 		while ( !IsTerminated() ) {
 
 // ------------ debug: show average frequency
-_currentTime = YARPTime::GetTimeAsSeconds();
-_interval = _currentTime - _previousTime;
-_previousTime = _currentTime;
-_averageTime += (_interval - _averageTime) / (++_numOfRuns);
-cout << "--> interval:" << _interval << " (average: " << _averageTime << ")   \r";
+//_currentTime = YARPTime::GetTimeAsSeconds();
+//_interval = _currentTime - _previousTime;
+//_previousTime = _currentTime;
+//_averageTime += (_interval - _averageTime) / (++_numOfRuns);
+//cout << "--> interval:" << _interval << " (average: " << _averageTime << ")   \r";
 // ------------ debug
 
 			acquireAndSend();
+
+			if ( ! _options.useCamera0 && ! _options.useCamera1 ) {
+				// if cameras are turned off, there is no delay;
+				// so we force one.
+				YARPTime::DelayInSeconds(CollectorStreaingFreq);
+			}
 
 		}
 
@@ -260,6 +269,61 @@ private:
 };
 
 // ---------- functions
+
+void acquireAndSend(void)
+{
+
+	// acquire data
+
+	if (_options.useCamera0) {
+		unsigned char *buffer = NULL;
+		_hardware.grabber0.waitOnNewFrame();
+		_hardware.grabber0.acquireBuffer(&buffer);
+		memcpy((unsigned char *)_img0.GetRawBuffer(), buffer, _options.sizeX * _options.sizeY * 3);
+		_hardware.grabber0.releaseBuffer();
+
+		_img0_outport.Content().Refer(_img0);
+		_img0_outport.Write();
+	}
+
+	if (_options.useCamera1) {
+		unsigned char *buffer = NULL;
+		_hardware.grabber1.waitOnNewFrame();
+		_hardware.grabber1.acquireBuffer(&buffer);
+		memcpy((unsigned char *)_img1.GetRawBuffer(), buffer, _options.sizeX * _options.sizeY * 3);
+		_hardware.grabber1.releaseBuffer();
+
+		_img1_outport.Content().Refer(_img1);
+		_img1_outport.Write();
+	}
+
+	if ( _options.useGazeTracker || _options.useDataGlove ||
+		 _options.usePresSens || _options.useTracker0 || _options.useTracker1 ) {
+		if (_options.useTracker0) {
+			// Read Tracker
+			_hardware.tracker0.getData(&_data.tracker0Data);
+		}
+		if (_options.useTracker1) {
+			_hardware.tracker1.getData(&_data.tracker1Data);
+		}
+		if (_options.useGazeTracker) {
+			// Read GT
+			_hardware.gt.getData(&_data.GTData);
+		}
+		if (_options.useDataGlove) {
+			// Read DataGlove
+			_hardware.glove.getData(&_data.gloveData);
+		}
+		if (_options.usePresSens) {
+			// Read Pressure Sensors
+			_hardware.press.getData(&_data.pressureData);
+		}
+		// send data
+		_data_outport.Content() = _data;
+		_data_outport.Write();
+	}
+
+}
 
 bool connectSensors(void)
 {
@@ -423,66 +487,6 @@ void releaseSensors(void)
 
 }
 
-void acquireAndSend(void)
-{
-
-	// acquire data
-
-	if (_options.useCamera0) {
-		unsigned char *buffer = NULL;
-		_hardware.grabber0.waitOnNewFrame();
-		_hardware.grabber0.acquireBuffer(&buffer);
-		memcpy((unsigned char *)_img0.GetRawBuffer(), buffer, _options.sizeX * _options.sizeY * 3);
-		_hardware.grabber0.releaseBuffer();
-
-		_img0_outport.Content().Refer(_img0);
-		_img0_outport.Write();
-	}
-
-	if (_options.useCamera1) {
-		unsigned char *buffer = NULL;
-		_hardware.grabber1.waitOnNewFrame();
-		_hardware.grabber1.acquireBuffer(&buffer);
-		memcpy((unsigned char *)_img1.GetRawBuffer(), buffer, _options.sizeX * _options.sizeY * 3);
-		_hardware.grabber1.releaseBuffer();
-
-		_img1_outport.Content().Refer(_img1);
-		_img1_outport.Write();
-	}
-
-	if (_options.useTracker0) {
-		// Read Tracker
-		_hardware.tracker0.getData(&_data.tracker0Data);
-	}
-
-	if (_options.useTracker1) {
-		_hardware.tracker1.getData(&_data.tracker1Data);
-	}
-
-	if (_options.useGazeTracker) {
-		// Read GT
-		_hardware.gt.getData(&_data.GTData);
-	}
-
-	if (_options.useDataGlove) {
-		// Read DataGlove
-		_hardware.glove.getData(&_data.gloveData);
-	}
-
-	if (_options.usePresSens) {
-		// Read Pressure Sensors
-		_hardware.press.getData(&_data.pressureData);
-	}
-
-	// send data
-	if ( _options.useGazeTracker || _options.useDataGlove ||
-		 _options.usePresSens || _options.useTracker0 || _options.useTracker1 ) {
-		_data_outport.Content() = _data;
-		_data_outport.Write();
-	}
-
-}
-
 void getOptionsFromEnv(char* fileName)
 {
 
@@ -613,7 +617,7 @@ void unregisterPorts(void)
 int main (int argc, char *argv[])
 {
 
-	getOptionsFromEnv(collectorConfFileName);
+	getOptionsFromEnv(CollectorConfFileName);
 
 	YARPScheduler::setHighResScheduling();
 	_img0.Resize (_options.sizeX, _options.sizeY);
@@ -635,18 +639,35 @@ int main (int argc, char *argv[])
 		while ( ! _cmd_inport.Read(false) ) {
 			if ( _kbhit() ) {
 				switch ( _getch() ) {
-				case 's':
-					break;
-				case 'd':
+				case 'r':
+					if ( bStreaming ) {
+						stream.End();
+						bStreaming = false;
+						cout << endl << "No longer streaming." << endl;
+					}
+					if ( bConnected ) {
+						releaseSensors();
+						bConnected = false;
+						cout << endl << "Disconnected." << endl;
+					}
 					break;
 				case 'q':
+					if ( bConnected ) {
+						cout << endl << "Reset me first ('r')." << endl;
+					} else {
+						bConnected = false;
+						bQuit = true;
+						cout << endl << "Quitting." << endl;
+						unregisterPorts();
+						return 0;
+					}
 					break;
 				default:
-					cout << "Unrecognised command." << endl;
+					cout << "Unrecognised keyboard command." << endl;
 					break;
 				}
 			}
-			YARPTime::DelayInSeconds(0.1);
+			YARPTime::DelayInSeconds(0.01);
 		}
 
 		switch( _cmd_inport.Content() ) {
@@ -691,16 +712,16 @@ int main (int argc, char *argv[])
 						_cmd_outport.Content() = _options.sizeY;
 						_cmd_outport.Write(true);
 					}
-					cout << "Connect succeeded." << endl;
+					cout << endl << "Connect succeeded." << endl;
 				} else {
 					_cmd_outport.Content() = CCmdFailed;
 					_cmd_outport.Write(true);
-					cout << "Connect failed." << endl;
+					cout << endl << "Connect failed." << endl;
 				}
 			} else {
 				_cmd_outport.Content() = CCmdFailed;
 				_cmd_outport.Write(true);
-				cout << "Connect failed." << endl;
+				cout << endl << "Connect failed." << endl;
 			}
 			break;
 
@@ -719,21 +740,6 @@ int main (int argc, char *argv[])
 			}
 			break;
 
-		case CCmdQuit:
-			// quit (need to disconnect first)
-			if ( bConnected ) {
-				_cmd_outport.Content() = CCmdFailed;
-				_cmd_outport.Write(true);
-				cout << "Quit failed (must disconnect first)." << endl;
-			} else {
-				bConnected = false;
-				bQuit = true;
-				_cmd_outport.Content() = CCmdSucceeded;
-				_cmd_outport.Write(true);
-				cout << "Quit succeeded." << endl;
-			}
-			break;
-
 		case CCmdGetData:
 			// gather data off peripherals (need to be connected, obviously)
 			if ( bConnected ) {
@@ -741,11 +747,11 @@ int main (int argc, char *argv[])
 				_cmd_outport.Write(true);
 				// acquire data and send
 				acquireAndSend();
-				cout << "Getdata succeeded - data sent (" << ++numOfGetDatas << ")." << "\r";
+//	cout << "Getdata succeeded - data sent (" << ++numOfGetDatas << ")." << "\r";
 			} else {
 				_cmd_outport.Content() = CCmdFailed;
 				_cmd_outport.Write(true);
-				cout << "Getdata failed." << endl;
+				cout << endl << "Getdata failed." << endl;
 			}
 			break;
 
@@ -756,11 +762,11 @@ int main (int argc, char *argv[])
 				bStreaming = true;
 				_cmd_outport.Content() = CCmdSucceeded;
 				_cmd_outport.Write(true);
-				cout << "StartStreaming succeeded - now streaming." << endl;
+				cout << endl << "StartStreaming succeeded - now streaming." << endl;
 			} else {
 				_cmd_outport.Content() = CCmdFailed;
 				_cmd_outport.Write(true);
-				cout << "StartStreaming failed (must be connected and not streaming)." << endl;
+				cout << endl << "StartStreaming failed (must be connected and not streaming)." << endl;
 			}
 			break;
 
@@ -779,9 +785,24 @@ int main (int argc, char *argv[])
 			}
 			break;
 
+		case CCmdQuit:
+			// quit (need to disconnect first)
+			if ( bConnected ) {
+				_cmd_outport.Content() = CCmdFailed;
+				_cmd_outport.Write(true);
+				cout << endl << "Quit failed (must disconnect first)." << endl;
+			} else {
+				bConnected = false;
+				bQuit = true;
+				_cmd_outport.Content() = CCmdSucceeded;
+				_cmd_outport.Write(true);
+				cout << endl << "Quit succeeded." << endl;
+			}
+			break;
+
 		default:
 			// what the hell happened on that port?
-			cout << "Received unknown command." << endl;
+			cout << endl << "Received unknown command on command port." << endl;
 			break;
 
 		} // switch

@@ -13,7 +13,6 @@
 #include "LiveGloveDlg.h"
 #include "LiveTrackerDlg.h"
 #include "SaverThread.h"
-#include "OptionsDlg.h"
 
 //////////////////////////////////////
 typedef struct GraspCaptureOptionsStruct {
@@ -89,7 +88,6 @@ protected:
 	afx_msg void OnAcqStart();
 	afx_msg void OnAcqStop();
 	afx_msg void OnKill();
-	afx_msg void OnOptions();
 	afx_msg void OnDebugWnd();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
@@ -102,7 +100,6 @@ private:
 	CLiveTrackerDlg Tracker1Dialog;
 	CLiveCameraDlg	Camera0Dialog;
 	CLiveCameraDlg	Camera1Dialog;
-	COptionsDlg     OptionsDialog;
 
 	// data coming from the collector
 	CollectorNumericalData _data;

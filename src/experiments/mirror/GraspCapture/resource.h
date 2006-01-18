@@ -22,10 +22,8 @@
 #define IDC_LIVE_CAMERA                 1004
 #define IDC_LIVE_GLOVE                  1005
 #define IDC_LIVE_TRACKER                1006
-#define IDC_OPTIONS                     1007
 #define IDC_CALIBRATION                 1008
 #define IDC_POS_X                       1008
-#define IDC_QUIT                        1009
 #define IDC_POS_Y                       1009
 #define IDC_DEBUG_WND                   1009
 #define IDC_POS_Z                       1010

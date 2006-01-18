@@ -120,14 +120,6 @@ SOURCE=.\LiveTrackerDlg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\OptionsDlg.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\PathDialog.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\SaverThread.cpp
 # End Source File
 # End Group
@@ -157,14 +149,6 @@ SOURCE=.\LiveGloveDlg.h
 # Begin Source File
 
 SOURCE=.\LiveTrackerDlg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\OptionsDlg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PathDialog.h
 # End Source File
 # Begin Source File
 

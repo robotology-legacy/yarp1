@@ -16,7 +16,6 @@ public:
 	
 	void writeDataToFile(int i);
 	void writeHeaderToFile();
-	int getSavedFramesN();
 
 	int useDataGlove;
 	int useGazeTracker;
@@ -33,9 +32,9 @@ public:
 	char prefix[255];
 	FILE *pFile;
 
-	YARPInputPortOf<CollectorNumericalData> *p_data_inport;
-	YARPInputPortOf<YARPGenericImage>       *p_img0_inport;
-	YARPInputPortOf<YARPGenericImage>       *p_img1_inport;
+	YARPInputPortOf<CollectorNumericalData>* p_data_inport;
+	YARPInputPortOf<YARPGenericImage>*       p_img0_inport;
+	YARPInputPortOf<YARPGenericImage>*       p_img1_inport;
 
 private:
 	int nFrames;

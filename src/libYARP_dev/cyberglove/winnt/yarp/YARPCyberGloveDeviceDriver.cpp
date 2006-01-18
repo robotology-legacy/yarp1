@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPCyberGloveDeviceDriver.cpp,v 1.2 2005-02-17 11:37:04 babybot Exp $
+/// $Id: YARPCyberGloveDeviceDriver.cpp,v 1.3 2006-01-18 10:39:44 claudio72 Exp $
 ///
 ///
 
@@ -75,12 +75,13 @@
 
 #include "../dd_orig/include/Serial.h"
 
+#include<iostream>
 
-class CyberGloveResources
-{
+using namespace std;
+
+class CyberGloveResources {
 public:
-	CyberGloveResources (void) : _bmutex(1)
-	{
+	CyberGloveResources (void) : _bmutex(1) {
 		_bStreamStarted = false;
 		_bError = false;
 	}
@@ -98,58 +99,49 @@ public:
 
 	void _fillDataStructure(unsigned char *inBytes, DataGloveData *destStruct);
 	void _cleanData();
+
 };
 
 void CyberGloveResources::_fillDataStructure(unsigned char *inBytes, DataGloveData *destStruct)
 {
-	int angles[22] = { 0 };
-	
-	for (int i=0;i<=6;i++)
-	{
-		angles[i] = inBytes[i];
-	}
-	angles[7] = inBytes[10];
-
-	for (i=7;i<=21;i++)
-	{
-		angles[i+1] = inBytes[i];
-	}
 
 	// Thumb
-	destStruct->thumb[0] = angles[0];
-	destStruct->thumb[1] = angles[1];
-	destStruct->thumb[2] = angles[2];
-	destStruct->abduction[0] = angles[3];
+	destStruct->thumb[0] = inBytes[1];
+	destStruct->thumb[1] = inBytes[2];
+	destStruct->thumb[2] = inBytes[3];
+	destStruct->abduction[0] = inBytes[4];
 	// Index
-	destStruct->index[0] = angles[4];
-	destStruct->index[1] = angles[5];
-	destStruct->index[2] = angles[6];
-	destStruct->abduction[1] = angles[11];
+	destStruct->index[0] = inBytes[5];
+	destStruct->index[1] = inBytes[6];
+	destStruct->index[2] = inBytes[7];
+	destStruct->abduction[1] = inBytes[11];
 	// Middle
-	destStruct->middle[0] = angles[8];
-	destStruct->middle[1] = angles[9];
-	destStruct->middle[2] = angles[10];
-	destStruct->abduction[2] = angles[11];
+	destStruct->middle[0] = inBytes[8];
+	destStruct->middle[1] = inBytes[9];
+	destStruct->middle[2] = inBytes[10];
+	destStruct->abduction[2] = inBytes[11]; // not yet implemented in the glove
 	// Ring
-	destStruct->ring[0] = angles[12];
-	destStruct->ring[1] = angles[13];
-	destStruct->ring[2] = angles[14];
-	destStruct->abduction[3] = angles[15];
+	destStruct->ring[0] = inBytes[12];
+	destStruct->ring[1] = inBytes[13];
+	destStruct->ring[2] = inBytes[14];
+	destStruct->abduction[3] = inBytes[15];
 	// Pinkie
-	destStruct->pinkie[0] = angles[16];
-	destStruct->pinkie[1] = angles[17];
-	destStruct->pinkie[2] = angles[18];
-	destStruct->abduction[4] = angles[19];
+	destStruct->pinkie[0] = inBytes[16];
+	destStruct->pinkie[1] = inBytes[17];
+	destStruct->pinkie[2] = inBytes[18];
+	destStruct->abduction[4] = inBytes[19];
 	// Palm arhc
-	destStruct->palmArch = angles[20];
+	destStruct->palmArch = inBytes[20];
 	// Wrist pitch
-	destStruct->wrist[0] = angles[21];
+	destStruct->wrist[0] = inBytes[21];
 	// Wrist yaw
-	destStruct->wrist[1] = angles[22];
+	destStruct->wrist[1] = inBytes[22];
+
 }
 
 void CyberGloveResources::_cleanData()
 {
+
 	// Thumb
 	_data.thumb[0] = 0;
 	_data.thumb[1] = 0;
@@ -181,16 +173,14 @@ void CyberGloveResources::_cleanData()
 	_data.wrist[0] = 0;
 	// Wrist yaw
 	_data.wrist[1] = 0;
+
 }
 
-///
-///
 inline CyberGloveResources& RES(void *res) { return *(CyberGloveResources *)res; }
 
-///
-///
 YARPCyberGloveDeviceDriver::YARPCyberGloveDeviceDriver(void) : YARPDeviceDriver<YARPNullSemaphore, YARPCyberGloveDeviceDriver>(DGCMDNCmds)
 {
+
 	system_resources = (void *) new CyberGloveResources;
 	ACE_ASSERT (system_resources != NULL);
 
@@ -202,292 +192,329 @@ YARPCyberGloveDeviceDriver::YARPCyberGloveDeviceDriver(void) : YARPDeviceDriver<
 	m_cmds[DGCMDGetSwitch] = &YARPCyberGloveDeviceDriver::getSwitch;
 	m_cmds[DGCMDResetGlove] = &YARPCyberGloveDeviceDriver::resetGlove;
 	m_cmds[DGCMDSetLed] = &YARPCyberGloveDeviceDriver::setLed;
+
 }
 
 YARPCyberGloveDeviceDriver::~YARPCyberGloveDeviceDriver()
 {
-	if (system_resources != NULL)
+
+	if (system_resources != NULL) {
 		delete (CyberGloveResources *)system_resources;
+	}
+
 	system_resources = NULL;
+
 }
 
 int YARPCyberGloveDeviceDriver::open (void *res)
 {
+
 	CyberGloveOpenParameters *param = (CyberGloveOpenParameters*) res;
 	CyberGloveResources& d = RES(system_resources);
 
 	CSerial::EBaudrate rate;
-	LONG lLastError = ERROR_SUCCESS;
+	LONG lLastError;
 
-	switch (param->comPort)
-	{
-		case 1:
-			lLastError = d._serialPort.Open("COM1");
-			break;
-		case 2:
-			lLastError = d._serialPort.Open("COM2");
-			break;
-		case 3:
-			lLastError = d._serialPort.Open("COM3");
-			break;
-		case 4:
-			lLastError = d._serialPort.Open("COM4");
-			break;
-		case 5:
-			lLastError = d._serialPort.Open("COM5");
-			break;
-		case 6:
-			lLastError = d._serialPort.Open("COM6");
-			break;
-		case 7:
-			lLastError = d._serialPort.Open("COM7");
-			break;
-		case 8:
-			lLastError = d._serialPort.Open("COM8");
-			break;
-		case 9:
-			lLastError = d._serialPort.Open("COM9");
-			break;
-		default:
-			return YARP_FAIL;
-			break;
+	switch ( param->comPort ) {
+	case 1:
+		lLastError = d._serialPort.Open("COM1");
+		break;
+	case 2:
+		lLastError = d._serialPort.Open("COM2");
+		break;
+	case 3:
+		lLastError = d._serialPort.Open("COM3");
+		break;
+	case 4:
+		lLastError = d._serialPort.Open("COM4");
+		break;
+	case 5:
+		lLastError = d._serialPort.Open("COM5");
+		break;
+	case 6:
+		lLastError = d._serialPort.Open("COM6");
+		break;
+	case 7:
+		lLastError = d._serialPort.Open("COM7");
+		break;
+	case 8:
+		lLastError = d._serialPort.Open("COM8");
+		break;
+	case 9:
+		lLastError = d._serialPort.Open("COM9");
+		break;
+	default:
+		return YARP_FAIL;
+		break;
 	}
 	
-	if (lLastError != ERROR_SUCCESS)
+	if (lLastError != ERROR_SUCCESS) {
 		return YARP_FAIL;
-
-	switch(param->baudRate)
-	{
-		case 110:
-			rate = CSerial::EBaud110;
-			break;
-		case 300:
-			rate = CSerial::EBaud300;
-			break;
-		case 600:
-			rate = CSerial::EBaud600;
-			break;
-		case 1200:
-			rate = CSerial::EBaud1200;
-			break;
-		case 2400:
-			rate = CSerial::EBaud2400;
-			break;
-		case 4800:
-			rate = CSerial::EBaud4800;
-			break;
-		case 9600:
-			rate = CSerial::EBaud9600;
-			break;
-		case 14400:
-			rate = CSerial::EBaud14400;
-			break;
-		case 19200:
-			rate = CSerial::EBaud19200;
-			break;
-		case 38400:
-			rate = CSerial::EBaud38400;
-			break;
-		case 56000:
-			rate = CSerial::EBaud56000;
-			break;
-		case 57600:
-			rate = CSerial::EBaud57600;
-			break;
-		case 115200:
-			rate = CSerial::EBaud115200;
-			break;
-		default:
-			return YARP_FAIL;
-			break;
 	}
-	
-	lLastError = d._serialPort.Setup(rate,CSerial::EData8,CSerial::EParNone, CSerial::EStop1);
-	if (lLastError != ERROR_SUCCESS)
-		return YARP_FAIL;
-	lLastError = d._serialPort.SetupHandshaking(CSerial::EHandshakeHardware);
-	if (lLastError != ERROR_SUCCESS)
-		return YARP_FAIL;
-	//BLOCKING???
-	lLastError = d._serialPort.SetupReadTimeouts(CSerial::EReadTimeoutBlocking);
-	if (lLastError != ERROR_SUCCESS)
-		return YARP_FAIL;
 
-	resetGlove(NULL);
+	switch( param->baudRate ) {
+	case 110:
+		rate = CSerial::EBaud110;
+		break;
+	case 300:
+		rate = CSerial::EBaud300;
+		break;
+	case 600:
+		rate = CSerial::EBaud600;
+		break;
+	case 1200:
+		rate = CSerial::EBaud1200;
+		break;
+	case 2400:
+		rate = CSerial::EBaud2400;
+		break;
+	case 4800:
+		rate = CSerial::EBaud4800;
+		break;
+	case 9600:
+		rate = CSerial::EBaud9600;
+		break;
+	case 14400:
+		rate = CSerial::EBaud14400;
+		break;
+	case 19200:
+		rate = CSerial::EBaud19200;
+		break;
+	case 38400:
+		rate = CSerial::EBaud38400;
+		break;
+	case 56000:
+		rate = CSerial::EBaud56000;
+		break;
+	case 57600:
+		rate = CSerial::EBaud57600;
+		break;
+	case 115200:
+		rate = CSerial::EBaud115200;
+		break;
+	default:
+		return YARP_FAIL;
+		break;
+	}
 
-	return YARP_OK;
+	// set up 8,N,1 hardware handshaking communciation
+	if ( d._serialPort.Setup(rate,CSerial::EData8,CSerial::EParNone, CSerial::EStop1) != ERROR_SUCCESS ) {
+		return YARP_FAIL;
+	}
+	if ( d._serialPort.SetupHandshaking(CSerial::EHandshakeHardware) != ERROR_SUCCESS ) {
+		return YARP_FAIL;
+	}
+
+	// use blocking method, in order not to lose any data
+	if ( d._serialPort.SetupReadTimeouts(CSerial::EReadTimeoutBlocking) != ERROR_SUCCESS ) {
+		return YARP_FAIL;
+	}
+
+	// reset the glove and bail out
+	return resetGlove(NULL);
+
 }
 
 int YARPCyberGloveDeviceDriver::close (void)
 {
+
 	CyberGloveResources& d = RES(system_resources);
 
-	d._serialPort.Close();
+	if ( d._serialPort.Close() != ERROR_SUCCESS ) {
+		return YARP_FAIL;
+	}
 
 	return YARP_OK;
+
 }
 
 void YARPCyberGloveDeviceDriver::Body (void)
 {
+
 	CyberGloveResources& d = RES(system_resources);
 	DataGloveData* pData = &(d._data);
-	
-	char c = 'S';
-	unsigned char b[23] = {0};
-	unsigned long int bytesRead = 0;
+
 	d._cleanData();
-	d._serialPort.Write(&c,1);
 	
-	while (!IsTerminated())	
-	{
-		//data acquisition
-		bytesRead = d._serialPort.Read(&b,1,&bytesRead);
-		bytesRead = d._serialPort.Read(&b,23,&bytesRead);
-		// Error Handling!!
+	// gather streamed data
+	unsigned char response[24];
+	while ( ! IsTerminated() ) {
+		d._serialPort.Read(response,24);
 		d._bmutex.Wait();
-		d._fillDataStructure(b, pData);
+		d._fillDataStructure(response, pData);
 		d._bmutex.Post();
 	}
 
-	resetGlove(NULL);
-	d._serialPort.Purge();
-	ACE_DEBUG ((LM_DEBUG, "acquisition thread returning...\n"));
 }
 
 int YARPCyberGloveDeviceDriver::startStreaming (void *)
 {
-	CyberGloveResources& d = RES(system_resources);
 
+	CyberGloveResources& d = RES(system_resources);
+	
+	// send streaming command
+	unsigned char command1[1] = { 'S' };
+	d._serialPort.Write(command1,1);
+
+	// start thread and set flag accordingly
+	Begin ();
 	d._bStreamStarted = true;
 
-	//add the code to send commad
-	Begin ();
-
 	return YARP_OK;
+
 }
 
 int YARPCyberGloveDeviceDriver::stopStreaming (void *)
 {
+
 	CyberGloveResources& d = RES(system_resources);
 
-	d._bStreamStarted = true;
+	// stop stream gathering thread and set flag accordingly
 	End ();
+	d._bStreamStarted = false;
+
+	// FIXUP: the "terminate streaming" command, ctrl-c, seems not to
+	// work, i.e., the correct response string cannot be obtained off
+	// the glove. so we ignore the response check and return success anyway
+	// we should obtain info about this from Immersion, Inc.
+
+	// send stream termination command (control-c, ASCII code 3)
+	// expect to receive echo of termination command [3,NUL]
+	unsigned char command[1] = { 3 };
+	unsigned char response[2] = { 0 };
+	unsigned char expected[2] = { 3, 0 };
+	d._serialPort.Purge();
+	d._serialPort.Write(command,1);
+	d._serialPort.Read(response,2);
+	d._serialPort.Purge();
+	// --------- this is what we should do
+//	if ( memcmp(response,expected,2) != 0 ) {
+//		return YARP_FAIL;
+//	}
+	// ---------
 
 	return YARP_OK;
+
 }
 
 int YARPCyberGloveDeviceDriver::getData (void *cmd)	// (DataGloveData* data)
 {
+
 	CyberGloveResources& d = RES(system_resources);
-	struct DataGloveData * data = (struct DataGloveData *)cmd;
-	if (d._bStreamStarted)
-	{
+	struct DataGloveData* data = (struct DataGloveData*)cmd;
+
+	if (d._bStreamStarted) {
+		// if data is requested for while streaming is active, must
+		// ensure we respect the semaphore
 		d._bmutex.Wait();
 		*data = d._data;
 		d._bmutex.Post();
-	}
-	else
-	{
-		char c = 'G';
-		unsigned char b[23];
-		unsigned long int bytesRead = 0;
-		d._serialPort.Write(&c,1);
-		d._serialPort.Read(&b,1,&bytesRead);
-		d._serialPort.Read(&b,23,&bytesRead);
+	} else {
+		// otherwise, send a G command and read values
+		unsigned char command[1] = { 'G' };
+		unsigned char response[24];
 		d._serialPort.Purge();
-		if(b[22] != 0)
+		d._serialPort.Write(command,1);
+		d._serialPort.Read(response,24);
+		d._serialPort.Purge();
+		if ( response[23] != 0 ) {
 			return YARP_FAIL;
-		d._fillDataStructure(b, data);
+		}
+		d._fillDataStructure(response, data);
 	}
 
-	if (d._bError)
+	if (d._bError) {
 		return YARP_FAIL;
-	else
+	} else {
 		return YARP_OK;
+	}
+
 }
 
 int YARPCyberGloveDeviceDriver::getSwitch(void *cmd)	// (int* switchStatus)
 {
-	// TO Do: error handling!
 
 	CyberGloveResources& d = RES(system_resources);
-	int * data = (int *)cmd;
+	int* data = (int*)cmd;
 
-	if (d._bStreamStarted)
+	if (d._bStreamStarted) {
 		return YARP_FAIL;
-	unsigned char c[2];
-	c[0] = '?';
-	c[1] = 'W';
-	unsigned char b[4] = { 0 };
-	unsigned long bytesRead = 0;
+	}
 
-	d._serialPort.Write(&c,2);
-	d._serialPort.Read(&b,4,&bytesRead);
+	// send switch status query command and gather the result
+	unsigned char command[2] = { '?', 'W' };
+	unsigned char response[4];
 	d._serialPort.Purge();
-	*data = b[2];
+	d._serialPort.Write(command,2);
+	d._serialPort.Read(response,4);
+	d._serialPort.Purge();
+	*data = response[2];
 
 	return YARP_OK;
+
 }
 
 int YARPCyberGloveDeviceDriver::getLed(void *cmd) // (int* ledStatus)
 {
-	// TO Do: error handling!
 
 	CyberGloveResources& d = RES(system_resources);
-	int * data = (int *)cmd;
+	int* data = (int*)cmd;
 
-	if (d._bStreamStarted)
+	if (d._bStreamStarted) {
 		return YARP_FAIL;
-	unsigned char c[2];
-	c[0] = '?';
-	c[1] = 'L';
-	unsigned char b[4] = { 0 };
-	unsigned long bytesRead = 0;
+	}
 
-	d._serialPort.Write(&c,2);
-	d._serialPort.Read(&b,4,&bytesRead);
+	unsigned char command[2] = { '?', 'L' };
+	unsigned char response[4];
 	d._serialPort.Purge();
-	*data = b[2];
+	d._serialPort.Write(command,2);
+	d._serialPort.Read(response,4);
+	d._serialPort.Purge();
+	*data = response[2];
 
 	return YARP_OK;
+
 }
 
 int YARPCyberGloveDeviceDriver::setLed(void *cmd) //(int* ledStatus)
 {
-	// TO Do: error handling!
 
 	CyberGloveResources& d = RES(system_resources);
-	int * data = (int *)cmd;
+	int* data = (int*)cmd;
 
-	if (d._bStreamStarted)
+	if (d._bStreamStarted) {
 		return YARP_FAIL;
-	char c[2];
-	c[0] = 'L';
-	c[1] = *data;
-	unsigned char b[2] = { 0 };
-	unsigned long bytesRead = 0;
+	}
 
-	d._serialPort.Write(&c,2);
-	d._serialPort.Read(&b,2,&bytesRead);
+	unsigned char command[2] = { 'L', 0 }; command[1] = *data;
+	unsigned char response[2];
+	d._serialPort.Purge();
+	d._serialPort.Write(command,2);
+	d._serialPort.Read(response,2);
 	d._serialPort.Purge();
 
 	return YARP_OK;
+
 }
 	
 int YARPCyberGloveDeviceDriver::resetGlove(void *)
 {
-	// TO DO: Error Handling
+
 	CyberGloveResources& d = RES(system_resources);
-	
-	if (d._bStreamStarted)
-		return YARP_FAIL;
 
-	unsigned char c[4] = {0};
-	c[0] = 18;
-
-	unsigned long bytesRead = 0;
-	d._serialPort.Write(c,1);
-	d._serialPort.Read(c,4,&bytesRead);
+	// send "restart firmware" command: ASCII 18
+	// expect to receive confirmation sequence [18,CR,LF,NUL]
+	unsigned char command[1] = { 18 };
+	unsigned char response[4];
+	unsigned char expected[4] = { 18, 13, 10, 0 };
 	d._serialPort.Purge();
+	d._serialPort.Write(command,1);
+	d._serialPort.Read(response,4);
+	d._serialPort.Purge();
+	if ( memcmp(response,expected,4) != 0 ) {
+		return YARP_FAIL;
+	}
+
 	return YARP_OK;
+
 }
