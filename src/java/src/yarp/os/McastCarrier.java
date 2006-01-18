@@ -9,10 +9,23 @@ import java.util.*;
   Pending issue: may need to be able to choose specific network interface
  */
 
+// could reading flag be wrong?
+
 class McastCarrier extends Carrier {
+
+    DatagramTwoWayStream way = null;
+
+    public TwoWayStream getStreams() {
+	return way;
+    }
+
+    public MulticastSocket getSocket() {
+	return (MulticastSocket) way.get();
+    }
+
     private String senderName;
     private Address mcastAddress;
-    MulticastSocket mcast;
+    //MulticastSocket mcast;
     String mcastKey;
     InputStream is;
     OutputStream os;
@@ -148,7 +161,7 @@ class McastCarrier extends Carrier {
 	senderName = proto.getSender();
 	log.println("Getting mcast info");
 	mcastAddress = mcastQuery(senderName);
-	log.println("mcast address is " + mcastAddress);
+	log.println("prepareSend: mcast address is " + mcastAddress);
     }
 
     public boolean expectExtraHeader(Protocol proto) throws IOException {
@@ -197,12 +210,36 @@ class McastCarrier extends Carrier {
 	    mcastKey = null;
 	}
 	log.println("McastCarrier.close");
-	if (mcast!=null) {
+	if (way!=null) {
 	    log.println("McastCarrier.close socket");
-	    mcast.close();
-	    mcast = null;
+	    way.close();
+	    way = null;
 	}
     }
+
+
+    public Address makeDgram(Address address) throws IOException {
+	if (way == null) {
+	    MulticastSocket mcast;
+	    if (address==null) {
+		mcast = new MulticastSocket();
+	    } else {
+		mcast = new MulticastSocket(address.getPort());
+	    }
+	    /*
+	    Address clocal = 
+		new Address(NameClient.getNameClient().getHostName(),
+			    mcast.getLocalPort());
+	    setAddress(clocal,getRemoteAddress());
+	    */
+	    way = new DatagramTwoWayStream(mcast,
+					   getLocalAddress(),
+					   getRemoteAddress(),
+					   reading);
+	}
+	return getLocalAddress();
+    }
+
 
     public void open(Address address, ShiftStream previous) throws IOException {
 	address = new Address(address.getName(),
@@ -214,31 +251,51 @@ class McastCarrier extends Carrier {
 	Address cremote = address;
 	InetAddress group = InetAddress.getByName(address.getName());
 	InetAddress tcp = InetAddress.getByName(tcpRemote.getName());
-	mcast = new MulticastSocket(address.getPort()); 
+
+	clocal = makeDgram(cremote);
+
+	//if (mcast==null) {
+	//  mcast = new MulticastSocket(address.getPort()); 
+	//}
 
 	//log.debug("tcp address is " + tcpRemote);
 	log.debug("mcast address is " + cremote);
 
 	if (!reading) {
-	    NetworkInterface anticipate = NetworkInterface.getByInetAddress(tcp);
-	    log.debug("anticipate nic is " + anticipate.getDisplayName());
-	    if (anticipate.getDisplayName().equals("lo")) {
-		// loopback may not support multicast, so skip setting interface
-	    } else {
-		// setting the interface seems to break things right now.
-		mcast.setNetworkInterface(anticipate);
-		//mcast.setInterface(InetAddress.getByName(tcpRemote.getName()));
+	    NetworkInterface anticipate = null;
+	    try {
+		anticipate = NetworkInterface.getByInetAddress(tcp);
+
+		log.debug("anticipate nic is " + anticipate.getDisplayName());
+		if (anticipate.getDisplayName().equals("lo")) {
+		    // loopback may not support multicast, so skip setting interface
+		} else {
+		    // setting the interface seems to break things right now.
+		    getSocket().setNetworkInterface(anticipate);
+		    //mcast.setInterface(InetAddress.getByName(tcpRemote.getName()));
+		}
+
+	    } catch (SocketException e) {
+		log.println("safe to ignore: " + e);
 	    }
 	}
 
-	mcast.joinGroup(group);
-	NetworkInterface nic = mcast.getNetworkInterface();
-	String nicName = nic.getDisplayName();
+	log.debug("joining group " + group);
+	getSocket().joinGroup(group);
+	NetworkInterface nic = null;
+	String nicName = "none";
+	try {
+	    nic = getSocket().getNetworkInterface();
+	    nicName = nic.getDisplayName();
+	} catch (SocketException e) {
+	    log.println("safe to ignore: " + e);
+	}
 	log.println("Nic name is " + nicName);
 
 	mcastKey = mcastAddress.getName() + " on NIC " + nicName;
 	addCarrier(mcastKey,this);
-	
+
+	/*
 	setAddress(clocal,cremote);
 	is = new DatagramInputStream(mcast,512);
 	os = new BufferedOutputStream(new DatagramOutputStream(mcast,
@@ -246,16 +303,9 @@ class McastCarrier extends Carrier {
 							       512,
 							       reading),
 				      512);
+	*/
     }
 
-
-    public InputStream getInputStream() throws IOException {
-	return is;
-    }
-
-    public OutputStream getOutputStream() throws IOException {
-	return os;
-    }
 
     public boolean isActive() throws IOException {
 	// should check if output is necessary

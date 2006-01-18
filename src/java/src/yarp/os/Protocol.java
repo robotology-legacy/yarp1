@@ -91,7 +91,7 @@ class Protocol implements BlockWriter, BlockReader {
 		    + next.getName());
 
 	next.open(address,shift);
-	shift.close();
+	//shift.close();
 	delegate = next;
 	shift = next;
 
@@ -265,8 +265,13 @@ class Protocol implements BlockWriter, BlockReader {
     public boolean defaultRespondToHeader() throws IOException {
 	if (!ok) { return false; }
 	byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
-	log.assertion(shift.getLocalAddress()!=null);
-	int cport = shift.getLocalAddress().getPort();
+	int cport = -1;
+	if (delegate.getLocalAddress()!=null) {
+	    cport = delegate.getLocalAddress().getPort();
+	} else {
+	    log.assertion(shift.getLocalAddress()!=null);
+	    cport = shift.getLocalAddress().getPort();
+	}
 	log.println("setting port number to " + cport);
 	byte b2[] = NetType.netInt(cport);
 	for (int i=0; i<b2.length; i++) {

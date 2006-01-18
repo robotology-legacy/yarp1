@@ -83,7 +83,7 @@ class TextCarrier extends TcpCarrier {
 
     public void open(Address address, ShiftStream previous) 
 	throws IOException {
-	socket = previous.takeSocket();
+	way = previous.takeStreams();
     }
 }
 

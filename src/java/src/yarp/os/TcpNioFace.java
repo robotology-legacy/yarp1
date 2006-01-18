@@ -3,25 +3,43 @@ package yarp.os;
 
 import java.io.*;
 import java.net.*;
+import java.nio.channels.*;
 
-class TcpFace implements Face {
+/**
+ * Same as TcpFace, but using the nio library
+ */
+
+class TcpNioFace implements Face {
     private static Logger log = Logger.get();
     private Address address = null;
     private ServerSocket serverSocket = null;
 
     public void open(Address address) throws IOException {
-	serverSocket = new ServerSocket(address.getPort());
-	this.address = address;
+	ServerSocketChannel sc = ServerSocketChannel.open();
+	if (sc!=null) {
+	    serverSocket = sc.socket();
+	    SocketAddress a = new InetSocketAddress(address.getPort());
+	    serverSocket.bind(a);
+	    this.address = address;
+	} else {
+	    throw(new IOException("failed to listen to tcp at address: " + 
+				  address));
+	}
     }
 
     public Carrier read() throws IOException {
 	if (serverSocket!=null) {
 	    Socket clientSocket = null;
-	    clientSocket = serverSocket.accept();
-	    log.println("TcpFace got something: " +
-			clientSocket.getLocalAddress() + " " +
-			clientSocket.getLocalSocketAddress() + " " +
-			clientSocket.getRemoteSocketAddress());
+	    SocketChannel sc = serverSocket.getChannel().accept();
+	    if (isClosed()) {
+		return null;
+	    }
+	    if (sc!=null) {
+		clientSocket = sc.socket();
+		log.println("TcpNioFace got something: " +
+			    clientSocket.getLocalAddress() + " " +
+			    clientSocket.getRemoteSocketAddress());
+	    }
 	    if (clientSocket!=null) {
 		return new TcpCarrier(clientSocket);
 	    } else {
@@ -35,16 +53,6 @@ class TcpFace implements Face {
 	if (serverSocket!=null) {
 	    ServerSocket tmp = serverSocket;
 	    serverSocket = null;
-
-	    log.println("tmp connect for shutdown purposes");
-	    try {
-		Socket sig = new Socket(address.getName(),address.getPort());
-		sig.close();
-	    } catch (IOException e) {
-		log.println("safely ignoring " + e);
-	    }
-	    log.println("tmp connect for shutdown purposes over");
-
 	    tmp.close();
 	}
     }

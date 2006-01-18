@@ -5,9 +5,13 @@ import java.io.*;
 import java.net.*;
 
 class UdpCarrier extends Carrier {
-    DatagramSocket dgram;
-    InputStream is;
-    OutputStream os;
+    //DatagramSocket dgram;
+    TwoWayStream way = null;
+
+    public TwoWayStream getStreams() {
+	return way;
+    }
+	
     boolean reading = false;
 
     public String getName() {
@@ -32,8 +36,11 @@ class UdpCarrier extends Carrier {
     }
 
     public boolean respondToHeader(Protocol proto) throws IOException {
-	super.respondToHeader(proto);
 	log.println("respondExtraToHeader for " + getName());
+	makeDgram(null,getRemoteAddress());
+	//makeDgram(getLocalAddress());
+	log.println("local address is now " + getLocalAddress());
+	super.respondToHeader(proto);
 	reading = true;
 	//proto.become(getName(),null);
 	proto.become(this,null);
@@ -42,37 +49,51 @@ class UdpCarrier extends Carrier {
 
     public void close() throws IOException {
 	log.println("UdpCarrier.close");
-	if (dgram!=null) {
+	if (way!=null) {
 	    log.println("UdpCarrier.close socket");
-	    dgram.close();
-	    dgram = null;
+	    way.close();
+	    way = null;
 	}
     }
 
+    public Address makeDgram(Address address,Address remote) 
+	throws IOException {
+	if (way == null) {
+	    DatagramSocket dgram;
+	    if (address==null) {
+		dgram = new DatagramSocket();
+	    } else {
+		dgram = new DatagramSocket(address.getPort());
+	    }
+
+	    Address clocal = 
+		new Address(NameClient.getNameClient().getHostName(),
+			    dgram.getLocalPort());
+	    //setAddress(clocal,getRemoteAddress());
+	    way = new DatagramTwoWayStream(dgram,clocal,remote,reading);
+	}
+	return getLocalAddress();
+    }
+
     public void open(Address address, ShiftStream previous) throws IOException {
-	close();
+	//close();
 	Address clocal = previous.getLocalAddress();
 	Address cremote = previous.getRemoteAddress();
-	dgram = new DatagramSocket(clocal.getPort());
+
 	if (address!=null) {
 	    cremote = new Address(cremote.getName(),address.getPort());
 	}
-	setAddress(clocal,cremote);
+	clocal = makeDgram(clocal,cremote);
+
+	/*
+	//setAddress(clocal,cremote);
 	is = new DatagramInputStream(dgram,512);
 	os = new BufferedOutputStream(new DatagramOutputStream(dgram,
 							       cremote,
 							       512,
 							       reading),
 				      512);
-    }
-
-
-    public InputStream getInputStream() throws IOException {
-	return is;
-    }
-
-    public OutputStream getOutputStream() throws IOException {
-	return os;
+	*/
     }
 
     public Carrier create() {

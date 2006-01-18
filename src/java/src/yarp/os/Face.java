@@ -9,5 +9,7 @@ interface Face {
     void close() throws IOException;
 
     Carrier read() throws IOException;
+
+    boolean isClosed();
 }
 

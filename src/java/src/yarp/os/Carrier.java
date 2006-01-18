@@ -18,9 +18,9 @@ abstract class Carrier implements ShiftStream {
     public abstract void open(Address address, ShiftStream previous) 
 	throws IOException;
 
-    public abstract InputStream getInputStream() throws IOException;
+    //public abstract InputStream getInputStream() throws IOException;
 
-    public abstract OutputStream getOutputStream() throws IOException;
+    //public abstract OutputStream getOutputStream() throws IOException;
 
     public abstract Carrier create();
 
@@ -107,19 +107,31 @@ abstract class Carrier implements ShiftStream {
 
     // helper functions
 
-    public Address getLocalAddress() {
-	return local;
+    public Address getLocalAddress() throws IOException {
+	return getStreams().getLocalAddress();
     }
 
-    public Address getRemoteAddress() {
-	return remote;
+    public Address getRemoteAddress() throws IOException {
+	return getStreams().getRemoteAddress();
     }
 
+
+    public InputStream getInputStream() throws IOException {
+	return getStreams().getInputStream();
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+	return getStreams().getOutputStream();
+    }
+
+
+    /*
     public void setAddress(Address local, Address remote) {
 	log.println("set local address " + local + " and remote " + remote);
 	this.local = local;
 	this.remote = remote;
     }
+    */
 
     public Address getAddress() throws IOException {
 	return getLocalAddress();
@@ -132,16 +144,27 @@ abstract class Carrier implements ShiftStream {
 	System.exit(1);
     }
 
-    public Socket takeSocket() {
-	return null;
-    }
+    //public Socket takeSocket() {
+    //	return null;
+    //}
 
     public void start(Address address) throws IOException {
 	throw(new IOException("carrier " + getName() + " is not startable"));
     }
 
+
+    public abstract TwoWayStream getStreams();
+
+
+    public TwoWayStream takeStreams() {
+	log.error("cannot take streams from " + getName());
+	System.exit(1);
+	return null;
+    }
+
+	
     // state
 
-    private Address local, remote;
+    //private Address local, remote;
 
 }

@@ -19,11 +19,11 @@ class TelnetPort extends BasicPort {
 
     private class TelnetPortlet extends Portlet {
 	BasicPort owner;
-	Socket socket;
+	Carrier carrier;
 
-	TelnetPortlet(BasicPort owner, Socket socket) {
+	TelnetPortlet(BasicPort owner, Carrier carrier) {
 	    this.owner = owner;
-	    this.socket = socket;
+	    this.carrier = carrier;
 	}
 
 	public void close() {
@@ -36,12 +36,22 @@ class TelnetPort extends BasicPort {
 
 	public void run() {
 	    //System.out.println("telnet running");
+	    /*
 	    InetSocketAddress a2 = 
 		(InetSocketAddress)socket.getRemoteSocketAddress();
 	    InetAddress a3 = a2.getAddress();
 	    Address remote = new Address(a3.getHostAddress(),
 					 socket.getPort());
-	    //System.out.println("remote address is " + remote);
+	    */
+	    Address remote = null;
+	    try {
+		remote = carrier.getRemoteAddress();
+		InetAddress ia = InetAddress.getByName(remote.getName());
+		remote = new Address(ia.getHostAddress(),remote.getPort());
+	    } catch (IOException e) {
+		log.println("ok to skip: " + e);
+	    }
+	    log.println("remote address is " + remote);
 	    try {
 		//System.out.println(buf);
 		boolean wait = false;
@@ -50,7 +60,7 @@ class TelnetPort extends BasicPort {
 		do {
 		    String response = 
 			apply(prefix + 
-			      NetType.readLine(socket.getInputStream()),
+			      NetType.readLine(carrier.getInputStream()),
 			      remote);
 		    if (response==null) {
 			wait = !wait;
@@ -60,9 +70,9 @@ class TelnetPort extends BasicPort {
 			}
 		    }
 		    if (response!=null) {
-			socket.getOutputStream().write(NetType.netString(response));
+			carrier.getOutputStream().write(NetType.netString(response));
 		    }
-		    socket.getOutputStream().flush();
+		    carrier.getOutputStream().flush();
 		} while (wait);
 
 	    } catch (IOException e) {
@@ -70,7 +80,7 @@ class TelnetPort extends BasicPort {
 	    }
 	    //System.out.println("telnet stopping");
 	    try {
-		socket.close();
+		carrier.close();
 	    } catch (IOException e) {
 		System.err.println("some problem closing");
 	    }
@@ -78,9 +88,9 @@ class TelnetPort extends BasicPort {
 	}
     }
 
-    public Portlet newPortlet(Socket socket) {
+    public Portlet newPortlet(Carrier carrier) {
 	return new TelnetPortlet(this,
-				 socket);
+				 carrier);
     }
 
 }

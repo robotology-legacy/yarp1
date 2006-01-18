@@ -8,6 +8,7 @@ import java.util.*;
 
 class BasicPort extends Thread implements Port {
     private Address address;
+    //private Face face = new TcpNioFace();
     private Face face = new TcpFace();
     private List connections = 
 	Collections.synchronizedList(new ArrayList());
@@ -16,7 +17,7 @@ class BasicPort extends Thread implements Port {
     private ProtocolHandler handler = null;
     private String key = null;
     private boolean shutdown = false;
-    private static Logger log = Logger.get();
+    protected static Logger log = Logger.get();
 
     public BasicPort(String name) {
 	register(name);
@@ -182,6 +183,10 @@ class BasicPort extends Thread implements Port {
 		finish = true;
 	    }
 
+	    if (carrier==null) {
+		finish = true;
+	    }
+
 	    if (shutdown) {
 		finish = true;
 	    }
@@ -233,6 +238,11 @@ class BasicPort extends Thread implements Port {
 	log.println("starting Port close...");
 	NameClient.getNameClient().unregister(key);
 	shutdown = true;
+	try {
+	    face.close();
+	} catch (IOException e) {
+	    log.error(e.toString());
+	}
 	for (Iterator it = portlets.iterator(); it.hasNext(); ) {
 	    Portlet portlet = (Portlet) it.next();
 	    portlet.close();
