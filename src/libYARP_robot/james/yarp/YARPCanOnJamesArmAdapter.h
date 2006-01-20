@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesArmAdapter.h,v 1.3 2006-01-18 10:32:21 gmetta Exp $
+/// $Id: YARPCanOnJamesArmAdapter.h,v 1.4 2006-01-20 18:10:26 babybot Exp $
 ///
 ///
 
@@ -541,6 +541,7 @@ public:
 			double pos = 0.0;
 			cmd.parameters = &pos;
 			IOCtl(CMDDefinePosition, &cmd);
+			IOCtl(CMDSetCommand, &cmd);
 
 			// and set the limits too from the data in the initialization file.
 			double min, max;
