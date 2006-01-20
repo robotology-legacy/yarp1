@@ -43,10 +43,11 @@ public class InputPort implements Port {
 	try {
 	    synchronized(stateMutex) {
 
-		if (content!=null) {
+		if (content!=null && haveRead) {
 		    pool.unget(content);
 		    content = null;
 		}
+		haveRead = false;
 
 		clientReading = false;
 		if (pending>0) {
@@ -95,6 +96,8 @@ public class InputPort implements Port {
      * @return the input that has arrived.
      */
     public Object content() {
+	log.println("asking for content, it is " + content);
+	haveRead = true;
 	synchronized(stateMutex) {
 	    if (content!=null) {
 		clientReading = true;
@@ -132,6 +135,7 @@ public class InputPort implements Port {
 	    synchronized(stateMutex) {
 		if (content==null) {
 		    content = worker;
+		    haveRead = false;
 		    pending = 1;
 		} else {
 		    pool.unget(worker);
@@ -166,6 +170,7 @@ public class InputPort implements Port {
     private ProtocolHandler handler = new InputPortHandler();
     private int pending = 0;
     private ContentPool pool = null;
+    private boolean haveRead = false;
     static private Logger log = Logger.get();
 }
 
