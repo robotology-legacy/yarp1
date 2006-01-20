@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.11 2006-01-18 10:32:21 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.12 2006-01-20 18:08:09 babybot Exp $
 ///
 ///
 
@@ -709,9 +709,9 @@ int YARPEsdCanDeviceDriver::setPositions (void *cmd)
 	{
 		if (ENABLED(i))
 		{
-			SingleAxisParameters x;
-			x.axis = i;
-			x.parameters = tmp+i;	
+			//SingleAxisParameters x;
+			//x.axis = i;
+			//x.parameters = tmp+i;	
 
 			r.addMessage (CAN_POSITION_MOVE, i);
 			_ref_positions[i] = tmp[i];
