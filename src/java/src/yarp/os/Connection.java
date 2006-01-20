@@ -9,17 +9,19 @@ import java.io.*;
 /**
  * A link between one output-port and one input-port.
  */
-class Connection {
+class Connection implements ContentWriter {
     private Address address;
     private Protocol proto;
     private String fromKey = null;
     private String toKey = null;
+    private ContentWriter writer;
     private static Logger log = Logger.get();
 
     public Connection(Address address, 
 		      String carrier,
 		      String fromKey, 
-		      String toKey) throws IOException {
+		      String toKey,
+		      boolean waitForSlow) throws IOException {
 	this.address = address;
 	this.fromKey = fromKey;
 	this.toKey = toKey;
@@ -32,12 +34,21 @@ class Connection {
 	    delegate.start(address);
 	    proto = new Protocol(delegate);
 	    
-	    proto.setSender(fromKey);
+	    //proto.setSender(fromKey);
+	    //proto.setReceiver(toKey);
+	    proto.setRoute(new Route(fromKey,toKey,
+				     proto.getRoute().getCarrierName()));
+
 	    log.println("connection starting address is " + address);
 	    proto.setRawProtocol(carrier);
 	    proto.sendHeader();
 	    proto.expectReplyToHeader();
 	    log.println("Connection created ok");
+	    if (waitForSlow) {
+		writer = new SlowWriter(proto);
+	    } else {
+		writer = new BackgroundWriter(proto);
+	    }
 	} catch (IOException e) {
 	    log.warning("Problem creating connection to " + address);
 	}
@@ -58,9 +69,14 @@ class Connection {
     public void close() {
 	boolean needExternal = false;
 	try {
+	    if (writer!=null) {
+		writer.close();
+		writer = null;
+	    }
 	    needExternal = proto.isConnectionless();
 	} catch (IOException e) {
 	    log.warning("problem closing connection");
+	    return;
 	}
 	log.println("** closing connection");
 	proto.close();
@@ -83,30 +99,13 @@ class Connection {
     }
 
     public void write(Content content, boolean tagAsData) throws IOException {
-	
-	log.assertion(content!=null);
-
-	if (proto.isActive()) {
-	    proto.beginContent();
-	    if (tagAsData) {
-		dataHeader.write(proto);
-	    }
-	    content.write(proto);
-	    proto.endContent();
-	    proto.sendIndex();
-	    proto.sendContent();
-	    proto.expectAck();
-	} else {
-	    log.println("Skipping explicit output from " + fromKey + 
-			" to " + toKey);
-	}
+	log.assertion(writer!=null);
+	writer.write(content,tagAsData);
     }
+
 
     public String getCarrierName() throws IOException {
-	return proto.getCarrierName();
+	return proto.getRoute().getCarrierName();
     }
-
-    static CommandContent dataHeader = new CommandContent('d',null);
-
 }
 

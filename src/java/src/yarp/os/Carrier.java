@@ -11,8 +11,11 @@ interface Carrier extends ShiftStream {
     void close() throws IOException;
 
     String getName();
-    int getSpecifier();
-    boolean alternateHeaderCheck(byte[] header);
+    // int getSpecifier();
+    boolean checkHeader(byte[] header);
+    byte[] getHeader();
+
+    void setParameters(byte[] header);
 
     boolean sendHeader(Protocol proto) throws IOException;
     void prepareSend(Protocol proto) throws IOException;
@@ -30,7 +33,12 @@ interface Carrier extends ShiftStream {
     boolean canOffer();
     boolean isTextMode();
 
+    // not ready - use protocol.requireack
+    boolean requireAck();
+
     TwoWayStream getStreams();
     TwoWayStream takeStreams();
+
+    String toString();
 }
 

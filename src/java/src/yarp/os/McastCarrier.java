@@ -122,6 +122,14 @@ class McastCarrier extends AbstractCarrier {
 	//return 0x62;
     }
 
+    public boolean checkHeader(byte[] header) {
+	return getSpecifier(header)%16 == getSpecifier();
+    }
+
+    public byte[] getHeader() {
+	return createStandardHeader(getSpecifier());
+    }
+
     public boolean sendHeader(Protocol proto) throws IOException {
 	super.sendHeader(proto);
 	log.println("sendExtraHeader for " + getName());
@@ -168,7 +176,7 @@ class McastCarrier extends AbstractCarrier {
 
     public void prepareSend(Protocol proto) {
 	log.println("prepareSend for " + getName());
-	senderName = proto.getSender();
+	senderName = proto.getRoute().getFromName();
 	log.println("Getting mcast info");
 	mcastAddress = mcastQuery(senderName);
 	log.println("prepareSend: mcast address is " + mcastAddress);

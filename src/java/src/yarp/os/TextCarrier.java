@@ -10,20 +10,25 @@ class TextCarrier extends TcpCarrier {
 	return "text";
     }
 
-    public int getSpecifier() {
-	return 6;
+    public String getSpecifierName() {
+	return "CONNECT ";
     }
 
-    public boolean alternateHeaderCheck(byte[] header) {
+    public boolean checkHeader(byte[] header) {
 	if (header.length==8) {
 	    if (header[0]=='C') {
-		if (NetType.netString(header).equals("CONNECT ")) {
+		if (NetType.netString(header).equals(getSpecifierName())) {
 		    return true;
 		}
 	    }
 	}
 	return false;
     }
+
+    public byte[] getHeader() {
+	return NetType.netString(getSpecifierName());
+    }
+
 
     public Carrier create() {
 	log.println("*** TextCarrier::create()");
@@ -39,8 +44,9 @@ class TextCarrier extends TcpCarrier {
     }
 
     public boolean sendHeader(Protocol proto) throws IOException {
-	proto.write(NetType.netString("CONNECT " + proto.getSender() + "\n"));
-	proto.setRequireAck(false);
+	proto.write(NetType.netString("CONNECT " + 
+				      proto.getRoute().getFromName() + "\n"));
+	setRequireAck(false);
 	return true;
     }
 
@@ -50,7 +56,7 @@ class TextCarrier extends TcpCarrier {
     }
 
     public boolean expectSenderSpecifier(Protocol proto) throws IOException {
-	proto.setSender(proto.readLine());
+	proto.setRoute(proto.getRoute().addFromName(proto.readLine()));
 	return true;
     }
 
@@ -71,7 +77,8 @@ class TextCarrier extends TcpCarrier {
 
 
     public boolean respondToHeader(Protocol proto) throws IOException {
-	byte[] b = NetType.netString("Welcome " + proto.getSender() + "\n");
+	byte[] b = NetType.netString("Welcome " + 
+				     proto.getRoute().getFromName() + "\n");
 	proto.write(b);
 	proto.become(this,getLocalAddress());
 	return true;

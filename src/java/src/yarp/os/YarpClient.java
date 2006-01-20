@@ -145,7 +145,8 @@ public class YarpClient {
 	    //	      NameClient.getProtocolPart(source));
 	    
 	    String srcCarrier = NameClient.getProtocolPart(source);
-	    Connection c = new Connection(add,srcCarrier,"external",source);
+	    Connection c = new Connection(add,srcCarrier,
+					  "external",source,true);
 	    log.println("command is [" + cmd + "] and char is [" + ((int)ch) + "]");
 	    c.write(new CommandContent(ch,cmd), false);
 	    //c.writeCommand(ch,cmd);
@@ -191,11 +192,8 @@ public class YarpClient {
 	System.out.println("==================================================================");
 	System.out.println("=== Trying to close some ports");
 	in.close();
-	Time.delay(1);
-	System.out.println("=== Finished trying to close input port");
 	out.close();
 	Time.delay(1);
-	System.out.println("=== Finished trying to close output port");
 	if (!ok) {
 	    System.out.println("*** YARP seems broken.");
 	    //diagnose();

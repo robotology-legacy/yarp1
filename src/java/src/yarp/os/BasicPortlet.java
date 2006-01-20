@@ -74,13 +74,15 @@ class BasicPortlet extends Portlet {
 	try {
 	// hand over control of this socket
 	protocol = new Protocol(shift);
+	protocol.setRoute(protocol.getRoute().addToName(ownerName));
 	closeMe = protocol;
 	
 	protocol.expectHeader();
 	protocol.respondToHeader();
-	sourceName = protocol.getSender();
 
-	carrierName = protocol.getCarrierName();
+	Route route = protocol.getRoute();
+	sourceName = route.getFromName();
+	carrierName = route.getCarrierName();
 
 	show(getFromName(), 
 	     "Receiving input from " + getFromName() + " to " + 
@@ -88,7 +90,7 @@ class BasicPortlet extends Portlet {
 
 	PrintStream ps = null;
 	if (protocol.isTextMode()) {
-	    ps = new PrintStream(protocol.getOutputStream());
+	    ps = new PrintStream(protocol.getStreams().getOutputStream());
 	}
 
 	while (protocol.isOk()&&!done) {
@@ -101,26 +103,27 @@ class BasicPortlet extends Portlet {
 		//System.exit(1); 
 		return;
 	    }
+	    BlockReader reader = protocol.getReader();
 	    //System.out.println("got index, responded.");
 	    //System.out.println("size is " + protocol.getSize());
 	    int cmd = 0;
 	    byte[] arg = new byte[] {0};
-	    if (protocol.isTextMode()) {
-		String txt = protocol.expectLine();
+	    if (reader.isTextMode()) {
+		String txt = reader.expectLine();
 		if (txt.length()>0) {
 		    cmd = txt.charAt(0);
 		    arg = NetType.netString(txt);
 		}
 	    }
-	    if (protocol.getSize()>=8) {
+	    if (reader.getSize()>=8) {
 		log.println("waiting for 8");
-		byte[] b = protocol.expectBlock(8);
+		byte[] b = reader.expectBlock(8);
 		log.println("got 8");
 		cmd = (int)b[5];
 		log.println("command is " + cmd);
 		if (b[4]==(byte)'~') {
-		    if (protocol.getSize()>0 && cmd==0) {
-			arg = protocol.expectBlock(-1);
+		    if (reader.getSize()>0 && cmd==0) {
+			arg = reader.expectBlock(-1);
 			if (cmd==0) {
 			    cmd = ((int)arg[0]);
 			    log.println("Subbing cmd " + cmd);
@@ -144,8 +147,8 @@ class BasicPortlet extends Portlet {
 		    owner.connect(src,ps);
 		    break;
 		case 'd':
-		    log.println(protocol.getSender() + " sent data "
-				+ " to " + "me");
+		    log.println(protocol.getRoute().getFromName() + 
+				" sent data " + " to " + "me");
 		    owner.handleData(protocol);
 		    break;
 		case '~':
@@ -170,7 +173,7 @@ class BasicPortlet extends Portlet {
 		    break;
 		}
 	    }
-	    protocol.expectBlock(protocol.getSize());
+	    reader.expectBlock(reader.getSize());
 	    //protocol.respondToBlock();
 	    protocol.sendAck();
 

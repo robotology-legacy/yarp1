@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 
 
-class Protocol implements BlockWriter, BlockReader {
+class Protocol {
     private ShiftStream shift;
     private InputStream in;
     private OutputStream out;
@@ -14,16 +14,17 @@ class Protocol implements BlockWriter, BlockReader {
 
     private ArrayList inputLen = new ArrayList();
     private ArrayList outputLen = new ArrayList();
-    private int messageLen = 0;
     private boolean ok = true;
-    private boolean requireAck = false;
     private boolean pendingAck = false;
 
-    private String senderName = "null";
     private ArrayList content = new ArrayList();
-    private String carrier = "tcp";
     private Carrier delegate;
 
+    private ProtocolBlockReader reader = new ProtocolBlockReader();
+    private ProtocolBlockWriter writer = new ProtocolBlockWriter();
+    private int messageLen = 0;
+
+    private Route route = new Route("null","null","tcp");
 
     public Protocol(ShiftStream shift) throws IOException {
 	log.println("Protocol starting with address " +
@@ -33,46 +34,14 @@ class Protocol implements BlockWriter, BlockReader {
 	this.out = shift.getOutputStream();
     }
 
-    public void setSender(String name) {
-	senderName = NameClient.getNamePart(name);
-	log = new Logger(senderName+" protocol",Logger.get());
+    public Route getRoute() {
+	return route;
     }
 
-    public String getSender() {
-	return senderName;
+    public void setRoute(Route route) {
+	this.route = route;
+	log = new Logger(route.toString(),Logger.get());
     }
-
-    public Carrier chooseCarrier(String name) {
-	if (delegate!=null) {
-	    if (name.equals(delegate.getName())) {
-		return delegate;
-	    }
-	}
-	Carrier c = Carriers.chooseCarrier(name);
-
-	return c;
-    }
-
-    public Carrier chooseCarrier(int specifier) {
-	if (delegate!=null) {
-	    if (delegate.getSpecifier()==specifier) {
-		return delegate;
-	    }
-	}
-	Carrier c = Carriers.chooseCarrier(specifier);
-	return c;
-    }
-
-    public Carrier chooseCarrier(byte[] header) {
-	if (delegate!=null) {
-	    if (delegate.alternateHeaderCheck(header)) {
-		return delegate;
-	    }
-	}
-	Carrier c = Carriers.chooseCarrier(header);
-	return c;
-    }
-
 
     public void checkForNewStreams() throws IOException {
 	InputStream i = shift.getInputStream();
@@ -92,34 +61,23 @@ class Protocol implements BlockWriter, BlockReader {
 	next.open(address,shift);
 	//shift.close();
 	delegate = next;
+	setRoute(getRoute().addCarrierName(delegate.getName()));
 	shift = next;
 
 	checkForNewStreams();
     }
 
 
-    public String getCarrierName() {
-	if (delegate!=null) { 
-	    return delegate.getName();
-	}
-	return carrier;
-    }
-
     public void setRawProtocol(String carrier) throws IOException {
 	log.println("setting carrier to " + carrier);
 	if (carrier==null) {
 	    carrier = new Address("127.0.0.1",1).getCarrier(); // find default
 	}
-	this.carrier = carrier;
-	delegate = chooseCarrier(carrier);
+	setRoute(getRoute().addCarrierName(carrier));
+	log.assertion(delegate == null);
+	delegate = Carriers.chooseCarrier(carrier);
 	log.assertion(delegate!=null);
 	checkForNewStreams();
-	//this.in = shift.getInputStream();
-	//this.out = shift.getOutputStream();
-	if (!delegate.isConnectionless()) {
-	    // new YARP2 policy
-	    requireAck = true;
-	}
 	delegate.prepareSend(this);
     }
 
@@ -140,17 +98,7 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     private boolean sendProtocolSpecifier() throws IOException {
-	byte b[] = { 'Y', 'A', 0x64, 0x1e, 0, 0, 'R', 'P' };
-	
-	int p = delegate.getSpecifier();
-	p += 7777;
-	if (requireAck) { p += 128; }
-
-	byte b2[] = NetType.netInt(p);
-	for (int i=0; i<b2.length; i++) {
-	    b[i+2] = b2[i];
-	}
-	write(b);
+	write(delegate.getHeader());
 	out.flush();
 	return true;
     }
@@ -162,31 +110,23 @@ class Protocol implements BlockWriter, BlockReader {
 	byte b[] = new byte[8];
 	readFull(b);
 	String chk1 = NetType.netString(new byte[] { b[0], b[1], b[6], b[7] });
-	
-	int specifier = -1;
-	if (chk1.equals("YARP")) {
-	    specifier = NetType.unsigned(b[2]) + NetType.unsigned(b[3])*256;
-	    specifier -= 7777; // magic number, who knows why
-	    requireAck = (specifier&128)!=0;
-	    specifier %= 16;
-	    log.println("specifier is " + specifier + " with ack " + requireAck);
-	    delegate = chooseCarrier(specifier);
-	} else {
-	    log.println("choosing by alternate header");
-	    delegate = chooseCarrier(b);
+
+	boolean already = false;
+	if (delegate!=null) {
+	    if (delegate.checkHeader(b)) {
+		already = true;
+	    }
+	}
+	if (!already) {
+	    delegate = Carriers.chooseCarrier(b);
 	}
 
 	if (delegate==null) {
-	    log.error("unknown protocol with code " + specifier);
-	    if (specifier==2) {
-		log.error("In fact that is SHMEM, but that is not supported by Java");
-	    }
+	    log.error("unrecognized protocol");
 	    System.exit(1);
 	}
-	//this.in = shift.getInputStream();
-	//this.out = shift.getOutputStream();
+	delegate.setParameters(b);
 	checkForNewStreams();
-
 
 	gotHeader = true;
 	// should do something with it!
@@ -195,6 +135,7 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     private boolean sendSenderSpecifier() throws IOException {
+	String senderName = getRoute().getFromName();
 	write(NetType.netInt(senderName.length()+1));
 	write(NetType.netString(senderName));
 	out.flush();
@@ -204,7 +145,7 @@ class Protocol implements BlockWriter, BlockReader {
     // part of header
     private boolean expectSenderSpecifier() throws IOException {
 	delegate.expectSenderSpecifier(this);
-	log.println("name is " + senderName);
+	log.println("name is " + getRoute().getFromName());
 	return true;
     }
 
@@ -220,7 +161,7 @@ class Protocol implements BlockWriter, BlockReader {
 	// expect a null-terminated string
 	byte b[] = new byte[len];
 	readFull(b);
-	setSender(NetType.netString(b));
+	setRoute(getRoute().addFromName(NetType.netString(b)));
 	return true;
     }
 
@@ -254,6 +195,7 @@ class Protocol implements BlockWriter, BlockReader {
 
     public boolean expectReplyToHeader() throws IOException {
 	delegate.expectReplyToHeader(this);
+	writer.set(content,isTextMode());
 	return true;
     }
 
@@ -320,7 +262,9 @@ class Protocol implements BlockWriter, BlockReader {
 	pendingAck = true;
 	messageLen = 0;
 	if (!ok) { return false; }
-	return delegate.expectIndex(this);
+	boolean result = delegate.expectIndex(this);
+	reader.set(getStreams().getInputStream(),messageLen,isTextMode());
+	return result;
     }
 
     public boolean defaultExpectIndex() throws IOException {
@@ -384,36 +328,6 @@ class Protocol implements BlockWriter, BlockReader {
 	return true;
     }
 
-    public boolean expectBlock(byte[] b, int len) throws IOException {
-	if (len==0) { return ok; }
-	if (!ok) { return false; }
-	if (len<0) { len = messageLen; }
-	if (messageLen>=len && len>0) {
-	    readFull(b);
-	    messageLen -= len;
-	    return true;
-	}
-	ok = false;
-	return ok;
-    }
-
-    public byte[] expectBlock(int len) throws IOException {
-	if (len<0) {
-	    len = getSize();
-	}
-	byte b[] = new byte[len];
-	boolean result = expectBlock(b,len);
-	return result?b:null;
-    }
-
-    public String expectString(int len) throws IOException {
-	return NetType.netString(expectBlock(len));
-    }
-
-    public String expectLine() throws IOException {
-	return NetType.readLine(in);
-    }
-
     public boolean respondToBlock() throws IOException {
 	byte b[] = new byte[100];
 	write(b);
@@ -451,7 +365,7 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public boolean requireAck() {
-	return requireAck;
+	return delegate.requireAck();
     }
 
     public boolean sendAck() throws IOException {
@@ -472,7 +386,7 @@ class Protocol implements BlockWriter, BlockReader {
 	return true;
     }
 
-    public int getSize() {
+    public int getSize() throws IOException {
 	if (!ok) { return 0; }
 	return messageLen;
     }
@@ -489,36 +403,12 @@ class Protocol implements BlockWriter, BlockReader {
 	return NetType.netInt(b);    
     }
 
-    public void append(byte[] data) {
-	addContent(data);
-    }
-
-    public void appendBlock(byte[] data) {
-	append(data);
-    }
-
-    public void appendInt(int data) {
-	append(NetType.netInt(data));
-    }
-
-    public void appendString(String data) {
-	append(NetType.netString(data));
-    }
-
-    public void appendLine(String data) {
-	appendString(data + "\n");
-    }
-
-    public void addContent(byte[] data) {
-	content.add(data);
-    }
-
     public void beginContent() {
 	content.clear();
     }
 
     public void endContent() {
-	log.println("raw protocol is " + carrier);
+	log.println("raw protocol is " + getRoute().getCarrierName());
     }
 
     public void close() {
@@ -540,9 +430,6 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public void write(byte[] b) throws IOException {
-	//log.println(">>>> Sending block of length " + b.length + " content " +
-	//    NetType.netString(b));
-
 	out.write(b);
     }
 
@@ -551,7 +438,7 @@ class Protocol implements BlockWriter, BlockReader {
     }
 
     public String readLine() throws IOException {
-	return expectLine();
+	return NetType.readLine(in);
     }
 
     public boolean isActive() throws IOException {
@@ -576,25 +463,16 @@ class Protocol implements BlockWriter, BlockReader {
 	return false;
     }
 
-    
-    public InputStream getInputStream() throws IOException {
-	return shift.getInputStream();
+    public TwoWayStream getStreams() throws IOException {
+	return shift;
     }
 
-    public OutputStream getOutputStream() throws IOException {
-	return shift.getOutputStream();
+    public BlockReader getReader() {
+	return reader;
     }
 
-    public Address getLocalAddress() throws IOException {
-	return shift.getLocalAddress();
-    }
-
-    public Address getRemoteAddress() throws IOException {
-	return shift.getRemoteAddress();
-    }
-
-    public void setRequireAck(boolean flag) {
-	requireAck = flag;
+    public BlockWriter getWriter() {
+	return writer;
     }
 }
 

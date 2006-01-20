@@ -60,4 +60,4 @@ gcjh:
 	@echo Hopefully, header files have been generated for the java files
 
 gcc:
-	cd src && gcj yarp/os/*.java yarp/os/*.cpp -o ../cyarp
+	cd src && gcj yarp/os/*.java yarp/os/*.cpp -o ../cyarp -lstdc++

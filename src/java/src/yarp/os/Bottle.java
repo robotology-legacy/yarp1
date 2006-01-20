@@ -65,9 +65,23 @@ public class Bottle {
 	    Object o = it.next();
 	    String txt = o.toString();
 	    if (o instanceof String) {
-		String quoted = txt;
-		quoted = quoted.replaceAll("\\","\\\\");
-		quoted = quoted.replaceAll("\"","\\\"");
+		StringBuffer quoted = new StringBuffer("");
+		for (int i=0; i<txt.length(); i++) {
+		    char ch = txt.charAt(i);
+		    switch (ch) {
+		    case '\\':
+			quoted.append(ch);
+			quoted.append(ch);
+			break;
+		    case '\"':
+			quoted.append('\\');
+			quoted.append(ch);
+			break;
+		    default:
+			quoted.append(ch);
+			break;
+		    }
+		}
 		
 		txt = "\"" + quoted + "\"";
 	    }

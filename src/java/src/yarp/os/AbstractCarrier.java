@@ -10,7 +10,7 @@ abstract class AbstractCarrier implements Carrier {
 
     public abstract String getName();
 
-    public abstract int getSpecifier();
+    //public abstract int getSpecifier();
 
     public abstract void open(Address address, ShiftStream previous) 
 	throws IOException;
@@ -19,11 +19,16 @@ abstract class AbstractCarrier implements Carrier {
 
     public abstract Carrier create();
 
+    public abstract byte[] getHeader();
+
 
     // things that may be added/changed
 
-    public boolean alternateHeaderCheck(byte[] header) {
+    public boolean checkHeader(byte[] header) {
 	return false; // by default, there is no alternate
+    }
+
+    public void setParameters(byte[] header) {
     }
 
     public boolean sendHeader(Protocol proto) throws IOException {
@@ -84,6 +89,9 @@ abstract class AbstractCarrier implements Carrier {
 	return false;
     }
 
+    public boolean requireAck() {
+	return false;
+    }
 
     public void start(Address address) throws IOException {
 	throw(new IOException("carrier " + getName() + " is not startable"));
@@ -124,6 +132,39 @@ abstract class AbstractCarrier implements Carrier {
     public Address getAddress() throws IOException {
 	return getLocalAddress();
     }
+
+    public String toString() {
+	return getName();
+    }
+
+
+    protected int getSpecifier(byte[] b) {
+	if (b.length==8) {
+	    String chk1 = 
+		NetType.netString(new byte[] { b[0], b[1], b[6], b[7] });
+	    if (chk1.equals("YARP")) {
+		int specifier = NetType.unsigned(b[2]) + 
+		    NetType.unsigned(b[3])*256;
+		specifier -= 7777; // magic number, who knows why
+		return specifier;
+	    }
+	}
+	return -1;
+    }
+
+   protected byte[] createStandardHeader(int specifier) {
+	byte b[] = { 'Y', 'A', 0x64, 0x1e, 0, 0, 'R', 'P' };
+	
+	int p = specifier;
+	p += 7777;
+
+	byte b2[] = NetType.netInt(p);
+	for (int i=0; i<b2.length; i++) {
+	    b[i+2] = b2[i];
+	}
+	return b;
+    }
+
 
     // the logger
 

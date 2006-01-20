@@ -7,6 +7,7 @@ import java.net.*;
 class TcpCarrier extends AbstractCarrier {
 
     protected TwoWayStream way = null;
+    private boolean requireAck = true;
 
     public TwoWayStream getStreams() {
 	return way;
@@ -20,6 +21,30 @@ class TcpCarrier extends AbstractCarrier {
 	return 3;
 	//return 0x64; // second byte: 0x1e
     }
+
+    public boolean checkHeader(byte[] header) {
+	return getSpecifier(header)%16 == getSpecifier();
+    }
+
+    public byte[] getHeader() {
+	// always request ack
+	return createStandardHeader(getSpecifier()+(requireAck?128:0));
+    }
+
+    public void setRequireAck(boolean flag) {
+	requireAck = flag;
+    }
+
+    public void setParameters(byte[] header) {
+	int specifier = getSpecifier(header);
+	requireAck = (specifier&128)!=0;
+	log.println("require ack is " + requireAck);
+    }
+
+    public boolean requireAck() {
+	return requireAck;
+    }
+
 
     public TcpCarrier() {
     }
@@ -59,7 +84,7 @@ class TcpCarrier extends AbstractCarrier {
     }
 
     public boolean respondToHeader(Protocol proto) throws IOException {
-	int cport = proto.getLocalAddress().getPort();
+	int cport = proto.getStreams().getLocalAddress().getPort();
 	log.println("setting port number to " + cport);
 	proto.writeYarpInt(cport);
 	return true;
@@ -69,7 +94,7 @@ class TcpCarrier extends AbstractCarrier {
 	log.println("TcpCarrier giving away socket");
 	TwoWayStream r = way;
 	way = null;
-	return way;
+	return r;
     }
 
     public void open(Address address, ShiftStream previous) throws IOException{

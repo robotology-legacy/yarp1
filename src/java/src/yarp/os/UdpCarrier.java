@@ -23,6 +23,14 @@ class UdpCarrier extends AbstractCarrier {
 	//return 0x61;
     }
 
+    public boolean checkHeader(byte[] header) {
+	return getSpecifier(header)%16 == getSpecifier();
+    }
+
+    public byte[] getHeader() {
+	return createStandardHeader(getSpecifier());
+    }
+
     public void expectReplyToHeader(Protocol proto) throws IOException {
 	int port = proto.readYarpInt();
 	//proto.become("udp",new Address("ignore",port));

@@ -18,7 +18,7 @@ class Test {
 	    System.exit(1);
 	}
 
-	Connection c = new Connection(add,"tcp","/fake",name);
+	Connection c = new Connection(add,"tcp","/fake",name,true);
 	
 	//c.send("peter piper");
 	//c.write("rules");

@@ -42,45 +42,35 @@ class Carriers {
 	return lst;
     }
 
-
-    public static Carrier chooseCarrier(String name) {
+    private static Carrier chooseCarrier(String name, byte[] header) {
 	setup();
 	for (int i=0; i<delegates.length; i++) {
 	    Carrier c = delegates[i];
-	    if (name.equals(c.getName())) {
+	    boolean match = false;
+	    if (name!=null) {
+		if (name.equals(c.getName())) {
+		    match = true;
+		}
+	    }
+	    if (header!=null) {
+		if (c.checkHeader(header)) {
+		    return c.create();
+		}
+	    }
+	    if (match) {
 		return c.create();
 	    }
 	}
-	log.error("Could not find carrier " + name + " among "
-		  + delegates.length + " carriers");
-	for (int i=0; i<delegates.length; i++) {
-	    Carrier c = delegates[i];
-	    log.println("  " + c.getName());
-	}
-
+	log.error("Could not find carrier");
 	return null;
     }
 
-    public static Carrier chooseCarrier(int specifier) {
-	setup();
-	for (int i=0; i<delegates.length; i++) {
-	    Carrier c = delegates[i];
-	    if (specifier == c.getSpecifier()) {
-		return c.create();
-	    }
-	}
-	return null;
+    public static Carrier chooseCarrier(String name) {
+	return chooseCarrier(name,null);
     }
 
     public static Carrier chooseCarrier(byte[] header) {
-	setup();
-	for (int i=0; i<delegates.length; i++) {
-	    Carrier c = delegates[i];
-	    if (c.alternateHeaderCheck(header)) {
-		return c.create();
-	    }
-	}
-	return null;
+	return chooseCarrier(null,header);
     }
 }
 

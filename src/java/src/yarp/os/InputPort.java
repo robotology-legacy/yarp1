@@ -21,11 +21,10 @@ public class InputPort implements Port {
     public void register(String name) {
 	BasicPort basic = new BasicPort(name);
 	basic.setHandler(handler);
-	if (creator==null) {
+	if (pool==null) {
 	    Logger.get().error("should call creator before register");
 	    System.exit(1);
 	}
-	content = creator.create();
 	port = basic;
 	basic.start();
     }
@@ -43,6 +42,12 @@ public class InputPort implements Port {
 	log.println("InputPort getting ready to read");
 	try {
 	    synchronized(stateMutex) {
+
+		if (content!=null) {
+		    pool.unget(content);
+		    content = null;
+		}
+
 		clientReading = false;
 		if (pending>0) {
 		    worthwhile = true;
@@ -91,9 +96,12 @@ public class InputPort implements Port {
      */
     public Object content() {
 	synchronized(stateMutex) {
-	    clientReading = true;
+	    if (content!=null) {
+		clientReading = true;
+		return content.object();
+	    }
 	}
-	return content.object();
+	return null;
     }
 
 
@@ -102,7 +110,7 @@ public class InputPort implements Port {
      * @param creator the object delegated to create input objects.
      */
     public void creator(ContentCreator creator) {
-	this.creator = creator;
+	pool = new ContentPool(creator);
     }
 
 
@@ -110,16 +118,27 @@ public class InputPort implements Port {
 
 	public void read(Protocol proto) {
 	    Logger.get().println("Could read now!");
-	    if (content!=null) {
+	    Content worker = pool.get();
+	    if (worker!=null) {
 		try {
-		    content.read(proto);
+		    worker.read(proto.getReader());
+		    //log.info("Simulating a slow read");
+		    //Time.delay(2);
+		    //log.info("Simulated a slow read");
 		} catch (IOException e) {
 		    Logger.get().error("Problem reading");
 		}
 	    }
 	    synchronized(stateMutex) {
-		pending++;
+		if (content==null) {
+		    content = worker;
+		    pending = 1;
+		} else {
+		    pool.unget(worker);
+		    log.info("Discarding input, slow client");
+		}
 	    }
+	    onRead();
 	    synchronized(readSomething) {
 		readSomething.notify();
 	    }
@@ -134,6 +153,10 @@ public class InputPort implements Port {
 	return port.name();
     }
 
+    public void onRead() {
+	// can override this to do something upon receipt of content
+    }
+
     private ContentCreator creator;
     private BasicPort port;
     private Object readSomething = new Object();
@@ -142,6 +165,7 @@ public class InputPort implements Port {
     private Content content;
     private ProtocolHandler handler = new InputPortHandler();
     private int pending = 0;
+    private ContentPool pool = null;
     static private Logger log = Logger.get();
 }
 

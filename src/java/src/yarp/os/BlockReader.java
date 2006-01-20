@@ -19,4 +19,6 @@ public interface BlockReader {
     public int expectInt() throws IOException;
 
     public boolean isTextMode() throws IOException;
+
+    public int getSize() throws IOException;
 }

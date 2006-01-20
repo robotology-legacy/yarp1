@@ -2,7 +2,7 @@
 package yarp.os;
 
 import java.io.*;
-import java.net.*;
+import java.net.InetAddress;
 import java.util.*;
 import java.util.regex.*;
 
@@ -393,6 +393,7 @@ class YarpServer implements CommandProcessor {
 	//dump();
 	String response = "Unsupported request [" + cmd + "] from " + address + "\n";
 
+	//cmd = cmd.replaceAll("^CONNECT ","NAME_SERVER connect ");
 	Pattern p = Pattern.compile("^(NAME_SERVER )([^ \n\r]+)( ([^\n\r]*))?");
 	Matcher m = p.matcher(cmd);
 	if (m.find()) {
