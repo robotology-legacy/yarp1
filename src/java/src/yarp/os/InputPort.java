@@ -171,6 +171,7 @@ public class InputPort implements Port {
     private int pending = 0;
     private ContentPool pool = null;
     private boolean haveRead = false;
+    private boolean shouldBlockSender = true;
     static private Logger log = Logger.get();
 }
 

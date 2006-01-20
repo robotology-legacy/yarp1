@@ -287,7 +287,7 @@ class BasicPort extends Thread implements Port {
 	    //add = new Address(add.getName(), add.getPort(),
 	    //	      srcCarrier);
 	    if (NameClient.canConnect(ownerName,srcName,srcCarrier)) {
-		owner.addConnection(new Connection(add,srcCarrier,owner.getPortName(),srcName,false));
+		owner.addConnection(new Connection(add,srcCarrier,owner.getPortName(),srcName,true));
 		owner.println(ps,msg,true);
 	    } else {
 		owner.println(ps,"ports cannot be connected using that protocol",true);
