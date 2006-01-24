@@ -1,8 +1,8 @@
-// GraspCapture.h : main header file for the GRASPCAPTURE application
+// BodyMap.h : main header file for the BodyMap application
 //
 
-#if !defined(AFX_GRASPCAPTURE_H__99B381EA_5725_492E_ACE4_4A9BABC2F469__INCLUDED_)
-#define AFX_GRASPCAPTURE_H__99B381EA_5725_492E_ACE4_4A9BABC2F469__INCLUDED_
+#if !defined(AFX_BodyMap_H__99B381EA_5725_492E_ACE4_4A9BABC2F469__INCLUDED_)
+#define AFX_BodyMap_H__99B381EA_5725_492E_ACE4_4A9BABC2F469__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -15,25 +15,25 @@
 #include "resource.h"		// main symbols
 
 /////////////////////////////////////////////////////////////////////////////
-// CGraspCaptureApp:
-// See GraspCapture.cpp for the implementation of this class
+// CBodyMapApp:
+// See BodyMap.cpp for the implementation of this class
 //
 
-class CGraspCaptureApp : public CWinApp
+class CBodyMapApp : public CWinApp
 {
 public:
-	CGraspCaptureApp();
+	CBodyMapApp();
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CGraspCaptureApp)
+	//{{AFX_VIRTUAL(CBodyMapApp)
 	public:
 	virtual BOOL InitInstance();
 	//}}AFX_VIRTUAL
 
 // Implementation
 
-	//{{AFX_MSG(CGraspCaptureApp)
+	//{{AFX_MSG(CBodyMapApp)
 		// NOTE - the ClassWizard will add and remove member functions here.
 		//    DO NOT EDIT what you see in these blocks of generated code !
 	//}}AFX_MSG
@@ -46,4 +46,4 @@ public:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_GRASPCAPTURE_H__99B381EA_5725_492E_ACE4_4A9BABC2F469__INCLUDED_)
+#endif // !defined(AFX_BodyMap_H__99B381EA_5725_492E_ACE4_4A9BABC2F469__INCLUDED_)

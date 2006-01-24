@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "GraspCapture.h"
+#include "BodyMap.h"
 #include "LiveTrackerDlg.h"
 
 #ifdef _DEBUG

@@ -1,9 +1,9 @@
-// GraspCaptureDlg.cpp : implementation file
+// BodyMapDlg.cpp : implementation file
 //
 
 #include "stdafx.h"
-#include "GraspCapture.h"
-#include "GraspCaptureDlg.h"
+#include "BodyMap.h"
+#include "BodyMapDlg.h"
 
 #include <yarp/YARPTime.h>
 #include <yarp/YARPImages.h>
@@ -14,13 +14,11 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-const char* connectScriptName = "C:\\yarp\\src\\experiments\\mirror\\GraspCapture\\BodyMapConnect.bat";
-
 /////////////////////////////////////////////////////////////////////////////
-// CGraspCaptureDlg dialog
+// CBodyMapDlg dialog
 
-CGraspCaptureDlg::CGraspCaptureDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CGraspCaptureDlg::IDD, pParent),
+CBodyMapDlg::CBodyMapDlg(CWnd* pParent /*=NULL*/)
+	: CDialog(CBodyMapDlg::IDD, pParent),
 	  _data_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
 	  _img0_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
 	  _img1_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
@@ -28,25 +26,25 @@ CGraspCaptureDlg::CGraspCaptureDlg(CWnd* pParent /*=NULL*/)
 	  _cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 {
 
-	//{{AFX_DATA_INIT(CGraspCaptureDlg)
+	//{{AFX_DATA_INIT(CBodyMapDlg)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 
 }
 
-void CGraspCaptureDlg::DoDataExchange(CDataExchange* pDX)
+void CBodyMapDlg::DoDataExchange(CDataExchange* pDX)
 {
 
 	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CGraspCaptureDlg)
+	//{{AFX_DATA_MAP(CBodyMapDlg)
 		// NOTE: the ClassWizard will add DDX and DDV calls here
 	//}}AFX_DATA_MAP
 
 }
 
-BEGIN_MESSAGE_MAP(CGraspCaptureDlg, CDialog)
-	//{{AFX_MSG_MAP(CGraspCaptureDlg)
+BEGIN_MESSAGE_MAP(CBodyMapDlg, CDialog)
+	//{{AFX_MSG_MAP(CBodyMapDlg)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
@@ -59,14 +57,13 @@ BEGIN_MESSAGE_MAP(CGraspCaptureDlg, CDialog)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_ACQ_START, OnAcqStart)
 	ON_BN_CLICKED(IDC_ACQ_STOP, OnAcqStop)
-	ON_BN_CLICKED(IDC_KILL, OnKill)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// CGraspCaptureDlg message handlers
+// CBodyMapDlg message handlers
 
-BOOL CGraspCaptureDlg::OnInitDialog()
+BOOL CBodyMapDlg::OnInitDialog()
 {
 
 	CDialog::OnInitDialog();
@@ -121,7 +118,7 @@ BOOL CGraspCaptureDlg::OnInitDialog()
 
 }
 
-void CGraspCaptureDlg::OnSysCommand(UINT nID, LPARAM lParam)
+void CBodyMapDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 
 	CDialog::OnSysCommand(nID, lParam);
@@ -132,7 +129,7 @@ void CGraspCaptureDlg::OnSysCommand(UINT nID, LPARAM lParam)
 // to draw the icon.  For MFC applications using the document/view model,
 // this is automatically done for you by the framework.
 
-void CGraspCaptureDlg::OnPaint() 
+void CBodyMapDlg::OnPaint() 
 {
 
 	if (IsIconic()) {
@@ -155,14 +152,14 @@ void CGraspCaptureDlg::OnPaint()
 
 // The system calls this to obtain the cursor to display while the user drags
 //  the minimized window.
-HCURSOR CGraspCaptureDlg::OnQueryDragIcon()
+HCURSOR CBodyMapDlg::OnQueryDragIcon()
 {
 
 	return (HCURSOR) m_hIcon;
 
 }
 
-void CGraspCaptureDlg::OnLiveCamera() 
+void CBodyMapDlg::OnLiveCamera() 
 {
 
 	// toggle dialogs
@@ -175,7 +172,7 @@ void CGraspCaptureDlg::OnLiveCamera()
 
 }
 
-void CGraspCaptureDlg::OnLiveGlove() 
+void CBodyMapDlg::OnLiveGlove() 
 {
 
 	// toggle dialog
@@ -183,7 +180,7 @@ void CGraspCaptureDlg::OnLiveGlove()
 
 }
 
-void CGraspCaptureDlg::OnLiveTracker() 
+void CBodyMapDlg::OnLiveTracker() 
 {
 
 	// toggle dialogs
@@ -196,7 +193,7 @@ void CGraspCaptureDlg::OnLiveTracker()
 	
 }
 
-void CGraspCaptureDlg::OnConnect() 
+void CBodyMapDlg::OnConnect() 
 {
 
 	// send connect command to collector
@@ -250,7 +247,6 @@ void CGraspCaptureDlg::OnConnect()
 		// enable the required windows
 		GetDlgItem(IDC_CONNECT)->EnableWindow(FALSE);
 		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-		GetDlgItem(IDC_KILL)->EnableWindow(FALSE);
 		if( _options.useCamera0 || _options.useCamera1 ) {
 			GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
 		}
@@ -270,7 +266,7 @@ void CGraspCaptureDlg::OnConnect()
 
 }
 
-void CGraspCaptureDlg::OnDisconnect() 
+void CBodyMapDlg::OnDisconnect() 
 {
 
 	// kill live timer
@@ -292,11 +288,10 @@ void CGraspCaptureDlg::OnDisconnect()
 	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
 	GetDlgItem(IDC_CONNECT)->EnableWindow(TRUE);
 	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
-	GetDlgItem(IDC_KILL)->EnableWindow(TRUE);
 
 }
 
-void CGraspCaptureDlg::OnClose() 
+void CBodyMapDlg::OnClose() 
 {
 
 	DisconnectAndUnregisterPorts();
@@ -305,7 +300,7 @@ void CGraspCaptureDlg::OnClose()
 
 }
 
-void CGraspCaptureDlg::OnTimer(UINT nIDEvent)
+void CBodyMapDlg::OnTimer(UINT nIDEvent)
 {
 
 	// this is the timer event. each time the timer ticks, we gather data
@@ -350,7 +345,7 @@ void CGraspCaptureDlg::OnTimer(UINT nIDEvent)
 
 }
 
-void CGraspCaptureDlg::OnAcqStart() 
+void CBodyMapDlg::OnAcqStart() 
 {
 
 	// disable windows
@@ -408,7 +403,7 @@ void CGraspCaptureDlg::OnAcqStart()
 
 }
 
-void CGraspCaptureDlg::OnAcqStop() 
+void CBodyMapDlg::OnAcqStop() 
 {
 
 	// stop saving stream. HAVE to do this before stopping the
@@ -447,24 +442,9 @@ void CGraspCaptureDlg::OnAcqStop()
 
 }
 
-void CGraspCaptureDlg::OnKill() 
-{
-
-	// kill collector
-	_cmd_outport.Content() = CCmdQuit;
-	_cmd_outport.Write(true);
-	_cmd_inport.Read();
-	if ( _cmd_inport.Content() == CCmdFailed ) {
-		MessageBox("Could not kill mirrorCollector.", "Error.", MB_ICONERROR);
-	}
-
-	OnOK();
-
-}
-
 // ---------------- procedures which are not associated with MFC objects
 
-int CGraspCaptureDlg::RegisterAndConnectPorts()
+int CBodyMapDlg::RegisterAndConnectPorts()
 {
 
 	char tmpBMPortName[255];
@@ -518,7 +498,7 @@ int CGraspCaptureDlg::RegisterAndConnectPorts()
 
 }
 
-void CGraspCaptureDlg::DisconnectAndUnregisterPorts()
+void CBodyMapDlg::DisconnectAndUnregisterPorts()
 {
 
 	char tmpBMPortName[255];
@@ -551,7 +531,7 @@ void CGraspCaptureDlg::DisconnectAndUnregisterPorts()
 
 }
 
-void CGraspCaptureDlg::ShowTrackerXY(YARPImageOf<YarpPixelBGR>& img)
+void CBodyMapDlg::ShowTrackerXY(YARPImageOf<YarpPixelBGR>& img)
 {
 
 	YarpPixelBGR colour(255,255,255);
@@ -564,7 +544,7 @@ void CGraspCaptureDlg::ShowTrackerXY(YARPImageOf<YarpPixelBGR>& img)
 
 }
 
-void CGraspCaptureDlg::FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y)
+void CBodyMapDlg::FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y)
 {
 
 	// define atemporary mono image

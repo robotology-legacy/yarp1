@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="GraspCapture" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="BodyMap" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
-CFG=GraspCapture - Win32 Debug
+CFG=BodyMap - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "GraspCapture.mak".
+!MESSAGE NMAKE /f "BodyMap.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "GraspCapture.mak" CFG="GraspCapture - Win32 Debug"
+!MESSAGE NMAKE /f "BodyMap.mak" CFG="BodyMap - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "GraspCapture - Win32 Release" (based on "Win32 (x86) Application")
-!MESSAGE "GraspCapture - Win32 Debug" (based on "Win32 (x86) Application")
+!MESSAGE "BodyMap - Win32 Release" (based on "Win32 (x86) Application")
+!MESSAGE "BodyMap - Win32 Debug" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "GraspCapture - Win32 Release"
+!IF  "$(CFG)" == "BodyMap - Win32 Release"
 
 # PROP BASE Use_MFC 6
 # PROP BASE Use_Debug_Libraries 0
@@ -55,7 +55,7 @@ LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
 # ADD LINK32 libYARP_sig.lib libYARP_OS.lib libYARP_dev.lib libYARP_robot.lib ace.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /machine:I386 /libpath:"..\..\..\..\lib\winnt"
 
-!ELSEIF  "$(CFG)" == "GraspCapture - Win32 Debug"
+!ELSEIF  "$(CFG)" == "BodyMap - Win32 Debug"
 
 # PROP BASE Use_MFC 6
 # PROP BASE Use_Debug_Libraries 1
@@ -85,8 +85,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "GraspCapture - Win32 Release"
-# Name "GraspCapture - Win32 Debug"
+# Name "BodyMap - Win32 Release"
+# Name "BodyMap - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -96,15 +96,15 @@ SOURCE=.\DIBConverter.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\GraspCapture.cpp
+SOURCE=.\BodyMap.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\GraspCapture.rc
+SOURCE=.\BodyMap.rc
 # End Source File
 # Begin Source File
 
-SOURCE=.\GraspCaptureDlg.cpp
+SOURCE=.\BodyMapDlg.cpp
 # End Source File
 # Begin Source File
 
@@ -136,11 +136,11 @@ SOURCE=.\DIBConverter.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\GraspCapture.h
+SOURCE=.\BodyMap.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\GraspCaptureDlg.h
+SOURCE=.\BodyMapDlg.h
 # End Source File
 # Begin Source File
 

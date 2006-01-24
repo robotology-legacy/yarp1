@@ -1,22 +1,22 @@
-// GraspCaptureDlg.h : header file
+// BodyMapDlg.h : header file
 //
 
-#if !defined(AFX_GRASPCAPTUREDLG_H__1C4B76BC_BE02_4C31_BDB6_5A7AB990D4B0__INCLUDED_)
-#define AFX_GRASPCAPTUREDLG_H__1C4B76BC_BE02_4C31_BDB6_5A7AB990D4B0__INCLUDED_
+#if !defined(AFX_BodyMapDLG_H__1C4B76BC_BE02_4C31_BDB6_5A7AB990D4B0__INCLUDED_)
+#define AFX_BodyMapDLG_H__1C4B76BC_BE02_4C31_BDB6_5A7AB990D4B0__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "GraspCapture.h"
+#include "BodyMap.h"
 #include "LiveCameraDlg.h"
 #include "LiveGloveDlg.h"
 #include "LiveTrackerDlg.h"
 #include "SaverThread.h"
 
 //////////////////////////////////////
-typedef struct GraspCaptureOptionsStruct {
-	GraspCaptureOptionsStruct() {
+typedef struct BodyMapOptionsStruct {
+	BodyMapOptionsStruct() {
 		sizeX = sizeY = 0;
 		ACE_OS::strcpy(BodyMapPortName, "BodyMap");
 		ACE_OS::strcpy(MirrorCollectorPortName, "mirrorCollector");
@@ -42,12 +42,12 @@ typedef struct GraspCaptureOptionsStruct {
 	bool useDataGlove;
 	bool usePresSens;
 	int refreshFrequency;
-} GraspCaptureOptions;
+} BodyMapOptions;
 
 /////////////////////////////////////////////////////////////////////////////
-// CGraspCaptureDlg dialog
+// CBodyMapDlg dialog
 
-class CGraspCaptureDlg : public CDialog
+class CBodyMapDlg : public CDialog
 {
 
 	// Construction
@@ -58,15 +58,15 @@ public:
 	void ShowTrackerXY(YARPImageOf<YarpPixelBGR>&);
 	void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*);
 
-	CGraspCaptureDlg(CWnd* pParent = NULL);	// standard constructor
+	CBodyMapDlg(CWnd* pParent = NULL);	// standard constructor
 
 	// Dialog Data
-	//{{AFX_DATA(CGraspCaptureDlg)
-	enum { IDD = IDD_GRASPCAPTURE_DIALOG };
+	//{{AFX_DATA(CBodyMapDlg)
+	enum { IDD = IDD_BODYMAP_DIALOG };
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CGraspCaptureDlg)
+	//{{AFX_VIRTUAL(CBodyMapDlg)
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -77,7 +77,7 @@ protected:
 	HICON m_hIcon;
 
 	// Generated message map functions
-	//{{AFX_MSG(CGraspCaptureDlg)
+	//{{AFX_MSG(CBodyMapDlg)
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
@@ -91,7 +91,6 @@ protected:
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnAcqStart();
 	afx_msg void OnAcqStop();
-	afx_msg void OnKill();
 	afx_msg void OnDebugWnd();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
@@ -115,7 +114,7 @@ private:
 	int nSeq;
 
 	// program options
-	GraspCaptureOptions _options;
+	BodyMapOptions _options;
 
 	// communication ports: data
 	YARPInputPortOf<CollectorNumericalData> _data_inport;
@@ -133,4 +132,4 @@ private:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_GRASPCAPTUREDLG_H__1C4B76BC_BE02_4C31_BDB6_5A7AB990D4B0__INCLUDED_)
+#endif // !defined(AFX_BodyMapDLG_H__1C4B76BC_BE02_4C31_BDB6_5A7AB990D4B0__INCLUDED_)

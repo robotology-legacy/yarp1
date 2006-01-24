@@ -1,9 +1,9 @@
-// GraspCapture.cpp : Defines the class behaviors for the application.
+// BodyMap.cpp : Defines the class behaviors for the application.
 //
 
 #include "stdafx.h"
-#include "GraspCapture.h"
-#include "GraspCaptureDlg.h"
+#include "BodyMap.h"
+#include "BodyMapDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -12,10 +12,10 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// CGraspCaptureApp
+// CBodyMapApp
 
-BEGIN_MESSAGE_MAP(CGraspCaptureApp, CWinApp)
-	//{{AFX_MSG_MAP(CGraspCaptureApp)
+BEGIN_MESSAGE_MAP(CBodyMapApp, CWinApp)
+	//{{AFX_MSG_MAP(CBodyMapApp)
 		// NOTE - the ClassWizard will add and remove mapping macros here.
 		//    DO NOT EDIT what you see in these blocks of generated code!
 	//}}AFX_MSG
@@ -23,23 +23,23 @@ BEGIN_MESSAGE_MAP(CGraspCaptureApp, CWinApp)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// CGraspCaptureApp construction
+// CBodyMapApp construction
 
-CGraspCaptureApp::CGraspCaptureApp()
+CBodyMapApp::CBodyMapApp()
 {
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// The one and only CGraspCaptureApp object
+// The one and only CBodyMapApp object
 
-CGraspCaptureApp theApp;
+CBodyMapApp theApp;
 
 /////////////////////////////////////////////////////////////////////////////
-// CGraspCaptureApp initialization
+// CBodyMapApp initialization
 
-BOOL CGraspCaptureApp::InitInstance()
+BOOL CBodyMapApp::InitInstance()
 {
 	// Standard initialization
 	// If you are not using these features and wish to reduce the size
@@ -52,7 +52,7 @@ BOOL CGraspCaptureApp::InitInstance()
 	Enable3dControlsStatic();	// Call this when linking to MFC statically
 #endif
 
-	CGraspCaptureDlg dlg;
+	CBodyMapDlg dlg;
 	m_pMainWnd = &dlg;
 	int nResponse = dlg.DoModal();
 	if (nResponse == IDOK)

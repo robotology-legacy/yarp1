@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #include "SaverThread.h"
-#include "GraspCaptureDlg.h"
+#include "BodyMap.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

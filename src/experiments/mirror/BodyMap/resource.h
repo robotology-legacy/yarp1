@@ -1,11 +1,11 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Developer Studio generated include file.
-// Used by GraspCapture.rc
+// Used by BodyMap.rc
 //
 #define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
 #define IDS_ABOUTBOX                    101
-#define IDD_GRASPCAPTURE_DIALOG         102
+#define IDD_BODYMAP_DIALOG              102
 #define IDR_MAINFRAME                   128
 #define IDD_CAMERA                      129
 #define IDD_TRACKER                     130
@@ -27,7 +27,6 @@
 #define IDC_POS_Y                       1009
 #define IDC_DEBUG_WND                   1009
 #define IDC_POS_Z                       1010
-#define IDC_KILL                        1010
 #define IDC_OR_AZIMUTH                  1011
 #define IDC_FINGER_1                    1011
 #define IDC_OR_ELEVATION                1012
