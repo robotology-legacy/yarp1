@@ -92,7 +92,7 @@ dword _limit_current[JN] = { 4000000, 4000000 };
 float _conversion_factor[JN] = { 0f, 0f };	/* limit on the current as set by the interface (later converted into the filter parameter) */
 
 /*
- * version specifi global variables.
+ * version specific global variables.
  */
 #if VERSION == 0x0111
 Int16 _version = 0x0111;
