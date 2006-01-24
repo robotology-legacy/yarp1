@@ -14,7 +14,7 @@ class CSaverThread : public YARPThread
 public:
 	virtual void Body();
 	
-	void writeDataToFile(int i);
+	void writeDataToFile(int);
 	void writeHeaderToFile();
 
 	int useDataGlove;
@@ -37,7 +37,10 @@ public:
 	YARPInputPortOf<YARPGenericImage>*       p_img1_inport;
 
 private:
+
 	int nFrames;
+	int x0, y0, x1, y1;
+
 };
 
 #endif // !defined(AFX_SAVERTHREAD_H__F6E88ED1_F198_4E75_83FB_05438B0AD6A6__INCLUDED_)

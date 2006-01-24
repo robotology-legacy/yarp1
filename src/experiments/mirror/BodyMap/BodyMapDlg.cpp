@@ -534,74 +534,12 @@ void CBodyMapDlg::DisconnectAndUnregisterPorts()
 void CBodyMapDlg::ShowTrackerXY(YARPImageOf<YarpPixelBGR>& img)
 {
 
-	YarpPixelBGR colour(255,255,255);
+	YarpPixelBGR tmpBGRWhitePixel(255,255,255);
 
 	int x, y;
 	FindTrackerXY(img, &x, &y);
 	if ( x>0 && y>0 ) {
-		YARPSimpleOperations::DrawCross<YarpPixelBGR>(img, x, y, colour, 10);
-	}
-
-}
-
-void CBodyMapDlg::FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y)
-{
-
-	// define atemporary mono image
-	YARPImageOf<YarpPixelMono> tmpMonoImg;
-	tmpMonoImg.Resize(img.GetWidth(), img.GetHeight());
-
-	// build a mono image which "sees" the tracker only
-	{
-		IMGFOR(img,i,j) {
-		
-			double r = img(i,j).r/255.0;
-			double g = img(i,j).g/255.0;
-			double b = img(i,j).b/255.0;
-			double h, s, v;
-			double max = (r>=b && r>=g) ? r : ((g>=r && g>=b) ? g : b );
-			double min = (r<=b && r<=g) ? r : ((g<=r && g<=b) ? g : b );
-
-			if ( max == min ) {
-				h = 0;
-			} else {
-				if ( max == r ) h = 60*(g-b)/(max-min)+0;
-				if ( max == g ) h = 60*(b-r)/(max-min)+120;
-				if ( max == b ) h = 60*(r-g)/(max-min)+240;
-			}
-			if ( max == 0 ) {
-				s = 0;
-			} else {
-				s = (max-min)/max;
-			}
-			v = max;
-
-			if ( cos(h/360*2*M_PI)>0.85 && s>0.5 && v>0.85 ) {
-				tmpMonoImg(i,j) = 255;
-			} else {
-				tmpMonoImg(i,j) = 0;
-			}
-	
-		}
-	}
-
-	// now find the center of mass
-	{
-		unsigned long sumX = 0, sumY = 0, nOfPixels = 0;
-		IMGFOR(tmpMonoImg,i,j) {
-			if ( tmpMonoImg(i,j) == 255 ) {
-				sumX += i;
-				sumY += j;
-				++nOfPixels;
-			}
-		}
-		if ( nOfPixels > 0 ) {
-			*x = (int)(sumX/nOfPixels);
-			*y = (int)(sumY/nOfPixels);
-		} else {
-			*x = -1;
-			*y = -1;
-		}
+		YARPSimpleOperations::DrawCross<YarpPixelBGR>(img, x, y, tmpBGRWhitePixel, 5);
 	}
 
 }

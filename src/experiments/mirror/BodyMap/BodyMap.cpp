@@ -70,3 +70,49 @@ BOOL CBodyMapApp::InitInstance()
 	//  application, rather than start the application's message pump.
 	return FALSE;
 }
+
+
+void FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y)
+{
+
+	unsigned long sumX = 0, sumY = 0, nOfPixels = 0;
+
+	IMGFOR(img,i,j) {
+		
+		double r = img(i,j).r/255.0;
+		double g = img(i,j).g/255.0;
+		double b = img(i,j).b/255.0;
+		double h, s, v;
+		double max = (r>=b && r>=g) ? r : ((g>=r && g>=b) ? g : b );
+		double min = (r<=b && r<=g) ? r : ((g<=r && g<=b) ? g : b );
+
+		if ( max == min ) {
+			h = 0;
+		} else {
+			if ( max == r ) h = 60*(g-b)/(max-min)+0;
+			if ( max == g ) h = 60*(b-r)/(max-min)+120;
+			if ( max == b ) h = 60*(r-g)/(max-min)+240;
+		}
+		if ( max == 0 ) {
+			s = 0;
+		} else {
+			s = (max-min)/max;
+		}
+		v = max;
+
+		if ( cos(h/360*2*M_PI)>0.85 && s>0.5 && v>0.85 ) {
+			sumX += i;
+			sumY += j;
+			++nOfPixels;
+		}
+	}
+
+	if ( nOfPixels > 0 ) {
+		*x = (int)(sumX/nOfPixels);
+		*y = (int)(sumY/nOfPixels);
+	} else {
+		*x = -1;
+		*y = -1;
+	}
+
+}
