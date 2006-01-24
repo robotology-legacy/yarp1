@@ -61,3 +61,7 @@ gcjh:
 
 gcc:
 	cd src && gcj yarp/os/*.java yarp/os/*.cpp -o ../cyarp -lstdc++
+
+test:
+	java -enableassertions -cp dist/lib/yarp.jar:/usr/share/java/junit.jar junit.textui.TestRunner yarp.os.TextCarrierTest
+

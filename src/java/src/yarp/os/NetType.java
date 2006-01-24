@@ -23,11 +23,14 @@ class NetType {
     }
 
     public static byte[] netInt(int x) {
+	long x2 = x;
+	if (x2<0) { x2 -= 2*((long)Integer.MIN_VALUE); }
+
 	byte b[] = new byte[4];
 	for (int i=0; i<4; i++) {
-	    int bi = x%256;
+	    long bi = x2%256;
 	    b[i] = (byte)bi;
-	    x /= 256;
+	    x2 /= 256;
 	}
 	return b;
     }

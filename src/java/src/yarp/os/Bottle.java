@@ -101,6 +101,10 @@ public class Bottle {
 	return Collections.unmodifiableList(items);
     }
 
+    public int size() {
+	return items.size();
+    }
+
     /**
      * View the contents of the bottle as an array of bytes.
      */

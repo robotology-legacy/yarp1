@@ -15,10 +15,21 @@ public interface Content extends ContentCreator {
     public void read(BlockReader reader) throws IOException;
 
 
+
     /**
      * Read an object from a port.
      */
     public void write(BlockWriter writer) throws IOException;
+
+    
+    /*
+    public void read(BlockReader reader, BlockWriter reply) 
+	throws IOException;
+	// reply writes directly, rather than making index
+	// reply is entirely optional
+	// need to actually start specifying the ack message!
+    */
+
 
     /**
      * Access an object being read/written.
