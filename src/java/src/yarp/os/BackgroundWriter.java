@@ -6,7 +6,6 @@ import java.io.IOException;
 
 class BackgroundWriter extends Thread implements ContentWriter {
     private static Logger log = Logger.get();
-    private Protocol proto;
     private Object writeSomething = new Object();
     private Object stateMutex = new Object();
     private boolean writing = false;
@@ -17,7 +16,6 @@ class BackgroundWriter extends Thread implements ContentWriter {
     private boolean tagAsData = false;
 
     public BackgroundWriter(Protocol proto) {
-	this.proto = proto;
 	delegate = new SlowWriter(proto);
 	start();
     }

@@ -1,9 +1,6 @@
 
 package yarp.os;
 
-import java.io.*;
-import java.net.*;
-
 /**
  * Classes implementing this interface can be hollowed out,
  * and have their streams "borrowed"

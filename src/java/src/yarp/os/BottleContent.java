@@ -12,11 +12,6 @@ public class BottleContent implements Content {
     private byte[] data;
     private Bottle bot = new Bottle();
 
-    private int rawSize() {
-	if (data==null) return 0;
-	return data.length;
-    }
-
     /**
      * Create a proxy for reading/writing a bottle.
      */

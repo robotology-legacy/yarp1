@@ -10,7 +10,6 @@ import java.io.*;
  * A link between one output-port and one input-port.
  */
 class Connection implements ContentWriter {
-    private Address address;
     private Protocol proto;
     private String fromKey = null;
     private String toKey = null;
@@ -22,7 +21,6 @@ class Connection implements ContentWriter {
 		      String fromKey, 
 		      String toKey,
 		      boolean waitForSlow) throws IOException {
-	this.address = address;
 	this.fromKey = fromKey;
 	this.toKey = toKey;
 	

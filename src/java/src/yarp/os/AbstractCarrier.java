@@ -2,7 +2,6 @@
 package yarp.os;
 
 import java.io.*;
-import java.net.*;
 
 abstract class AbstractCarrier implements Carrier {
 
