@@ -408,33 +408,73 @@ public class NameClient {
 	return check(name,"accepts",carrier);
     }
 
-    Address seek() {
-	final Address addr = FallbackServer.getAddress();
-	try {
-	    Carrier car = new McastCarrier();
-	    car.start(addr);
-	    OutputStream out = car.getStreams().getOutputStream();
-	    InputStream in = car.getStreams().getInputStream();
-	    out.write(NetType.netString("NAME_SERVER query root\n"));
-	    out.flush();
-	    for (int i=0; i<5; i++) {
-		log.info("Broadcast search for name server...");
-		if (in.available()>10) {
+
+
+
+    class McastSeeker extends Thread {
+	private Address result = null;
+	public synchronized void set(Address result) {
+	    this.result = result;
+	}
+	public synchronized Address get() {
+	    return result;
+	}
+	public void run() {
+	    final Address addr = FallbackServer.getAddress();
+	    try {
+		Carrier car = new McastCarrier();
+		car.start(addr);
+		OutputStream out = car.getStreams().getOutputStream();
+		InputStream in = car.getStreams().getInputStream();
+		out.write(NetType.netString("NAME_SERVER query root\n"));
+		out.flush();
+		for (int i=0; i<5; i++) {
 		    String txt = NetType.readLine(in);
 		    log.println("got " + txt);
 		    if (txt.length()>=1) {
 			if (txt.charAt(0)=='r') {
-			    return extractAddress(txt);
+			    set(extractAddress(txt));
+			    return;
 			}
 		    }
-		} else {
-		    Time.delay(1);
+		}
+	    } catch (IOException e) {
+		log.println("no joy over mcast");
+	    }
+	}
+    };
+
+
+
+    Address seek() {
+	int tries = 3;
+	for (int k=0; k<tries; k++) {
+	    McastSeeker seeker = new McastSeeker();
+	    log.info("Broadcast search for name server try " + (k+1) + " of max " + tries);
+	    seeker.start();
+	    Time.delay(0.5);
+	    if (seeker.get()!=null) {
+		return seeker.get();
+	    }
+	    int len = 40;
+	    for (int i=0; i<len; i++) {
+		System.err.print("+");
+	    }
+	    System.err.println("");
+	    
+	    for (int i=0; i<len; i++) {
+		Time.delay(0.1);
+		System.err.print("+");
+		if (seeker.get()!=null) {
+		    System.err.println("");
+		    return seeker.get();
 		}
 	    }
+	    System.err.println("");
 	    log.error("No response to broadcast search");
-	} catch (IOException e) {
-	    log.println("no joy over mcast");
+	    seeker.interrupt();
 	}
+	
 	return null;
     }
 
