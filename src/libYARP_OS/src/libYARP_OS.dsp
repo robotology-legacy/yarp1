@@ -139,6 +139,10 @@ SOURCE=.\YARPNameClient.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPNameClient2.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPNameService.cpp
 # End Source File
 # Begin Source File
