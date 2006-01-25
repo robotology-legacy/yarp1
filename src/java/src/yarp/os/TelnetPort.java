@@ -17,13 +17,14 @@ class TelnetPort extends BasicPort {
     }
 
 
-    private class TelnetPortlet extends Portlet {
-	BasicPort owner;
+    private class TelnetPortlet extends Thread implements Portlet {
+	TelnetPort owner;
 	InputProtocol carrier;
 
-	TelnetPortlet(BasicPort owner, InputProtocol carrier) {
+	TelnetPortlet(TelnetPort owner, InputProtocol carrier) {
 	    this.owner = owner;
 	    this.carrier = carrier;
+	    start();
 	}
 
 	public void close() {

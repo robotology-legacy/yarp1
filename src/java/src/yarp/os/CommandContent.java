@@ -94,5 +94,13 @@ class CommandContent implements Content {
 	    return str;
 	}
     }
+
+    public char getKey() {
+	return ch;
+    }
+
+    public String getText() {
+	return str;
+    }
 }
 

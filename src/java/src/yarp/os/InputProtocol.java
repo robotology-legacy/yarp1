@@ -15,7 +15,7 @@ interface InputProtocol {
 
     OutputStream getReplyStream() throws IOException;
 
-    // TelnetPort dependency, due for removal
+    // silly TelnetPort dependency, due for removal
     InputStream getInputStream() throws IOException;
     Address getRemoteAddress() throws IOException;
 }

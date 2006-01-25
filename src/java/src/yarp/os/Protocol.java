@@ -343,7 +343,7 @@ class Protocol implements InputProtocol, OutputProtocol {
     }
 
     public boolean expectAck() throws IOException {
-	//log.info("expectAck - " + requireAck());
+	log.println("expectAck - " + requireAck());
 	if (!ok) { return false; }
 	if (requireAck()) {
 	    //log.info("Ok I'm going to see if there is a reply");

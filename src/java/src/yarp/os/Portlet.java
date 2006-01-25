@@ -1,10 +1,7 @@
 
 package yarp.os;
 
-abstract class Portlet extends Thread {
+public interface Portlet {
 
-    public abstract void close();
-
-    public abstract void run();
-
+    void close();
 }

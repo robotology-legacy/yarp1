@@ -76,7 +76,7 @@ class BasicPort extends Thread implements Port {
 	BasicPortlet rip = null;
 	for (Iterator it = portlets.iterator(); it.hasNext(); ) {
 	    BasicPortlet p = (BasicPortlet) it.next();
-	    String name = p.getFromName();
+	    String name = p.getRoute().getFromName();
 	    if (name!=null) {
 		if (name.equals(target)) {
 		    rip = p;
@@ -85,8 +85,9 @@ class BasicPort extends Thread implements Port {
 	}
 	if (rip!=null) {
 	    //log.info("Here i am");
-	    println(out,"Removed connection from " + rip.getFromName() +
-		    " to " + rip.getToName());
+	    println(out,"Removed connection from " + 
+		    rip.getRoute().getFromName() +
+		    " to " + rip.getRoute().getToName());
 	    //log.info("Here i go");
 	    rip.close();
 	    removePortlet(rip);
@@ -153,9 +154,9 @@ class BasicPort extends Thread implements Port {
 		conj = "this";
 	    }
 	    buf.append("There is " + conj + " connection from " +
-		       p.getFromName() + " to " +
-		       p.getToName() + " using protocol " +
-		       p.getCarrierName() + "\n");
+		       p.getRoute().getFromName() + " to " +
+		       p.getRoute().getToName() + " using protocol " +
+		       p.getRoute().getCarrierName() + "\n");
 	}
 	if (portlets.size()==0) {
 	    buf.append("There are no incoming connections\n");
@@ -200,7 +201,7 @@ class BasicPort extends Thread implements Port {
 		try {
 		    portlet = newPortlet(carrier);
 		    addPortlet(portlet);
-		    portlet.start();
+		    //portlet.start();
 		} catch (IOException e) {
 		    log.error(e.toString());
 		}
@@ -282,7 +283,9 @@ class BasicPort extends Thread implements Port {
 	Address add = NameClient.getNameClient().query(srcName);
 
 	if (add==null) {
-	    throw(new IOException());
+	    //throw(new IOException());
+	    owner.println(ps,"Cannot find " + srcName,true);
+	    return;
 	}
 	if (add.getRegName()!=null) {
 	    srcName = add.getRegName();

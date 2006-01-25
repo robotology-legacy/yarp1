@@ -67,7 +67,7 @@ class Carriers {
     }
 
     public static Carrier chooseCarrier(String name) {
-	return chooseCarrier(name,null);
+	return chooseCarrier(name.toLowerCase(),null);
     }
 
     public static Carrier chooseCarrier(byte[] header) {

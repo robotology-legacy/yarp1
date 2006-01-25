@@ -9,6 +9,8 @@ MAIN = main
 
 BMAIN = $(MAIN)
 
+default:
+	make pdf
 
 # generate and view dvi file
 dvi:

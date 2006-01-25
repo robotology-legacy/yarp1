@@ -119,7 +119,7 @@ public class InputPort implements Port {
 
     private class InputPortHandler implements ProtocolHandler  {
 
-	public void read(BlockReader reader) {
+	public boolean read(BlockReader reader) {
 	    Logger.get().println("Could read now!");
 	    Content worker = pool.get();
 	    if (worker!=null) {
@@ -146,6 +146,7 @@ public class InputPort implements Port {
 	    synchronized(readSomething) {
 		readSomething.notify();
 	    }
+	    return false;
 	}
 	
 	//public void write(Protocol proto) {

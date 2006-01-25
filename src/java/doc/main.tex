@@ -921,7 +921,7 @@ more transparent and easier to step through.
 
 For yarp utilities to correctly discover how
 to contact the name server,
-there must be a file namer.conf in the directory \$HOME/.yarp/conf/
+there should be a file namer.conf in the directory \$HOME/.yarp/conf/
 (or in the directory specified by an environment variable \$YARP\_ROOT)
 that looks like this:
 \begin{code}
@@ -930,7 +930,21 @@ that looks like this:
 This gives the machine and socket-port that the name server is assumed
 to be running on.
 
-
+If this file does not exist, or is incorrect, yarp utilities will
+attempt to contact the nameserver using multi-cast broadcasts to
+224.2.1.1 port 10001 (this is a YARP2 feature, not available in
+YARP1).  If the nameserver is running a machine reachable from
+multi-cast, it will respond with its ``true'' tcp address, which will
+then be used by the utility.  The configuration file will be updated
+automatically for future reference.  The multi-cast protocol is
+identical to the normal tcp protocol.  Clients can broadcast
+``NAME\_SERVER query root'' to trigger the name server to send a record
+of the form ``registration name root ip ADDRESS port NUMBER type
+CARRIER''.  The ``root'' record is a special record corresponding to
+the name server.  Multi-cast broadcasts should not generally be used
+by clients to communicate with the name server, since the output of
+the name server is not tagged with the recipient, so there is the
+potential for cross-talk.
 
 
 \newusage{}
