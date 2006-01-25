@@ -38,7 +38,8 @@ public:
   void apply(const char *command) {
     int at = 0;
     int sub_at = 0;
-    for (int i=0; i<strlen(command)+1; i++) {
+    int i;
+    for (i=0; i<strlen(command)+1; i++) {
       if (at<MAX_ARG_CT) {
 	char ch = command[i];
 	if (ch>=32||ch=='\0') {
@@ -58,7 +59,7 @@ public:
 	} 
       }
     }
-    for (int i=0; i<MAX_ARG_CT; i++) {
+    for (i=0; i<MAX_ARG_CT; i++) {
       argv[i] = buf[i];
       buf[i][MAX_ARG_LEN-1] = '\0';
     }
