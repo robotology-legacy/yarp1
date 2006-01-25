@@ -314,7 +314,10 @@ class McastCarrier extends AbstractCarrier {
 	log.println("Nic name is " + nicName);
 
 	mcastKey = mcastAddress.getName() + " on NIC " + nicName;
-	manager.addCarrier(mcastKey,this);
+
+	if (!reading) {
+	    manager.addCarrier(mcastKey,this);
+	}
 
 	/*
 	setAddress(clocal,cremote);
@@ -336,6 +339,14 @@ class McastCarrier extends AbstractCarrier {
     public Carrier create() {
 	log.println("*** McastCarrier::create()");
 	return new McastCarrier();
+    }
+
+    public void start(Address address) throws IOException {
+	log.println("Starting mcast, I hope you know what you're doing");
+	makeDgram(address);
+	InetAddress group = InetAddress.getByName(address.getName());
+	log.debug("joining group " + group);
+	getSocket().joinGroup(group);
     }
 }
 

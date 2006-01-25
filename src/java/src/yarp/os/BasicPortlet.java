@@ -7,32 +7,15 @@ import java.io.*;
 
 class BasicPortlet extends Portlet {
     private BasicPort owner;
-    private ShiftStream shift;
     private String sourceName;
     private String ownerName;
     private String carrierName;
     private Logger log = Logger.get();
-    private Protocol closeMe = null;
+    private InputProtocol proto = null;
 
-    public void show(String from, String msg) {
-	boolean admin = true;
-	if (from!=null) {
-	    if (from.length()>0) {
-		if (from.charAt(0) == '/') {
-		    admin = false;
-		}
-	    }
-	}
-	if (admin) {
-	    log.println(msg);
-	} else {
-	    log.info(msg);
-	}
-    }
-
-    public BasicPortlet(BasicPort owner, ShiftStream shift) {
+    public BasicPortlet(BasicPort owner, InputProtocol proto) {
 	this.owner = owner;
-	this.shift = shift;
+	this.proto = proto;
 	ownerName = owner.getPortName();
 	log = new Logger(ownerName,Logger.get());
     }
@@ -40,8 +23,9 @@ class BasicPortlet extends Portlet {
     public void close() {
 	log.println("Trying to halt portlet");
 	try {
-	    shift.close();
-	    closeMe.close();
+	    if (proto!=null) {
+		proto.close();
+	    }
 	} catch (IOException e) {
 	    log.println("Problem while halting portlet");
 	}
@@ -62,23 +46,21 @@ class BasicPortlet extends Portlet {
 	return carrierName;
     }
 
-    private String stringify(byte[] txt) {
-	return NetType.netString(txt);
-    }
-
-    
 
     public void run() {
+	// this is a temporary cheat
+	//Protocol protocol = (Protocol)proto;
+	InputProtocol protocol = proto;
+
 	boolean done = false;
-	Protocol protocol = null;
 	try {
 	// hand over control of this socket
-	protocol = new Protocol(shift);
-	protocol.setRoute(protocol.getRoute().addToName(ownerName));
-	closeMe = protocol;
+
+	//protocol.setRoute(protocol.getRoute().addToName(ownerName));
 	
-	protocol.expectHeader();
-	protocol.respondToHeader();
+	//protocol.expectHeader();
+	//protocol.respondToHeader();
+	protocol.initiate(ownerName);
 
 	Route route = protocol.getRoute();
 	sourceName = route.getFromName();
@@ -88,12 +70,14 @@ class BasicPortlet extends Portlet {
 	     "Receiving input from " + getFromName() + " to " + 
 	     getToName() + " using " + carrierName);
 
-	PrintStream ps = null;
-	if (protocol.isTextMode()) {
-	    ps = new PrintStream(protocol.getStreams().getOutputStream());
-	}
 
-	while (protocol.isOk()&&!done) {
+	PrintStream reply = 
+	    new PrintStream(protocol.getReplyStream());
+	//new PrintStream(protocol.getStreams().getOutputStream());
+	PrintStream ps = null;
+
+	while (/*protocol.isOk()&&*/!done) {
+	    /*
 	    log.println("waiting for index");
 	    protocol.expectIndex();
 	    log.println("got index, responding..");
@@ -104,8 +88,15 @@ class BasicPortlet extends Portlet {
 		return;
 	    }
 	    BlockReader reader = protocol.getReader();
+	    */
+	    BlockReader reader = protocol.beginRead();
 	    //System.out.println("got index, responded.");
 	    //System.out.println("size is " + protocol.getSize());
+
+	    // PENDING: use CommandContent to do this reading
+	    if (reader.isTextMode()) {
+		ps = reply;
+	    }
 	    int cmd = 0;
 	    byte[] arg = new byte[] {0};
 	    if (reader.isTextMode()) {
@@ -135,7 +126,7 @@ class BasicPortlet extends Portlet {
 	    }
 	    if (cmd!=0) {
 		log.println("Got command [" + ((char)cmd) + "]");
-		String src = stringify(arg);
+		String src = NetType.netString(arg);
 		switch(cmd) {
 		case '!':
 		    src = src.substring(1,src.length());
@@ -149,7 +140,7 @@ class BasicPortlet extends Portlet {
 		case 'd':
 		    log.println(protocol.getRoute().getFromName() + 
 				" sent data " + " to " + "me");
-		    owner.handleData(protocol);
+		    owner.handleData(reader);
 		    break;
 		case '~':
 		    src = src.substring(1,src.length());
@@ -159,8 +150,8 @@ class BasicPortlet extends Portlet {
 		case '*':
 		    log.println("Should list connections");
 		    String desc = owner.describe(this);
-		    if (protocol.isTextMode()) {
-			protocol.write(NetType.netString(desc));
+		    if (reader.isTextMode()) {
+			ps.print(NetType.netString(desc));
 		    } else {
 			System.out.println(desc);
 		    }
@@ -175,7 +166,8 @@ class BasicPortlet extends Portlet {
 	    }
 	    reader.expectBlock(reader.getSize());
 	    //protocol.respondToBlock();
-	    protocol.sendAck();
+	    //protocol.sendAck();
+	    protocol.endRead();
 
 	    log.println("Finished");
 	}
@@ -184,8 +176,12 @@ class BasicPortlet extends Portlet {
 	//clientSocket.close();
 	} catch (IOException e) {
 	    log.println("Portlet IO shutdown - reason " + e);
-	    if (protocol!=null) {
-		protocol.close();
+	    try {
+		if (protocol!=null) {
+		    protocol.close();
+		}
+	    } catch (IOException e2) {
+		log.println("Portlet IO shutdown failed - " + e2);
 	    }
 	    // should call owner to forget me
 	}
@@ -198,4 +194,21 @@ class BasicPortlet extends Portlet {
 
 	log.println("left portlet");
     }
+
+    private void show(String from, String msg) {
+	boolean admin = true;
+	if (from!=null) {
+	    if (from.length()>0) {
+		if (from.charAt(0) == '/') {
+		    admin = false;
+		}
+	    }
+	}
+	if (admin) {
+	    log.println(msg);
+	} else {
+	    log.info(msg);
+	}
+    }
+
 }

@@ -47,7 +47,7 @@ server:
 	$(EXEC) server
 
 gcj:
-	cd src && gcj --main=yarp.os.YarpClient yarp/os/*.java -o ../jyarp
+	cd src && gcj /usr/share/java/junit.jar --main=yarp.os.Test yarp/os/*.java -o ../jyarp
 
 gcjh:
 	cd src && gcj -C yarp/os/*.java

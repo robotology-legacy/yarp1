@@ -28,9 +28,12 @@ class Connection implements ContentWriter {
 		    carrier);
 
 	try {
-	    Carrier delegate = Carriers.chooseCarrier(address.getCarrier());
-	    delegate.start(address);
-	    proto = new Protocol(delegate);
+	    //Carrier delegate = Carriers.chooseCarrier(address.getCarrier());
+	    //delegate.start(address);
+	    //proto = new Protocol(delegate);
+
+	    // THIS IS A TEMPORARY CHEAT
+	    proto = (Protocol)Carriers.connect(address);
 	    
 	    //proto.setSender(fromKey);
 	    //proto.setReceiver(toKey);

@@ -119,12 +119,12 @@ public class InputPort implements Port {
 
     private class InputPortHandler implements ProtocolHandler  {
 
-	public void read(Protocol proto) {
+	public void read(BlockReader reader) {
 	    Logger.get().println("Could read now!");
 	    Content worker = pool.get();
 	    if (worker!=null) {
 		try {
-		    worker.read(proto.getReader());
+		    worker.read(reader);
 		    //log.info("Simulating a slow read");
 		    //Time.delay(2);
 		    //log.info("Simulated a slow read");
@@ -148,9 +148,9 @@ public class InputPort implements Port {
 	    }
 	}
 	
-	public void write(Protocol proto) {
+	//public void write(Protocol proto) {
 	    // cannot do this from input port
-	}
+	//}
     }
 
     public String name() {

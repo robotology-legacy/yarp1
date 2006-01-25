@@ -8,7 +8,7 @@ interface Face {
     void open(Address address) throws IOException;
     void close() throws IOException;
 
-    Carrier read() throws IOException;
+    InputProtocol read() throws IOException;
 
     boolean isClosed();
 }

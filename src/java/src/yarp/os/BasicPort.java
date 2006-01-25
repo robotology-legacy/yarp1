@@ -9,7 +9,8 @@ import java.util.*;
 class BasicPort extends Thread implements Port {
     private Address address;
     //private Face face = new TcpNioFace();
-    private Face face = new TcpFace();
+    private Face face = null;
+    //private Face face = new TcpFace();
     private List connections = 
 	Collections.synchronizedList(new ArrayList());
     private List portlets = 
@@ -121,9 +122,9 @@ class BasicPort extends Thread implements Port {
     }
 
 
-    public synchronized void handleData(Protocol protocol) throws IOException {
+    public synchronized void handleData(BlockReader reader) throws IOException {
 	if (handler!=null) {
-	    handler.read(protocol);
+	    handler.read(reader);
 	}
     }
 
@@ -167,7 +168,8 @@ class BasicPort extends Thread implements Port {
     public void run() {
 	boolean finish = false;
 	try {
-	    face.open(address);
+	    //face.open(address);
+	    face = Carriers.listen(address);
         } catch (IOException e) {
             log.error("Could not listen on port: " + 
 		      address.getPort());
@@ -175,9 +177,11 @@ class BasicPort extends Thread implements Port {
         }
 
 	while (!finish) {
-	    Carrier carrier = null;
+	    InputProtocol carrier = null;
 	    try {
-		carrier = face.read();
+		if (face!=null) {
+		    carrier = face.read();
+		}
 	    } catch (IOException e) {
 		log.info("Shutting down port " + getPortName());
 		finish = true;
@@ -204,15 +208,17 @@ class BasicPort extends Thread implements Port {
 	}
 	log.println("So long, from port " + getPortName());
 	try {
-	    face.close();
+	    if (face!=null) {
+		face.close();
+	    }
 	} catch (IOException e) {
 	    log.error(e.toString());
 	}
     }
 
-    public Portlet newPortlet(Carrier carrier) throws IOException {
+    public Portlet newPortlet(InputProtocol proto) throws IOException {
 	return new BasicPortlet(this,
-				carrier);
+				proto);
     }
 
     public void send(Content content) {
@@ -220,6 +226,9 @@ class BasicPort extends Thread implements Port {
 	for (Iterator it = connections.iterator(); it.hasNext(); ) {
 	    Connection connection = (Connection) it.next();
 	    try {
+		// This is a bit unoptimized - the process of generating
+		// content in the C++ implementation is done just once
+		// and then replicated.
 		connection.write(content);
 	    } catch (IOException e) {
 		defuncts.add(connection);

@@ -2,6 +2,7 @@
 package yarp.os;
 
 import java.util.*;
+import java.io.*;
 
 class Carriers {
     private static Carrier[] delegates;
@@ -71,6 +72,23 @@ class Carriers {
 
     public static Carrier chooseCarrier(byte[] header) {
 	return chooseCarrier(null,header);
+    }
+
+    public static Face listen(Address address) throws IOException {
+	// for now, only TcpFace exists - otherwise would need to manage 
+	// multiple possibilities
+	Face face = new TcpFace();
+	face.open(address);
+	return face;
+    }
+
+
+    public static OutputProtocol connect(Address address) throws IOException {
+	Carrier delegate = Carriers.chooseCarrier(address.getCarrier());
+	delegate.start(address);
+	Protocol proto = new Protocol(delegate);	
+	proto.setTag(false,true);
+	return proto;
     }
 }
 

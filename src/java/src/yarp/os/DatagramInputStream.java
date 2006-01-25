@@ -49,7 +49,7 @@ class DatagramInputStream extends InputStream {
     public int read(byte[] b, int off, int len) throws IOException {
 	int ct = 0;
 	while (len>0) {
-	    log.println("udp read at " + at + " avail " + avail + " rel " + off + " " + len);
+	    //log.println("udp read at " + at + " avail " + avail + " rel " + off + " " + len);
 	    if (avail==0) {
 		readHelper();
 	    }
@@ -62,7 +62,7 @@ class DatagramInputStream extends InputStream {
 		ct++;
 	    }
 	}
-	log.println("udp read done " + off + " " + len);
+	//log.println("udp read done " + off + " " + len);
 	return ct;
     }
 

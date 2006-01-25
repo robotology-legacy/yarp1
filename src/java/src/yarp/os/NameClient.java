@@ -233,9 +233,13 @@ public class NameClient {
 	} catch (IOException e) {
 	    // don't worry
 	}
+	return extractAddress(result);
+    }
+
+    private Address extractAddress(String txt) {
 	Pattern p = Pattern.compile("name ([^ ]+) ip ([^ ]+).*port ([^ ]+).*type ([a-zA-Z]+)");
-	Matcher m = p.matcher(result);
-	log.println("Result: " + result);
+	Matcher m = p.matcher(txt);
+	log.println("Result: " + txt);
 	if (m.find()) {
 	    String name = m.group(1);
 	    String ip = m.group(2);
@@ -404,61 +408,66 @@ public class NameClient {
 	return check(name,"accepts",carrier);
     }
 
+    Address seek() {
+	final Address addr = FallbackServer.getAddress();
+	try {
+	    Carrier car = new McastCarrier();
+	    car.start(addr);
+	    OutputStream out = car.getStreams().getOutputStream();
+	    InputStream in = car.getStreams().getInputStream();
+	    out.write(NetType.netString("NAME_SERVER query root\n"));
+	    out.flush();
+	    for (int i=0; i<5; i++) {
+		String txt = NetType.readLine(in);
+		log.info("got " + txt);
+		if (txt.length()>=1) {
+		    if (txt.charAt(0)=='r') {
+			return extractAddress(txt);
+		    }
+		}
+	    }
+	} catch (IOException e) {
+	    log.println("no joy over mcast");
+	}
+	return null;
+    }
+
     String send(String msg) throws IOException {
 	Socket ncSocket = null;
         PrintWriter out = null;
-	BufferedReader in = null;
-	int tries = 0;
+	//BufferedReader in = null;
 	boolean done = false;
+	String result = "";
 
-	while (tries<3&&!done) {
-	    try {
-		tries++;
-		ncSocket = new Socket(address.getName(), address.getPort());
-		out = new PrintWriter(ncSocket.getOutputStream(), true);
-		in = new BufferedReader(new InputStreamReader(ncSocket.getInputStream()));
-		done = true;
-	    } catch (UnknownHostException e) {
-		log.error("Don't know about host " + address.getName());
+	if (address==null) {
+	    log.info("Configuration file problem; trying multicast fallback");
+	    address = seek();
+	    if (address!=null) {
+		setServerAddress(address);
+	    } else {
+		log.error("Cannot find name server");
 		System.exit(1);
-	    } catch (IOException e) {
-		log.error("Couldn't connect to " + address.getName());
-		log.error("Name server missing");
-		System.exit(1);
-		/*
-		log.warning("Starting a LOCAL server, just so something will work");
-		log.warning("You should really make a name server yourself");
-		getSetConfiguration(null);
-		Time.delay(3);
-		YarpServer.run(true,-1);
-		Time.delay(1);
-		*/
 	    }
 	}
 
+	try {
+	    ncSocket = new Socket(address.getName(), address.getPort());
+	    out = new PrintWriter(ncSocket.getOutputStream(), true);
+	    done = true;
+	    out.println(msg);
+	    result = NetType.readLines(ncSocket.getInputStream());
+	    out.close();
+	    ncSocket.close();
+	} catch (UnknownHostException e) {
+	    log.error("Don't know about host " + address.getName());
+	    System.exit(1);
+	} catch (IOException e) {
+	    log.error("Couldn't connect to " + address.getName());
+	    log.error("Name server missing");
+	    System.exit(1);
+	}
 
-	out.println(msg);
-
-	StringBuffer result = new StringBuffer();
-        String fromServer;
-	boolean first = true;
-        while ((fromServer = in.readLine()) != null) {
-	    if (fromServer.length()>0) {
-		if (fromServer.charAt(0)>=32) {
-		    if (!first) {
-			result.append("\n");
-		    }
-		    result.append(fromServer);
-		}
-	    }
-	    first = false;
-        }
-
-        out.close();
-        in.close();
-        ncSocket.close();
-
-	return result.toString();
+	return result;
     }
 
 
