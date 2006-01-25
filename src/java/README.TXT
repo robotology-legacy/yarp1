@@ -9,6 +9,14 @@ Hopefully we will write the protocol down explicitly at some point :-)
 
 ======================================================================
 
+Requirements:
+
+  some form of java that support 1.4.2 or greater - gcj works, sun works, ...
+  ant
+  junit (if you don't want this, delete all ClassnameTest.java files)
+
+======================================================================
+
 To build the project, type:
   ant
 [if you are on a debian machine, you can apt-get install ant (it is

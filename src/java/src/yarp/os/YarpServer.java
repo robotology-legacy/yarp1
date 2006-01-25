@@ -573,9 +573,12 @@ class YarpServer implements CommandProcessor {
 		  address.getName().equals(nc.getHostName()))) {
 		// don't know what this test actually does; don't have
 		// any documentation
-		log.error("Name server is configured for a remote address " + 
-			  address);
-		System.exit(1);
+		log.info("Name server is configured for a remote address " + 
+			 address);
+		log.info("Over-ruling that");
+		nc.setServerAddress(new Address(nc.getHostName(),
+						address.getPort()));
+		address = nc.getAddress();
 	    }
 	    YarpServer server = new YarpServer();
 	    server.register("root",address.getName(),address.getPort(),
