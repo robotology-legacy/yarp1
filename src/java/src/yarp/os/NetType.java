@@ -108,5 +108,25 @@ class NetType {
 	}
 	return buf.toString();
     }    
+
+
+    public static String readLines(InputStream is) throws IOException {
+	BufferedReader in = new BufferedReader(new InputStreamReader(is));
+	StringBuffer result = new StringBuffer();
+        String fromServer;
+	boolean first = true;
+        while ((fromServer = in.readLine()) != null) {
+	    if (fromServer.length()>0) {
+		if (fromServer.charAt(0)>=32) {
+		    if (!first) {
+			result.append("\n");
+		    }
+		    result.append(fromServer);
+		}
+	    }
+	    first = false;
+        }
+	return result.toString();
+    }
 }
 

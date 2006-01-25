@@ -4,12 +4,20 @@ package yarp.os;
 import java.io.*;
 import java.util.*;
 
-
-class Protocol {
+/**
+ * Internal communication manager.
+ * A Protocol object manages a bunch of ways of viewing a single stream
+ */
+class Protocol implements InputProtocol, OutputProtocol {
     private ShiftStream shift;
     private InputStream in;
     private OutputStream out;
-    private boolean gotHeader = false;
+
+    private boolean didHeader = false;
+    private boolean isReader = true;
+    private boolean isWriter = true;
+    private boolean needIndex = true;
+
     private Logger log = Logger.get();
 
     private ArrayList inputLen = new ArrayList();
@@ -128,9 +136,6 @@ class Protocol {
 	delegate.setParameters(b);
 	checkForNewStreams();
 
-	gotHeader = true;
-	// should do something with it!
-
 	return true;
     }
 
@@ -190,12 +195,14 @@ class Protocol {
 	if (!expectSenderSpecifier()) { ok=false; return false; }
 	
 	delegate.expectExtraHeader(this);
+
 	return true;
     }
 
     public boolean expectReplyToHeader() throws IOException {
 	delegate.expectReplyToHeader(this);
 	writer.set(content,isTextMode());
+
 	return true;
     }
 
@@ -474,5 +481,99 @@ class Protocol {
     public BlockWriter getWriter() {
 	return writer;
     }
+
+    ///////////////////////////////////////////////////////////////////
+    // Start to make a cleaner user interface to Protocol object
+    // Ideally, the following methods are all that a user of a Protocol
+    // object should need.
+
+
+    public void setTag(boolean isReader, boolean isWriter) {
+	this.isReader = isReader;
+	this.isWriter = isWriter;
+    }
+
+    public void initiate(String name) throws IOException {
+	initiate("notset",name,null);
+    }
+
+    /**
+     * @param opts Name of the desired carrier, e.g. "mcast"
+     */
+    public void initiate(String from, String to, String opts) 
+	throws IOException {
+
+	// can only use these methods on specialized ports
+	log.assertion(isReader!=isWriter);
+	if (isReader) {
+	    if (opts!=null) {
+		log.error("Options ignored on reader side");
+	    }
+	    expectHeader();
+	    respondToHeader();
+	    setRoute(getRoute().addToName(to));
+	} else if (isWriter) {
+	    if (opts==null) {
+		opts = "text";
+	    }
+	    setRoute(new Route(from,to,opts));
+	    setRawProtocol(opts);
+	    sendHeader();
+	    expectReplyToHeader();
+	} else {
+	    log.error("Protocol not specialized to read or write");
+	    log.error("Can't decide how to initialize");
+	}
+	didHeader = true;
+	needIndex = true;
+    }
+    
+    public BlockReader beginRead() throws IOException {
+	log.assertion(isReader==true);
+	log.assertion(didHeader);
+	if (needIndex) {
+	    expectIndex();
+	    respondToIndex();
+	}
+	return getReader();
+    }
+
+    public void endRead() throws IOException {
+	sendAck();
+    }
+
+    /**
+     * May return null if carrier determines this connection is redundant
+     */
+    public BlockWriter beginWrite() throws IOException {
+	log.assertion(isWriter==true);
+	log.assertion(didHeader);
+	if (isActive()) {
+	    beginContent();
+	    return getWriter();
+	}
+	return null;
+    }
+
+    public void endWrite() throws IOException {
+	endContent();
+	sendIndex();
+	sendContent();
+	expectAck();
+    }
+
+    public OutputStream getReplyStream() throws IOException {
+	return getStreams().getOutputStream();
+    }
+
+    public InputStream getInputStream() throws IOException {
+	return getStreams().getInputStream();
+    }
+
+
+    public Address getRemoteAddress() throws IOException {
+	return shift.getRemoteAddress();
+    }
+
 }
 

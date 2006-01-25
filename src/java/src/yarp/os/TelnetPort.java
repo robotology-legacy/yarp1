@@ -19,9 +19,9 @@ class TelnetPort extends BasicPort {
 
     private class TelnetPortlet extends Portlet {
 	BasicPort owner;
-	Carrier carrier;
+	InputProtocol carrier;
 
-	TelnetPortlet(BasicPort owner, Carrier carrier) {
+	TelnetPortlet(BasicPort owner, InputProtocol carrier) {
 	    this.owner = owner;
 	    this.carrier = carrier;
 	}
@@ -70,9 +70,9 @@ class TelnetPort extends BasicPort {
 			}
 		    }
 		    if (response!=null) {
-			carrier.getOutputStream().write(NetType.netString(response));
+			carrier.getReplyStream().write(NetType.netString(response));
 		    }
-		    carrier.getOutputStream().flush();
+		    carrier.getReplyStream().flush();
 		} while (wait);
 
 	    } catch (IOException e) {
@@ -88,7 +88,7 @@ class TelnetPort extends BasicPort {
 	}
     }
 
-    public Portlet newPortlet(Carrier carrier) {
+    public Portlet newPortlet(InputProtocol carrier) {
 	return new TelnetPortlet(this,
 				 carrier);
     }

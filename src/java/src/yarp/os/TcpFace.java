@@ -14,7 +14,7 @@ class TcpFace implements Face {
 	this.address = address;
     }
 
-    public Carrier read() throws IOException {
+    public InputProtocol read() throws IOException {
 	if (serverSocket!=null) {
 	    Socket clientSocket = null;
 	    clientSocket = serverSocket.accept();
@@ -23,7 +23,10 @@ class TcpFace implements Face {
 			clientSocket.getLocalSocketAddress() + " " +
 			clientSocket.getRemoteSocketAddress());
 	    if (clientSocket!=null) {
-		return new TcpCarrier(clientSocket);
+		Protocol proto = 
+		    new Protocol(new TcpCarrier(clientSocket));
+		proto.setTag(true,false);
+		return proto;
 	    } else {
 		throw(new IOException("Failed to read from " + address));
 	    }

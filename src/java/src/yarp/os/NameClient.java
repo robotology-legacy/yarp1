@@ -437,34 +437,47 @@ public class NameClient {
         PrintWriter out = null;
 	//BufferedReader in = null;
 	boolean done = false;
+	int tries = 0;
 	String result = "";
 
-	if (address==null) {
-	    log.info("Configuration file problem; trying multicast fallback");
-	    address = seek();
-	    if (address!=null) {
-		setServerAddress(address);
-	    } else {
-		log.error("Cannot find name server");
-		System.exit(1);
-	    }
-	}
+	while (!done) {
 
-	try {
-	    ncSocket = new Socket(address.getName(), address.getPort());
-	    out = new PrintWriter(ncSocket.getOutputStream(), true);
-	    done = true;
-	    out.println(msg);
-	    result = NetType.readLines(ncSocket.getInputStream());
-	    out.close();
-	    ncSocket.close();
-	} catch (UnknownHostException e) {
-	    log.error("Don't know about host " + address.getName());
-	    System.exit(1);
-	} catch (IOException e) {
-	    log.error("Couldn't connect to " + address.getName());
-	    log.error("Name server missing");
-	    System.exit(1);
+	    if (address==null) {
+		log.info("Configuration file problem; trying multicast fallback");
+		address = seek();
+		if (address!=null) {
+		    setServerAddress(address);
+		} else {
+		    log.error("Cannot find name server");
+		    System.exit(1);
+		}
+	    }
+
+	    try {
+		ncSocket = new Socket(address.getName(), address.getPort());
+		out = new PrintWriter(ncSocket.getOutputStream(), true);
+		done = true;
+		out.println(msg);
+		result = NetType.readLines(ncSocket.getInputStream());
+		out.close();
+		ncSocket.close();
+	    } catch (UnknownHostException e) {
+		log.error("Don't know about host " + address.getName());
+		if (tries>0) {
+		    System.exit(1);
+		} else {
+		    address = null;
+		}
+	    } catch (IOException e) {
+		log.error("Couldn't connect to " + address.getName());
+		log.error("Name server missing");
+		if (tries>0) {
+		    System.exit(1);
+		} else {
+		    address = null;
+		}
+	    }
+	    tries++;
 	}
 
 	return result;

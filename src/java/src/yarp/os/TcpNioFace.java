@@ -27,7 +27,7 @@ class TcpNioFace implements Face {
 	}
     }
 
-    public Carrier read() throws IOException {
+    public InputProtocol read() throws IOException {
 	if (serverSocket!=null) {
 	    Socket clientSocket = null;
 	    SocketChannel sc = serverSocket.getChannel().accept();
@@ -41,7 +41,10 @@ class TcpNioFace implements Face {
 			    clientSocket.getRemoteSocketAddress());
 	    }
 	    if (clientSocket!=null) {
-		return new TcpCarrier(clientSocket);
+		Protocol proto = 
+		    new Protocol(new TcpCarrier(clientSocket));
+		proto.setTag(true,false);
+		return proto;
 	    } else {
 		throw(new IOException("Failed to read from " + address));
 	    }

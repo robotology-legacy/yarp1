@@ -1,11 +1,12 @@
 
 package yarp.os;
 
-import java.io.StreamTokenizer;
-import java.io.FileReader;
+import java.io.*;
 
 
 class Test {
+    static Logger log = new Logger("test: ",null);
+
     public static void oldTest() {
 	try {
 	NameClient nc = NameClient.getNameClient();
@@ -171,15 +172,135 @@ class Test {
 	}
     }
 
+    
+    public static void conTest() {
+	Logger.get().showAll();
+	log.showAll();
+	try {
+	    final Address addr = new Address("localhost",9000,"tcp");
+	    Face face = Carriers.listen(addr);
+
+	    Thread t1 = new Thread() {
+		    public void run() {
+			try {
+			    log.info("delaying start of writer");
+			    Time.delay(1);
+			    log.info("start writer");
+			    //Address addr2 = 
+				//NameClient.getNameClient().query("/read");
+			    OutputProtocol out = Carriers.connect(addr);
+
+			    // At this point we have a connection.
+			    // A header handshake is expected.
+			    out.initiate("yarp-client","yarp-server","mcast");
+			    log.info("WRITE route is " + out.getRoute());
+			    log.info("handshaking done");
+
+			    //ContentWriter writer = new SlowWriter(out);
+			    CommandContent cmd = new CommandContent('d',null);
+			    BottleContent bot = new BottleContent();
+			    ((Bottle)(bot.object())).fromString("0  \"hello\"");
+			    //writer.write(bot,true);
+			    BlockWriter writer = out.beginWrite();
+			    log.assertion(writer!=null);
+			    cmd.write(writer);
+			    bot.write(writer);
+			    out.endWrite();
+			    Time.delay(1);
+			    log.info("close writer");
+			    out.close();
+			} catch (IOException e) {
+			    log.info("inner conTest exception " + e);
+			}
+		    }
+		};
+	    t1.start();
+	    log.info("waiting for connection");
+	    InputProtocol in = face.read();
+	    log.info("start reader");
+	    in.initiate("yarp-server");
+	    log.info("READ route is " + in.getRoute());
+	    log.info("reader got header");
+	    BlockReader reader = in.beginRead();
+	    CommandContent cmd = new CommandContent();
+	    BottleContent bot = new BottleContent();
+	    cmd.read(reader);
+	    log.info("reader got command");
+	    bot.read(reader);
+	    in.endRead();
+	    log.info("reader got bottle");
+	    log.info("got " + ((String)cmd.object()) + " -- " + 
+		     ((Bottle)bot.object()));
+	    log.info("close reader");
+	    in.close();
+
+	    face.close();
+	} catch (IOException e) {
+	    log.info("conTest exception " + e);
+	}
+    }
+
+    public static void testMcastServer() {
+	Logger.get().showAll();
+	log.showAll();
+
+	FallbackServer fb = new FallbackServer(new YarpServer());
+	fb.run();
+	/*
+	final Address addr = new Address("224.2.1.1",9999,"mcast");
+	try {
+	    Carrier car = new McastCarrier();
+	    car.start(addr);
+	    InputStream in = car.getStreams().getInputStream();
+	    String txt = NetType.readLine(in);
+	    log.info("got " + txt);
+	} catch (IOException e) {
+	    log.info("mcast turner " + e);
+	}
+	*/
+    }
+
+    public static void testMcastClient() {
+	log.info("mcast client");
+	Logger.get().showAll();
+	log.showAll();
+	final Address addr = FallbackServer.getAddress();
+	try {
+	    Carrier car = new McastCarrier();
+	    car.start(addr);
+	    OutputStream out = car.getStreams().getOutputStream();
+	    InputStream in = car.getStreams().getInputStream();
+	    out.write(NetType.netString("NAME_SERVER query root\n"));
+	    out.flush();
+	    for (int i=0; i<5; i++) {
+		String txt = NetType.readLine(in);
+		log.info("got " + txt);
+	    }
+	} catch (IOException e) {
+	    log.info("mcast turner " + e);
+	}
+    }
+
     public static void main(String[] args) {
 	if (args.length>=1) {
-	    YarpClient.main(args);
+	    if (args[0].equals("test")) {
+		if (args.length>=2) {
+		    if (args[1].equals("server")) {
+			testMcastServer();
+		    } else {
+			testMcastClient();
+		    }
+		}
+	    } else {
+		YarpClient.main(args);
+	    }
 	} else {
-	    //parseTest();
 	    YarpClient.main(args);
-	    //oldTest();
-	    //outPortTest();
-	    //inPortTest();
 	}
+	//parseTest();
+	//YarpClient.main(args);
+	//oldTest();
+	//outPortTest();
+	//inPortTest();
     }
 }

@@ -60,7 +60,7 @@ class YarpServer implements CommandProcessor {
     private static class HostRecord extends ReusableRecord {
 
 	// should change this to depend on name server port
-	private int base = NameClient.getNameClient().getAddress().getPort()+1;
+	private int base = NameClient.getNameClient().getAddress().getPort()+2;
 
 	// YARP2 doesn't need this, just YARP1
 	private static final int legacyStep = 10;
@@ -378,7 +378,7 @@ class YarpServer implements CommandProcessor {
 	return str + "*** end of message\n";
     }
 
-    private String textify(Address address) {
+    public static String textify(Address address) {
 	String result = "";
 	if (address!=null) {
 	    result = "registration name " + address.getRegName() + 
@@ -578,6 +578,10 @@ class YarpServer implements CommandProcessor {
 		System.exit(1);
 	    }
 	    YarpServer server = new YarpServer();
+	    server.register("root",address.getName(),address.getPort(),
+			    address.getCarrier(),1);
+	    FallbackServer fallback = new FallbackServer(server);
+	    fallback.start();
 	    TelnetPort tp = new TelnetPort(address,server);
 	    log.info("name server starting at " + address);
 	    if (background) {
