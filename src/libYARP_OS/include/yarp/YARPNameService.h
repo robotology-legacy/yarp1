@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: YARPNameService.h,v 2.1 2006-01-25 14:22:58 eshuy Exp $
 ///
 ///
 /*
@@ -182,6 +182,11 @@ public:
 	 * @return true if a shared memory connection is possible.
 	 */
 	static bool VerifyLocal (const char *rem_ip, const char *loc_ip, const char *network_name);
+
+  static int CheckProperty(const char *name,
+			   const char *key,
+			   const char *value);
+
 };
 
 
@@ -257,6 +262,7 @@ public:
 	 * @return YARP_OK on success.
 	 */
 	static int PrintConnections (const YARPUniqueNameID& endp);
+
 };
 
 #endif
