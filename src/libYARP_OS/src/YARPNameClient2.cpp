@@ -173,9 +173,9 @@ YARPString YARPNameClient2::send(const YARPString& cmd, int multiline) {
       ACE_DEBUG ((LM_DEBUG, "(%P|%t) %p\n","connection failed"));
       return result;
     }
-  const char *str = cmd.c_str();
+  char *str = (char*)cmd.c_str();
   iovec iov[1];
-  iov[0].iov_base = (void *)str;
+  iov[0].iov_base = str;
   iov[0].iov_len = strlen(str);
 
   YNC("sending text %s", str);
