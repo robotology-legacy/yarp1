@@ -418,14 +418,20 @@ public class NameClient {
 	    out.write(NetType.netString("NAME_SERVER query root\n"));
 	    out.flush();
 	    for (int i=0; i<5; i++) {
-		String txt = NetType.readLine(in);
-		log.info("got " + txt);
-		if (txt.length()>=1) {
-		    if (txt.charAt(0)=='r') {
-			return extractAddress(txt);
+		log.info("Broadcast search for name server...");
+		if (in.available()>10) {
+		    String txt = NetType.readLine(in);
+		    log.println("got " + txt);
+		    if (txt.length()>=1) {
+			if (txt.charAt(0)=='r') {
+			    return extractAddress(txt);
+			}
 		    }
+		} else {
+		    Time.delay(1);
 		}
 	    }
+	    log.error("No response to broadcast search");
 	} catch (IOException e) {
 	    log.println("no joy over mcast");
 	}

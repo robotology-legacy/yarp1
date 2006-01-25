@@ -42,6 +42,15 @@ class DatagramInputStream extends InputStream {
 	return -1;
     }
 
+    public int available() throws IOException {
+	if (avail==0) {
+	    dgram.setSoTimeout(1);
+	    readHelper();
+	    dgram.setSoTimeout(0);
+	}
+	return avail;
+    }
+
     public int read(byte[] b) throws IOException {
 	return read(b,0,b.length);
     }

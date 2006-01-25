@@ -351,17 +351,25 @@ public class YarpClient {
      * Report where the name server is believed to be.
      */
     public static void where() {
+
+	// just in case, check root
+	NameClient.getNameClient().query("root");
+
 	Address address = NameClient.getNameClient().getAddress();
 	File file = NameClient.getNameClient().getConfigFile();
+
+	System.err.println("The name server address is set in: " +
+			   file);
+	System.err.println("Use the YARP_ROOT environment variable to change this directory.");
+	System.err.println("");
+
 	if (address!=null) {
 	    System.out.println("Name server is available at ip " +
 			       address.getName() + " port " + address.getPort());
+	    System.err.println("");
 	} else {
-	    System.out.println("Address of name server is not configured");
+	    System.err.println("Address of name server is not configured");
 	}
-	System.out.println("This is configured in file " +
-			   file);
-	System.out.println("You can change the directory where this configuration file is stored\nwith the YARP_ROOT environment variable.");
     }
 
     /**
