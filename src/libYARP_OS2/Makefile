@@ -7,6 +7,6 @@ MYCODELIB = libYARP_OS2
 include $(YARP_ROOT)/conf/Makefile.recursive.template
 
 
-test:
+testing:
 	make
 	cd test; $(MAKE) run

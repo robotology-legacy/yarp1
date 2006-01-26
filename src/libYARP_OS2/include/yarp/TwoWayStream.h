@@ -1,0 +1,22 @@
+#ifndef _YARP2_TWOWAYSTREAM_
+#define _YARP2_TWOWAYSTREAM_
+
+namespace yarp {
+  class TwoWayStream;
+}
+
+class yarp::TwoWayStream {
+public:
+  virtual ~TwoWayStream() {}
+
+  virtual InputStream& getInputStream() = 0; // throws
+  virtual OutputStream& getOutputStream() = 0; // throws
+
+  virtual const Address& getLocalAddress() = 0; // throws
+  virtual const Address& getRemoteAddress() = 0; // throws
+
+  virtual void close() = 0; // throws
+};
+
+#endif
+

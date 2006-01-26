@@ -41,23 +41,34 @@ public:
     this->regName = regName;
   }
 
-  const yarp::String& getName() {
+  Address(const Address& alt) {
+    name = alt.name;
+    port = alt.port;
+    carrier = alt.carrier;
+    regName = alt.regName;
+  }
+
+  Address() {
+    port = -1;
+  }
+
+  const yarp::String& getName() const {
     return name;
   }
 
-  int getPort() {
+  int getPort() const {
     return port;
   }
 
-  const yarp::String& getCarrier() {
+  const yarp::String& getCarrierName() const {
     return carrier;
   }
 
-  const yarp::String& getRegame() {
+  const yarp::String& getRegName() const {
     return regName;
   }
 
-  yarp::String toString() {
+  yarp::String toString() const {
     char buf[100];
     ACE_OS::itoa(port,buf,10);
     return carrier + ":/" + name + ":" + buf;

@@ -1,0 +1,85 @@
+#ifndef _YARP2_BUFFEREDBLOCKWRITER_
+#define _YARP2_BUFFEREDBLOCKWRITER_
+
+#include <yarp/BlockWriter.h>
+#include <yarp/ManagedBytes.h>
+#include <yarp/Logger.h>
+
+#include <ace/Vector_T.h>
+
+namespace yarp {
+  class BufferedBlockWriter;
+}
+
+class yarp::BufferedBlockWriter : public BlockWriter {
+public:
+
+  BufferedBlockWriter(bool textMode) : textMode(textMode) {
+  }
+
+  virtual ~BufferedBlockWriter() {
+    clear();
+  }
+
+  void clear() {
+    for (int i=0; i<lst.size(); i++) {
+      delete lst[i];
+    }
+    lst.clear();
+  }
+
+  virtual void appendBlock(const Bytes& data) {
+    lst.push_back(new ManagedBytes(data,false));
+  }
+
+  virtual void appendBlockCopy(const Bytes& data) {
+    lst.push_back(new ManagedBytes(data,true));
+  }
+
+  virtual void appendInt(int data) {
+    NetType::NetInt32 i = data;
+    Bytes b((char*)(&i),sizeof(i));
+    ManagedBytes *buf = new ManagedBytes(b,false);
+    buf->copy();
+    lst.push_back(buf);
+  }
+
+  virtual void appendString(const String& data) {
+    Bytes b((char*)(data.c_str()),data.length()+1);
+    ManagedBytes *buf = new ManagedBytes(b,false);
+    buf->copy();
+    lst.push_back(buf);
+  }
+
+  virtual void appendLine(const String& data) {
+    String copy = data;
+    copy += '\n';
+    Bytes b((char*)(copy.c_str()),copy.length());
+    ManagedBytes *buf = new ManagedBytes(b,false);
+    buf->copy();
+
+    ACE_DEBUG((LM_DEBUG,"adding a line - %d bytes", copy.length()));
+
+    lst.push_back(buf);
+  }
+
+  virtual bool isTextMode() {
+    return textMode;
+  }
+
+  void write(OutputStream& os) {
+    for (int i=0; i<lst.size(); i++) {
+      ManagedBytes& b = *(lst[i]);
+      YARP_INFO(Logger::get(),"output a block");
+      os.write(b.bytes());
+    }    
+  }
+
+
+private:
+  ACE_Vector<ManagedBytes *> lst;
+  bool textMode;
+};
+
+#endif
+

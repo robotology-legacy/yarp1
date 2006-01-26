@@ -1,0 +1,28 @@
+#ifndef _YARP2_OUTPUTSTREAM_
+#define _YARP2_OUTPUTSTREAM_
+
+#include <yarp/Bytes.h>
+
+namespace yarp {
+  class OutputStream;
+}
+
+class yarp::OutputStream {
+public:
+
+  virtual ~OutputStream() { }
+
+  virtual void write(char ch) { // throws
+    write(Bytes(&ch,1));
+  }
+
+  virtual void write(const Bytes& b, int offset, int len) { // throws
+    write(Bytes(b.get()+offset,len));
+  }
+
+  virtual void write(const Bytes& b) = 0;
+
+  virtual void close() = 0;
+};
+
+#endif
