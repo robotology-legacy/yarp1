@@ -35,12 +35,12 @@ void CSaverThread::Body(void)
 		if ( useCamera0 ) {
 			p_img0_inport->Read();
 			pImg0->Refer(p_img0_inport->Content());
-			FindTrackerXY(*pImg0, &x0, &y0);
+			FindTrackerXY(*pImg0, &x0, &y0, &w0);
 		}
 		if ( useCamera1 ) {
 			p_img1_inport->Read();
 			pImg1->Refer(p_img1_inport->Content());
-			FindTrackerXY(*pImg1, &x1, &y1);
+			FindTrackerXY(*pImg1, &x1, &y1, &w1);
 		}
 
 		writeDataToFile(nFrames);

@@ -294,8 +294,10 @@ void CBodyMapDlg::OnDisconnect()
 void CBodyMapDlg::OnClose() 
 {
 
+	if ( GetDlgItem(IDC_DISCONNECT)->IsWindowEnabled() ) {
+		OnDisconnect();
+	}
 	DisconnectAndUnregisterPorts();
-
 	CDialog::OnClose();
 
 }
@@ -372,14 +374,6 @@ void CBodyMapDlg::OnAcqStart()
 			return;
 		}
 		saverThread.writeHeaderToFile();
-	}
-
-	_data.clean();
-	if ( _options.useCamera0 ) {
-		_img0.Zero();
-	}
-	if ( _options.useCamera1 ) {
-		_img1.Zero();
 	}
 
 	// activate collector's streaming mode
@@ -536,8 +530,10 @@ void CBodyMapDlg::ShowTrackerXY(YARPImageOf<YarpPixelBGR>& img)
 
 	YarpPixelBGR tmpBGRWhitePixel(255,255,255);
 
-	int x, y;
-	FindTrackerXY(img, &x, &y);
+	int x, y, w;
+
+	FindTrackerXY(img, &x, &y, &w);
+	
 	if ( x>0 && y>0 ) {
 		YARPSimpleOperations::DrawCross<YarpPixelBGR>(img, x, y, tmpBGRWhitePixel, 5);
 	}

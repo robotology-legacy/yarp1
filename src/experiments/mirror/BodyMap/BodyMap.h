@@ -14,7 +14,7 @@
 
 #include "resource.h"		// main symbols
 
-void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*);
+void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*, int*);
 
 /////////////////////////////////////////////////////////////////////////////
 // CBodyMapApp:

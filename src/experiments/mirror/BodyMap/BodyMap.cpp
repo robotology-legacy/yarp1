@@ -72,7 +72,7 @@ BOOL CBodyMapApp::InitInstance()
 }
 
 
-void FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y)
+void FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y, int* w)
 {
 
 	unsigned long sumX = 0, sumY = 0, nOfPixels = 0;
@@ -110,9 +110,11 @@ void FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y)
 	if ( nOfPixels > 0 ) {
 		*x = (int)(sumX/nOfPixels);
 		*y = (int)(sumY/nOfPixels);
+		*w = nOfPixels;
 	} else {
 		*x = -1;
 		*y = -1;
+		*w = 0;
 	}
 
 }

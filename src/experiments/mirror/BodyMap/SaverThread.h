@@ -39,7 +39,7 @@ public:
 private:
 
 	int nFrames;
-	int x0, y0, x1, y1;
+	int x0, y0, w0, x1, y1, w1;
 
 };
 
