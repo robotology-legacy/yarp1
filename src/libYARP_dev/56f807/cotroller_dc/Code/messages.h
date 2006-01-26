@@ -251,6 +251,7 @@
 			QD1_setPosition (value); \
 		_position[i] = value; \
 		_position_old[i] = value; \
+		_integral[i] = 0; \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \

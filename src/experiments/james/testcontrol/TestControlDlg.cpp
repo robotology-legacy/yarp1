@@ -782,6 +782,7 @@ void CTestControlDlg::OnInterfaceStart()
 	op_par._scanSequence = 0x03ffffff;	// first 7 channels not connected.
 	_touchdlg.SetMask (op_par._scanSequence);
 
+
 	if (touch.open ((void *)&op_par) != YARP_OK)
 	{
 		touch.close();
@@ -841,9 +842,12 @@ void CTestControlDlg::OnInterfaceStop()
 	
 	if (_touchinitialized)
 	{
+
 		touch.close ();
 		_touchrunning = false;
+
 		_touchinitialized = false;
+
 	}
 
 	DisableGUI ();
@@ -1096,7 +1100,7 @@ void CTestControlDlg::OnFileLoadpostures()
 	if (!_headinitialized && !_arminitialized)
 		return;
 
-	ACE_OS::sprintf (_buffer, "%s/conf/robotcub/postures_test.txt", GetYarpRoot());
+	ACE_OS::sprintf (_buffer, "%s/%spostures_test.txt", GetYarpRoot(), ConfigFilePath);
 	FILE *fp = ACE_OS::fopen (_buffer, "r");
 	if (fp == NULL)
 	{
@@ -1174,7 +1178,7 @@ void CTestControlDlg::OnFileSavepostures()
 	if (!_headinitialized && !_arminitialized)
 		return;
 
-	ACE_OS::sprintf (_buffer, "%s/conf/robotcub/postures_test.txt", GetYarpRoot());
+	ACE_OS::sprintf (_buffer, "%s/%spostures_test.txt", GetYarpRoot(), ConfigFilePath);
 	FILE *fp = ACE_OS::fopen (_buffer, "w");
 	if (fp == NULL)
 	{

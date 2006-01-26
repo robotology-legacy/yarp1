@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.26 2006-01-24 00:02:56 babybot Exp $
+/// $Id: controller.h,v 1.27 2006-01-26 23:08:32 gmetta Exp $
 ///
 ///
 
@@ -58,7 +58,7 @@
 
 //#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
-#define DEBUG_TRAJECTORY 		1		/* print encoder/joint position */
+//#define DEBUG_TRAJECTORY 		1		/* print encoder/joint position */
 #define DEBUG_SERIAL			1		/* for debugging through terminal */
 //#define EMERGENCY_DISABLED		1	/* emergency fault signal disabled */
 
@@ -75,7 +75,7 @@
 #define DEFAULT_ACCELERATION 10
 #define DEFAULT_MAX_POSITION 5000
 #define DEFAULT_MAX_VELOCITY 0x7fff
-#define HALL_EFFECT_SENS_ZERO 14800
+#define HALL_EFFECT_SENS_ZERO 14760
 
 #define ADP(x,amount) x+=amount
 

@@ -25,8 +25,12 @@ void PWMC0_init(void)
 	/* PWMA_PMDISMAP2: ??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,DISMAP=0 */
 #ifndef EMERGENCY_DISABLED
 	setReg (PWMA_PMFCTL, 0x00); /* manual fault reset */
-	setReg (PWMA_PMDISMAP1, 0xffff);
-	setReg (PWMA_PMDISMAP2, 0xff);          
+#if VERSION == 0x0111 || VERSION == 0x0114
+	setReg (PWMA_PMDISMAP1, 0x3333);
+#else
+	setReg (PWMA_PMDISMAP1, 0x2222);
+#endif	
+	setReg (PWMA_PMDISMAP2, 0x00);          
 #else	
 	setReg (PWMA_PMFCTL, 0x55);
 	setReg (PWMA_PMDISMAP1, 0);          

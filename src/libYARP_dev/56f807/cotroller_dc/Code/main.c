@@ -559,6 +559,7 @@ void main(void)
 	PWMC1_init ();
 	TI1_init ();
 	IFsh1_init ();
+	
 	TIC_init ();
 	AD_init ();
 
@@ -689,7 +690,7 @@ void main(void)
 		generatePwm (1);
 		
 		/* Current limit management */
-		
+
 		/* First joint */
 		AD_getChannel16A (1, &temporary);
 		_current_old[0] = _current[0];
@@ -1092,6 +1093,7 @@ byte serial_interface (void)
 			AS1_printStringEx ("w2, write control params to FLASH mem\r\n");
 			AS1_printStringEx ("w3, read control params from FLASH mem\r\n");
 			AS1_printStringEx ("v, toggle verbose flag\r\n");
+			AS1_printStringEx ("n, print fault registers\r\n");
 
 #ifdef DEBUG_SERIAL			
 			AS1_printStringEx ("f, print CAN bus error values\r\n");
@@ -1256,6 +1258,27 @@ byte serial_interface (void)
 			c = 0;
 			break;
 #endif
+
+		case 'n':
+			AS1_printStringEx ("pwm fault 0 = ");
+			iretval = getReg (PWMA_PMFSA);
+			AS1_printUWord16AsChars (iretval);
+			
+			AS1_printStringEx (" dismap 0 = ");
+			iretval = getReg (PWMA_PMDISMAP1);
+			AS1_printUWord16AsChars (iretval);
+			
+			AS1_printStringEx ("  pwm fault 1 = ");
+			iretval = getReg (PWMB_PMFSA);
+			AS1_printUWord16AsChars (iretval);
+
+			AS1_printStringEx (" dismap 1 = ");
+			iretval = getReg (PWMB_PMDISMAP1);
+			AS1_printUWord16AsChars (iretval);
+			
+			AS1_printStringEx ("\r\n");
+			c = 0;
+			break;
 
 		case 'v':
 			_verbose = !_verbose;

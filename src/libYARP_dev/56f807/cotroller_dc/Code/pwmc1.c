@@ -27,8 +27,12 @@ void PWMC1_init(void)
 	/* PWMB_PMDISMAP2: ??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,DISMAP=0 */
 #ifndef EMERGENCY_DISABLED	
 	setReg (PWMB_PMFCTL, 0x00); 
-	setReg (PWMB_PMDISMAP1, 0xffff);          
-	setReg (PWMB_PMDISMAP2, 0xff);          
+#if VERSION == 0x0111 || VERSION == 0x0114
+	setReg (PWMB_PMDISMAP1, 0x3333);
+#else
+	setReg (PWMB_PMDISMAP1, 0x2222);
+#endif	          
+	setReg (PWMB_PMDISMAP2, 0x00);          
 #else
 	setReg (PWMB_PMFCTL, 0x55);            
 	setReg (PWMB_PMDISMAP1, 0);          

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.3 2006-01-18 23:03:27 gmetta Exp $
+/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.4 2006-01-26 23:08:32 gmetta Exp $
 ///
 ///
 
@@ -99,7 +99,7 @@ namespace _JamesHead
 	const int CANBUS_DEVICE_NUM			= 0;
 	const int CANBUS_MY_ADDRESS			= 0;
 	const int CANBUS_POLLING_INTERVAL	= 20;			/// [ms]
-	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
+	const int CANBUS_TIMEOUT			= 15;			/// 10 * POLLING
 	const int CANBUS_MAXCARDS			= 16;			/// 
 
 	const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
