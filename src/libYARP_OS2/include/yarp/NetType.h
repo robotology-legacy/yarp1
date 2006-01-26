@@ -6,12 +6,29 @@
 #include <yarp/InputStream.h>
 #include <yarp/IOException.h>
 
+#include <ace/OS_NS_stdlib.h>
+
 namespace yarp {
   class NetType;
 }
 
 class yarp::NetType {
 public:
+
+  static int netInt(const Bytes& code) {
+    YARP_ASSERT(code.length()==sizeof(NetType::NetInt32));
+    NetType::NetInt32& i = *((NetType::NetInt32*)(code.get()));
+    return i;
+  }
+
+  static void netInt(int data, const Bytes& code) {
+    NetType::NetInt32 i = data;
+    Bytes b((char*)(&i),sizeof(i));
+    if (code.length()!=sizeof(i)) {
+      throw IOException("not enough room for integer");
+    }
+    ACE_OS::memcpy(code.get(),b.get(),code.length());
+  }
 
   // slow implementation - only relevant for textmode operation
   static String readLine(InputStream& is) {
@@ -32,6 +49,24 @@ public:
     }
     return buf;
   }    
+
+
+
+  int readFull(InputStream& is, const Bytes& b) {
+    int off = 0;
+    int fullLen = b.length();
+    int remLen = fullLen;
+    int result = 1;
+    while (result>0&&remLen>0) {
+      result = in.read(b,off,remLen);
+      if (result>0) {
+	remLen -= result;
+	off += result;
+      }
+    }
+    return (result<0)?result:fullLen;
+  }
+
 
 
   /**

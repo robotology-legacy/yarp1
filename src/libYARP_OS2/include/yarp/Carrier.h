@@ -16,7 +16,7 @@ class yarp::Carrier : public ShiftStream {
   virtual String getName() = 0;
   virtual bool checkHeader(const Bytes& header) = 0;
   virtual void setParameters(const Bytes& header) = 0;
-  virtual int getHeader(Bytes& header) = 0;
+  virtual void getHeader(const Bytes& header) = 0;
 
 
   virtual bool isConnectionless() = 0;
@@ -27,8 +27,9 @@ class yarp::Carrier : public ShiftStream {
 
   // all remaining may throw IOException
 
-  virtual void open(const Address& address, ShiftStream& previous) = 0;
-  virtual void close() = 0;
+  virtual void start(const Address& address, ShiftStream& previous) = 0;
+
+  //virtual void close() = 0; // from ShiftStream
 
   // sender
   virtual void prepareSend(Protocol& proto) = 0;
@@ -44,6 +45,8 @@ class yarp::Carrier : public ShiftStream {
   virtual void sendAck(Protocol& proto) = 0;
 
   virtual bool isActive() = 0;
+
+  virtual String toString() = 0;
 };
 
 #endif

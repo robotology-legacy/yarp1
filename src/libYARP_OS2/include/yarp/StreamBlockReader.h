@@ -12,16 +12,25 @@ namespace yarp {
 
 class yarp::StreamBlockReader : public BlockReader {
 public:
-  StreamBlockReader(InputStream& in, int len, bool textMode) :
-    in(in), messageLen(len), textMode(textMode) {
+  StreamBlockReader() {
+    in = NULL;
+    len = 0;
+    textMode = false;
+  }
+
+  void set(InputStream& in, int len, bool textMode) {
+    this->in = &in;
+    this->messageLen = len;
+    this->textMode = textMode;
   }
 
   virtual void expectBlock(const Bytes& b) {
+    YARP_ASSERT(in!=NULL);
     int len = b.length();
     if (len==0) return;
     if (len<0) { len = messageLen; }
     if (messageLen>=len && len>0) {
-      readFull(b);
+      NetType::readFull(*in,b);
       messageLen -= len;
     }
     throw IOException("expectBlock size conditions failed");
@@ -58,22 +67,7 @@ public:
 
 private:
 
-  int readFull(const Bytes& b) {
-    int off = 0;
-    int fullLen = b.length();
-    int remLen = fullLen;
-    int result = 1;
-    while (result>0&&remLen>0) {
-      result = in.read(b,off,remLen);
-      if (result>0) {
-	remLen -= result;
-	off += result;
-      }
-    }
-    return (result<0)?result:fullLen;
-  }
-
-  InputStream& in;
+  InputStream *in;
   int messageLen;
   bool textMode;
 };

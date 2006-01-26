@@ -78,6 +78,12 @@ public:
     exit(1);
   }
 
+  void assertion(bool cond) {
+    if (!cond) {
+      fail("assertion failure");
+    }
+  }
+
 private:
   void show(int level, const char *txt);
   void exit(int result);
@@ -97,6 +103,7 @@ private:
 #define YARP_DEBUG(log,x) log.debug(x)
 #define YARP_FAIL(log,x)  log.fail(x)
 
+#define YARP_ASSERT ACE_ASSERT
 
 
 #endif

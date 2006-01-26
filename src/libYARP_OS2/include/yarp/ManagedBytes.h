@@ -12,6 +12,12 @@ public:
     this->owned = owned;
   }
 
+  ManagedBytes(int len) {
+    char *buf = new char[len];
+    b = Bytes(buf,len);
+    owned = true;
+  }
+
   void copy() {
     if (!owned) {
       int len = length();

@@ -14,10 +14,15 @@ namespace yarp {
 class yarp::BufferedBlockWriter : public BlockWriter {
 public:
 
-  BufferedBlockWriter(bool textMode) : textMode(textMode) {
+  BufferedBlockWriter(bool textMode = false) : textMode(textMode) {
   }
 
   virtual ~BufferedBlockWriter() {
+    clear();
+  }
+
+  void reset(bool textMode) {
+    this->textMode = textMode;
     clear();
   }
 

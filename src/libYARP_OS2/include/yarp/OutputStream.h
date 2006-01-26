@@ -23,6 +23,9 @@ public:
   virtual void write(const Bytes& b) = 0;
 
   virtual void close() = 0;
+
+  virtual void flush() {
+  }
 };
 
 #endif
