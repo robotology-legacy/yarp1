@@ -140,7 +140,7 @@ static void checkBlocks() {
 }
 
 
-static void checkFaces() {
+static void checkFakeFace() {
   FakeFace ff;
   OutputProtocol *out = ff.write(Address("bozo",2,"text"));
   Route route("/from","/to","text");
@@ -159,6 +159,23 @@ static void checkFaces() {
   delete out;
 }
 
+static void checkTcpFace() {
+  try {
+    TcpFace ff;
+    OutputProtocol *out = ff.write(Address("localhost",10002,"tcp"));
+    Route route("/from","/to","text");
+    out->open(route);
+    BlockWriter& bw = out->beginWrite();
+    bw.appendLine("d");
+    bw.appendLine("0 \"Hello World\"");
+    out->endWrite();
+    out->close();
+    delete out;
+  } catch (IOException e) {
+    ACE_DEBUG((LM_ERROR,"tcp skipped, issue: %s", e.toString().c_str()));
+  }
+}
+
 
 /**
  * This is a gateway for a test harness.
@@ -173,7 +190,8 @@ int yarp_test_main(int argc, char *argv[]) {
   checkTwoWayStreams();
   checkBlocks();
   //checkCarriers();
-  checkFaces();
+  checkFakeFace();
+  checkTcpFace();
   ACE_OS::printf("yarp testing done\n");
   return 0;
 }

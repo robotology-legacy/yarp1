@@ -1,6 +1,8 @@
 
 #include <yarp/TcpFace.h>
 #include <yarp/Logger.h>
+#include <yarp/SocketTwoWayStream.h>
+#include <yarp/Protocol.h>
 
 using namespace yarp;
 
@@ -35,6 +37,8 @@ InputProtocol *TcpFace::read() {
 
 
 OutputProtocol *TcpFace::write(const Address& address) {
-  log.fail("not yet implemented");
+  SocketTwoWayStream *stream  = new SocketTwoWayStream();
+  stream->open(address);
+  return new Protocol(stream);
 }
 
