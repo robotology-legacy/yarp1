@@ -73,6 +73,10 @@ public:
     ACE_OS::itoa(port,buf,10);
     return carrier + ":/" + name + ":" + buf;
   }
+
+  bool isValid() {
+    return port>=0;
+  }
 };
 
 #endif

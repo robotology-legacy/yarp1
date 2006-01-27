@@ -2,6 +2,7 @@
 #define _YARP2_BUFFEREDBLOCKWRITER_
 
 #include <yarp/BlockWriter.h>
+#include <yarp/SizedWriter.h>
 #include <yarp/ManagedBytes.h>
 #include <yarp/Logger.h>
 #include <yarp/NetType.h>
@@ -12,7 +13,7 @@ namespace yarp {
   class BufferedBlockWriter;
 }
 
-class yarp::BufferedBlockWriter : public BlockWriter {
+class yarp::BufferedBlockWriter : public BlockWriter, public SizedWriter {
 public:
 
   BufferedBlockWriter(bool textMode = false) : textMode(textMode) {
@@ -76,7 +77,7 @@ public:
   void write(OutputStream& os) {
     for (int i=0; i<lst.size(); i++) {
       ManagedBytes& b = *(lst[i]);
-      YARP_INFO(Logger::get(),"output a block");
+      ACE_DEBUG((LM_DEBUG,"output a block, %d bytes",b.length()));
       os.write(b.bytes());
     }    
   }

@@ -16,6 +16,7 @@ namespace yarp {
  * human-friendly form during text-mode connections.
  */
 class yarp::BlockReader {
+public:
   // all methods can throw IOExceptoin
 
   virtual void expectBlock(const Bytes& b) = 0;

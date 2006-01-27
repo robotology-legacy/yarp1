@@ -53,12 +53,14 @@ public:
   }
 
   virtual void expectReplyToHeader(Protocol& proto) {
+    ACE_DEBUG((LM_DEBUG,"TcpCarrier::expectReplyToHeader"));
+    ACE_OS::printf("booga booga\n");
     proto.readYarpInt(); // ignore result
   }
 
   virtual void start(const Address& address, ShiftStream& previous) {
-    TwoWayStream *str = previous.giveStream();
-    takeStream(str);
+    //TwoWayStream *str = previous.giveStream();
+    //takeStream(str);
   }
 
 private:

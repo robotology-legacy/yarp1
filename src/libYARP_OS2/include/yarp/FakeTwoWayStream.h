@@ -17,10 +17,19 @@ namespace yarp {
  */
 class yarp::FakeTwoWayStream : public TwoWayStream {
 public:
-  FakeTwoWayStream() : out(this) {
+  FakeTwoWayStream(StringInputStream *target = NULL) : out(this) {
+    this->target = target;
+  }
+
+  void setTarget(StringInputStream& target) {
+    this->target = &target;
   }
 
   virtual InputStream& getInputStream() {
+    return in;
+  }
+
+  virtual StringInputStream& getStringInputStream() {
     return in;
   }
 
@@ -42,7 +51,21 @@ public:
   }
 
   virtual void apply(const Bytes& b) {
-    in.add(b);
+    if (target!=NULL) {
+      target->add(b);
+    }
+  }
+
+  void addInputText(const String& str) {
+    in.add(str.c_str());
+  }
+
+  String getOutputText() {
+    return out.toString();
+  }
+
+  String getInputText() {
+    return in.toString();
   }
 
 private:
@@ -64,6 +87,7 @@ private:
   ActiveStringOutputStream out;
   Address local;
   Address remote;
+  StringInputStream *target;
 };
 
 #endif

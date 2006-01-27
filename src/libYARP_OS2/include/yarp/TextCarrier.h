@@ -67,12 +67,17 @@ public:
   }
 
   void expectReplyToHeader(Protocol& proto) {
+    // ignore welcome line
+    /*
+    String result = NetType::readLine(proto.is());
+    ACE_DEBUG((LM_DEBUG,"text reply was %s",result.c_str()));
+    */
     ACE_DEBUG((LM_INFO,"don't know what to do about BECOME"));
   }
 
   void expectSenderSpecifier(Protocol& proto) {
-    ACE_DEBUG((LM_ERROR,"not implemented"));
-    throw IOException("not implemented");
+    ACE_DEBUG((LM_DEBUG,"TextCarrier::expectSenderSpecifier"));
+    proto.setRoute(proto.getRoute().addFromName(NetType::readLine(proto.is())));
   }
 
   void sendIndex(Protocol& proto) {
@@ -88,7 +93,7 @@ public:
     String from = "Welcome ";
     from += proto.getRoute().getFromName();
     from += '\n';
-    Bytes b2((char*)from.c_str(),from.length()+1);
+    Bytes b2((char*)from.c_str(),from.length());
     proto.os().write(b2);
     proto.os().flush();
     ACE_DEBUG((LM_INFO,"don't know what to do about BECOME"));

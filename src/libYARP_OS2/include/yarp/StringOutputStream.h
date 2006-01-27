@@ -18,6 +18,7 @@ public:
 
 
   virtual void write(const Bytes& b) { // throws
+    ACE_DEBUG((LM_DEBUG,"StringOutputStream::write"));
     for (int i=0; i<b.length(); i++) {
       data += b.get()[i];
     }

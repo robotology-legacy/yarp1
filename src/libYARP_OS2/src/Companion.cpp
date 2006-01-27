@@ -1,16 +1,20 @@
 
 #include <yarp/Companion.h>
+#include <yarp/NameClient.h>
+#include <yarp/Logger.h>
 
 using namespace yarp;
 
 Companion Companion::instance;
 
 Companion::Companion() {
-  add("version",&Companion::cmdVersion);
+  add("version", &Companion::cmdVersion);
+  add("name",    &Companion::cmdName);
+  add("where",   &Companion::cmdWhere);
 }
 
 int Companion::dispatch(const char *name, int argc, char *argv[]) {
-  ACE_OS::printf("Dispatching %s\n", name);
+  //ACE_OS::printf("Dispatching %s\n", name);
   String sname(name);
   Entry e;
   int result = action.find(sname,e);
@@ -45,6 +49,7 @@ int Companion::main(int argc, char *argv[]) {
       more = true;
     }
   }
+  Logger::get().setVerbosity(verbose);
 
   if (argc<=0) {
     ACE_OS::fprintf(stderr,"Please supply a command\n");
@@ -59,3 +64,23 @@ int Companion::main(int argc, char *argv[]) {
 }
 
 
+
+int Companion::cmdName(int argc, char *argv[]) {
+  String cmd = "NAME_SERVER";
+  for (int i=0; i<argc; i++) {
+    cmd += " ";
+    cmd += argv[i];
+  }
+  NameClient& nic = NameClient::getNameClient();
+  String result = nic.send(cmd);
+  ACE_OS::printf("%s",result.c_str());
+  return 0;
+}
+
+int Companion::cmdWhere(int argc, char *argv[]) {
+  NameClient& nic = NameClient::getNameClient();
+  Address address = nic.getAddress();
+  ACE_OS::printf("Name server is available at ip %s port %d\n",
+		 address.getName().c_str(), address.getPort());
+  return 0;
+}

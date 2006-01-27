@@ -54,6 +54,10 @@ public:
   virtual void close() {
   }
 
+  virtual String toString() {
+    return data;
+  }
+
 private:
   String data;
   int at;

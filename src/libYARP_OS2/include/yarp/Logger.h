@@ -32,6 +32,7 @@ public:
   Logger(const char *prefix, Logger *parent = NULL) {
     this->prefix = prefix;
     this->parent = parent;
+    verbose = 0;
     low = DEFAULT_WARN;
     if (this==&root) {
       ACE_Log_Msg *acer = ACE_Log_Msg::instance();
@@ -84,6 +85,10 @@ public:
     }
   }
 
+  void setVerbosity(int verbose = 0) {
+    this->verbose = verbose;
+  }
+
 private:
   void show(int level, const char *txt);
   void exit(int result);
@@ -91,6 +96,7 @@ private:
   static Logger root;
   yarp::String prefix;
   Logger *parent;
+  int verbose;
   int low;
 };
 

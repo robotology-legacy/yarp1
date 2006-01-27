@@ -9,7 +9,7 @@ include $(YARP_ROOT)/conf/Makefile.recursive.template
 y:
 	make
 	cd test; $(MAKE) clean
-	cd test; $(MAKE)
+	cd test; $(MAKE) harness.bin
 	cp test/harness.bin ./cyarp
 
 testing:

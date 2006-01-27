@@ -41,6 +41,10 @@ private:
     return 0;
   }
 
+  int cmdName(int argc, char *argv[]);
+
+  int cmdWhere(int argc, char *argv[]);
+
   class Entry {
   public:
     String name;

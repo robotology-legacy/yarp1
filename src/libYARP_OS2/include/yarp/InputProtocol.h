@@ -9,23 +9,30 @@
 
 namespace yarp {
   class InputProtocol;
+  class OutputProtocol;
 }
 
 class yarp::InputProtocol {
 public:
   virtual ~InputProtocol() {}
 
-  virtual void initiate(const String& name) = 0;  // throws IOException
-  virtual void close() = 0;  // throws IOException
+  // all may throw IOException
 
-  virtual BlockReader& beginRead() = 0;  // throws IOException
-  virtual void endRead() = 0;  // throws IOException
+  virtual void open(const String& name) = 0;
+  virtual void close() = 0;
 
   virtual const Route& getRoute() = 0;
 
-  virtual OutputStream& getOutputStream() = 0; // throws
-  virtual InputStream& getInputStream() = 0; // throws
-  virtual const Address& getRemoteAddress() = 0; // throws
+  virtual BlockReader& beginRead() = 0;
+  virtual void endRead() = 0;
+
+  // some connections are capable of ping-ponging
+  virtual OutputProtocol& getOutput() = 0;
+  
+  // direct access
+  virtual OutputStream& getOutputStream() = 0;
+  virtual InputStream& getInputStream() = 0;
+  virtual const Address& getRemoteAddress() = 0;
 };
 
 #endif

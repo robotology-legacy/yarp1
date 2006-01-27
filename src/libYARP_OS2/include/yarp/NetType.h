@@ -45,7 +45,7 @@ public:
 	done = true;
       }
       if (ch<0) { 
-	throw new IOException("readLine failed");
+	throw IOException("readLine failed");
       }
     }
     return buf;

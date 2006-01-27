@@ -26,7 +26,7 @@ public:
   virtual void appendString(const String& data) = 0;
   virtual void appendLine(const String& data) = 0;
 
-  virtual bool isTextMode() = 0;
+  //virtual bool isTextMode() = 0;
 };
 
 #endif

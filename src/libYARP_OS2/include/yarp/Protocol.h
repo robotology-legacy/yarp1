@@ -15,7 +15,7 @@ namespace yarp {
   class Protocol;
 }
 
-class yarp::Protocol : public OutputProtocol {
+class yarp::Protocol : public OutputProtocol, public InputProtocol {
 public:
 
   // everything could throw IOException
@@ -30,6 +30,7 @@ public:
     delegate = NULL;
     messageLen = 0;
     pendingAck = false;
+    writer = NULL;
   }
 
   virtual ~Protocol() {
@@ -122,7 +123,7 @@ public:
 	return x;
       }
     }
-    throw new IOException("bad yarp number");
+    // throw IOException("bad yarp number");
     return -1;
   }
 
@@ -141,6 +142,7 @@ public:
 
 
   void sendIndex() {
+    ACE_DEBUG((LM_DEBUG,"Protocol::sendIndex for %s", getRoute().toString().c_str()));
     YARP_ASSERT(delegate!=NULL);
     delegate->sendIndex(*this);
   }
@@ -151,7 +153,8 @@ public:
   }
 
   void sendContent() {
-    writer.write(os());
+    YARP_ASSERT(writer!=NULL);
+    writer->write(os());
     os().flush();
   }
 
@@ -164,6 +167,7 @@ public:
   }
 
   void defaultExpectIndex() {
+    ACE_DEBUG((LM_DEBUG,"Protocol::expectIndex for %s", getRoute().toString().c_str()));
     ACE_DEBUG((LM_ERROR,"not implemented"));
     throw IOException("not implemented");
   }
@@ -175,6 +179,7 @@ public:
   void expectAck() {
     YARP_ASSERT(delegate!=NULL);
     if (delegate->requireAck()) {
+      ACE_DEBUG((LM_DEBUG,"Protocol::expectAck for %s", getRoute().toString().c_str()));
       ACE_DEBUG((LM_ERROR,"not implemented"));
       throw IOException("not implemented");
     }
@@ -189,6 +194,7 @@ public:
   }
 
   void defaultSendAck() {
+    ACE_DEBUG((LM_DEBUG,"Protocol::sendAck for %s", getRoute().toString().c_str()));
     ACE_DEBUG((LM_ERROR,"not implemented"));
     throw IOException("not implemented");
   }
@@ -217,6 +223,19 @@ public:
     return shift.getInputStream();
   }
 
+  OutputStream& getOutputStream() {
+    return os();
+  }
+
+  InputStream& getInputStream() {
+    return is();
+  }
+
+  const Address& getRemoteAddress() {
+    ACE_DEBUG((LM_ERROR,"Protocol::getRemoteAddress not yet implemented"));
+    throw IOException("getRemoteAddress failed");
+  }
+
 
   ///////////////////////////////////////////////////////////////////////
   // OutputProtocol view
@@ -228,11 +247,33 @@ public:
     expectReplyToHeader();
   }
 
+  virtual void open(const String& name) {
+    expectHeader();
+    respondToHeader();
+    setRoute(getRoute().addToName(name));
+  }
+
   virtual bool isActive() {
     YARP_ASSERT(delegate!=NULL);
     return delegate->isActive();
   }
 
+  virtual bool isTextMode() {
+    YARP_ASSERT(delegate!=NULL);
+    return delegate->isActive();
+  }
+
+  virtual void write(SizedWriter& writer) {
+    this->writer = &writer;
+    if (isActive()) {
+      sendIndex();
+      sendContent();
+      expectAck();
+    }
+    this->writer = NULL;
+  }
+
+  /*
   virtual BlockWriter& beginWrite() {
     writer.reset(delegate->isTextMode());
     return writer;
@@ -245,7 +286,26 @@ public:
       expectAck();
     }
   }
+  */
 
+  virtual OutputProtocol& getOutput() {
+    return *this;
+  }
+
+  virtual InputProtocol& getInput() {
+    return *this;
+  }
+
+
+  virtual BlockReader& beginRead() {
+    expectIndex();
+    respondToIndex();
+    return reader;
+  }
+
+  virtual void endRead() {
+    sendAck();
+  }
 
 private:
 
@@ -298,7 +358,8 @@ private:
   ShiftStream shift;
   Carrier *delegate;
   Route route;
-  BufferedBlockWriter writer;
+  //BufferedBlockWriter writer;
+  SizedWriter *writer;
   StreamBlockReader reader;
 
   Logger& log;

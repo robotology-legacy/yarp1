@@ -3,9 +3,11 @@
 
 #include <yarp/Route.h>
 #include <yarp/BlockWriter.h>
+#include <yarp/SizedWriter.h>
 
 namespace yarp {
   class OutputProtocol;
+  class InputProtocol;
 }
 
 class yarp::OutputProtocol {
@@ -17,11 +19,18 @@ public:
   virtual void open(const Route& route) = 0;
   virtual void close() = 0;
 
-  virtual bool isActive() = 0;
-  virtual BlockWriter& beginWrite() = 0;
-  virtual void endWrite() = 0;
-
   virtual const Route& getRoute() = 0;
+  virtual bool isActive() = 0;
+  virtual bool isTextMode() = 0;
+
+  virtual void write(SizedWriter& writer) = 0;
+
+  // some connections are capable of ping-ponging
+  virtual InputProtocol& getInput() = 0;
+  
+  // direct access
+  virtual OutputStream& getOutputStream() = 0;
+  virtual InputStream& getInputStream() = 0;
 };
 
 #endif
