@@ -8,6 +8,8 @@
 #include <yarp/OutputProtocol.h>
 #include <yarp/Carrier.h>
 
+#include <ace/Vector_T.h>
+
 namespace yarp {
   class Carriers;
 }
@@ -24,6 +26,19 @@ public:
 
   static Face *listen(const Address& address); // throws IOException
   static OutputProtocol *connect(const Address& address); // throws IOException
+
+private:
+  ACE_Vector<Carrier *> delegates;
+
+  Carriers();
+  virtual ~Carriers();
+  
+  static Carriers instance;
+  static Carriers& getInstance() {
+    return instance;
+  }
+
+  Carrier *chooseCarrier(const String * name, const Bytes * bytes);  
 };
 
 

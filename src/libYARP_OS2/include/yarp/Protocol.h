@@ -15,7 +15,7 @@ namespace yarp {
   class Protocol;
 }
 
-class yarp::Protocol {
+class yarp::Protocol : public OutputProtocol {
 public:
 
   // everything could throw IOException
@@ -23,9 +23,9 @@ public:
   /**
    * This becomes owner of shiftstream
    */
-  Protocol(ShiftStream *shift) : 
-    shift(shift), log(Logger::get()), header(8), number(4) {
-
+  Protocol(TwoWayStream *stream) : 
+    log(Logger::get()), header(8), number(4) {
+    shift.takeStream(stream);
     route = Route("null","null","tcp");
     delegate = NULL;
     messageLen = 0;
@@ -38,11 +38,7 @@ public:
       delete delegate;
       delegate = NULL;
     }
-    if (shift!=NULL) {
-      shift->close();
-      delete shift;
-      shift = NULL;
-    }
+    shift.close();
   }
 
   void setRoute(const Route& route) {
@@ -94,7 +90,7 @@ public:
   void expectReplyToHeader() {
     YARP_ASSERT(delegate!=NULL);
     delegate->expectReplyToHeader(*this);
-    writer.reset(delegate->isTextMode());
+    //writer.reset(delegate->isTextMode());
   }
 
   void respondToHeader() {
@@ -201,11 +197,7 @@ public:
     if (pendingAck) {
       sendAck();
     }
-    if (shift!=NULL) {
-      shift->close();
-      delete shift;
-      shift = NULL;
-    }
+    shift.close();
     if (delegate!=NULL) {
       delegate->close();
       delete delegate;
@@ -214,18 +206,44 @@ public:
   }
 
   TwoWayStream& getStreams() {
-    YARP_ASSERT(shift!=NULL);
-    return *shift;
+    return shift;
   }
 
   OutputStream& os() {
-    YARP_ASSERT(shift!=NULL);
-    return shift->getOutputStream();
+    return shift.getOutputStream();
   }
 
   InputStream& is() {
-    YARP_ASSERT(shift!=NULL);
-    return shift->getInputStream();
+    return shift.getInputStream();
+  }
+
+
+  ///////////////////////////////////////////////////////////////////////
+  // OutputProtocol view
+
+  virtual void open(const Route& route) {
+    setRoute(route);
+    setCarrier(route.getCarrierName());
+    sendHeader();
+    expectReplyToHeader();
+  }
+
+  virtual bool isActive() {
+    YARP_ASSERT(delegate!=NULL);
+    return delegate->isActive();
+  }
+
+  virtual BlockWriter& beginWrite() {
+    writer.reset(delegate->isTextMode());
+    return writer;
+  }
+
+  virtual void endWrite() {
+    if (isActive()) {
+      sendIndex();
+      sendContent();
+      expectAck();
+    }
   }
 
 
@@ -277,7 +295,7 @@ private:
   bool pendingAck;
   ManagedBytes header;
   ManagedBytes number;
-  ShiftStream *shift;
+  ShiftStream shift;
   Carrier *delegate;
   Route route;
   BufferedBlockWriter writer;

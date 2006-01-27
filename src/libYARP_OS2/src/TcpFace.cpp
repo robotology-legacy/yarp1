@@ -32,3 +32,9 @@ InputProtocol *TcpFace::read() {
 
   return NULL;
 }
+
+
+OutputProtocol *TcpFace::write(const Address& address) {
+  log.fail("not yet implemented");
+}
+

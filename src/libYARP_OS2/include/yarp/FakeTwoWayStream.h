@@ -2,6 +2,8 @@
 #define _YARP2_FAKETWOWAYSTREAM_
 
 #include <yarp/TwoWayStream.h>
+#include <yarp/StringInputStream.h>
+#include <yarp/StringOutputStream.h>
 
 namespace yarp {
   class FakeTwoWayStream;
@@ -13,7 +15,7 @@ namespace yarp {
  * It provides a fake two way stream.
  * Override apply to make stuff happen - default is echo. 
  */
-class yarp::FakeTwoWayStream {
+class yarp::FakeTwoWayStream : public TwoWayStream {
 public:
   FakeTwoWayStream() : out(this) {
   }

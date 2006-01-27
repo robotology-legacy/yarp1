@@ -3,6 +3,7 @@
 
 #include <yarp/Address.h>
 #include <yarp/InputProtocol.h>
+#include <yarp/OutputProtocol.h>
 
 namespace yarp {
   class Face;
@@ -12,9 +13,12 @@ class yarp::Face {
 public:
   virtual ~Face() {} // destructors must be virtual
 
-  virtual void open(const Address& address) = 0; // throws IOException
-  virtual void close() = 0; // throws IOException
-  virtual InputProtocol *read() = 0; // throws IOException
+  // all throw IOException
+
+  virtual void open(const Address& address) = 0;
+  virtual void close() = 0;
+  virtual InputProtocol *read() = 0;
+  virtual OutputProtocol *write(const Address& address) = 0; 
 };
 
 #endif

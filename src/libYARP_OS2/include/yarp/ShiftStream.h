@@ -14,6 +14,10 @@ namespace yarp {
  */
 class yarp::ShiftStream : public TwoWayStream {
 public:
+  ShiftStream() {
+    stream = NULL;
+  }
+
   virtual ~ShiftStream() {
     close();
   }

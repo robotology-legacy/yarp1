@@ -1,6 +1,8 @@
 
 #include <yarp/FakeFace.h>
 #include <yarp/Logger.h>
+#include <yarp/Protocol.h>
+#include <yarp/FakeTwoWayStream.h>
 
 using namespace yarp;
 
@@ -15,5 +17,10 @@ void FakeFace::close() {
 
 InputProtocol *FakeFace::read() {
   log.fail("not yet implemented");
+}
+
+OutputProtocol *FakeFace::write(const Address& address) {
+  Protocol *prot = new Protocol(new FakeTwoWayStream());
+  return prot;
 }
 

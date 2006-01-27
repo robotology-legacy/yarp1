@@ -12,6 +12,9 @@
 #include <yarp/Protocol.h>
 #include <yarp/TcpCarrier.h>
 #include <yarp/TextCarrier.h>
+#include <yarp/FakeFace.h>
+#include <yarp/TcpFace.h>
+
 
 #include <ace/OS_NS_stdio.h>
 #include <ace/OS_NS_stdlib.h>
@@ -136,6 +139,27 @@ static void checkBlocks() {
   assertion(sos.toString(),String("Hello\nGreetings\n"));
 }
 
+
+static void checkFaces() {
+  FakeFace ff;
+  OutputProtocol *out = ff.write(Address("bozo",2,"text"));
+  Route route("/from","/to","text");
+  out->open(route);
+  BlockWriter& bw = out->beginWrite();
+  bw.appendLine("Hello");
+  out->endWrite();
+
+  // begin HACK
+  Protocol& proto = *((Protocol *)out);
+  StringOutputStream& sos = (StringOutputStream&)(proto.os());
+  ACE_OS::printf("Data is [%s]\n", sos.toString().c_str());
+  // end HACK
+
+  out->close();
+  delete out;
+}
+
+
 /**
  * This is a gateway for a test harness.
  * PENDING: This method should be moved into the yarp namespace.
@@ -149,6 +173,7 @@ int yarp_test_main(int argc, char *argv[]) {
   checkTwoWayStreams();
   checkBlocks();
   //checkCarriers();
+  checkFaces();
   ACE_OS::printf("yarp testing done\n");
   return 0;
 }

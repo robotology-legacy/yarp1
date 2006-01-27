@@ -9,9 +9,10 @@ namespace yarp {
 
 class yarp::FakeFace : public Face {
 public:
-  virtual void open(const Address& address); // throws IOException
-  virtual void close(); // throws IOException
-  virtual InputProtocol *read(); // throws IOException
+  virtual void open(const Address& address);
+  virtual void close();
+  virtual InputProtocol *read();
+  virtual OutputProtocol *write(const Address& address);
 private:
 };
 

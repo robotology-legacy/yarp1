@@ -1,4 +1,6 @@
 
+===============================================================================
+
 This library is under development and should not be used.
 
 I repeat: don't use it.  Move along.  There's nothing to see here.  These are 
@@ -11,3 +13,12 @@ at:
   http://yarp0.sourceforge.net/specs/yarp-protocol-2-0.pdf
 
 -- paulfitz, Genoa Italy, Thursday Jan 26, 2006
+
+===============================================================================
+
+Development notes:
+
++ The meaning of the carriers currently called "tcp" and "text" has 
+  changed to mean "stay in the same medium you connected with".
+  I should specialize out tcp-specific communication.
+

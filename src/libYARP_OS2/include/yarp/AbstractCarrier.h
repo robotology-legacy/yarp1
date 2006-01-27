@@ -1,6 +1,9 @@
 #ifndef _YARP2_ABSTRACTCARRIER_
 #define _YARP2_ABSTRACTCARRIER_
 
+#include <yarp/Carrier.h>
+#include <yarp/Protocol.h>
+
 namespace yarp {
   class AbstractCarrier;
 }
@@ -89,9 +92,9 @@ class yarp::AbstractCarrier : public Carrier {
   }
 
 
-  virtual void close() {
-    ShiftStream::close();
-  }
+  //virtual void close() {
+  //ShiftStream::close();
+  //}
 
 protected:
 

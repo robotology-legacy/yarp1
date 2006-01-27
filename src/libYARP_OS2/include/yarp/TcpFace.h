@@ -22,6 +22,7 @@ public:
   virtual void open(const Address& address); // throws IOException
   virtual void close(); // throws IOException
   virtual InputProtocol *read(); // throws IOException
+  virtual OutputProtocol *write(const Address& address); // throws IOException
 private:
   Address address;
   ACE_SOCK_Acceptor peerAcceptor;

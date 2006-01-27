@@ -57,8 +57,8 @@ public:
   }
 
   virtual void start(const Address& address, ShiftStream& previous) {
-    ACE_DEBUG((LM_ERROR,"not implemented"));
-    throw IOException("not implemented");
+    TwoWayStream *str = previous.giveStream();
+    takeStream(str);
   }
 
 private:

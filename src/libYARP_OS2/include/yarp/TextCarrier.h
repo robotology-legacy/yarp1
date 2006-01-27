@@ -11,7 +11,7 @@ class yarp::TextCarrier : public TcpCarrier {
 public:
 
   virtual String getName() {
-    return "txt";
+    return "text";
   }
 
   virtual String getSpecifierName() {
@@ -60,7 +60,7 @@ public:
     Bytes b((char*)target.c_str(),8);
     proto.os().write(b);
     String from = proto.getRoute().getFromName();
-    Bytes b2((char*)from.c_str(),from.length()+1);
+    Bytes b2((char*)from.c_str(),from.length());
     proto.os().write(b2);
     proto.os().write('\n');
     proto.os().flush();
