@@ -23,6 +23,8 @@ CTouchDlg::CTouchDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CTouchDlg)
 	//}}AFX_DATA_INIT
 	ACE_OS::memset (m_c, 0, sizeof(short) * MAX_CHANNELS);
+	ACE_OS::memset (m_tmp, 0, sizeof(short) * MAX_CHANNELS);
+
 	m_mask = 0;
 	m_count = 0;
 }
@@ -75,10 +77,12 @@ void CTouchDlg::DisableInterface()
 	}
 }
 
+
 void CTouchDlg::SetMask (int newmask)
 {
 	m_mask = newmask;
 	m_count = 0;
+
 	int i;
 	for (i = 0; i < MAX_CHANNELS; i++)
 	{
@@ -88,12 +92,14 @@ void CTouchDlg::SetMask (int newmask)
 	}
 }
 
+
 // MUST be called when the device driver is properly initialized.
 void CTouchDlg::UpdateInterface()
 {
 	int ret = YARP_OK;
 
-	ret = touch.IOCtl (CMDAIReadScan, (void *)m_c);
+	ret = touch.IOCtl (CMDAIReadScan, (void *)m_tmp);
+
 	if (ret != YARP_OK)
 	{
 		// silently ignores the issue.
@@ -107,13 +113,12 @@ void CTouchDlg::UpdateInterface()
 		{
 			if (val & 0x1)
 			{
-				m_c[MAX_CHANNELS-1-i] = m_c[m_count-1-j];
+				// bit 1.
+				m_c[MAX_CHANNELS-1-i] = m_tmp[m_count-1-j];
 				j++;
 			}
 			else
-			{
 				m_c[MAX_CHANNELS-1-i] = 0;
-			}
 
 			val >>= 1;
 		}

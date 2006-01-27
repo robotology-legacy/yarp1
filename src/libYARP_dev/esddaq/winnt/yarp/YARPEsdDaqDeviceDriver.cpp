@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.4 2006-01-12 14:11:18 babybot Exp $
+/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.5 2006-01-27 18:16:27 gmetta Exp $
 ///
 ///
 
@@ -741,6 +741,7 @@ int YARPEsdDaqDeviceDriver::_readWord16Array (int msg, short *out)
 	r.startPacket ();
 
 	int val = r._scanSequence;
+
 	for(i = 0; i < MAX_CHANNELS; i++)
 	{
 		if (val & 0x00000001)
@@ -749,7 +750,9 @@ int YARPEsdDaqDeviceDriver::_readWord16Array (int msg, short *out)
 		}
 
 		val >>= 1;
+
 	}
+
 
 	if (r._writeMessages < 1)
 	{
@@ -765,10 +768,11 @@ int YARPEsdDaqDeviceDriver::_readWord16Array (int msg, short *out)
 
 	if (r.getErrorStatus() != YARP_OK)
 	{
-		memset (out, 0, sizeof(short) * MAX_CHANNELS);
+		ACE_OS::memset (out, 0, sizeof(short) * MAX_CHANNELS);
 		return YARP_FAIL;
 	}
 
+	ACE_OS::memset (out, 0, sizeof(short) * MAX_CHANNELS);
 	for (i = 0; i < r._writeMessages; i++)
 	{
 		CMSG& m = r._replyBuffer[i];

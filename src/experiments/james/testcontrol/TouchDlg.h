@@ -23,14 +23,18 @@ public:
 	void UpdateInterface ();
 	void SetMask (int newmask);
 
+
 // Dialog Data
 	//{{AFX_DATA(CTouchDlg)
 	enum { IDD = IDD_DIALOG_TOUCH };
 	//}}AFX_DATA
+
 	int		m_mask;
+
 	int		m_count;
 	CEdit	m_edt[MAX_CHANNELS];
 	short	m_c[MAX_CHANNELS];
+	short   m_tmp[MAX_CHANNELS];
 
 // Overrides
 	// ClassWizard generated virtual function overrides
