@@ -14,6 +14,7 @@
 #include <yarp/TextCarrier.h>
 #include <yarp/FakeFace.h>
 #include <yarp/TcpFace.h>
+#include <yarp/Companion.h>
 
 
 #include <ace/OS_NS_stdio.h>
@@ -176,23 +177,31 @@ static void checkTcpFace() {
   }
 }
 
+static void checkCompanion(int argc, char *argv[]) {
+  Companion::main(argc,argv);
+}
 
 /**
  * This is a gateway for a test harness.
  * PENDING: This method should be moved into the yarp namespace.
  */
 int yarp_test_main(int argc, char *argv[]) {
-  ACE_OS::printf("yarp testing underway\n");
-  checkString();
-  checkAddress();
-  checkInputStreams();
-  checkOutputStreams();
-  checkTwoWayStreams();
-  checkBlocks();
-  //checkCarriers();
-  checkFakeFace();
-  checkTcpFace();
-  ACE_OS::printf("yarp testing done\n");
+  if (argc<=1) {
+    ACE_OS::printf("yarp testing underway\n");
+    checkString();
+    checkAddress();
+    checkInputStreams();
+    checkOutputStreams();
+    checkTwoWayStreams();
+    checkBlocks();
+    //checkCarriers();
+    checkFakeFace();
+    //checkTcpFace();
+    checkCompanion(argc,argv);
+    ACE_OS::printf("yarp testing done\n");
+  } else {
+    return Companion::main(argc,argv);
+  }
   return 0;
 }
 

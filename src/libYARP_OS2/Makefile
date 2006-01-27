@@ -6,6 +6,11 @@ MYCODELIB = libYARP_OS2
 
 include $(YARP_ROOT)/conf/Makefile.recursive.template
 
+y:
+	make
+	cd test; $(MAKE) clean
+	cd test; $(MAKE)
+	cp test/harness.bin ./cyarp
 
 testing:
 	make
