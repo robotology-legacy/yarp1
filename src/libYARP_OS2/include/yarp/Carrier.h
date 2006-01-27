@@ -3,13 +3,14 @@
 
 #include <yarp/ShiftStream.h>
 #include <yarp/Bytes.h>
-#include <yarp/Protocol.h>
 
 namespace yarp {
   class Carrier;
+  class Protocol;
 }
 
 class yarp::Carrier : public ShiftStream {
+public:
 
   virtual Carrier *create() = 0;
 
@@ -41,7 +42,7 @@ class yarp::Carrier : public ShiftStream {
   virtual void expectExtraHeader(Protocol& proto) = 0;
   virtual void respondToHeader(Protocol& proto) = 0;
   virtual void expectIndex(Protocol& proto) = 0;
-  virtual void expectSenderSpecifer(Protocol& proto) = 0;
+  virtual void expectSenderSpecifier(Protocol& proto) = 0;
   virtual void sendAck(Protocol& proto) = 0;
 
   virtual bool isActive() = 0;

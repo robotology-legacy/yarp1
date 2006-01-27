@@ -5,6 +5,8 @@
 #include <yarp/BlockReader.h>
 #include <yarp/IOException.h>
 #include <yarp/NetType.h>
+#include <yarp/Bytes.h>
+#include <yarp/Logger.h>
 
 namespace yarp {
   class StreamBlockReader;
@@ -14,11 +16,11 @@ class yarp::StreamBlockReader : public BlockReader {
 public:
   StreamBlockReader() {
     in = NULL;
-    len = 0;
+    messageLen = 0;
     textMode = false;
   }
 
-  void set(InputStream& in, int len, bool textMode) {
+  void reset(InputStream& in, int len, bool textMode) {
     this->in = &in;
     this->messageLen = len;
     this->textMode = textMode;
@@ -40,21 +42,24 @@ public:
   virtual int expectInt() {
     NetType::NetInt32 x = 0;
     Bytes b((char*)(&x),sizeof(x));
-    in.read(b);
+    YARP_ASSERT(in!=NULL);
+    in->read(b);
     return x;
   }
 
   virtual String expectString(int len) {
     char *buf = new char[len];
     Bytes b(buf,len);
-    in.read(b);
+    YARP_ASSERT(in!=NULL);
+    in->read(b);
     String s = buf;
     delete[] buf;
     return s;
   }
 
   virtual String expectLine() {
-    return NetType::readLine(in);
+    YARP_ASSERT(in!=NULL);
+    return NetType::readLine(*in);
   }
 
   virtual bool isTextMode() {

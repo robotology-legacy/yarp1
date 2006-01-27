@@ -8,9 +8,10 @@ namespace yarp {
 }
 
 class yarp::TcpCarrier : public AbstractCarrier {
+public:
 
   TcpCarrier() {
-    requireAck = true;
+    requireAckFlag = true;
   }
 
   virtual Carrier *create() {
@@ -21,43 +22,47 @@ class yarp::TcpCarrier : public AbstractCarrier {
     return "tcp";
   }
 
-  int getSpecifier() {
+  int getSpecifierCode() {
     return 3;
   }
 
   virtual bool checkHeader(const Bytes& header) {
-    return getSpecifier(header)%16 == getSpecifier();
+    return getSpecifier(header)%16 == getSpecifierCode();
   }
 
   virtual void getHeader(const Bytes& header) {
-    createStandardHeader(getSpecifier()+(requireAck?128:0), header);
+    createStandardHeader(getSpecifierCode()+(requireAckFlag?128:0), header);
   }
 
   virtual void setParameters(const Bytes& header) {
     int specifier = getSpecifier(header);
-    requireAck = (specifier&128)!=0;
+    requireAckFlag = (specifier&128)!=0;
   }
 
   virtual bool requireAck() {
-    return requireAck;
+    return requireAckFlag;
   }
 
   virtual bool isConnectionless() {
     return false;
   }
 
-  virtual void expectReplyToHeader(Protocol& proto) {
+  virtual void respondToHeader(Protocol& proto) {
     int cport = proto.getStreams().getLocalAddress().getPort();
     proto.writeYarpInt(cport);
   }
 
+  virtual void expectReplyToHeader(Protocol& proto) {
+    proto.readYarpInt(); // ignore result
+  }
+
   virtual void start(const Address& address, ShiftStream& previous) {
-    YARP_DEBUG(LM_ERROR,"not implemented");
+    ACE_DEBUG((LM_ERROR,"not implemented"));
     throw IOException("not implemented");
   }
 
 private:
-  bool requireAck;
+  bool requireAckFlag;
 };
 
 #endif

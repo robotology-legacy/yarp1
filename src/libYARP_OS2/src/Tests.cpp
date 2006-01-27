@@ -9,6 +9,9 @@
 #include <yarp/BufferedBlockWriter.h>
 #include <yarp/ShiftStream.h>
 #include <yarp/Carrier.h>
+#include <yarp/Protocol.h>
+#include <yarp/TcpCarrier.h>
+#include <yarp/TextCarrier.h>
 
 #include <ace/OS_NS_stdio.h>
 #include <ace/OS_NS_stdlib.h>
@@ -117,13 +120,15 @@ static void checkTwoWayStreams() {
 static void checkBlocks() {
   StringInputStream sis;
   sis.add("Hello\ngood evening and welcome");
-  StreamBlockReader sbr(sis,10,true);
+  StreamBlockReader sbr;
+  sbr.reset(sis,10,true);
   String line = sbr.expectLine();
   assertion(line,String("Hello"));
 
   StringOutputStream sos;
 
-  BufferedBlockWriter bbr(true);
+  BufferedBlockWriter bbr;
+  bbr.reset(true);
   bbr.appendLine("Hello");
   bbr.appendLine("Greetings");
   bbr.write(sos);

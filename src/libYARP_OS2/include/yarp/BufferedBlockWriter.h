@@ -4,6 +4,7 @@
 #include <yarp/BlockWriter.h>
 #include <yarp/ManagedBytes.h>
 #include <yarp/Logger.h>
+#include <yarp/NetType.h>
 
 #include <ace/Vector_T.h>
 

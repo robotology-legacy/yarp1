@@ -3,6 +3,13 @@
 
 #include <yarp/Carrier.h>
 #include <yarp/Logger.h>
+#include <yarp/TwoWayStream.h>
+#include <yarp/Carriers.h>
+#include <yarp/BufferedBlockWriter.h>
+#include <yarp/StreamBlockReader.h>
+#include <yarp/ManagedBytes.h>
+#include <yarp/NetType.h>
+#include <yarp/ShiftStream.h>
 
 namespace yarp {
   class Protocol;
@@ -49,7 +56,7 @@ public:
   void setCarrier(const String& carrierName) {
     setRoute(getRoute().addCarrierName(carrierName));
     YARP_ASSERT(delegate==NULL);
-    delegate = Carriers.chooseCarrier(carrierName);
+    delegate = Carriers::chooseCarrier(carrierName);
     delegate->prepareSend(*this);
   }
 
@@ -98,7 +105,7 @@ public:
 
   int readYarpInt() {
     int port = 0;
-    int len = readFull(is(),header.bytes());
+    int len = NetType::readFull(is(),header.bytes());
     YARP_ASSERT(len==header.length());
     return interpretYarpNumber(header.bytes());
   }
@@ -109,11 +116,11 @@ public:
     os().flush();
   }
 
-  static int interpretYarpNumber(const Byte& b) {
+  static int interpretYarpNumber(const Bytes& b) {
     if (b.length()==8) {
       char *base = b.get();
-      if (b[0]=='Y' && b[1]=='A' &&
-	  b[6]=='R' && b[7]=='P') {
+      if (base[0]=='Y' && base[1]=='A' &&
+	  base[6]=='R' && base[7]=='P') {
 	Bytes b2(b.get()+2,4);
 	int x = NetType::netInt(b2);
 	return x;
@@ -132,16 +139,18 @@ public:
     base[1] = 'Y';
     base[6] = 'R';
     base[7] = 'P';
+    Bytes code(base+2,4);
     NetType::netInt(x,code);
   }
 
 
   void sendIndex() {
-    delegate.sendIndex(*this);
+    YARP_ASSERT(delegate!=NULL);
+    delegate->sendIndex(*this);
   }
 
   void defaultSendIndex() {
-    YARP_DEBUG(LM_ERROR,"not implemented");
+    ACE_DEBUG((LM_ERROR,"not implemented"));
     throw IOException("not implemented");
   }
 
@@ -155,11 +164,11 @@ public:
     messageLen = 0;
     YARP_ASSERT(delegate!=NULL);
     delegate->expectIndex(*this);
-    reader.set(is(),messageLen,delegate->isTextMode());
+    reader.reset(is(),messageLen,delegate->isTextMode());
   }
 
   void defaultExpectIndex() {
-    YARP_DEBUG(LM_ERROR,"not implemented");
+    ACE_DEBUG((LM_ERROR,"not implemented"));
     throw IOException("not implemented");
   }
 
@@ -170,7 +179,7 @@ public:
   void expectAck() {
     YARP_ASSERT(delegate!=NULL);
     if (delegate->requireAck()) {
-      YARP_DEBUG(LM_ERROR,"not implemented");
+      ACE_DEBUG((LM_ERROR,"not implemented"));
       throw IOException("not implemented");
     }
   }
@@ -179,12 +188,12 @@ public:
     pendingAck = false;
     YARP_ASSERT(delegate!=NULL);
     if (delegate->requireAck()) {
-      delegate.sendAck(*this);
+      delegate->sendAck(*this);
     }
   }
 
   void defaultSendAck() {
-    YARP_DEBUG(LM_ERROR,"not implemented");
+    ACE_DEBUG((LM_ERROR,"not implemented"));
     throw IOException("not implemented");
   }
 
@@ -204,12 +213,10 @@ public:
     }
   }
 
-  TwoWayStreams& getStreams() {
+  TwoWayStream& getStreams() {
     YARP_ASSERT(shift!=NULL);
     return *shift;
   }
-
-private:
 
   OutputStream& os() {
     YARP_ASSERT(shift!=NULL);
@@ -220,6 +227,9 @@ private:
     YARP_ASSERT(shift!=NULL);
     return shift->getInputStream();
   }
+
+
+private:
 
   void sendProtocolSpecifier() {
     YARP_ASSERT(delegate!=NULL);
@@ -238,7 +248,7 @@ private:
       }
     }
     if (!already) {
-      delegate = Carriers.chooseCarrier(header.bytes());
+      delegate = Carriers::chooseCarrier(header.bytes());
     }
     if (delegate==NULL) {
       throw IOException("unrecognized protocol");
@@ -248,10 +258,10 @@ private:
 
 
   void sendSenderSpecifier() {
-    String& senderName = getRoute().getFromName();
+    const String& senderName = getRoute().getFromName();
     NetType::netInt(senderName.length()+1,number.bytes());
     os().write(number.bytes());
-    Bytes b(senderName.c_str(),senderName.length()+1);
+    Bytes b((char*)senderName.c_str(),senderName.length()+1);
     os().write(b);
     os().flush();
   }
@@ -259,7 +269,7 @@ private:
   void expectSenderSpecifier() {
     YARP_ASSERT(delegate!=NULL);
     delegate->expectSenderSpecifier(*this);
-    ACE_DEBUG(LM_INFO,"Sender name is %s",getRoute().getFromName());
+    ACE_DEBUG((LM_INFO,"Sender name is %s",getRoute().getFromName().c_str()));
   }
   
 

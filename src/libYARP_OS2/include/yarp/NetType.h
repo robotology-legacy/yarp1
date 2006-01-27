@@ -5,6 +5,7 @@
 #include <yarp/Bytes.h>
 #include <yarp/InputStream.h>
 #include <yarp/IOException.h>
+#include <yarp/Logger.h>
 
 #include <ace/OS_NS_stdlib.h>
 
@@ -52,13 +53,13 @@ public:
 
 
 
-  int readFull(InputStream& is, const Bytes& b) {
+  static int readFull(InputStream& is, const Bytes& b) {
     int off = 0;
     int fullLen = b.length();
     int remLen = fullLen;
     int result = 1;
     while (result>0&&remLen>0) {
-      result = in.read(b,off,remLen);
+      result = is.read(b,off,remLen);
       if (result>0) {
 	remLen -= result;
 	off += result;

@@ -48,8 +48,7 @@ class yarp::AbstractCarrier : public Carrier {
 
   // all remaining may throw IOException
 
-  virtual void open(const Address& address, ShiftStream& previous) = 0;
-  virtual void close() = 0;
+  virtual void start(const Address& address, ShiftStream& previous) = 0;
 
   // sender
   virtual void prepareSend(Protocol& proto) {
@@ -77,7 +76,7 @@ class yarp::AbstractCarrier : public Carrier {
     proto.defaultExpectIndex();
   }
 
-  virtual void expectSenderSpecifer(Protocol& proto) {
+  virtual void expectSenderSpecifier(Protocol& proto) {
     proto.defaultExpectSenderSpecifier();
   }
 
@@ -89,6 +88,10 @@ class yarp::AbstractCarrier : public Carrier {
     return true;
   }
 
+
+  virtual void close() {
+    ShiftStream::close();
+  }
 
 protected:
 

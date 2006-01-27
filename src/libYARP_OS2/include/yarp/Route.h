@@ -25,31 +25,31 @@ public:
     carrier = alt.carrier;
   }
 
-  const String& getFromName() {
+  const String& getFromName() const {
     return fromKey;
   }
 
-  const String& getToName() {
+  const String& getToName() const {
     return toKey;
   }
 
-  const String& getCarrierName() {
+  const String& getCarrierName() const {
     return carrier;
   }
 
-  Route addFromName(const String& fromName) {
+  Route addFromName(const String& fromName) const {
     return Route(fromName,getToName(),getCarrierName());
   }
 
-  Route addToName(const String& toName) {
+  Route addToName(const String& toName) const {
     return Route(getFromName(),toName,getCarrierName());
   }
 
-  Route addCarrierName(const String& carrierName) {
+  Route addCarrierName(const String& carrierName) const {
     return Route(getFromName(),getToName(),carrierName);
   }
 
-  String toString() {
+  String toString() const {
     return getFromName() + "->" + getCarrierName() + "->" +
       getToName();
   }
