@@ -9,37 +9,31 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "BodyMap.h"
+
 class CSaverThread : public YARPThread  
 {
 public:
+	CSaverThread(BodyMapOptions& programOptions, BodyMapSettings& programSettings) :
+	  _options(&programOptions), _settings(&programSettings), _frameN(0), _saveFile(NULL) {}
+	~CSaverThread() {}
+	
 	virtual void Body();
 	
-	void writeDataToFile(int);
+	int openFile();
+	void closeFile();
 	void writeHeaderToFile();
-
-	int useDataGlove;
-	int useGazeTracker;
-	int useTracker0;
-	int useTracker1;
-	int usePresSens;
-	int useCamera0;
-	int useCamera1;
-
-	CollectorNumericalData *pData;
-	CollectorImage         *pImg0;
-	CollectorImage         *pImg1;
-
-	char prefix[255];
-	FILE *pFile;
-
-	YARPInputPortOf<CollectorNumericalData>* p_data_inport;
-	YARPInputPortOf<YARPGenericImage>*       p_img0_inport;
-	YARPInputPortOf<YARPGenericImage>*       p_img1_inport;
+	void writeDataToFile();
 
 private:
 
-	int nFrames;
-	int x0, y0, w0, x1, y1, w1;
+	int _frameN;
+	int _x0, _y0, _w0, _x1, _y1, _w1;
+
+	BodyMapOptions* _options;
+	BodyMapSettings* _settings;
+
+	FILE* _saveFile;
 
 };
 

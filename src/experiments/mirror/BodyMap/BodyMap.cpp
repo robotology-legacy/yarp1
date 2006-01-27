@@ -100,7 +100,7 @@ void FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y, int* w)
 		}
 		v = max;
 
-		if ( cos(h/360*2*M_PI)>0.85 && s>0.5 && v>0.85 ) {
+		if ( cos(h/360*2*M_PI)>0.85 && s>0.5 && v>0.65 ) {
 			sumX += i;
 			sumY += j;
 			++nOfPixels;

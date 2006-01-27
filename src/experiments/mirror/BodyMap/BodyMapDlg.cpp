@@ -18,12 +18,8 @@ static char THIS_FILE[] = __FILE__;
 // CBodyMapDlg dialog
 
 CBodyMapDlg::CBodyMapDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CBodyMapDlg::IDD, pParent),
-	  _data_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
-	  _img0_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
-	  _img1_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
-	  _cmd_inport (YARPInputPort::NO_BUFFERS, YARP_TCP),
-	  _cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
+	: CDialog( CBodyMapDlg::IDD, pParent ),
+	  _saverThread( _options, _settings )
 {
 
 	//{{AFX_DATA_INIT(CBodyMapDlg)
@@ -90,15 +86,15 @@ BOOL CBodyMapDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// create and set up dialogs
-	GloveDialog.Create(CLiveGloveDlg::IDD, this);
-	Tracker0Dialog.Create(CLiveTrackerDlg::IDD, this);
-	Tracker0Dialog.SetWindowText("LIVE: Tracker #0");
-	Tracker1Dialog.Create(CLiveTrackerDlg::IDD, this);
-	Tracker1Dialog.SetWindowText("LIVE: Tracker #1");
-	Camera0Dialog.Create(CLiveCameraDlg::IDD, this);
-	Camera0Dialog.SetWindowText("LIVE: Camera #0");
-	Camera1Dialog.Create(CLiveCameraDlg::IDD, this);
-	Camera1Dialog.SetWindowText("LIVE: Camera #1");
+	_GloveDialog.Create(CLiveGloveDlg::IDD, this);
+	_Tracker0Dialog.Create(CLiveTrackerDlg::IDD, this);
+	_Tracker0Dialog.SetWindowText("LIVE: Tracker #0");
+	_Tracker1Dialog.Create(CLiveTrackerDlg::IDD, this);
+	_Tracker1Dialog.SetWindowText("LIVE: Tracker #1");
+	_Camera0Dialog.Create(CLiveCameraDlg::IDD, this);
+	_Camera0Dialog.SetWindowText("LIVE: Camera #0");
+	_Camera1Dialog.Create(CLiveCameraDlg::IDD, this);
+	_Camera1Dialog.SetWindowText("LIVE: Camera #1");
 	// enable windows
 	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
 	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
@@ -107,10 +103,8 @@ BOOL CBodyMapDlg::OnInitDialog()
 	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
 	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
 
-	nSeq = 0;
-
 	if ( RegisterAndConnectPorts() == YARP_FAIL ) {
-		MessageBox("Could not register or connect ports.", "Fatal error.",MB_ICONERROR);
+		MessageBox("Could not register or connect ports.", "Fatal error.", MB_ICONERROR);
 		exit(YARP_FAIL);
 	}
 
@@ -164,10 +158,10 @@ void CBodyMapDlg::OnLiveCamera()
 
 	// toggle dialogs
 	if ( _options.useCamera0 ) {
-		Camera0Dialog.ShowWindow(!Camera0Dialog.ShowWindow(SW_SHOWNA));
+		_Camera0Dialog.ShowWindow(!_Camera0Dialog.ShowWindow(SW_SHOWNA));
 	}
 	if ( _options.useCamera1 ) {
-		Camera1Dialog.ShowWindow(!Camera1Dialog.ShowWindow(SW_SHOWNA));
+		_Camera1Dialog.ShowWindow(!_Camera1Dialog.ShowWindow(SW_SHOWNA));
 	}
 
 }
@@ -176,7 +170,7 @@ void CBodyMapDlg::OnLiveGlove()
 {
 
 	// toggle dialog
-	GloveDialog.ShowWindow(!GloveDialog.ShowWindow(SW_SHOWNA));
+	_GloveDialog.ShowWindow(!_GloveDialog.ShowWindow(SW_SHOWNA));
 
 }
 
@@ -185,10 +179,10 @@ void CBodyMapDlg::OnLiveTracker()
 
 	// toggle dialogs
 	if ( _options.useTracker0 ) {
-		Tracker0Dialog.ShowWindow(!Tracker0Dialog.ShowWindow(SW_SHOWNA));
+		_Tracker0Dialog.ShowWindow(!_Tracker0Dialog.ShowWindow(SW_SHOWNA));
 	}
 	if ( _options.useTracker1 ) {
-		Tracker1Dialog.ShowWindow(!Tracker1Dialog.ShowWindow(SW_SHOWNA));
+		_Tracker1Dialog.ShowWindow(!_Tracker1Dialog.ShowWindow(SW_SHOWNA));
 	}
 	
 }
@@ -197,52 +191,38 @@ void CBodyMapDlg::OnConnect()
 {
 
 	// send connect command to collector
-	_cmd_outport.Content() = CCmdConnect;
-	_cmd_outport.Write(true);
-	_cmd_inport.Read();
-	if ( _cmd_inport.Content() == CCmdSucceeded ) {
-		_cmd_inport.Read();
-		int tmpOptions = _cmd_inport.Content();
+	_settings._cmd_outport.Content() = CCmdConnect;
+	_settings._cmd_outport.Write(true);
+	_settings._cmd_inport.Read();
+	if ( _settings._cmd_inport.Content() == CCmdSucceeded ) {
+		_settings._cmd_inport.Read();
+		int tmpOptions = _settings._cmd_inport.Content();
 		// set options accordingly - resize images
 		_options.useDataGlove = ((tmpOptions & HardwareUseDataGlove) ? true : false);
 		_options.useGazeTracker = ((tmpOptions & HardwareUseGT) ? true : false);
-		_options.useTracker0  = ((tmpOptions & HardwareUseTracker0) ? true : false);
-		_options.useTracker1  = ((tmpOptions & HardwareUseTracker1) ? true : false);
-		_options.usePresSens  = ((tmpOptions & HardwareUsePresSens) ? true : false);
-		_options.useCamera0   = ((tmpOptions & HardwareUseCamera0) ? true : false);
-		_options.useCamera1   = ((tmpOptions & HardwareUseCamera1) ? true : false);
+		_options.useTracker0 = ((tmpOptions & HardwareUseTracker0) ? true : false);
+		_options.useTracker1 = ((tmpOptions & HardwareUseTracker1) ? true : false);
+		_options.usePresSens = ((tmpOptions & HardwareUsePresSens) ? true : false);
+		_options.useCamera0 = ((tmpOptions & HardwareUseCamera0) ? true : false);
+		_options.useCamera1 = ((tmpOptions & HardwareUseCamera1) ? true : false);
 		if ( _options.useCamera0 || _options.useCamera1 ) {
-			_cmd_inport.Read();
-			_options.sizeX = _cmd_inport.Content();
-			_cmd_inport.Read();
-			_options.sizeY = _cmd_inport.Content();
-			_img0.Resize (_options.sizeX, _options.sizeY);
-			_img1.Resize (_options.sizeX, _options.sizeY);
+			_settings._cmd_inport.Read();
+			_options.sizeX = _settings._cmd_inport.Content();
+			_settings._cmd_inport.Read();
+			_options.sizeY = _settings._cmd_inport.Content();
+			_settings._img0.Resize (_options.sizeX, _options.sizeY);
+			_settings._img1.Resize (_options.sizeX, _options.sizeY);
 		}
-		// configure saver thread
-		saverThread.useCamera0 = _options.useCamera0;
-		saverThread.useCamera1 = _options.useCamera1;
-		saverThread.useGazeTracker = _options.useGazeTracker;
-		saverThread.useDataGlove = _options.useDataGlove;
-		saverThread.usePresSens = _options.usePresSens;
-		saverThread.useTracker0 = _options.useTracker0;
-		saverThread.useTracker1 = _options.useTracker1;
-		saverThread.pImg0 = &_img0;
-		saverThread.pImg1 = &_img1;
-		saverThread.pData = &_data;
-		saverThread.p_data_inport = &_data_inport;
-		saverThread.p_img0_inport = &_img0_inport;
-		saverThread.p_img1_inport = &_img1_inport;
 		// configure camera dialogs
 		if ( _options.useCamera0 ) {
-			Camera0Dialog.pImage = &_img0;
-			Camera0Dialog.sizeX = _options.sizeX;
-			Camera0Dialog.sizeY = _options.sizeY;
+			_Camera0Dialog.pImage = &_settings._img0;
+			_Camera0Dialog.sizeX = _options.sizeX;
+			_Camera0Dialog.sizeY = _options.sizeY;
 		}
 		if ( _options.useCamera1 ) {
-			Camera1Dialog.pImage = &_img1;
-			Camera1Dialog.sizeX = _options.sizeX;
-			Camera1Dialog.sizeY = _options.sizeY;
+			_Camera1Dialog.pImage = &_settings._img1;
+			_Camera1Dialog.sizeX = _options.sizeX;
+			_Camera1Dialog.sizeY = _options.sizeY;
 		}
 		// enable the required windows
 		GetDlgItem(IDC_CONNECT)->EnableWindow(FALSE);
@@ -258,8 +238,8 @@ void CBodyMapDlg::OnConnect()
 		}
 		GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
 		// start live timer
-		m_timerID = SetTimer(1, _options.refreshFrequency, NULL);
-		_ASSERT (m_timerID != 0);	
+		_settings._timerID = SetTimer(1, _options.refreshFrequency, NULL);
+		_ASSERT (_settings._timerID != 0);	
 	} else {
 		MessageBox("Could not connect to mirrorCollector.", "Error.",MB_ICONERROR);
 	}	
@@ -270,13 +250,13 @@ void CBodyMapDlg::OnDisconnect()
 {
 
 	// kill live timer
-	KillTimer (m_timerID);
+	KillTimer (_settings._timerID);
 
 	// disconnect collector
-	_cmd_outport.Content() = CCmdDisconnect;
-	_cmd_outport.Write(true);
-	_cmd_inport.Read();
-	if ( _cmd_inport.Content() == CCmdFailed) {
+	_settings._cmd_outport.Content() = CCmdDisconnect;
+	_settings._cmd_outport.Write(true);
+	_settings._cmd_inport.Read();
+	if ( _settings._cmd_inport.Content() == CCmdFailed) {
 		MessageBox("Could not disconnect from mirrorCollector.", "Error.",MB_ICONERROR);
 	}
 
@@ -309,27 +289,27 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 	// off the collector and update the enabled windows.
 
 	// get data
-	_cmd_outport.Content() = CCmdGetData;
-	_cmd_outport.Write(true);
-	_cmd_inport.Read();
-	if ( _cmd_inport.Content() == CCmdSucceeded ) {
+	_settings._cmd_outport.Content() = CCmdGetData;
+	_settings._cmd_outport.Write(true);
+	_settings._cmd_inport.Read();
+	if ( _settings._cmd_inport.Content() == CCmdSucceeded ) {
 		// update data structures, when needed
 		if ( _options.useDataGlove || _options.useGazeTracker ||
 		     _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
-			if ( _data_inport.Read(false) ) {
-				_data = _data_inport.Content();
+			if ( _settings._data_inport.Read(false) ) {
+				_settings._data = _settings._data_inport.Content();
 			}
 		}
 		if ( _options.useCamera0 ) {
-			if ( _img0_inport.Read(false) ) {
-				_img0.Refer(_img0_inport.Content());
-				ShowTrackerXY(_img0);
+			if ( _settings._img0_inport.Read(false) ) {
+				_settings._img0.Refer(_settings._img0_inport.Content());
+				ShowTrackerXY(_settings._img0);
 			}
 		}
 		if ( _options.useCamera1 ) {
-			if ( _img1_inport.Read(false) ) {
-				_img1.Refer(_img1_inport.Content());
-				ShowTrackerXY(_img1);
+			if ( _settings._img1_inport.Read(false) ) {
+				_settings._img1.Refer(_settings._img1_inport.Content());
+				ShowTrackerXY(_settings._img1);
 			}
 		}
 	} else {
@@ -337,17 +317,17 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 	}
 
 	// update dialogs
-	Tracker0Dialog.UpdateState(_data.tracker0Data);
-	Tracker1Dialog.UpdateState(_data.tracker1Data);
-	GloveDialog.UpdateState(_data.gloveData, _data.pressureData, _data.GTData);
-	Camera0Dialog.UpdateState(&_img0);
-	Camera1Dialog.UpdateState(&_img1);
+	_Tracker0Dialog.UpdateState(_settings._data.tracker0Data);
+	_Tracker1Dialog.UpdateState(_settings._data.tracker1Data);
+	_GloveDialog.UpdateState(_settings._data.gloveData, _settings._data.pressureData, _settings._data.GTData);
+	_Camera0Dialog.UpdateState(&_settings._img0);
+	_Camera1Dialog.UpdateState(&_settings._img1);
 
 	CDialog::OnTimer(nIDEvent);
 
 }
 
-void CBodyMapDlg::OnAcqStart() 
+void CBodyMapDlg::OnAcqStart()
 {
 
 	// disable windows
@@ -356,37 +336,27 @@ void CBodyMapDlg::OnAcqStart()
 	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
 	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
 
-	char fName[255];
-	
-	saverThread.pFile = NULL;
-	ACE_OS::sprintf(saverThread.prefix, "%s\\%s%03d",_options.savePath, _options.prefix, nSeq);
-	if ( _options.useDataGlove || _options.useGazeTracker ||
-		 _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
-		// if necessary, open the data output file
-		ACE_OS::sprintf(fName, "%s.csv",saverThread.prefix);
-		saverThread.pFile = fopen(fName,"w");
-		if (saverThread.pFile == NULL) {
-			MessageBox("Could not open output file.", "Error.", MB_ICONERROR);
-			GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
-			GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
-			GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
-			GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-			return;
-		}
-		saverThread.writeHeaderToFile();
+	// have acquisition thread open its own file
+	if ( _saverThread.openFile() == YARP_FAIL ) {
+		MessageBox("Could not open output file.", "Error.", MB_ICONERROR);
+		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
+		GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
+		GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
+		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
+		return;
 	}
 
 	// activate collector's streaming mode
-	_cmd_outport.Content() = CCmdStartStreaming;
-	_cmd_outport.Write(true);
-	_cmd_inport.Read();
-	if ( _cmd_inport.Content() == CCmdSucceeded) {
+	_settings._cmd_outport.Content() = CCmdStartStreaming;
+	_settings._cmd_outport.Write(true);
+	_settings._cmd_inport.Read();
+	if ( _settings._cmd_inport.Content() == CCmdSucceeded) {
 		GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
 		GetDlgItem(IDC_ACQ_STOP)->EnableWindow(TRUE);
 		// during streaming, kill timer
-		KillTimer (m_timerID);
+		KillTimer (_settings._timerID);
 		// start acquisition thread
-		saverThread.Begin();
+		_saverThread.Begin();
 	} else {
 		MessageBox("Could not start saving thread.", "Error.", MB_ICONERROR);
 		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
@@ -402,26 +372,25 @@ void CBodyMapDlg::OnAcqStop()
 
 	// stop saving stream. HAVE to do this before stopping the
 	// remote stream, otherwise OUR stream will dead lock 
-	saverThread.End();
+	_saverThread.End();
 
 	// stop collector's streaming mode
-	_cmd_outport.Content() = CCmdStopStreaming;
-	_cmd_outport.Write(true);
-	_cmd_inport.Read();
-	if ( _cmd_inport.Content() == CCmdFailed ) {
+	_settings._cmd_outport.Content() = CCmdStopStreaming;
+	_settings._cmd_outport.Write(true);
+	_settings._cmd_inport.Read();
+	if ( _settings._cmd_inport.Content() == CCmdFailed ) {
 		MessageBox("Could not stop saving thread.", "Error.", MB_ICONERROR);
 	}
 
 	// restart timer
-	m_timerID = SetTimer(1, _options.refreshFrequency, NULL);
-	_ASSERT (m_timerID != 0);	
+	_settings._timerID = SetTimer(1, _options.refreshFrequency, NULL);
+	_ASSERT (_settings._timerID != 0);	
 
-	// then close the data file
-	if (saverThread.pFile != NULL) {
-		fclose(saverThread.pFile);
-	}
+	// close the acquisition thread file
+	_saverThread.closeFile();
 
-	nSeq++;
+	// increment senqeuce number
+	++_settings._sequenceNumber;
 
 	// enable windows
 	GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
@@ -445,46 +414,46 @@ int CBodyMapDlg::RegisterAndConnectPorts()
 	char tmpMCPortName[255];
 
 	// ----------- data
-	ACE_OS::sprintf(tmpBMPortName,"/%s/i:str", _options.BodyMapPortName);
-	if ( _data_inport.Register(tmpBMPortName, _options.netName) != YARP_OK ) {
+	ACE_OS::sprintf(tmpBMPortName,"/%s/i:str", _settings.BodyMapPortName);
+	if ( _settings._data_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
 		return YARP_FAIL;
 	}
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:str", _options.MirrorCollectorPortName);
-	if ( _data_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:str", _settings.MirrorCollectorPortName);
+	if ( _settings._data_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
 		return YARP_FAIL;
 	}
 	// ----------- images
-	ACE_OS::sprintf(tmpBMPortName,"/%s/i:img0", _options.BodyMapPortName);
-	if ( _img0_inport.Register(tmpBMPortName, _options.netName) != YARP_OK ) {
+	ACE_OS::sprintf(tmpBMPortName,"/%s/i:img0", _settings.BodyMapPortName);
+	if ( _settings._img0_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
 		return YARP_FAIL;
 	}
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img0", _options.MirrorCollectorPortName);
-	if ( _img0_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img0", _settings.MirrorCollectorPortName);
+	if ( _settings._img0_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
 		return YARP_FAIL;
 	}
-	ACE_OS::sprintf(tmpBMPortName,"/%s/i:img1", _options.BodyMapPortName);
-	if ( _img1_inport.Register(tmpBMPortName, _options.netName) != YARP_OK ) {
+	ACE_OS::sprintf(tmpBMPortName,"/%s/i:img1", _settings.BodyMapPortName);
+	if ( _settings._img1_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
 		return YARP_FAIL;
 	}
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img1", _options.MirrorCollectorPortName);
-	if ( _img1_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img1", _settings.MirrorCollectorPortName);
+	if ( _settings._img1_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
 		return YARP_FAIL;
 	}
 	// ----------- commands
-	ACE_OS::sprintf(tmpBMPortName,"/%s/o:int", _options.BodyMapPortName);
-	if ( _cmd_outport.Register(tmpBMPortName, _options.netName) != YARP_OK ) {
+	ACE_OS::sprintf(tmpBMPortName,"/%s/o:int", _settings.BodyMapPortName);
+	if ( _settings._cmd_outport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
 		return YARP_FAIL;
 	}
-	ACE_OS::sprintf(tmpMCPortName,"/%s/i:int", _options.MirrorCollectorPortName);
-	if ( _cmd_outport.Connect(tmpBMPortName, tmpMCPortName) != YARP_OK ) {
+	ACE_OS::sprintf(tmpMCPortName,"/%s/i:int", _settings.MirrorCollectorPortName);
+	if ( _settings._cmd_outport.Connect(tmpBMPortName, tmpMCPortName) != YARP_OK ) {
 		return YARP_FAIL;
 	}
-	ACE_OS::sprintf(tmpBMPortName,"/%s/i:int", _options.BodyMapPortName);
-	if ( _cmd_inport.Register(tmpBMPortName, _options.netName) != YARP_OK ) {
+	ACE_OS::sprintf(tmpBMPortName,"/%s/i:int", _settings.BodyMapPortName);
+	if ( _settings._cmd_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
 		return YARP_FAIL;
 	}
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", _options.MirrorCollectorPortName);
-	if ( _cmd_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", _settings.MirrorCollectorPortName);
+	if ( _settings._cmd_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
 		return YARP_FAIL;
 	}
 
@@ -498,30 +467,30 @@ void CBodyMapDlg::DisconnectAndUnregisterPorts()
 	char tmpBMPortName[255];
 	char tmpMCPortName[255];
 
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:int", _options.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", _options.MirrorCollectorPortName);
-	_cmd_inport.Connect(tmpMCPortName, tmpBMPortName);
-	_cmd_inport.Unregister();
+	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:int", _settings.BodyMapPortName);
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", _settings.MirrorCollectorPortName);
+	_settings._cmd_inport.Connect(tmpMCPortName, tmpBMPortName);
+	_settings._cmd_inport.Unregister();
 
-	ACE_OS::sprintf(tmpBMPortName,"/%s/o:int", _options.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:int", _options.MirrorCollectorPortName);
-	_cmd_outport.Connect(tmpBMPortName, tmpMCPortName);
-	_cmd_outport.Unregister();
+	ACE_OS::sprintf(tmpBMPortName,"/%s/o:int", _settings.BodyMapPortName);
+	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:int", _settings.MirrorCollectorPortName);
+	_settings._cmd_outport.Connect(tmpBMPortName, tmpMCPortName);
+	_settings._cmd_outport.Unregister();
 	
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:img1", _options.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img1", _options.MirrorCollectorPortName);
-	_img1_inport.Connect(tmpMCPortName, tmpBMPortName);
-	_img1_inport.Unregister();
+	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:img1", _settings.BodyMapPortName);
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img1", _settings.MirrorCollectorPortName);
+	_settings._img1_inport.Connect(tmpMCPortName, tmpBMPortName);
+	_settings._img1_inport.Unregister();
 
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:img0", _options.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img0", _options.MirrorCollectorPortName);
-	_img0_inport.Connect(tmpMCPortName, tmpBMPortName);
-	_img0_inport.Unregister();
+	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:img0", _settings.BodyMapPortName);
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img0", _settings.MirrorCollectorPortName);
+	_settings._img0_inport.Connect(tmpMCPortName, tmpBMPortName);
+	_settings._img0_inport.Unregister();
 
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:str", _options.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:str", _options.MirrorCollectorPortName);
-	_data_inport.Connect(tmpMCPortName, tmpBMPortName);
-	_data_inport.Unregister();
+	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:str", _settings.BodyMapPortName);
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:str", _settings.MirrorCollectorPortName);
+	_settings._data_inport.Connect(tmpMCPortName, tmpBMPortName);
+	_settings._data_inport.Unregister();
 
 }
 
