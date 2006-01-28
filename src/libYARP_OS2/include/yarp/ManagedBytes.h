@@ -1,6 +1,8 @@
 #ifndef _YARP2_MANAGEDBYTES_
 #define _YARP2_MANAGEDBYTES_
 
+#include <yarp/Bytes.h>
+
 namespace yarp {
   class ManagedBytes;
 }

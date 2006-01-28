@@ -6,6 +6,7 @@
 #include <yarp/ManagedBytes.h>
 #include <yarp/Logger.h>
 #include <yarp/NetType.h>
+#include <yarp/StringOutputStream.h>
 
 #include <ace/Vector_T.h>
 
@@ -40,7 +41,9 @@ public:
   }
 
   virtual void appendBlockCopy(const Bytes& data) {
-    lst.push_back(new ManagedBytes(data,true));
+    ManagedBytes *buf = new ManagedBytes(data,false);
+    buf->copy();
+    lst.push_back(buf);
   }
 
   virtual void appendInt(int data) {
@@ -82,6 +85,11 @@ public:
     }    
   }
 
+  String toString() {
+    StringOutputStream sos;
+    write(sos);
+    return sos.toString();
+  }
 
 private:
   ACE_Vector<ManagedBytes *> lst;

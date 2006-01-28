@@ -16,6 +16,7 @@
 #include <yarp/TcpFace.h>
 #include <yarp/Companion.h>
 #include <yarp/NameClient.h>
+#include <yarp/Bottle.h>
 
 
 #include <ace/OS_NS_stdio.h>
@@ -282,6 +283,21 @@ static void checkCompanion(int argc, char *argv[]) {
   Companion::main(argc,argv);
 }
 
+static void checkBottle() {
+  Bottle bot;
+  bot.addInt(5);
+  bot.addString("hello \"my\" \\friend");
+  String txt = bot.toString();
+  ACE_OS::printf("bottle is [%s]\n", txt.c_str());
+  assertion(txt,String("5 \"hello \\\"my\\\" \\\\friend\""));
+  bot.fromString(bot.toString());
+  ACE_OS::printf("bottle is [%s]\n", bot.toString().c_str());
+  assertion(bot.toString(),String("5 \"hello \\\"my\\\" \\\\friend\""));
+  bot.fromString("5 \"hello\"");
+  ACE_OS::printf("bottle is [%s]\n", bot.toString().c_str());
+  ACE_OS::printf("byte count is %d\n", bot.byteCount());
+}
+
 /**
  * This is a gateway for a test harness.
  * PENDING: This method should be moved into the yarp namespace.
@@ -289,6 +305,8 @@ static void checkCompanion(int argc, char *argv[]) {
 int yarp_test_main(int argc, char *argv[]) {
   if (argc<=1) {
     ACE_OS::printf("yarp testing underway\n");
+    checkBottle();
+    return 0;
     checkString();
     checkAddress();
     checkInputStreams();
