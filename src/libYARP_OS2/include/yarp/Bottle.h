@@ -5,6 +5,7 @@
 #include <yarp/ManagedBytes.h>
 #include <yarp/BlockReader.h>
 #include <yarp/BlockWriter.h>
+#include <yarp/Portable.h>
 
 #include <ace/Vector_T.h>
 
@@ -12,7 +13,7 @@ namespace yarp {
   class Bottle;
 }
 
-class yarp::Bottle {
+class yarp::Bottle : public Portable {
 public:
   class Storable {
   public:
@@ -94,7 +95,9 @@ public:
 
   void fromBytes(const Bytes& data);
 
-  void write(BlockWriter& os);
+  void writeBlock(BlockWriter& writer);
+
+  void readBlock(BlockReader& reader);
 
   const char *getBytes();
   int byteCount();

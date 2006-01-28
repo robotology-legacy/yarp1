@@ -29,6 +29,10 @@ public:
     }
   }
 
+  void open(ACE_SOCK_Acceptor& acceptor) {
+    acceptor.accept(stream);
+  }
+
   virtual ~SocketTwoWayStream() {
     close();
   }

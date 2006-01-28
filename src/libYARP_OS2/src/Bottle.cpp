@@ -124,15 +124,30 @@ int Bottle::byteCount() {
   return data.size();
 }
 
-void Bottle::write(BlockWriter& writer) {
+void Bottle::writeBlock(BlockWriter& writer) {
   // could simplify this if knew lengths of blocks up front
-  String name = "YARP2";
-  writer.appendInt(name.length()+1);
-  writer.appendString(name);
-  synch();
-  writer.appendInt(byteCount());
-  writer.appendBlockCopy(Bytes((char*)getBytes(),byteCount()));
+  if (writer.isTextMode()) {
+    writer.appendLine(toString());
+  } else {
+    String name = "YARP2";
+    writer.appendInt(name.length()+1);
+    writer.appendString(name);
+    synch();
+    writer.appendInt(byteCount());
+    writer.appendBlockCopy(Bytes((char*)getBytes(),byteCount()));
+  }
 }
+
+
+void Bottle::readBlock(BlockReader& reader) {
+  if (reader.isTextMode()) {
+    String str = reader.expectLine();
+    fromString(str);
+  } else {
+    ACE_OS::printf("Bottle::readBlock cannot yet handle binary data\n");
+  }
+}
+
 
 void Bottle::synch() {
   if (dirty) {

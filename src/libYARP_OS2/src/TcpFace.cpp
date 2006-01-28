@@ -26,13 +26,14 @@ InputProtocol *TcpFace::read() {
   YARP_DEBUG(log,"TcpFace should throw exceptions");
 
   //ACE_INET_Addr clientAddr;
-  ACE_SOCK_Stream newStream;
+  //ACE_SOCK_Stream newStream;
 
   YARP_DEBUG(log,"Waiting for something to happen");
-  peerAcceptor.accept(newStream);
-  YARP_DEBUG(log,"Got something");
-
-  return NULL;
+  //peerAcceptor.accept(newStream);
+  
+  SocketTwoWayStream *stream  = new SocketTwoWayStream();
+  stream->open(peerAcceptor);
+  return new Protocol(stream);
 }
 
 

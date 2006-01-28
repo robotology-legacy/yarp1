@@ -25,6 +25,10 @@ public:
     data += txt;
   }
 
+  void add(const String& txt) {
+    data += txt;
+  }
+
   void add(const Bytes& b) {
     for (int i=0; i<b.length(); i++) {
       data += b.get()[i];

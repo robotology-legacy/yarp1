@@ -284,6 +284,7 @@ static void checkCompanion(int argc, char *argv[]) {
 }
 
 static void checkBottle() {
+  try {
   Bottle bot;
   bot.addInt(5);
   bot.addString("hello \"my\" \\friend");
@@ -296,7 +297,54 @@ static void checkBottle() {
   bot.fromString("5 \"hello\"");
   ACE_OS::printf("bottle is [%s]\n", bot.toString().c_str());
   ACE_OS::printf("byte count is %d\n", bot.byteCount());
+
+  BufferedBlockWriter bbw(true);
+  bot.writeBlock(bbw);
+
+  String s;
+  StringInputStream sis;
+  StreamBlockReader sbr;
+
+  s = bbw.toString();
+  sis.add(s);
+  sbr.reset(sis,s.length(),true);
+  ACE_OS::printf("string is [%s] length %d\n", 
+		 simplify(s).c_str(), s.length());
+
+  Bottle bot2;
+  bot2.readBlock(sbr);
+  ACE_OS::printf("bottle2 is [%s]\n", bot2.toString().c_str());
+  } catch (IOException e) {
+    ACE_OS::printf("problem: %s\n", e.toString().c_str());
+  }
 }
+
+
+static void readTcpBottle() {
+  TcpFace face;
+  face.open(Address("localhost",8000,"tcp"));
+  ACE_OS::printf("waiting\n");
+  InputProtocol *ip = face.read();
+  ACE_OS::printf("got something...\n");
+  ip->open("/cyarp/port");
+  BlockReader& br = ip->beginRead();
+  try {
+    while(true) {
+      String s = br.expectLine();
+      ACE_OS::printf("got [%s] should be just d\n", s.c_str());
+      Bottle bot;
+      bot.readBlock(br);
+      ACE_OS::printf("hopefully got bottle [%s], %d elements\n", 
+		     bot.toString().c_str(), bot.size());
+    }
+  } catch (IOException e) {
+    ACE_OS::printf("issue: %s\n", e.toString().c_str());
+  }
+  ip->endRead();
+  ACE_OS::printf("done\n");  
+  face.close();
+}
+
 
 /**
  * This is a gateway for a test harness.
@@ -304,8 +352,10 @@ static void checkBottle() {
  */
 int yarp_test_main(int argc, char *argv[]) {
   if (argc<=1) {
+    Logger::get().setVerbosity(5);
     ACE_OS::printf("yarp testing underway\n");
     checkBottle();
+    readTcpBottle();
     return 0;
     checkString();
     checkAddress();
