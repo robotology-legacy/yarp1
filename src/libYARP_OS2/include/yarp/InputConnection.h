@@ -3,6 +3,7 @@
 
 #include <yarp/InputProtocol.h>
 #include <yarp/PortManager.h>
+#include <yarp/Runnable.h>
 #include <yarp/Logger.h>
 
 namespace yarp {
@@ -12,7 +13,7 @@ namespace yarp {
 /**
  * This manages a single connection, on the input side.
  */
-class yarp::InputConnection {
+class yarp::InputConnection : public Runnable {
 public:
 
   /*
@@ -30,14 +31,19 @@ public:
   }
 
   virtual ~InputConnection() {
+    close();
+  }
+
+  virtual void run();
+
+  virtual void close() {
+    ACE_OS::printf("InputConnection::close needs work\n");
     if (proto!=NULL) {
       proto->close();
       delete proto;
       proto = NULL;
     }
   }
-
-  virtual void run();
 
   String getName() {
     if (hasManager()) {

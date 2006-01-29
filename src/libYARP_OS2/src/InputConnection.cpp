@@ -17,8 +17,9 @@ void InputConnection::run() {
     BlockReader& br = proto->beginRead();
     cmd.readBlock(br);
     char key = cmd.getKey();
-    ACE_OS::printf("Port command is [%c:%d/%s]\n",
-		   (key>=32)?key:'?', key, cmd.getText().c_str());
+    ACE_OS::printf("Port command is [%c:%d/%s] manager? %d\n",
+		   (key>=32)?key:'?', key, cmd.getText().c_str(),
+		   hasManager());
     if (hasManager()) {
       PortManager& man = getManager();
       if (br.isTextMode()) {
@@ -26,6 +27,7 @@ void InputConnection::run() {
       }
       switch (key) {
       case '/':
+	ACE_OS::printf("asking to add output\n");
 	man.addOutput(cmd.getText());
 	break;
       case '!':
@@ -36,6 +38,9 @@ void InputConnection::run() {
 	break;
       case '*':
 	man.describe();
+	break;
+      case 'd':
+	man.readBlock(br);
 	break;
       }
       if (br.isTextMode()) {

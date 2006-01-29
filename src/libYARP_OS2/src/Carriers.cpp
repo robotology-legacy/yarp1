@@ -68,7 +68,7 @@ Face *Carriers::listen(const Address& address) {
     face = new FakeFace();
   }
   if (face == NULL) {
-    new TcpFace();
+    face = new TcpFace();
   }
   face->open(address);
   return face;

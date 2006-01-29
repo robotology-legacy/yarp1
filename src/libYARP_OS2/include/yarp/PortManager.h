@@ -3,6 +3,7 @@
 
 #include <yarp/String.h>
 #include <yarp/OutputStream.h>
+#include <yarp/BlockReader.h>
 #include <yarp/Logger.h>
 
 namespace yarp {
@@ -24,25 +25,31 @@ public:
   }
 
   virtual void addOutput(const String& dest) {
-    ACE_DEBUG((LM_INFO,"PortManager for [%s] asked to addOutput [%s]\n",
+    ACE_OS::printf("ADDOUTPUT\n");
+    ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to addOutput [%s]\n",
 	       getName().c_str(),
 	       dest.c_str()));
   }
 
   virtual void removeInput(const String& src) {
-    ACE_DEBUG((LM_INFO,"PortManager for [%s] asked to removeInput [%s]\n",
+    ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to removeInput [%s]\n",
 	       getName().c_str(),
 	       src.c_str()));
   }
 
   virtual void removeOutput(const String& dest) {
-    ACE_DEBUG((LM_INFO,"PortManager for [%s] asked to removeOutput [%s]\n",
+    ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to removeOutput [%s]\n",
 	       getName().c_str(),
 	       dest.c_str()));
   }
   
   virtual void describe() {
-    ACE_DEBUG((LM_INFO,"PortManager for [%s] asked to describe itself\n",
+    ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to describe itself\n",
+	       getName().c_str()));
+  }
+
+  virtual void readBlock(BlockReader& reader) {
+    ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to deal with data\n",
 	       getName().c_str()));
   }
 

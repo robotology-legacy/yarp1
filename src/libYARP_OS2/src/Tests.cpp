@@ -22,6 +22,7 @@
 #include <yarp/Time.h>
 #include <yarp/Thread.h>
 #include <yarp/Semaphore.h>
+#include <yarp/FacePortManager.h>
 
 #include <ace/OS_NS_stdio.h>
 #include <ace/OS_NS_stdlib.h>
@@ -461,6 +462,12 @@ void checkThreads() {
 }
 
 
+void checkFacePortManager() {
+  Address address = Address("localhost",8000,"tcp");
+  FacePortManager man(address);
+  man.run();
+}
+
 /**
  * This is a gateway for a test harness.
  * PENDING: This method should be moved into the yarp namespace.
@@ -474,7 +481,8 @@ int yarp_test_main(int argc, char *argv[]) {
     //checkPortCommand();
     //readTcpBottle2();
     //checkTime();
-    checkThreads();
+    //checkThreads();
+    checkFacePortManager();
     return 0;
     checkString();
     checkAddress();
