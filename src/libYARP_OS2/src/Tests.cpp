@@ -467,7 +467,18 @@ void checkFacePortManager() {
   Bottle bot;
   FacePortManager man("/inny",address);
   man.setReader(bot);
-  man.run();
+  Thread t(&man);
+  t.start();
+  String s = "x";
+  while (true) {
+    Time::delay(3);
+    ACE_OS::printf("Fire!\n");
+    Bottle bot2;
+    bot2.addInt(0);
+    bot2.addString(s.c_str());
+    man.send(bot2);
+    s += "x";
+  }
 }
 
 /**
