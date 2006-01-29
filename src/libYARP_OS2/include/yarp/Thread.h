@@ -1,0 +1,35 @@
+#ifndef _YARP2_THREAD_
+#define _YARP2_THREAD_
+
+#include <yarp/Runnable.h>
+
+#include <ace/Thread.h>
+
+namespace yarp {
+  class Thread;
+}
+
+class yarp::Thread : public Runnable {
+public:
+  Thread();
+  Thread(Runnable *target);
+
+  virtual ~Thread();
+
+  int join(double seconds = -1);
+  virtual void run();
+  virtual void close();
+
+  void start();
+
+  // call before start
+  void setOptions(int stackSize = 0);
+private:
+  int stackSize;
+  ACE_hthread_t hid;
+  ACE_thread_t id;
+  Runnable *delegate;
+};
+
+#endif
+

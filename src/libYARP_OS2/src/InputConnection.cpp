@@ -1,0 +1,55 @@
+
+#include <yarp/InputConnection.h>
+#include <yarp/PortCommand.h>
+#include <yarp/Logger.h>
+
+using namespace yarp;
+
+void InputConnection::run() {
+  YARP_ASSERT(proto!=NULL);
+
+  PortCommand cmd;
+  
+  proto->open(getName().c_str());
+
+  bool done = false;
+  while (!done) {
+    BlockReader& br = proto->beginRead();
+    cmd.readBlock(br);
+    char key = cmd.getKey();
+    ACE_OS::printf("Port command is [%c:%d/%s]\n",
+		   (key>=32)?key:'?', key, cmd.getText().c_str());
+    if (hasManager()) {
+      PortManager& man = getManager();
+      if (br.isTextMode()) {
+	man.replyTo(&(proto->getOutputStream()));
+      }
+      switch (key) {
+      case '/':
+	man.addOutput(cmd.getText());
+	break;
+      case '!':
+	man.removeOutput(cmd.getText().substring(1,-1));
+	break;
+      case '~':
+	man.removeInput(cmd.getText().substring(1,-1));
+	break;
+      case '*':
+	man.describe();
+	break;
+      }
+      if (br.isTextMode()) {
+	man.replyTo(NULL);
+      }
+    }
+    if (key=='q') {
+      done = true;
+    }
+    proto->endRead();
+  }
+
+  proto->close();
+  delete proto;
+  proto = NULL;
+}
+

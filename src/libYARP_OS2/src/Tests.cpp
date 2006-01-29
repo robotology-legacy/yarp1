@@ -17,7 +17,11 @@
 #include <yarp/Companion.h>
 #include <yarp/NameClient.h>
 #include <yarp/Bottle.h>
-
+#include <yarp/PortCommand.h>
+#include <yarp/InputConnection.h>
+#include <yarp/Time.h>
+#include <yarp/Thread.h>
+#include <yarp/Semaphore.h>
 
 #include <ace/OS_NS_stdio.h>
 #include <ace/OS_NS_stdlib.h>
@@ -346,6 +350,117 @@ static void readTcpBottle() {
 }
 
 
+static void readTcpBottle2() {
+  TcpFace face;
+  face.open(Address("localhost",8000,"tcp"));
+  ACE_OS::printf("waiting\n");
+  InputProtocol *ip = face.read();
+  ACE_OS::printf("got something...\n");
+  PortManager pm;
+  pm.setName("/cyarp/port");
+  InputConnection con(ip,&pm);
+  con.run();
+  ACE_OS::printf("done\n");  
+  face.close();
+}
+
+
+static void checkPortCommand() {
+  PortCommand cmd1('d',"");;
+  PortCommand cmd2('\0',"/bozo");;
+  {
+    BufferedBlockWriter bw(true);
+    cmd1.writeBlock(bw);
+    String result = simplify(bw.toString());
+    ACE_OS::printf("Port command is [%s]\n", result.c_str());
+  }
+  {
+    BufferedBlockWriter bw(true);
+    cmd2.writeBlock(bw);
+    String result = simplify(bw.toString());
+    ACE_OS::printf("Port command is [%s]\n", result.c_str());
+  }
+  {
+    PortCommand cmd;
+    StringInputStream sis;
+    StreamBlockReader br;
+    sis.add("d\n");
+    br.reset(sis,sis.toString().length(),true);
+    cmd.readBlock(br);
+    char key = cmd.getKey();
+    ACE_OS::printf("Port command is [%c:%d/%s]\n",
+		   (key>=32)?key:'?' , key, cmd.getText().c_str());
+    
+  }
+}
+
+void checkTime() {
+  ACE_OS::printf("time delay test\n");
+  double t1 = Time::now();
+  Time::delay(1);
+  double t2 = Time::now();
+  ACE_OS::printf("time delay test result: one sec delay requested, got %g secs\n", t2-t1);
+}
+
+Semaphore sema(0);
+
+class Thread1 : public Runnable {
+public:
+  virtual void run() {
+    for (int i=0; i<5; i++) {
+      ACE_OS::printf("tick %d\n", i);
+      sema.post();
+      Time::delay(1);
+    }
+  }
+};
+
+
+class Thread2 : public Thread {
+public:
+  Thread2() : mutex(1), finished(false) {}
+  virtual void run() {
+    bool done = false;
+    while (!done) {
+      sema.wait();
+      mutex.wait();
+      done = finished;
+      mutex.post();
+      ACE_OS::printf("burp\n");
+    }
+    ACE_OS::printf("burped out\n");
+  }
+
+  virtual void close() {
+    mutex.wait();
+    finished = true;
+    mutex.post();
+    sema.post();
+  }
+private:
+  Semaphore mutex;
+  bool finished;
+};
+
+void checkThreads() {
+  Thread1 bozo;
+  Thread1 bozo2;
+  Thread2 burper;
+  Thread t1(&bozo);
+  Thread t2(&bozo2);
+  ACE_OS::printf("starting with threads\n");
+  burper.start();
+  t1.start();
+  Time::delay(0.5);
+  t2.start();
+  t1.join();
+  t2.join();
+  burper.close();
+  burper.join();
+  ACE_OS::printf("done with threads\n");
+}
+
+
 /**
  * This is a gateway for a test harness.
  * PENDING: This method should be moved into the yarp namespace.
@@ -354,8 +469,12 @@ int yarp_test_main(int argc, char *argv[]) {
   if (argc<=1) {
     Logger::get().setVerbosity(5);
     ACE_OS::printf("yarp testing underway\n");
-    checkBottle();
-    readTcpBottle();
+    //checkBottle();
+    //readTcpBottle();
+    //checkPortCommand();
+    //readTcpBottle2();
+    //checkTime();
+    checkThreads();
     return 0;
     checkString();
     checkAddress();

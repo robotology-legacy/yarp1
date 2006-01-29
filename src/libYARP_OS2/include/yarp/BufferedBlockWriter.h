@@ -61,6 +61,12 @@ public:
     lst.push_back(buf);
   }
 
+  virtual void appendBlock(const String& data) {
+    Bytes b((char*)(data.c_str()),data.length()+1);
+    ManagedBytes *buf = new ManagedBytes(b,false);
+    lst.push_back(buf);
+  }
+
   virtual void appendLine(const String& data) {
     String copy = data;
     copy += '\n';

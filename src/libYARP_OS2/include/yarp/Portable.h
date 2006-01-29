@@ -1,6 +1,9 @@
 #ifndef _YARP2_PORTABLE_
 #define _YARP2_PORTABLE_
 
+#include <yarp/BlockReader.h>
+#include <yarp/BlockWriter.h>
+
 namespace yarp {
   class Portable;
 }
