@@ -7,6 +7,7 @@
 #include <yarp/Carriers.h>
 #include <yarp/Thread.h>
 #include <yarp/InputConnection.h>
+#include <yarp/Portable.h>
 
 #include <ace/Vector_T.h>
 
@@ -19,13 +20,24 @@ namespace yarp {
  */
 class yarp::FacePortManager : public PortManager, public Runnable {
 public:
-  FacePortManager(const Address& address) {
+  FacePortManager(const String& name, const Address& address) {
+    this->name = name;
+    this->address = address;
+    reader = NULL;
     face = Carriers::listen(address);
+  }
+
+  void setReader(Readable& reader) {
+    this->reader = &reader;
   }
 
   virtual ~FacePortManager() {
     close();
     closeInputs();
+  }
+
+  virtual String getName() {
+    return name;
   }
 
   virtual void run();
@@ -40,8 +52,19 @@ public:
 
   virtual void readBlock(BlockReader& reader);
 
+  virtual void describe();
+
+  virtual void removeInput(const String& src);
+
+  virtual void addOutput(const String& dest);
+
+  virtual void removeOutput(const String& dest);
+
 private:
   Face *face;
+  Readable *reader;
+  String name;
+  Address address;
 
   class InputEntry : public Thread {
   public:
@@ -56,10 +79,18 @@ private:
     
     virtual void close();
 
+    InputConnection& getConnection() {
+      return connection;
+    }
+
   private:
     InputConnection connection;
     FacePortManager *owner;
   };
+
+
+  //class OutputEntry : public Thread {
+  //};
 
   ACE_Vector<InputEntry *> inputs;
 

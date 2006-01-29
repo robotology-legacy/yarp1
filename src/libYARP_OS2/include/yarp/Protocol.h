@@ -199,6 +199,13 @@ public:
     throw IOException("not implemented");
   }
 
+  void interrupt() {
+    if (pendingAck) {
+      sendAck();
+    }
+    shift.getInputStream().interrupt();
+  }
+
   void close() {
     if (pendingAck) {
       sendAck();

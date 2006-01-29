@@ -15,7 +15,13 @@ void InputConnection::run() {
   bool done = false;
   while (!done) {
     BlockReader& br = proto->beginRead();
+    ACE_OS::printf("InputConnection::run ready for read...\n");
     cmd.readBlock(br);
+    ACE_OS::printf("InputConnection::run done with read...\n");
+    if (closed) {
+      done = true;
+      break;
+    }
     char key = cmd.getKey();
     ACE_OS::printf("Port command is [%c:%d/%s] manager? %d\n",
 		   (key>=32)?key:'?', key, cmd.getText().c_str(),

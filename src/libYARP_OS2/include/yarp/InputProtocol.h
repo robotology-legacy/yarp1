@@ -20,6 +20,7 @@ public:
 
   virtual void open(const String& name) = 0;
   virtual void close() = 0;
+  virtual void interrupt() = 0;
 
   virtual const Route& getRoute() = 0;
 

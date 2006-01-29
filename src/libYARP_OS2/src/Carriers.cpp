@@ -76,8 +76,8 @@ Face *Carriers::listen(const Address& address) {
 
 
 OutputProtocol *Carriers::connect(const Address& address) {
-  YARP_FAIL(Logger::get(),"Dummy called");
-  return NULL;
+  TcpFace tcpFace;
+  return tcpFace.write(address);
 }
 
 

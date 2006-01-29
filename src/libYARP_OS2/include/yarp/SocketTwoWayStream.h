@@ -53,12 +53,21 @@ public:
     return dummy;
   }
 
+  virtual void interrupt() {
+    stream.close_reader();
+    stream.close_writer();
+  }
+
   virtual void close() {
+    //ACE_OS::printf("************************************ STREAM CLOSE\n");
     stream.close();
   }
 
   virtual int read(const Bytes& b) {
-    return stream.recv_n(b.get(),b.length());
+    //ACE_OS::printf("STWS::read pre \n");
+    int result = stream.recv_n(b.get(),b.length());
+    //ACE_OS::printf("STWS::read post \n");
+    return result;
   }
 
   virtual void write(const Bytes& b) {

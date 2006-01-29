@@ -146,6 +146,8 @@ void Bottle::readBlock(BlockReader& reader) {
   } else {
     ACE_OS::printf("Bottle::readBlock cannot yet handle binary data\n");
   }
+  ACE_OS::printf("Bottle::readBlock gives [%s]\n",
+		 toString().c_str());
 }
 
 

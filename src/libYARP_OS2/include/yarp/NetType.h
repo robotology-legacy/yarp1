@@ -31,42 +31,9 @@ public:
     ACE_OS::memcpy(code.get(),b.get(),code.length());
   }
 
-  // slow implementation - only relevant for textmode operation
-  static String readLine(InputStream& is) {
-    String buf("");
-    bool done = false;
-    while (!done) {
-      int v = is.read();
-      char ch = (char)v;
-      if (v>=32) {
-	buf += ch;
-      }
-      if (ch=='\n') {
-	done = true;
-      }
-      if (ch<0) { 
-	throw IOException("readLine failed");
-      }
-    }
-    return buf;
-  }    
+  static String readLine(InputStream& is);
 
-
-
-  static int readFull(InputStream& is, const Bytes& b) {
-    int off = 0;
-    int fullLen = b.length();
-    int remLen = fullLen;
-    int result = 1;
-    while (result>0&&remLen>0) {
-      result = is.read(b,off,remLen);
-      if (result>0) {
-	remLen -= result;
-	off += result;
-      }
-    }
-    return (result<0)?result:fullLen;
-  }
+  static int readFull(InputStream& is, const Bytes& b);
 
 
 

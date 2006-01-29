@@ -26,6 +26,7 @@ public:
     doesn't own the manager
    */
   InputConnection(InputProtocol *ip, PortManager *manager) {
+    closed = false;
     proto = ip;
     this->manager = manager;
   }
@@ -35,6 +36,13 @@ public:
   }
 
   virtual void run();
+
+  virtual void askForClose() {
+    closed = true;
+    if (proto!=NULL) {
+      proto->interrupt();
+    }
+  }
 
   virtual void close() {
     ACE_OS::printf("InputConnection::close needs work\n");
@@ -52,6 +60,11 @@ public:
     return "null";
   }
 
+  const Route& getRoute() {
+    YARP_ASSERT(proto!=NULL);
+    return proto->getRoute();
+  }
+
 protected:
   bool hasManager() {
     return manager!=NULL;
@@ -63,6 +76,7 @@ protected:
   }
 
 private:
+  bool closed;
   InputProtocol *proto;
   PortManager *manager;
 };

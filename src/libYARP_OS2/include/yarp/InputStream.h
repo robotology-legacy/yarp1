@@ -9,6 +9,8 @@ namespace yarp {
 
 class yarp::InputStream {
 public:
+  InputStream() {
+  }
   
   virtual ~InputStream() { }
 
@@ -30,6 +32,9 @@ public:
   virtual int read(const Bytes& b) = 0;
 
   virtual void close() = 0;
+
+  virtual void interrupt() {
+  }
 };
 
 #endif

@@ -464,7 +464,9 @@ void checkThreads() {
 
 void checkFacePortManager() {
   Address address = Address("localhost",8000,"tcp");
-  FacePortManager man(address);
+  Bottle bot;
+  FacePortManager man("/inny",address);
+  man.setReader(bot);
   man.run();
 }
 

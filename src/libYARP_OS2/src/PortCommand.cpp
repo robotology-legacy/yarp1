@@ -23,7 +23,9 @@ void PortCommand::readBlock(BlockReader& reader) {
       throw IOException("bad header in PortCommand::readBlock");
     }
   } else {
+    ACE_OS::printf("PortCommand::readBlock pre read\n");
     str = reader.expectLine();
+    ACE_OS::printf("PortCommand::readBlock post read\n");
     if (str.length()>0) {
       ch = str[0];
     }
