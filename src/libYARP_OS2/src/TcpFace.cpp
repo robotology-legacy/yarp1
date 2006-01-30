@@ -58,7 +58,9 @@ InputProtocol *TcpFace::read() {
   
   SocketTwoWayStream *stream  = new SocketTwoWayStream();
   try {
+    //ACE_OS::printf("waiting to open stream\n");
     stream->open(peerAcceptor);
+    //ACE_OS::printf("opened stream\n");
   } catch (IOException e) {
     //ACE_OS::printf("cleaning up stream\n");
     delete stream;

@@ -2,6 +2,7 @@
 #include <yarp/Thread.h>
 #include <yarp/IOException.h>
 #include <yarp/Time.h>
+#include <yarp/BufferedBlockWriter.h>
 
 #include "TestList.h"
 
@@ -15,9 +16,11 @@ private:
     TcpFaceTest& owner;
     TcpFace face;
     bool closed;
+    String mode;
   public:
-    Listener(TcpFaceTest& owner) : owner(owner) { 
+    Listener(TcpFaceTest& owner, const char *mode = "auto-abort") : owner(owner) { 
       closed = false; 
+      this->mode = mode;
     }
 
     ~Listener() {
@@ -29,17 +32,34 @@ private:
       bool done = false;
       while (!done) {
 	try {
-	  ACE_OS::printf("Listener waiting\n");
+	  //ACE_OS::printf("Listener waiting\n");
 	  InputProtocol *ip = face.read();
-	  ACE_OS::printf("Listener got something\n");
-	  owner.counter++;
+	  //ACE_OS::printf("Listener got something, mode is %s\n",
+	  //	 mode.c_str());
 	  if (ip!=NULL) {
-	    ip->close();
-	    delete ip;
+	    owner.counter++;
+	    if (mode == "auto-abort") {
+	      ip->close();
+	      delete ip;
+	      ip = NULL;
+	    } else {
+	      //ACE_OS::printf("Listener expecting data\n");
+	      ip->open("noname");
+	      BlockReader& br = ip->beginRead();
+	      String s = br.expectLine();
+	      owner.checkEqual(s.c_str(),"d","command message part");
+	      s = br.expectLine();
+	      owner.checkEqual(s.c_str(),"0 \"Hello World\"",
+			       "payload message part");
+	      ip->endRead();
+	      ip->close();
+	      delete ip;
+	    }
 	  }
+	  //ACE_OS::printf("Listener done\n");
 	} catch (IOException e) {
-	  ACE_OS::printf("Listener interrupted -- expected -- %s\n",
-			 e.toString().c_str());
+	  //ACE_OS::printf("Listener interrupted -- expected -- %s\n",
+	  //	 e.toString().c_str());
 	  done = true;
 	}
       }
@@ -84,9 +104,8 @@ public:
 
       int repeats = 3;
       for (int i=0; i<repeats; i++) {
-	ACE_OS::printf("trying to write\n");
 	OutputProtocol *out = face.write(Address("localhost",9999,"tcp"));
-	Time::delay(0.5);
+	Time::delay(0.33);
 	out->close();
 	delete out;
 	out = NULL;
@@ -102,45 +121,46 @@ public:
   }
 
 
-    /*
-
-  void testListen() {
-    report(0,"testing tcp listening...");
+  void testConnectData() {
+    report(0,"testing connecting and sending data...");
     try {
       TcpFace face;
-      ACE_OS::printf("waiting\n");
-      InputProtocol *ip = face.read();
-      ACE_OS::printf("got something\n");
-      //ip->close();
-      ip->open("/cyarp/port");
-      //BlockReader& br = ip->beginRead();
-      //String s = br.expectLine();
-      //ACE_OS::printf("got [%s]\n", s.c_str());
-      //ip->endRead();
-      ACE_OS::printf("done\n");  
-      face.close();
+      Listener listen(*this,"data");
+      listen.start();
+      Time::delay(0.33);
+
+      int repeats = 3;
+      for (int i=0; i<repeats; i++) {
+	//ACE_OS::printf("trying to write\n");
+	OutputProtocol *out = face.write(Address("localhost",9999,"tcp"));
+
+	Route route("/from","/to","text");
+	out->open(route);
+	BufferedBlockWriter bw;
+	bw.appendLine("d");
+	bw.appendLine("0 \"Hello World\"");
+	out->write(bw);
+	
+	Time::delay(0.33);
+	out->close();
+	delete out;
+	out = NULL;
+      }
+
+      listen.close();
+      listen.join();
+
     } catch (IOException e) {
       report(1,e.toString() + " <<< got exception");
     }
   }
-    */
-
-  /*
-    // actual content on a connection:
-    Route route("/from","/to","text");
-    out->open(route);
-    BufferedBlockWriter bw;
-    bw.appendLine("d");
-    bw.appendLine("0 \"Hello World\"");
-    out->write(bw);
-  */
 
 
   virtual void runTests() {
     report(0,"Notice - tcp listening tests rely on port 9999 being free...");
     testListenStartStop();
     testConnect();
-    //testListen();
+    testConnectData();
   }
 };
 
