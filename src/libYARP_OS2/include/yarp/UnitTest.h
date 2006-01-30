@@ -1,0 +1,83 @@
+#ifndef _YARP2_UNITTEST_
+#define _YARP2_UNITTEST_
+
+#include <yarp/String.h>
+
+#include <ace/Vector_T.h>
+
+namespace yarp {
+  class UnitTest;
+}
+
+/**
+ * Simple unit testing framework.  There are libraries out there for
+ * this, but we don't want to add another dependency to YARP.
+ */
+class yarp::UnitTest {
+public:
+  UnitTest();
+
+  UnitTest(UnitTest *parent);
+
+  virtual ~UnitTest() {
+    clear();
+  }
+
+  void report(int severity, const String& problem);
+
+  virtual String getName() = 0;
+
+  static void startTestSystem();
+  static UnitTest& getRoot();
+  static void stopTestSystem();
+
+  void add(UnitTest& unit);
+  void clear();
+
+  virtual void run() {
+    report(0,String("starting tests for " + getName()));
+    runTests();
+    runSubTests();
+    report(0,String("ending tests for " + getName()));
+    if (hasProblem) {
+      report(0,"A PROBLEM WAS ENCOUNTERED");
+    } else {
+      report(0,"no problems reported");
+    }
+  }
+
+  virtual void runTests() {
+  }
+
+  virtual void runSubTests();
+
+
+  bool checkEqualImpl(int x, int y, 
+		      const char *desc,
+		      const char *txt1,
+		      const char *txt2,
+		      const char *fname,
+		      int fline);
+
+  bool checkEqualImpl(const String& x, const String& y,
+		      const char *desc,
+		      const char *txt1,
+		      const char *txt2,
+		      const char *fname,
+		      int fline);
+
+private:
+  ACE_Vector<UnitTest *> subTests;
+  bool hasProblem;
+  UnitTest *parent;
+  static UnitTest *theRoot;
+
+  void count(int severity);
+};
+
+// add info 
+
+#define checkEqual(x,y,desc) checkEqualImpl(x,y,desc,#x,#y,__FILE__,__LINE__)
+
+
+#endif

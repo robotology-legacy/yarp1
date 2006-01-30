@@ -1,6 +1,8 @@
 #ifndef _YARP2_TWOWAYSTREAM_
 #define _YARP2_TWOWAYSTREAM_
 
+#include <yarp/Address.h>
+
 namespace yarp {
   class TwoWayStream;
 }

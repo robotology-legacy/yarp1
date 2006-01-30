@@ -23,6 +23,8 @@ GENDIR = .
 
 VPATH += $(GENDIR)
 
+CFLAGS += -I../src-test
+
 all: target
 
 target: $(TARGETS) subtarget
@@ -32,7 +34,7 @@ w:
 
 $(GENDIR)/%.bin: %.cpp
 	mkdir -p $(GENDIR)
-	$(CC) $(CFLAGS) $^ -o $@ $(LIBS) -L../lib/$(SYSDIR) -lACE -lYARP_OS2
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS) -L../lib/$(SYSDIR) -lACE -lYARP_OS2_test -lYARP_OS2 
 
 $(GENDIR)/%.o: %.cpp
 	mkdir -p $(GENDIR)

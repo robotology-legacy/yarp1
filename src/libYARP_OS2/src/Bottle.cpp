@@ -45,7 +45,7 @@ void Bottle::smartAdd(const String& str) {
     }
     if (s!=NULL) {
       s->fromString(str);
-      ACE_OS::printf("*** smartAdd [%s] [%s]\n", str.c_str(), s->toString().c_str());
+      //ACE_OS::printf("*** smartAdd [%s] [%s]\n", str.c_str(), s->toString().c_str());
       add(s);
     }
   }
@@ -146,8 +146,8 @@ void Bottle::readBlock(BlockReader& reader) {
   } else {
     ACE_OS::printf("Bottle::readBlock cannot yet handle binary data\n");
   }
-  ACE_OS::printf("Bottle::readBlock gives [%s]\n",
-		 toString().c_str());
+  //ACE_OS::printf("Bottle::readBlock gives [%s]\n",
+  //	 toString().c_str());
 }
 
 

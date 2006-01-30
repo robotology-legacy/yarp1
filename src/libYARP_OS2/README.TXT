@@ -15,10 +15,3 @@ at:
 -- paulfitz, Genoa Italy, Thursday Jan 26, 2006
 
 ===============================================================================
-
-Development notes:
-
-+ The meaning of the carriers currently called "tcp" and "text" has 
-  changed to mean "stay in the same medium you connected with".
-  I should specialize out tcp-specific communication.
-

@@ -74,7 +74,7 @@ public:
     ManagedBytes *buf = new ManagedBytes(b,false);
     buf->copy();
 
-    ACE_DEBUG((LM_DEBUG,"adding a line - %d bytes", copy.length()));
+    //ACE_DEBUG((LM_DEBUG,"adding a line - %d bytes", copy.length()));
 
     lst.push_back(buf);
   }
@@ -86,7 +86,7 @@ public:
   void write(OutputStream& os) {
     for (int i=0; i<lst.size(); i++) {
       ManagedBytes& b = *(lst[i]);
-      ACE_DEBUG((LM_DEBUG,"output a block, %d bytes",b.length()));
+      //ACE_DEBUG((LM_DEBUG,"output a block, %d bytes",b.length()));
       os.write(b.bytes());
     }    
   }
