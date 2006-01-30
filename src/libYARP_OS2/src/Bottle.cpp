@@ -27,7 +27,7 @@ void Bottle::add(Storable *s) {
 
 
 void Bottle::clear() {
-  for (int i=0; i<content.size(); i++) {
+  for (unsigned int i=0; i<content.size(); i++) {
     delete content[i];
   }
   content.clear();
@@ -59,7 +59,7 @@ void Bottle::fromString(const String& line) {
   bool back = false;
   bool begun = false;
   String nline = line + " ";
-  for (int i=0; i<nline.length(); i++) {
+  for (unsigned int i=0; i<nline.length(); i++) {
     char ch = nline[i];
     if (back) {
       arg += ch;
@@ -97,7 +97,7 @@ void Bottle::fromString(const String& line) {
 
 String Bottle::toString() {
   String result = "";
-  for (int i=0; i<content.size(); i++) {
+  for (unsigned int i=0; i<content.size(); i++) {
     if (i>0) { result += " "; }
     Storable& s = *content[i];
     result += s.toString();
@@ -156,7 +156,7 @@ void Bottle::synch() {
     data.clear();
     //StringOutputStream sos;
     BufferedBlockWriter writer;
-    for (int i=0; i<content.size(); i++) {
+    for (unsigned int i=0; i<content.size(); i++) {
       Storable *s = content[i];
       writer.appendInt(s->getCode());
       s->writeBlock(writer);
@@ -205,7 +205,7 @@ String Bottle::StoreString::toString() {
   // quoting code: very inefficient, but portable
   String result;
   result += "\"";
-  for (int i=0; i<x.length(); i++) {
+  for (unsigned int i=0; i<x.length(); i++) {
     char ch = x[i];
     if (ch=='\\'||ch=='\"') {
       result += '\\';

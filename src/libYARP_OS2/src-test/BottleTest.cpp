@@ -14,10 +14,6 @@ using namespace yarp;
 
 class BottleTest : public UnitTest {
 public:
-  BottleTest() {
-    ACE_OS::printf("starting BottleTest\n");
-  }
-
   void testSize() {
     report(0,"testing sizes...");
     Bottle bot;

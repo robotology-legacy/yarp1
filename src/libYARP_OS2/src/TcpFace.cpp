@@ -8,17 +8,42 @@ using namespace yarp;
 
 static Logger log("TcpFace", Logger::get());
 
+TcpFace::TcpFace() {
+  closed = true;
+}
+
+TcpFace::~TcpFace() {
+  if (!closed) {
+    close();
+  }
+}
+
+
 void TcpFace::open(const Address& address) {
   YARP_DEBUG(log,"TcpFace should throw exceptions");
 
   this->address = address;
   ACE_INET_Addr	serverAddr(address.getPort());
   peerAcceptor.open(serverAddr,1);
+  closed = false;
 }
 
 void TcpFace::close() {
   YARP_DEBUG(log,"TcpFace should throw exceptions");
-  peerAcceptor.close();
+  if (!closed) {
+    closed = true;
+    try {
+      OutputProtocol *op = write(address);
+      if (op!=NULL) {
+	op->close();
+	delete op;
+      }
+    } catch (IOException e) {
+      // no problem
+      ACE_OS::printf("exception during write\n");
+    }
+    peerAcceptor.close();
+  }
 }
 
 
@@ -32,7 +57,21 @@ InputProtocol *TcpFace::read() {
   //peerAcceptor.accept(newStream);
   
   SocketTwoWayStream *stream  = new SocketTwoWayStream();
-  stream->open(peerAcceptor);
+  try {
+    stream->open(peerAcceptor);
+  } catch (IOException e) {
+    //ACE_OS::printf("cleaning up stream\n");
+    delete stream;
+    throw e;
+  }
+  if (closed) {
+    peerAcceptor.close();
+    //ACE_OS::printf("cleaning up stream, TcpFace closed\n");
+    stream->close();
+    delete stream;
+    stream = NULL;
+    throw IOException("TcpFace closed");
+  }
   return new Protocol(stream);
 }
 

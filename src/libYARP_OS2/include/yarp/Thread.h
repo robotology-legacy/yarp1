@@ -2,8 +2,10 @@
 #define _YARP2_THREAD_
 
 #include <yarp/Runnable.h>
+#include <yarp/Semaphore.h>
 
 #include <ace/Thread.h>
+
 
 namespace yarp {
   class Thread;
@@ -24,11 +26,19 @@ public:
 
   // call before start
   void setOptions(int stackSize = 0);
+
+  static int getCount();
+
+  // won't be public for long...
+  static void changeCount(int delta);
 private:
   int stackSize;
   ACE_hthread_t hid;
   ACE_thread_t id;
   Runnable *delegate;
+
+  static int threadCount;
+  static Semaphore threadMutex;
 };
 
 #endif

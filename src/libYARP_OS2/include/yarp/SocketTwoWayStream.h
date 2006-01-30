@@ -59,7 +59,6 @@ public:
   }
 
   virtual void close() {
-    //ACE_OS::printf("************************************ STREAM CLOSE\n");
     stream.close();
   }
 

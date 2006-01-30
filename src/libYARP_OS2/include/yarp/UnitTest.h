@@ -34,17 +34,7 @@ public:
   void add(UnitTest& unit);
   void clear();
 
-  virtual void run() {
-    report(0,String("starting tests for " + getName()));
-    runTests();
-    runSubTests();
-    report(0,String("ending tests for " + getName()));
-    if (hasProblem) {
-      report(0,"A PROBLEM WAS ENCOUNTERED");
-    } else {
-      report(0,"no problems reported");
-    }
-  }
+  virtual void run();
 
   virtual void runTests() {
   }

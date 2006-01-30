@@ -141,14 +141,14 @@ private:
 
   void closeInputs() {
     // TODO - should join with all threads
-    for (int i=0; i<inputs.size(); i++) {
+    for (unsigned int i=0; i<inputs.size(); i++) {
       delete inputs[i];
     }
     inputs.clear();
   }
 
   void closeOutputs() {
-    for (int i=0; i<outputs.size(); i++) {
+    for (unsigned int i=0; i<outputs.size(); i++) {
       delete outputs[i];
     }
     outputs.clear();
@@ -171,7 +171,7 @@ private:
 public:
   void removeInput(InputEntry *entry) {
     int k = -1;
-    for (int i=0; i<inputs.size(); i++) {
+    for (unsigned int i=0; i<inputs.size(); i++) {
       if (inputs[i]==entry) {
 	k = i;
       }
@@ -188,7 +188,7 @@ public:
 
   void removeOutput(OutputEntry *entry) {
     int k = -1;
-    for (int i=0; i<outputs.size(); i++) {
+    for (unsigned int i=0; i<outputs.size(); i++) {
       if (outputs[i]==entry) {
 	k = i;
       }

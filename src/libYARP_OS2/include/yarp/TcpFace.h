@@ -19,6 +19,9 @@ namespace yarp {
  */
 class yarp::TcpFace : public Face {
 public:
+  TcpFace();
+  virtual ~TcpFace();
+
   virtual void open(const Address& address); // throws IOException
   virtual void close(); // throws IOException
   virtual InputProtocol *read(); // throws IOException
@@ -26,6 +29,7 @@ public:
 private:
   Address address;
   ACE_SOCK_Acceptor peerAcceptor;
+  bool closed;
 };
 
 

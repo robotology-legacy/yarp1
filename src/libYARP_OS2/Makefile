@@ -5,7 +5,11 @@ endif
 MYCODELIB = libYARP_OS2
 
 norm:
-	make default && ( cd src-test; make ) && ( cd test; make run )
+	make default && ( cd src-test; make ) && ( rm /tmp/TRACE.TXT; cd test; export MALLOC_TRACE=/tmp/TRACE.TXT; make clean; make run )
+
+trace:
+	mtrace /tmp/TRACE.TXT | grep -v "was never alloc"
+	@echo "(should expect 0x44 entries on linux for max simultaneous threads created)"
 
 include $(YARP_ROOT)/conf/Makefile.recursive.template
 

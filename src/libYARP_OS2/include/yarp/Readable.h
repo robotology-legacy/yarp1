@@ -9,6 +9,8 @@ namespace yarp {
 
 class yarp::Readable {
 public:
+  virtual ~Readable() { }
+
   virtual void readBlock(BlockReader& reader) = 0;
 };
 

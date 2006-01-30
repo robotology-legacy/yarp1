@@ -101,8 +101,8 @@ public:
   }
 
   int readYarpInt() {
-    int port = 0;
     int len = NetType::readFull(is(),header.bytes());
+    ACE_UNUSED_ARG(len);
     YARP_ASSERT(len==header.length());
     return interpretYarpNumber(header.bytes());
   }
@@ -325,6 +325,7 @@ private:
 
   void expectProtocolSpecifier() {
     int len = NetType::readFull(is(),header.bytes());
+    ACE_UNUSED_ARG(len);
     YARP_ASSERT(len==header.length());
     bool already = false;
     if (delegate!=NULL) {
@@ -360,6 +361,7 @@ private:
 
   int messageLen;
   bool pendingAck;
+  Logger& log;
   ManagedBytes header;
   ManagedBytes number;
   ShiftStream shift;
@@ -369,7 +371,6 @@ private:
   SizedWriter *writer;
   StreamBlockReader reader;
 
-  Logger& log;
 };
 
 #endif

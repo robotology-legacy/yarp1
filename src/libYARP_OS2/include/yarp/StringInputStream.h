@@ -64,7 +64,7 @@ public:
 
 private:
   String data;
-  int at;
+  unsigned int at;
 };
 
 #endif

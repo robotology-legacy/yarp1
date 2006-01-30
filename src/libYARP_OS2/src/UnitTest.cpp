@@ -36,7 +36,7 @@ UnitTest::UnitTest(UnitTest *parent) {
 }
 
 void UnitTest::add(UnitTest& unit) {
-  for (int i=0; i<subTests.size(); i++) {
+  for (unsigned int i=0; i<subTests.size(); i++) {
     if (subTests[i]==&unit) {
       return; // already present, no need to add
     }
@@ -70,8 +70,21 @@ void UnitTest::runSubTests() {
   //sprintf(buf,"size is %d", subTests.size());
   //report(0,buf);
   int top = subTests.size()-1;
-  for (int i=top-1; i>=0; i--) {
+  for (int i=top; i>=0; i--) {
     subTests[i]->run();
+  }
+}
+
+
+void UnitTest::run() {
+  //report(0,String("starting tests for " + getName()));
+  runTests();
+  runSubTests();
+  //report(0,String("ending tests for " + getName()));
+  if (hasProblem) {
+    report(0,"A PROBLEM WAS ENCOUNTERED");
+  } else {
+    report(0,"no problems reported");
   }
 }
 
@@ -111,7 +124,7 @@ bool UnitTest::checkEqualImpl(int x, int y,
   ACE_OS::sprintf(buf, "in file %s:%d [%s] %s (%d) == %s (%d)",
 		  fname, fline, desc, txt1, x, txt2, y);
   if (x==y) {
-    report(0,String("success ") + buf);
+    report(0,String("[") + desc + "] passed ok");
   } else {
     report(1,String("FAILURE ") + buf);
   }
@@ -126,10 +139,10 @@ bool UnitTest::checkEqualImpl(const String& x, const String& y,
 			      int fline) {
   char buf[1000];
   ACE_OS::sprintf(buf, "in file %s:%d [%s] %s (%s) == %s (%s)",
-		  fname, fline, desc, txt1, x.c_str(), txt2, y.c_str());
+		  fname, fline, desc, txt1, humanize(x).c_str(), txt2, humanize(y).c_str());
   bool ok = (x==y);
   if (ok) {
-    report(0,String("success ") + buf);
+    report(0,String("[") + desc + "] passed ok");
   } else {
     report(1,String("FAILURE ") + buf);
   }
@@ -139,7 +152,7 @@ bool UnitTest::checkEqualImpl(const String& x, const String& y,
 
 String UnitTest::humanize(const String& txt) {
   String result("");
-  for (int i=0; i<txt.length(); i++) {
+  for (unsigned int i=0; i<txt.length(); i++) {
     char ch = txt[i];
     if (ch == '\n') {
       result += "\\n";

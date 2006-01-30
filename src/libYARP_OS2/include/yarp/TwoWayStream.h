@@ -2,6 +2,8 @@
 #define _YARP2_TWOWAYSTREAM_
 
 #include <yarp/Address.h>
+#include <yarp/InputStream.h>
+#include <yarp/OutputStream.h>
 
 namespace yarp {
   class TwoWayStream;
@@ -9,7 +11,8 @@ namespace yarp {
 
 class yarp::TwoWayStream {
 public:
-  virtual ~TwoWayStream() {}
+  virtual ~TwoWayStream() {
+  }
 
   virtual InputStream& getInputStream() = 0; // throws
   virtual OutputStream& getOutputStream() = 0; // throws

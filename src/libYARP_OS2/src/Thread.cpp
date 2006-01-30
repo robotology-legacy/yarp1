@@ -1,8 +1,13 @@
 
 #include <yarp/Thread.h>
+#include <yarp/Semaphore.h>
 #include <yarp/Logger.h>
 
 using namespace yarp;
+
+int Thread::threadCount = 0;
+Semaphore Thread::threadMutex(1);
+
 
 #ifdef __WIN32__
 static unsigned __stdcall theExecutiveBranch (void *args)
@@ -12,6 +17,9 @@ unsigned theExecutiveBranch (void *args)
 {
   Thread *thread = (Thread *)args;
   thread->run();
+  Thread::changeCount(-1);
+  //ACE_OS::printf("Thread shutting down\n");
+  //ACE_Thread::exit();
   return 0;
 }
 
@@ -29,7 +37,6 @@ Thread::Thread(Runnable *target) {
 
 
 Thread::~Thread() {
-  setOptions();
 }
 
 
@@ -63,5 +70,25 @@ void Thread::start() {
 				 ACE_DEFAULT_THREAD_PRIORITY,
 				 0,
 				 (size_t)stackSize);
+  if (result==0) {
+    Thread::changeCount(1);
+  }
 }
+
+
+
+int Thread::getCount() {
+  threadMutex.wait();
+  int ct = threadCount;
+  threadMutex.post();
+  return ct;
+}
+
+
+void Thread::changeCount(int delta) {
+  threadMutex.wait();
+  threadCount+=delta;
+  threadMutex.post();
+}
+
 

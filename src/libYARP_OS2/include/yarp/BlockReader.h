@@ -19,6 +19,9 @@ class yarp::BlockReader {
 public:
   // all methods can throw IOExceptoin
 
+  virtual ~BlockReader() {
+  }
+
   virtual void expectBlock(const Bytes& b) = 0;
   virtual int expectInt() = 0; // to,from NetInt32
 

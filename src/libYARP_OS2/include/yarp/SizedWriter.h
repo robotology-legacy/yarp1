@@ -9,6 +9,8 @@ namespace yarp {
 
 class yarp::SizedWriter {
 public:
+  virtual ~SizedWriter() {}
+
   virtual void write(OutputStream& os) = 0;
 
   // also way to extract block sizes

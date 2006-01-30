@@ -30,7 +30,7 @@ public:
   }
 
   void clear() {
-    for (int i=0; i<lst.size(); i++) {
+    for (unsigned int i=0; i<lst.size(); i++) {
       delete lst[i];
     }
     lst.clear();
@@ -84,7 +84,7 @@ public:
   }
 
   void write(OutputStream& os) {
-    for (int i=0; i<lst.size(); i++) {
+    for (unsigned int i=0; i<lst.size(); i++) {
       ManagedBytes& b = *(lst[i]);
       //ACE_DEBUG((LM_DEBUG,"output a block, %d bytes",b.length()));
       os.write(b.bytes());

@@ -18,6 +18,12 @@ public:
 
 private:
 
+  class Thread0: public Thread {
+  public:
+    virtual void run() {
+      Time::delay(0.01);
+    }
+  };
 
   class Thread1 : public Runnable {
   public:
@@ -84,6 +90,8 @@ public:
   virtual String getName() { return "ThreadTest"; }
 
   void testSync() {
+    report(0,"testing cross-thread synchronization...");
+    int tct = Thread::getCount();
     Thread1 bozo(*this);
     Thread1 bozo2(*this);
     Thread2 burper(*this);
@@ -94,6 +102,7 @@ public:
     t1.start();
     Time::delay(0.05);
     t2.start();
+    checkEqual(Thread::getCount(),tct+3,"thread count");
     t1.join();
     t2.join();
     burper.close();
@@ -103,7 +112,20 @@ public:
     checkEqual(true,expectCount==11,"thread event counts");
   }
 
+  virtual void testMin() {
+    report(0,"testing minimal thread functions to check for mem leakage...");
+    for (int i=0; i<20; i++) {
+      Thread0 t0, t1;
+      t0.start();
+      t1.start();
+      t0.join();
+      t1.join();
+    }
+    report(0,"...done");
+  }
+
   virtual void runTests() {
+    testMin();
     testSync();
   }
 };

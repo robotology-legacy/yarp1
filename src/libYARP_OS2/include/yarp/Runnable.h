@@ -7,6 +7,7 @@ namespace yarp {
 
 class yarp::Runnable {
 public:
+  virtual ~Runnable() {}
 
   /**
    * Body to run

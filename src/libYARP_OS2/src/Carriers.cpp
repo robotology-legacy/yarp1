@@ -20,14 +20,14 @@ Carriers::Carriers() {
 
 Carriers::~Carriers() {
   ACE_Vector<Carrier *>& lst = delegates;
-  for (int i=0; i<lst.size(); i++) {
+  for (unsigned int i=0; i<lst.size(); i++) {
     delete lst[i];
   }
   lst.clear();
 }
 
 Carrier *Carriers::chooseCarrier(const String *name, const Bytes *header) {
-  for (int i=0; i<delegates.size(); i++) {
+  for (unsigned int i=0; i<delegates.size(); i++) {
     Carrier& c = *delegates[i];
     bool match = false;
     if (name!=NULL) {

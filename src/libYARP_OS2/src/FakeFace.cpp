@@ -17,6 +17,7 @@ void FakeFace::close() {
 
 InputProtocol *FakeFace::read() {
   log.fail("not yet implemented");
+  return NULL;
 }
 
 OutputProtocol *FakeFace::write(const Address& address) {

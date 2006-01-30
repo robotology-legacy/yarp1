@@ -9,6 +9,8 @@ namespace yarp {
 
 class yarp::Writable {
 public:
+  virtual ~Writable() {}
+
   virtual void writeBlock(BlockWriter& writer) = 0;
 };
 

@@ -36,7 +36,7 @@ public:
     virtual int getCode();
     virtual void readBlock(BlockReader& reader);
     virtual void writeBlock(BlockWriter& writer);
-    virtual Storable *create() { new StoreInt(0); }
+    virtual Storable *create() { return new StoreInt(0); }
   };
 
   class StoreString : public Storable {
@@ -49,7 +49,7 @@ public:
     virtual int getCode();
     virtual void readBlock(BlockReader& reader);
     virtual void writeBlock(BlockWriter& writer);
-    virtual Storable *create() { new StoreString(String("")); }
+    virtual Storable *create() { return new StoreString(String("")); }
   };
 
   /*

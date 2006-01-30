@@ -42,7 +42,7 @@ public:
   void apply(const char *command) {
     int at = 0;
     int sub_at = 0;
-    int i;
+    unsigned int i;
     for (i=0; i<strlen(command)+1; i++) {
       if (at<MAX_ARG_CT) {
 	char ch = command[i];

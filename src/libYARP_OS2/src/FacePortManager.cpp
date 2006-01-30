@@ -80,7 +80,7 @@ void FacePortManager::send(Writable& writer) {
   pc.writeBlock(bw);
   writer.writeBlock(bw);
   
-  for (int i=0; i<outputs.size(); i++) {
+  for (unsigned int i=0; i<outputs.size(); i++) {
     OutputEntry *entry = outputs[i];
     YARP_ASSERT(entry!=NULL);
     entry->write(bw);
@@ -91,7 +91,7 @@ void FacePortManager::send(Writable& writer) {
 void FacePortManager::removeInput(const String& src) {
   BufferedBlockWriter bw(true);
   bool success = false;
-  for (int i=0; i<inputs.size(); i++) {
+  for (unsigned int i=0; i<inputs.size(); i++) {
     InputEntry *entry = inputs[i];
     YARP_ASSERT(entry!=NULL);
     Route route = entry->getConnection().getRoute();
@@ -117,7 +117,7 @@ void FacePortManager::removeOutput(const String& src) {
   BufferedBlockWriter bw(true);
   bw.appendLine(String("Should do something about removing output ") + src);
   bool success = false;
-  for (int i=0; i<outputs.size(); i++) {
+  for (unsigned int i=0; i<outputs.size(); i++) {
     OutputEntry *entry = outputs[i];
     YARP_ASSERT(entry!=NULL);
     Route route = entry->getRoute();

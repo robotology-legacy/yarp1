@@ -17,6 +17,10 @@ extern yarp::UnitTest& getTimeTest();
 extern yarp::UnitTest& getThreadTest();
 extern yarp::UnitTest& getPortCommandTest();
 extern yarp::UnitTest& getStringOutputStreamTest();
+extern yarp::UnitTest& getStreamBlockReaderTest();
+extern yarp::UnitTest& getBufferedBlockWriterTest();
+extern yarp::UnitTest& getProtocolTest();
+extern yarp::UnitTest& getTcpFaceTest();
 
 class yarp::TestList {
 public:
@@ -27,9 +31,13 @@ public:
     root.add(getAddressTest());
     root.add(getStringInputStreamTest());
     root.add(getTimeTest());
-    root.add(getThreadTest());
     root.add(getPortCommandTest());
     root.add(getStringOutputStreamTest());
+    root.add(getStreamBlockReaderTest());
+    root.add(getBufferedBlockWriterTest());
+    root.add(getThreadTest());
+    root.add(getProtocolTest());
+    root.add(getTcpFaceTest());
   }
 };
 
