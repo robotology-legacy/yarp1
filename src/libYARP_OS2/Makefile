@@ -20,3 +20,10 @@ force:
 testing:
 	make
 	cd test; $(MAKE) run
+
+
+add:
+	cd include/yarp && ( cvs add *.h || echo -n )
+	cd src && ( cvs add *.cpp || echo -n )
+	cd src-test && ( cvs add *.cpp *.h || echo -n )
+

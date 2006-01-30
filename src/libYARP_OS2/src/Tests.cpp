@@ -49,23 +49,6 @@ static void assertionImpl(const T& x, const T& y,
 }
 
 
-static void checkString() {
-  // unfortunately need String to be able to include \0 parts
-  String s;
-  s += 'h';
-  s += '\0';
-  s += 'd';
-  assertion((int)s.length(),3);
-  assertion(s[1],'\0');
-}
-
-
-static void checkAddress() {
-  Address address("localhost",10000,"tcp");
-  String txt = address.toString();
-  assertion(txt,String("tcp:/localhost:10000"));
-}
-
 static void checkCarriers() {
   //Address address("localhost",10000,"tcp");
   Address address("localhost",10000,"fake");
@@ -74,31 +57,6 @@ static void checkCarriers() {
   delete face;
 }
 
-static void checkInputStreams() {
-  StringInputStream sis;
-  sis.add("Hello my friend");
-  char buf[256];
-  sis.check();
-  Bytes b(buf,sizeof(buf));
-  int len = sis.read(b,0,5);
-  assertion(len,5);
-  buf[len] = '\0';
-  assertion(String("Hello"),String(buf));
-  char ch = sis.read();
-  assertion(ch,' ');
-  len = sis.read(b,0,2);
-  assertion(len,2);
-  buf[len] = '\0';
-  assertion(String("my"),String(buf));
-  /*
-  try {
-    len = sis.read(b,0,100);
-    assertion(String("should have thrown an exception"),String(""));
-  } catch (IOException e) {
-    ACE_OS::printf("Got an exception, good: %s\n", e.toString().c_str());
-  }
-  */
-}
 
 
 static void checkOutputStreams() {
@@ -497,9 +455,6 @@ int yarp_test_main(int argc, char *argv[]) {
     //checkThreads();
     checkFacePortManager();
     return 0;
-    checkString();
-    checkAddress();
-    checkInputStreams();
     checkOutputStreams();
     checkTwoWayStreams();
     checkBlocks();
