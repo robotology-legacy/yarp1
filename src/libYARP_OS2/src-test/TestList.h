@@ -13,6 +13,10 @@ extern yarp::UnitTest& getBottleTest();
 extern yarp::UnitTest& getStringTest();
 extern yarp::UnitTest& getAddressTest();
 extern yarp::UnitTest& getStringInputStreamTest();
+extern yarp::UnitTest& getTimeTest();
+extern yarp::UnitTest& getThreadTest();
+extern yarp::UnitTest& getPortCommandTest();
+extern yarp::UnitTest& getStringOutputStreamTest();
 
 class yarp::TestList {
 public:
@@ -22,6 +26,10 @@ public:
     root.add(getStringTest());
     root.add(getAddressTest());
     root.add(getStringInputStreamTest());
+    root.add(getTimeTest());
+    root.add(getThreadTest());
+    root.add(getPortCommandTest());
+    root.add(getStringOutputStreamTest());
   }
 };
 

@@ -69,7 +69,8 @@ void UnitTest::runSubTests() {
   //char buf[256];
   //sprintf(buf,"size is %d", subTests.size());
   //report(0,buf);
-  for (int i=0; i<subTests.size(); i++) {
+  int top = subTests.size()-1;
+  for (int i=top-1; i>=0; i--) {
     subTests[i]->run();
   }
 }
@@ -133,6 +134,22 @@ bool UnitTest::checkEqualImpl(const String& x, const String& y,
     report(1,String("FAILURE ") + buf);
   }
   return ok;
+}
+
+
+String UnitTest::humanize(const String& txt) {
+  String result("");
+  for (int i=0; i<txt.length(); i++) {
+    char ch = txt[i];
+    if (ch == '\n') {
+      result += "\\n";
+    } else if (ch == '\0') {
+      result += "\\0";
+    } else {
+      result += ch;
+    }
+  }
+  return result;
 }
 
 

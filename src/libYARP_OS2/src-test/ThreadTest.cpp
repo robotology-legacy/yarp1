@@ -1,0 +1,116 @@
+#include <yarp/Thread.h>
+#include <yarp/Semaphore.h>
+#include <yarp/Time.h>
+
+#include "TestList.h"
+
+using namespace yarp;
+
+
+class ThreadTest : public UnitTest {
+public:
+
+  Semaphore sema;
+  Semaphore state;
+  int expectCount;
+  int gotCount;
+
+
+private:
+
+
+  class Thread1 : public Runnable {
+  public:
+    ThreadTest& owner;
+
+    Thread1(ThreadTest& owner) : owner(owner) {}
+
+    virtual void run() {
+      for (int i=0; i<5; i++) {
+	//ACE_OS::printf("tick %d\n", i);
+	owner.state.wait();
+	owner.expectCount++;
+	owner.state.post();
+	owner.sema.post();
+	Time::delay(0.1);
+      }
+    }
+  };
+  
+  
+  class Thread2 : public Thread {
+  public:
+    ThreadTest& owner;
+
+    Thread2(ThreadTest& owner) : mutex(1), finished(false), owner(owner) {}
+    
+    virtual void run() {
+      bool done = false;
+      while (!done) {
+	owner.sema.wait();
+	mutex.wait();
+	done = finished;
+	mutex.post();
+	//ACE_OS::printf("burp\n");
+	owner.state.wait();
+	owner.gotCount++;
+	owner.state.post();
+      }
+      //ACE_OS::printf("burped out\n");
+    }
+    
+    virtual void close() {
+      mutex.wait();
+      finished = true;
+      mutex.post();
+      owner.state.wait();
+      owner.expectCount++;
+      owner.state.post();
+      owner.sema.post();
+    }
+
+  private:
+    Semaphore mutex;
+    bool finished;
+  };
+
+
+public:
+  ThreadTest() : sema(0), state(1) {
+    expectCount = 0;
+    gotCount = 0;
+  }
+
+  virtual String getName() { return "ThreadTest"; }
+
+  void testSync() {
+    Thread1 bozo(*this);
+    Thread1 bozo2(*this);
+    Thread2 burper(*this);
+    Thread t1(&bozo);
+    Thread t2(&bozo2);
+    report(0,"starting threads ...");
+    burper.start();
+    t1.start();
+    Time::delay(0.05);
+    t2.start();
+    t1.join();
+    t2.join();
+    burper.close();
+    burper.join();
+    report(0,"... done threads");
+    checkEqual(expectCount,gotCount,"thread event counts");
+    checkEqual(true,expectCount==11,"thread event counts");
+  }
+
+  virtual void runTests() {
+    testSync();
+  }
+};
+
+static ThreadTest theThreadTest;
+
+UnitTest& getThreadTest() {
+  return theThreadTest;
+}
+

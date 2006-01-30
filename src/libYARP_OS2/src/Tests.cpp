@@ -58,20 +58,6 @@ static void checkCarriers() {
 }
 
 
-
-static void checkOutputStreams() {
-  StringOutputStream sos;
-  char txt[] = "Hello my friend";
-  Bytes b(txt,ACE_OS::strlen(txt));
-  sos.write(b);
-  assertion(String(txt),sos.toString());
-  StringOutputStream sos2;
-  sos2.write('y');
-  sos2.write('o');
-  assertion(String("yo"),sos2.toString());
-}
-
-
 static void checkTwoWayStreams() {
   int len;
   FakeTwoWayStream tw;
@@ -324,100 +310,6 @@ static void readTcpBottle2() {
 }
 
 
-static void checkPortCommand() {
-  PortCommand cmd1('d',"");;
-  PortCommand cmd2('\0',"/bozo");;
-  {
-    BufferedBlockWriter bw(true);
-    cmd1.writeBlock(bw);
-    String result = simplify(bw.toString());
-    ACE_OS::printf("Port command is [%s]\n", result.c_str());
-  }
-  {
-    BufferedBlockWriter bw(true);
-    cmd2.writeBlock(bw);
-    String result = simplify(bw.toString());
-    ACE_OS::printf("Port command is [%s]\n", result.c_str());
-  }
-  {
-    PortCommand cmd;
-    StringInputStream sis;
-    StreamBlockReader br;
-    sis.add("d\n");
-    br.reset(sis,sis.toString().length(),true);
-    cmd.readBlock(br);
-    char key = cmd.getKey();
-    ACE_OS::printf("Port command is [%c:%d/%s]\n",
-		   (key>=32)?key:'?' , key, cmd.getText().c_str());
-    
-  }
-}
-
-void checkTime() {
-  ACE_OS::printf("time delay test\n");
-  double t1 = Time::now();
-  Time::delay(1);
-  double t2 = Time::now();
-  ACE_OS::printf("time delay test result: one sec delay requested, got %g secs\n", t2-t1);
-}
-
-Semaphore sema(0);
-
-class Thread1 : public Runnable {
-public:
-  virtual void run() {
-    for (int i=0; i<5; i++) {
-      ACE_OS::printf("tick %d\n", i);
-      sema.post();
-      Time::delay(1);
-    }
-  }
-};
-
-
-class Thread2 : public Thread {
-public:
-  Thread2() : mutex(1), finished(false) {}
-  virtual void run() {
-    bool done = false;
-    while (!done) {
-      sema.wait();
-      mutex.wait();
-      done = finished;
-      mutex.post();
-      ACE_OS::printf("burp\n");
-    }
-    ACE_OS::printf("burped out\n");
-  }
-
-  virtual void close() {
-    mutex.wait();
-    finished = true;
-    mutex.post();
-    sema.post();
-  }
-private:
-  Semaphore mutex;
-  bool finished;
-};
-
-void checkThreads() {
-  Thread1 bozo;
-  Thread1 bozo2;
-  Thread2 burper;
-  Thread t1(&bozo);
-  Thread t2(&bozo2);
-  ACE_OS::printf("starting with threads\n");
-  burper.start();
-  t1.start();
-  Time::delay(0.5);
-  t2.start();
-  t1.join();
-  t2.join();
-  burper.close();
-  burper.join();
-  ACE_OS::printf("done with threads\n");
-}
 
 
 void checkFacePortManager() {
@@ -447,15 +339,10 @@ int yarp_test_main(int argc, char *argv[]) {
   if (argc<=1) {
     Logger::get().setVerbosity(5);
     ACE_OS::printf("yarp testing underway\n");
-    //checkBottle();
     //readTcpBottle();
-    //checkPortCommand();
     //readTcpBottle2();
-    //checkTime();
-    //checkThreads();
     checkFacePortManager();
     return 0;
-    checkOutputStreams();
     checkTwoWayStreams();
     checkBlocks();
     //checkCarriers();

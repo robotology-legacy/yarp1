@@ -66,6 +66,8 @@ public:
 		      const char *fname,
 		      int fline);
 
+  String humanize(const String& txt);
+
 private:
   ACE_Vector<UnitTest *> subTests;
   bool hasProblem;

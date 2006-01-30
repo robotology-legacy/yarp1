@@ -1,6 +1,9 @@
 #ifndef _YARP2_STRINGOUTPUTSTREAM_
 #define _YARP2_STRINGOUTPUTSTREAM_
 
+#include <yarp/OutputStream.h>
+#include <yarp/String.h>
+
 namespace yarp {
   class StringOutputStream;
 }

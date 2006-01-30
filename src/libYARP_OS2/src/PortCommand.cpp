@@ -5,7 +5,7 @@
 using namespace yarp;
 
 void PortCommand::readBlock(BlockReader& reader) {
-  ACE_DEBUG((LM_DEBUG,"PortCommand::readBlock"));
+  //ACE_DEBUG((LM_DEBUG,"PortCommand::readBlock"));
   ch = '\0';
   str = "";
   if (!reader.isTextMode()) {
@@ -23,9 +23,9 @@ void PortCommand::readBlock(BlockReader& reader) {
       throw IOException("bad header in PortCommand::readBlock");
     }
   } else {
-    ACE_OS::printf("PortCommand::readBlock pre read\n");
+    //ACE_OS::printf("PortCommand::readBlock pre read\n");
     str = reader.expectLine();
-    ACE_OS::printf("PortCommand::readBlock post read\n");
+    //ACE_OS::printf("PortCommand::readBlock post read\n");
     if (str.length()>0) {
       ch = str[0];
     }
@@ -53,9 +53,9 @@ void PortCommand::writeBlock(BlockWriter& writer) {
     }
   } else {
     if (ch!='\0') {
-      writer.appendString(String(ch) + "\n");
+      writer.appendLine(String(ch));
     } else {
-      writer.appendString(str + "\n");
+      writer.appendLine(str);
     }
   }
 }
