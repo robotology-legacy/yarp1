@@ -6,6 +6,7 @@
 #include <ace/Hash_Map_Manager.h>
 #include <ace/Null_Mutex.h>
 #include <ace/Vector_T.h>
+#include <ace/OS_NS_stdio.h>
 
 namespace yarp {
   class Companion;

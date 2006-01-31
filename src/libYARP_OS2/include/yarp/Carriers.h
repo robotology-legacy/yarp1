@@ -27,11 +27,13 @@ public:
   static Face *listen(const Address& address); // throws IOException
   static OutputProtocol *connect(const Address& address); // throws IOException
 
+  // msvc seems to want the destructor public, even for static private instance
+  virtual ~Carriers();
+
 private:
   ACE_Vector<Carrier *> delegates;
 
   Carriers();
-  virtual ~Carriers();
   
   static Carriers instance;
   static Carriers& getInstance() {

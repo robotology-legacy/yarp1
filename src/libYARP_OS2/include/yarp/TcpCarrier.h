@@ -3,6 +3,8 @@
 
 #include <yarp/AbstractCarrier.h>
 
+#include <ace/OS_NS_stdio.h>
+
 namespace yarp {
   class TcpCarrier;
 }

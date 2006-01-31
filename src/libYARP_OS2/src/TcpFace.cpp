@@ -4,6 +4,8 @@
 #include <yarp/SocketTwoWayStream.h>
 #include <yarp/Protocol.h>
 
+#include <ace/OS_NS_stdio.h>
+
 using namespace yarp;
 
 static Logger log("TcpFace", Logger::get());

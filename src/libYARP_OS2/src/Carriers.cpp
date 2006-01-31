@@ -11,7 +11,7 @@ using namespace yarp;
 
 static Logger log("Carriers", Logger::get());
 
-Carriers Carriers::instance;
+Carriers yarp::Carriers::instance;
 
 Carriers::Carriers() {
   delegates.push_back(new TcpCarrier());

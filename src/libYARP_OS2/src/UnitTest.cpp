@@ -2,6 +2,8 @@
 #include <yarp/UnitTest.h>
 #include <yarp/Logger.h>
 
+#include <ace/OS_NS_stdio.h>
+
 using namespace yarp;
 
 UnitTest *UnitTest::theRoot = NULL;

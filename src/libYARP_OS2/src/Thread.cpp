@@ -45,7 +45,7 @@ void Thread::setOptions(int stackSize) {
 }
 
 int Thread::join(double seconds) {
-  int result = ACE_Thread::join(id);
+  int result = ACE_Thread::join(hid);
   return result;
 }
 

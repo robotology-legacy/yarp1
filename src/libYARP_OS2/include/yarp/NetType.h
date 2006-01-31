@@ -80,12 +80,7 @@ public:
   typedef int32_t NetInt32;
 #else
 #  ifdef YARP2_WINDOWS
-#    ifdef __WIN_MSVC__
-  typedef __int32 NetInt32;
-#    else
-#      include <sys/config.h>
-  typedef __int32_t NetInt32;
-#    endif
+     typedef __int32 NetInt32;
 #  else
 #    error "need to define NetInt32 for this OS; see yarp/NetType.h"
 #  endif

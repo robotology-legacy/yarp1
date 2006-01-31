@@ -1,0 +1,350 @@
+# Microsoft Developer Studio Project File - Name="libYARP_OS" - Package Owner=<4>
+# Microsoft Developer Studio Generated Build File, Format Version 6.00
+# ** DO NOT EDIT **
+
+# TARGTYPE "Win32 (x86) Static Library" 0x0104
+
+CFG=libYARP_OS - Win32 Debug
+!MESSAGE This is not a valid makefile. To build this project using NMAKE,
+!MESSAGE use the Export Makefile command and run
+!MESSAGE 
+!MESSAGE NMAKE /f "libYARP_OS2.mak".
+!MESSAGE 
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE 
+!MESSAGE NMAKE /f "libYARP_OS2.mak" CFG="libYARP_OS2 - Win32 Debug"
+!MESSAGE 
+!MESSAGE Possible choices for configuration are:
+!MESSAGE 
+!MESSAGE "libYARP_OS2 - Win32 Release" (based on "Win32 (x86) Static Library")
+!MESSAGE "libYARP_OS2 - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE 
+
+# Begin Project
+# PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
+CPP=cl.exe
+RSC=rc.exe
+
+!IF  "$(CFG)" == "libYARP_OS2 - Win32 Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "Release"
+# PROP BASE Intermediate_Dir "Release"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "..\obj\winnt"
+# PROP Intermediate_Dir "..\obj\winnt\release"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "../include" /I "../../../include" /I "../../../include/winnt" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# SUBTRACT CPP /YX
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo /out:"..\lib\winnt\libYARP_OS2.lib"
+
+!ELSEIF  "$(CFG)" == "libYARP_OS2 - Win32 Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "Debug"
+# PROP BASE Intermediate_Dir "Debug"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "..\obj\winnt"
+# PROP Intermediate_Dir "..\obj\winnt\debug"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../include" /I "../../../include/winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
+# SUBTRACT CPP /YX
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo /out:"..\lib\winnt\libYARP_OS2d.lib"
+
+!ENDIF 
+
+# Begin Target
+
+# Name "libYARP_OS2 - Win32 Release"
+# Name "libYARP_OS2 - Win32 Debug"
+# Begin Group "Source Files"
+
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\Bottle.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Carriers.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Companion.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\FacePortManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\FakeFace.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\InputConnection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Logger.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\NameClient.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetType.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PortCommand.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Semaphore.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TcpFace.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Tests.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Thread.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Time.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\UnitTest.cpp
+# End Source File
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\include\yarp\String.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Address.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\TcpCarrier.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Carriers.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Carrier.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Face.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Logger.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\OutputProtocol.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Bytes.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\InputProtocol.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\TcpFace.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Route.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\FakeFace.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\BlockReader.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\InputStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\OutputStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\IOException.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\TwoWayStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\StringInputStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\StringOutputStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\StreamBlockReader.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\FakeTwoWayStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\NetType.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Protocol.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\BlockWriter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\ManagedBytes.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\ShiftStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\BufferedBlockWriter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\SocketTwoWayStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\AbstractCarrier.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\TextCarrier.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Time.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Companion.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\SizedWriter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\NameClient.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Bottle.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Portable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\OutputConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\InputConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\PortCommand.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\PortManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\FacePortManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Runnable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Thread.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Semaphore.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Readable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Writable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\UnitTest.h
+# End Source File
+# End Group
+# End Target
+# End Project

@@ -6,6 +6,8 @@
 #include <yarp/BlockReader.h>
 #include <yarp/Logger.h>
 
+#include <ace/OS_NS_stdio.h>
+
 namespace yarp {
   class PortManager;
 }
