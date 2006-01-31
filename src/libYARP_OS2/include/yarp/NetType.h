@@ -40,10 +40,46 @@ public:
   /**
    * Definition of the NetInt32 type
    */
+#ifdef WIN32
+#ifndef YARP2_WINDOWS
+#define YARP2_WINDOWS
+#endif
+#endif
+
+#ifdef _WIN32
+#ifndef YARP2_WINDOWS
+#define YARP2_WINDOWS
+#endif
+#endif
+
+#ifdef WINDOW2
+#ifndef YARP2_WINDOWS
+#define YARP2_WINDOWS
+#endif
+#endif
+
+#ifdef __WIN__
+#ifndef YARP2_WINDOWS
+#define YARP2_WINDOWS
+#endif
+#endif
+
+#ifdef __WINDOWS__
+#ifndef YARP2_WINDOWS
+#define YARP2_WINDOWS
+#endif
+#endif
+
+#ifdef WINDOWS
+#ifndef YARP2_WINDOWS
+#define YARP2_WINDOWS
+#endif
+#endif
+
 #ifdef __LINUX__
   typedef int32_t NetInt32;
 #else
-#  ifdef __WIN__
+#  ifdef YARP2_WINDOWS
 #    ifdef __WIN_MSVC__
   typedef __int32 NetInt32;
 #    else
