@@ -1,6 +1,8 @@
 #include <yarp/FakeTwoWayStream.h>
 #include <yarp/Protocol.h>
 
+#include <ace/OS_NS_stdio.h>
+
 #include "TestList.h"
 
 using namespace yarp;
@@ -51,7 +53,8 @@ public:
       writer.appendLine("0 \"Hello\"");
       p1.write(writer);
 
-      checkEqual(fake1->getOutputText(),"CONNECT /out\nd\n0 \"Hello\"\n",
+	  const char *expect = "CONNECT /out\nd\n0 \"Hello\"\n";
+      checkEqual(fake1->getOutputText(),expect,
 		 "added a bottle");
 
       BlockReader& reader = p2.beginRead();
@@ -60,7 +63,8 @@ public:
       p2.endRead();
 
       checkEqual(str1,String("d"),"data tag");
-      checkEqual(str2,String("0 \"Hello\""),"bottle representation");
+	  const char *expect2 = "0 \"Hello\"";
+      checkEqual(str2,String(expect2),"bottle representation");
     } catch (IOException e) {
       report(1, e.toString() + " <<< exception thrown");
     }

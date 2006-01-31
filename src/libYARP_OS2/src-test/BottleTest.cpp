@@ -34,7 +34,8 @@ public:
     bot.addInt(5);
     bot.addString("hello \"my\" \\friend");
     String txt = bot.toString();
-    checkEqual(txt,String("5 \"hello \\\"my\\\" \\\\friend\""),"string rep");
+	const char *expect = "5 \"hello \\\"my\\\" \\\\friend\"";
+    checkEqual(txt,expect,"string rep");
     Bottle bot2;
     bot2.fromString(txt);
     checkEqual(2,bot2.size(),"return from string rep");

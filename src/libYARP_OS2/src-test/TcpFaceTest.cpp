@@ -49,7 +49,8 @@ private:
 	      String s = br.expectLine();
 	      owner.checkEqual(s.c_str(),"d","command message part");
 	      s = br.expectLine();
-	      owner.checkEqual(s.c_str(),"0 \"Hello World\"",
+		  const char *expect = "0 \"Hello World\"";
+	      owner.checkEqual(s.c_str(),expect,
 			       "payload message part");
 	      ip->endRead();
 	      ip->close();
