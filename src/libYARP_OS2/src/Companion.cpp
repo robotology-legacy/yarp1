@@ -8,9 +8,10 @@ using namespace yarp;
 Companion Companion::instance;
 
 Companion::Companion() {
+  add("help",    &Companion::cmdHelp);
   add("version", &Companion::cmdVersion);
-  add("name",    &Companion::cmdName);
   add("where",   &Companion::cmdWhere);
+  add("name",    &Companion::cmdName);
 }
 
 int Companion::dispatch(const char *name, int argc, char *argv[]) {
@@ -82,5 +83,14 @@ int Companion::cmdWhere(int argc, char *argv[]) {
   Address address = nic.getAddress();
   ACE_OS::printf("Name server is available at ip %s port %d\n",
 		 address.getName().c_str(), address.getPort());
+  return 0;
+}
+
+int Companion::cmdHelp(int argc, char *argv[]) {
+  ACE_OS::printf("Here are ways to use this program:\n");
+  for (unsigned i=0; i<names.size(); i++) {
+    const String& name = names[i];
+    ACE_OS::printf("  <this program> %s\n", name.c_str());
+  }
   return 0;
 }

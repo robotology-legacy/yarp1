@@ -21,9 +21,13 @@ public:
 
 UnitTest::UnitTest() {
   parent = &UnitTest::getRoot();
+  /*
+    // turn automation off, so order of test cases can be chosen
+    // by user
   if (parent!=NULL) {
     parent->add(*this);
   }
+  */
   hasProblem = false;
 }
 
@@ -69,8 +73,7 @@ void UnitTest::runSubTests() {
   //char buf[256];
   //sprintf(buf,"size is %d", subTests.size());
   //report(0,buf);
-  int top = subTests.size()-1;
-  for (int i=top; i>=0; i--) {
+  for (unsigned int i=0; i<subTests.size(); i++) {
     subTests[i]->run();
   }
 }

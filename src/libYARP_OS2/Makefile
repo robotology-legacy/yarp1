@@ -4,8 +4,14 @@ endif
 
 MYCODELIB = libYARP_OS2
 
-norm:
+all:
+	make default
+	cd test; $(MAKE) harness.bin
+	cp test/harness.bin ./cyarp
+
+trial:
 	make default && ( cd src-test; make ) && ( rm /tmp/TRACE.TXT; cd test; export MALLOC_TRACE=/tmp/TRACE.TXT; make clean; make run )
+	cp test/harness.bin ./cyarp
 
 trace:
 	mtrace /tmp/TRACE.TXT | grep -v "was never alloc"
