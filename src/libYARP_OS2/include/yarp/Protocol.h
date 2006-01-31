@@ -34,12 +34,15 @@ public:
   }
 
   virtual ~Protocol() {
+    /*
     if (delegate!=NULL) {
       delegate->close();
       delete delegate;
       delegate = NULL;
     }
     shift.close();
+    */
+    closeHelper();
   }
 
   void setRoute(const Route& route) {
@@ -207,8 +210,16 @@ public:
   }
 
   void close() {
-    if (pendingAck) {
-      sendAck();
+    closeHelper();
+  }
+
+  void closeHelper() {
+    try {
+      if (pendingAck) {
+	sendAck();
+      }
+    } catch (IOException e) {
+      // ok, comms shutting down
     }
     shift.close();
     if (delegate!=NULL) {

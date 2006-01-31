@@ -77,6 +77,10 @@ public:
   bool isValid() {
     return port>=0;
   }
+
+  Address addRegName(const String& regName) const {
+    return Address(name,port,carrier,regName);
+  }
 };
 
 #endif

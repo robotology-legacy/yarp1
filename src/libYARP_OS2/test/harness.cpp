@@ -2,6 +2,7 @@
 #include <yarp/UnitTest.h>
 
 #include <yarp/Logger.h>
+#include <yarp/NameClient.h>
 
 #include "TestList.h"
 
@@ -26,14 +27,18 @@ int main(int argc, char *argv[]) {
   mtrace();
 #endif
 
+  ACE::init();
+
   if (argc<=1) {
     UnitTest::startTestSystem();
     TestList::collectTests();  // just in case automation doesn't work
     UnitTest::getRoot().run();
     UnitTest::stopTestSystem();
+    NameClient::removeNameClient();
   } else {
     yarp_test_main(argc,argv);
   }
+  ACE::fini();
 
   return 0;
 }

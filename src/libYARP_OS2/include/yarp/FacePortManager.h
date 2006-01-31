@@ -8,6 +8,7 @@
 #include <yarp/Thread.h>
 #include <yarp/InputConnection.h>
 #include <yarp/Portable.h>
+#include <yarp/Semaphore.h>
 
 #include <ace/Vector_T.h>
 
@@ -20,11 +21,16 @@ namespace yarp {
  */
 class yarp::FacePortManager : public PortManager, public Runnable {
 public:
-  FacePortManager(const String& name, const Address& address) {
+  FacePortManager(const String& name, const Address& address) :
+    mutex(1) 
+  {
     this->name = name;
     this->address = address;
+    YARP_ASSERT(address.isValid());
+
     reader = NULL;
     face = Carriers::listen(address);
+    closed = false;
   }
 
   void setReader(Readable& reader) {
@@ -32,7 +38,8 @@ public:
   }
 
   virtual ~FacePortManager() {
-    close();
+    closeFace();
+    closeResources();
   }
 
   virtual String getName() {
@@ -42,11 +49,19 @@ public:
   virtual void run();
 
   virtual void close() {
+    closeFace();
+  }
+
+  void closeFace() {
+    closed = true;
     if (face!=NULL) {
       face->close();
       delete face;
       face = NULL;
     }
+  }
+
+  virtual void closeResources() {
     closeInputs();
     closeOutputs();
   }
@@ -69,6 +84,7 @@ private:
   Readable *reader;
   String name;
   Address address;
+  Semaphore mutex;
 
   class InputEntry : public Thread {
   public:
@@ -138,6 +154,7 @@ private:
 
   ACE_Vector<InputEntry *> inputs;
   ACE_Vector<OutputEntry *> outputs;
+  bool closed;
 
   void closeInputs() {
     // TODO - should join with all threads
@@ -157,13 +174,13 @@ private:
   void addInput(InputProtocol *ip) {
     InputEntry *entry = new InputEntry(ip,this);
     inputs.push_back(entry);
-    ACE_OS::printf("There are %d input connections\n", inputs.size());
+    //ACE_OS::printf("There are %d input connections\n", inputs.size());
   }
 
   void addOutput(const String& name, OutputProtocol *op) {
     OutputEntry *entry = new OutputEntry(name,op,this);
     outputs.push_back(entry);
-    ACE_OS::printf("There are %d output connections\n", outputs.size());
+    //ACE_OS::printf("There are %d output connections\n", outputs.size());
   }
 
 

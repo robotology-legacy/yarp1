@@ -100,47 +100,6 @@ static void checkCompanion(int argc, char *argv[]) {
   Companion::main(argc,argv);
 }
 
-static void readTcpBottle() {
-  TcpFace face;
-  face.open(Address("localhost",8000,"tcp"));
-  ACE_OS::printf("waiting\n");
-  InputProtocol *ip = face.read();
-  ACE_OS::printf("got something...\n");
-  ip->open("/cyarp/port");
-  BlockReader& br = ip->beginRead();
-  try {
-    while(true) {
-      String s = br.expectLine();
-      ACE_OS::printf("got [%s] should be just d\n", s.c_str());
-      Bottle bot;
-      bot.readBlock(br);
-      ACE_OS::printf("hopefully got bottle [%s], %d elements\n", 
-		     bot.toString().c_str(), bot.size());
-    }
-  } catch (IOException e) {
-    ACE_OS::printf("issue: %s\n", e.toString().c_str());
-  }
-  ip->endRead();
-  ACE_OS::printf("done\n");  
-  face.close();
-}
-
-
-static void readTcpBottle2() {
-  TcpFace face;
-  face.open(Address("localhost",8000,"tcp"));
-  ACE_OS::printf("waiting\n");
-  InputProtocol *ip = face.read();
-  ACE_OS::printf("got something...\n");
-  PortManager pm;
-  pm.setName("/cyarp/port");
-  InputConnection con(ip,&pm);
-  con.run();
-  ACE_OS::printf("done\n");  
-  face.close();
-}
-
-
 
 
 void checkFacePortManager() {
@@ -170,8 +129,6 @@ int yarp_test_main(int argc, char *argv[]) {
   if (argc<=1) {
     Logger::get().setVerbosity(5);
     ACE_OS::printf("yarp testing underway\n");
-    readTcpBottle();
-    readTcpBottle2();
     checkFacePortManager();
     checkCarriers();
     checkFakeFace();

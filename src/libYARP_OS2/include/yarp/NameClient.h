@@ -5,13 +5,25 @@
 
 namespace yarp {
   class NameClient;
+  class NameServer;
 }
 
 class yarp::NameClient {
 public:
   
   static NameClient& getNameClient() {
-    return instance;
+    if (instance==NULL) {
+      instance = new NameClient();
+    }
+    return *instance;
+  }
+
+  // for memory management testing
+  static void removeNameClient() {
+    if (instance!=NULL) {
+      delete instance;
+      instance = NULL;
+    }
   }
 
   Address getAddress() {
@@ -22,23 +34,10 @@ public:
     return name;
   }
 
-  Address queryName(const String& name) {
-    String q("NAME_SERVER query ");
-    q += getNamePart(name);
-    return probe(q);
-  }
-
-  Address registerName(const String& name) {
-    String q("NAME_SERVER register ");
-    q += getNamePart(name);
-    return probe(q);
-  }
-
-  Address unregisterName(const String& name) {
-    String q("NAME_SERVER unregister ");
-    q += getNamePart(name);
-    return probe(q);
-  }
+  Address queryName(const String& name);
+  Address registerName(const String& name);
+  Address registerName(const String& name, const Address& address);
+  Address unregisterName(const String& name);
 
   Address probe(const String& cmd) {
     String result = send(cmd);
@@ -49,14 +48,32 @@ public:
 
   String send(const String& cmd);
 
+  void setFakeMode(bool fake = true) {
+    this->fake = fake;
+  }
+
+  bool isFakeMode() {
+    return fake;
+  }
+
+  virtual ~NameClient();
+
+
 private:
   NameClient() : address("localhost",10000) { 
+    fake = false;
+    fakeServer = NULL;
   }
+
+  NameServer& getServer();
+
 
   Address address;
   String host;
+  bool fake;
+  NameServer *fakeServer;
 
-  static NameClient instance;
+  static NameClient *instance;
 };
 
 #endif

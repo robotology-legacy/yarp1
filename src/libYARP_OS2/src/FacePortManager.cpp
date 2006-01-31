@@ -3,6 +3,7 @@
 #include <yarp/InputProtocol.h>
 #include <yarp/Logger.h>
 #include <yarp/BufferedBlockWriter.h>
+#include <yarp/Time.h>
 
 // temporary
 #include <yarp/PortCommand.h>
@@ -13,22 +14,44 @@ using namespace yarp;
 
 void FacePortManager::run() {
   YARP_ASSERT(face!=NULL);
-  while (true) {
-    InputProtocol *ip = face->read();
-    addInput(ip);
+  //ACE_OS::printf("FacePortManager::running at %s\n",
+  //	 address.toString().c_str());
+  while (!closed) {
+    try {
+      InputProtocol *ip = face->read();
+      if (ip==NULL) break;
+      if (closed) {
+	ip->close();
+	delete ip;
+	break;
+      }
+      addInput(ip);
+    } catch (IOException e) {
+      ACE_DEBUG((LM_DEBUG,"FacePortManager shutting down: %s\n",
+		 e.toString().c_str()));
+      break;
+    }
   }
+  //ACE_OS::printf("FacePortManager::run shutting down\n");
+  closeResources();
 }
 
 void FacePortManager::readBlock(BlockReader& reader) {
-  ACE_OS::printf("readBlock!\n");
+  mutex.wait();
+
+  //ACE_OS::printf("readBlock!\n");
   if (this->reader!=NULL) {
-  ACE_OS::printf("passing up the read chain\n");
+    //ACE_OS::printf("passing up the read chain\n");
     this->reader->readBlock(reader);
   }
+
+  mutex.post();
 }
 
 
 void FacePortManager::describe() {
+  mutex.wait();
+
   ACE_OS::printf("FacePortManager::describe\n");
   if (hasOutput()) {
     OutputStream& os = getOutputStream();
@@ -71,6 +94,8 @@ void FacePortManager::describe() {
     }
     bw.write(os);
   }
+
+  mutex.post();
 }
 
 void FacePortManager::send(Writable& writer) {
@@ -89,6 +114,8 @@ void FacePortManager::send(Writable& writer) {
 
 
 void FacePortManager::removeInput(const String& src) {
+  mutex.wait();
+
   BufferedBlockWriter bw(true);
   bool success = false;
   for (unsigned int i=0; i<inputs.size(); i++) {
@@ -110,10 +137,14 @@ void FacePortManager::removeInput(const String& src) {
   if (hasOutput()) {
     bw.write(getOutputStream());
   }
+  
+  mutex.post();
 }
 
 
 void FacePortManager::removeOutput(const String& src) {
+  mutex.wait();
+
   BufferedBlockWriter bw(true);
   bw.appendLine(String("Should do something about removing output ") + src);
   bool success = false;
@@ -137,36 +168,30 @@ void FacePortManager::removeOutput(const String& src) {
   if (hasOutput()) {
     bw.write(getOutputStream());
   }
+  
+  mutex.post();
 }
 
 void FacePortManager::addOutput(const String& src) {
+
+  mutex.wait();
+
   BufferedBlockWriter bw(true);
   bw.appendLine(String("Adding output to ") + src);
 
   Address address = NameClient::getNameClient().queryName(src);
-  ACE_OS::printf("Should connect to address %s\n", address.toString().c_str());
+  //ACE_OS::printf("Should connect to address %s\n", address.toString().c_str());
   OutputProtocol *out = Carriers::connect(address);
-  /*
+
   if (out!=NULL) {
-    BufferedBlockWriter buf(true);
-    PortCommand pc('d',"");
-    pc.writeBlock(buf);
-    Bottle bot;
-    bot.fromString("0 \"hello\"");
-    bot.writeBlock(buf);
-    Route route("/here","/there","text");
-    out->open(route);
-    if (out->isActive()) {
-      out->write(buf);
-    }
+    addOutput(src,out);
   }
-  delete out;
-  */
-  addOutput(src,out);
 
   if (hasOutput()) {
     bw.write(getOutputStream());
   }
+
+  mutex.post();
 }
 
 
@@ -180,6 +205,7 @@ void FacePortManager::InputEntry::run() {
 		   e.toString().c_str());
   }
   ACE_OS::printf("an input connection stopped\n");
+  connection.close();
 
   // need to make this entry vanish
   owner->removeInput(this);
@@ -197,7 +223,11 @@ void FacePortManager::OutputEntry::write(SizedWriter& writer) {
     //writable.writeBlock(pc);
     //pc.writeBlock(writer);
     if (op->isActive()) {
+      ACE_OS::printf("about to write...\n");
       op->write(writer);
+      ACE_OS::printf("...wrote\n");
+      Time::delay(0.5);
+      ACE_OS::printf("...wrote 2\n");
     }
   }
 }

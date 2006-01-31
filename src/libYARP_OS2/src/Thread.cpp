@@ -15,6 +15,9 @@ static unsigned __stdcall theExecutiveBranch (void *args)
 unsigned theExecutiveBranch (void *args)
 #endif
 {
+  // just for now -- rather deal with broken pipes through normal procedures
+  ACE_OS::signal(SIGPIPE, SIG_IGN);
+
   Thread *thread = (Thread *)args;
   thread->run();
   Thread::changeCount(-1);
@@ -37,6 +40,12 @@ Thread::Thread(Runnable *target) {
 
 
 Thread::~Thread() {
+}
+
+
+long int Thread::getKey() {
+  // if id doesn't fit in long int, should do local translation
+  return (long int)id;
 }
 
 

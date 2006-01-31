@@ -16,7 +16,7 @@ TcpFace::TcpFace() {
 
 TcpFace::~TcpFace() {
   if (!closed) {
-    close();
+    closeFace();
   }
 }
 
@@ -31,18 +31,32 @@ void TcpFace::open(const Address& address) {
 }
 
 void TcpFace::close() {
+  if (!closed) {
+    closeFace();
+  }
+}
+
+void TcpFace::closeFace() {
+  //ACE_OS::printf("closing TcpFace\n");
+
   YARP_DEBUG(log,"TcpFace should throw exceptions");
   if (!closed) {
+    //ACE_OS::printf("waking TcpFace up\n");
     closed = true;
+    OutputProtocol *op = NULL;
     try {
-      OutputProtocol *op = write(address);
+      op = write(address);
+      //ACE_OS::printf("write done, gave %ld\n", (long int)op);
       if (op!=NULL) {
 	op->close();
-	delete op;
       }
     } catch (IOException e) {
       // no problem
       ACE_OS::printf("exception during write\n");
+    }
+    if (op!=NULL) {
+      delete op;
+      op = NULL;
     }
     peerAcceptor.close();
   }
@@ -82,7 +96,12 @@ InputProtocol *TcpFace::read() {
 
 OutputProtocol *TcpFace::write(const Address& address) {
   SocketTwoWayStream *stream  = new SocketTwoWayStream();
-  stream->open(address);
+  int result = stream->open(address);
+  if (result==-1) {
+    stream->close();
+    delete stream;
+    return NULL;
+  }
   return new Protocol(stream);
 }
 

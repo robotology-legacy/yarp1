@@ -25,6 +25,10 @@ public:
    */
   static int main(int argc, char *argv[]);
 
+  static int connect(const char *target, const char *src);
+
+  static int disconnect(const char *target, const char *src);
+
 private:
 
   Companion();
@@ -37,17 +41,19 @@ private:
 
   int dispatch(const char *name, int argc, char *argv[]);
 
-  int cmdVersion(int argc, char *argv[]) {
-    ACE_OS::printf("YARP Companion utility version %s implemented in C++\n", 
-		   version().c_str());
-    return 0;
-  }
+  int cmdVersion(int argc, char *argv[]);
 
   int cmdName(int argc, char *argv[]);
 
   int cmdWhere(int argc, char *argv[]);
 
   int cmdHelp(int argc, char *argv[]);
+
+  int cmdConnect(int argc, char *argv[]);
+
+  int cmdDisconnect(int argc, char *argv[]);
+
+  static int sendMessage(const String& port, const String& msg);
 
   class Entry {
   public:

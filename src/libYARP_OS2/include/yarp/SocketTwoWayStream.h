@@ -20,13 +20,11 @@ public:
   SocketTwoWayStream() {
   }
 
-  void open(const Address& address) {
+  int open(const Address& address) {
     ACE_SOCK_Connector connector;
     ACE_INET_Addr addr(address.getPort(),address.getName().c_str());
     int result = connector.connect(stream,addr);
-    if (result==-1) {
-      throw IOException("Cannot make socket connection");
-    }
+    return result;
   }
 
   void open(ACE_SOCK_Acceptor& acceptor) {

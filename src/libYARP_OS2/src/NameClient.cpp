@@ -2,11 +2,17 @@
 #include <yarp/Logger.h>
 #include <yarp/TcpFace.h>
 #include <yarp/NetType.h>
-
+#include <yarp/NameServer.h>
 
 using namespace yarp;
 
-NameClient NameClient::instance;
+/**
+ * The NameClient singleton
+ */
+
+
+NameClient *NameClient::instance = NULL;
+
 
 
 /*
@@ -97,6 +103,10 @@ String NameClient::send(const String& cmd) {
   String result;
   TcpFace face;
   OutputProtocol *ip = face.write(getAddress());
+  if (ip==NULL) {
+    ACE_OS::fprintf(stderr,"no connection to nameserver\n");
+    return "";
+  }
   String cmdn = cmd + "\n";
   Bytes b((char*)cmdn.c_str(),cmdn.length());
   ip->getOutputStream().write(b);
@@ -111,8 +121,64 @@ String NameClient::send(const String& cmd) {
     result += line + "\n";
   }
   ip->close();
+  delete ip;
   ACE_DEBUG((LM_DEBUG,"<<< received from nameserver: %s",result.c_str()));
   return result;
 }
+
+
+
+Address NameClient::queryName(const String& name) {
+  String np = getNamePart(name);
+  if (isFakeMode()) {
+    return getServer().queryName(np);
+  }
+  String q("NAME_SERVER query ");
+  q += np;
+  return probe(q);
+}
+
+Address NameClient::registerName(const String& name) {
+  return registerName(name,Address());
+}
+
+Address NameClient::registerName(const String& name, const Address& suggest) {
+  String np = getNamePart(name);
+  if (isFakeMode()) {
+    YARP_ASSERT(suggest.isValid()==true);
+    return getServer().registerName(np,suggest);
+  }
+  YARP_ASSERT(suggest.isValid()==false);
+  String q("NAME_SERVER register ");
+  q += np;
+  return probe(q);
+}
+
+Address NameClient::unregisterName(const String& name) {
+  String np = getNamePart(name);
+  if (isFakeMode()) {
+    return getServer().unregisterName(np);
+  }
+  String q("NAME_SERVER unregister ");
+  q += np;
+  return probe(q);
+}
+
+
+NameClient::~NameClient() {
+  if (fakeServer!=NULL) {
+    delete fakeServer;
+    fakeServer = NULL;
+  }
+}
+
+NameServer& NameClient::getServer() {
+  if (fakeServer==NULL) {
+    fakeServer = new NameServer;
+  }
+  YARP_ASSERT(fakeServer!=NULL);
+  return *fakeServer;
+}
+
 
 

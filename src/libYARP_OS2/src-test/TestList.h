@@ -21,11 +21,14 @@ extern yarp::UnitTest& getStreamBlockReaderTest();
 extern yarp::UnitTest& getBufferedBlockWriterTest();
 extern yarp::UnitTest& getProtocolTest();
 extern yarp::UnitTest& getTcpFaceTest();
+extern yarp::UnitTest& getFacePortManagerTest();
+extern yarp::UnitTest& getNameServerTest();
 
 class yarp::TestList {
 public:
   static void collectTests() {
     UnitTest& root = UnitTest::getRoot();
+    /*
     root.add(getBottleTest());
     root.add(getStringTest());
     root.add(getAddressTest());
@@ -38,6 +41,9 @@ public:
     root.add(getThreadTest());
     root.add(getProtocolTest());
     root.add(getTcpFaceTest());
+    */
+    root.add(getFacePortManagerTest());
+    //root.add(getNameServerTest());
   }
 };
 

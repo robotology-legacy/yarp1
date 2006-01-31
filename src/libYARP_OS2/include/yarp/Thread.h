@@ -31,6 +31,10 @@ public:
 
   // won't be public for long...
   static void changeCount(int delta);
+
+  // get a unique key
+  long int getKey();
+
 private:
   int stackSize;
   ACE_hthread_t hid;

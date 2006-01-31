@@ -3,15 +3,20 @@
 #include <yarp/NameClient.h>
 #include <yarp/Logger.h>
 
+#include <yarp/Carriers.h>
+#include <yarp/BufferedBlockWriter.h>
+
 using namespace yarp;
 
 Companion Companion::instance;
 
 Companion::Companion() {
-  add("help",    &Companion::cmdHelp);
-  add("version", &Companion::cmdVersion);
-  add("where",   &Companion::cmdWhere);
-  add("name",    &Companion::cmdName);
+  add("help",       &Companion::cmdHelp);
+  add("version",    &Companion::cmdVersion);
+  add("where",      &Companion::cmdWhere);
+  add("name",       &Companion::cmdName);
+  add("connect",    &Companion::cmdConnect);
+  add("disconnect", &Companion::cmdDisconnect);
 }
 
 int Companion::dispatch(const char *name, int argc, char *argv[]) {
@@ -94,3 +99,73 @@ int Companion::cmdHelp(int argc, char *argv[]) {
   }
   return 0;
 }
+
+
+int Companion::cmdVersion(int argc, char *argv[]) {
+  ACE_OS::printf("YARP Companion utility version %s implemented in C++\n", 
+		 version().c_str());
+  return 0;
+}
+
+
+int Companion::sendMessage(const String& port, const String& msg) {
+  NameClient& nic = NameClient::getNameClient();
+  Address srcAddress = nic.queryName(port);
+  //Address srcAddress("localhost",9999,"tcp");
+  if (!srcAddress.isValid()) {
+    ACE_OS::fprintf(stderr, "Cannot find port named %s\n", port.c_str());
+    return 1;
+  } 
+  OutputProtocol *out = Carriers::connect(srcAddress);
+  if (out==NULL) {
+    ACE_OS::fprintf(stderr, "Cannot connect to port named %s at %s\n", 
+		    port.c_str(),
+		    srcAddress.toString().c_str());
+    return 1;
+  }
+  Route route("external",port,"text");
+  out->open(route);
+  BufferedBlockWriter bw;
+  bw.appendLine(msg);
+  out->write(bw);
+  out->close();
+  delete out;
+  out = NULL;
+  
+  return 0;
+}
+
+
+int Companion::cmdConnect(int argc, char *argv[]) {
+  if (argc!=2) {
+    ACE_OS::fprintf(stderr, "Currently must have two arguments, a sender port and receiver port\n");
+    return 1;
+  }
+
+  const char *src = argv[0];
+  const char *dest = argv[1];
+  return connect(src,dest);
+}
+
+
+int Companion::cmdDisconnect(int argc, char *argv[]) {
+  if (argc!=2) {
+    ACE_OS::fprintf(stderr, "Currently must have two arguments, a sender port and receiver port\n");
+    return 1;
+  }
+
+  const char *src = argv[0];
+  const char *dest = argv[1];
+  return disconnect(src,dest);
+}
+
+
+int Companion::connect(const char *src, const char *dest) {
+  return sendMessage(src,dest);
+}
+
+int Companion::disconnect(const char *src, const char *dest) {
+  return sendMessage(src,String("!")+dest);
+}
+
+

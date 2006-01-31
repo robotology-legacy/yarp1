@@ -32,7 +32,7 @@ public:
   }
 
   virtual ~InputConnection() {
-    close();
+    closeConnection();
   }
 
   virtual void run();
@@ -45,7 +45,11 @@ public:
   }
 
   virtual void close() {
-    ACE_OS::printf("InputConnection::close needs work\n");
+    closeConnection();
+  }
+
+  void closeConnection() {
+    //ACE_OS::printf("InputConnection::close needs work\n");
     if (proto!=NULL) {
       proto->close();
       delete proto;
