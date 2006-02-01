@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-connect.cpp,v 2.0 2005-11-10 17:36:29 gmetta Exp $
+/// $Id: yarp-connect.cpp,v 2.1 2006-02-01 15:23:11 natta Exp $
 ///
 ///
 
@@ -72,6 +72,12 @@ int main(int argc, char *argv[])
       argv++;
     }
   }
+  ACE_OS::printf("Connecting %s to %s ", argv[1], argv[2]);
+  if (reconnect==1)
+    ACE_OS::printf("(disconnecting first)\n", argv[1], argv[2]);
+  else
+    ACE_OS::printf("\n");
+    
 	if (argc == 3)
 	{
 	  if (reconnect) {
