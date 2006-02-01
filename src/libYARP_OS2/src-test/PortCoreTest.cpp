@@ -61,7 +61,7 @@ public:
 
 
   void testBottle() {
-    report(0,"simple bottle transmission check (needs 9997,9998,9998)...");
+    report(0,"simple bottle transmission check (needs ports 9997, 9998, 9999)...");
 
     expectation = "";
     receives = 0;
