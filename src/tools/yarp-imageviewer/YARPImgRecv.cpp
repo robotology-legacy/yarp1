@@ -16,8 +16,8 @@ YARPImgRecv::YARPImgRecv()
 	_portNameIsValid = false;
 	_logpolar = false;
 	_fovea = false;
-	_currentFrameTime = 0;
-	_lastFrameTime = 0;
+	_currentFrameTime = 0.0;
+	_lastFrameTime = 0.0;
 }
 
 YARPImgRecv::~YARPImgRecv()
@@ -113,7 +113,7 @@ bool YARPImgRecv::Update()
 	_height = (_inPort.Content()).GetHeight();
 	
 	_lastFrameTime = _currentFrameTime;
-	_currentFrameTime = clock();
+	_currentFrameTime = YARPTime::GetTimeAsSeconds();
 	return true;
 }
 
@@ -218,7 +218,7 @@ int YARPImgRecv::GetHeight()
 double YARPImgRecv::GetEstimatedInterval()
 {
 	double estInterval;
-	estInterval = double(_currentFrameTime - _lastFrameTime) / CLK_TCK;
+	estInterval = _currentFrameTime - _lastFrameTime;
 	return estInterval;
 }
 

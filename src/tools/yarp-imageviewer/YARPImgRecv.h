@@ -22,10 +22,7 @@
 #include <yarp/YARPImageFile.h>
 #include <yarp/YARPPort.h>
 #include <yarp/YARPLogpolar.h>
-//=============================================================================
-// System Includes
-//=============================================================================
-#include <time.h>
+#include <yarp/YARPTime.h>
 
 // TO DO: convert to thread??
 
@@ -65,8 +62,8 @@ private:
 	int _height;
 	bool _logpolar;
 	bool _fovea;
-	clock_t _currentFrameTime;
-	clock_t _lastFrameTime;
+	double _currentFrameTime;
+	double _lastFrameTime;
 };
 
 #endif // !defined(AFX_YARPIMGRECV_H__2654CA92_2656_48E0_9A91_F6CD59F11AC4__INCLUDED_)

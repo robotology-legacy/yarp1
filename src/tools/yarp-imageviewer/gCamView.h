@@ -15,14 +15,11 @@
 #include <yarp/YARPSemaphore.h>
 #include <yarp/YARPParseParameters.h>
 #include <yarp/YARPConfigFile.h>
+#include <yarp/YARPBottleContent.h>
 //=============================================================================
 // GTK Includes 
 //=============================================================================
 #include <gtk/gtk.h>
-//=============================================================================
-// System Includes 
-//=============================================================================
-//#include <conio.h>
 //=============================================================================
 // Local Includes 
 //=============================================================================
@@ -67,6 +64,10 @@ GtkWidget* createMenubar();
 //-------------------------------------------------
 void updateStatusbar (GtkStatusbar *statusbar);
 //-------------------------------------------------
+// Main Window
+//-------------------------------------------------
+GtkWidget* createMainWindow(void);
+//-------------------------------------------------
 // Service Functions
 //-------------------------------------------------
 bool getImage();
@@ -76,6 +77,9 @@ void parseParameters(int argc, char *argv[]);
 void saveOptFile(char *fileName);
 void saveCurrentFrame();
 void setOptionsToDefault();
+bool openPorts();
+void closePorts();
+void setUp();
 
 //-------------------------------------------------
 // Global Variables
@@ -113,6 +117,8 @@ bool _savingSet;
 int _occupiedHeight;
 // Frame must be freezed
 bool _freezed;
+// Output Point Port
+YARPOutputPortOf<YARPBottle> *_pOutPort;
 //-------------------------------------------------
 // Program Options 
 //-------------------------------------------------
@@ -129,6 +135,9 @@ struct mOptions
 	int				saveOnExit;
 	int				logpolar;
 	int				fovea;
+	char			outPortName[256];
+	char			outNetworkName[256];
+	int				outputEnabled;
 };
 
 typedef struct mOptions pgmOptions;

@@ -39,20 +39,9 @@ static gboolean delete_event( GtkWidget *widget, GdkEvent *event, gpointer data 
     // This is useful for popping up 'are you sure you want to quit?'
     // type dialogs. 
 
-	  g_source_remove (timeout_ID);
+	g_source_remove (timeout_ID);
 	timeout_ID = 0;
-	bool ret = false;
-	g_print("Uregistering port(s)...\n");
-	ret = _imgRecv.Disconnect();
-	if (ret)
-	{
-		g_print("Port unregistration succeed!\n");
-	}
-	else
-	{
-		g_print("ERROR: Port unregistration failed.\n");
-	}
-	
+	closePorts();
 	if (_options.saveOnExit != 0)
 		saveOptFile(_options.fileName);
 	// Exit from application
@@ -473,6 +462,50 @@ void updateStatusbar (GtkStatusbar  *statusbar)
 }
 
 //-------------------------------------------------
+// Main Window 
+//-------------------------------------------------
+GtkWidget* createMainWindow(void)
+{
+	GtkRequisition actualSize;
+	GtkWidget* window;
+	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title (GTK_WINDOW (window), "YARP GTK Image Viewer");
+	gtk_window_set_default_size(GTK_WINDOW (window), _options.windWidth, _options.windHeight); 
+	gtk_window_set_resizable (GTK_WINDOW (window), TRUE);
+    // When the window is given the "delete_event" signal (this is given
+	// by the window manager, usually by the "close" option, or on the
+	// titlebar), we ask it to call the delete_event () function
+	// as defined above. The data passed to the callback
+	// function is NULL and is ignored in the callback function.
+    g_signal_connect (G_OBJECT (window), "delete_event", G_CALLBACK (delete_event), NULL);
+    // Box for main window
+	GtkWidget *box;
+	box = gtk_vbox_new (FALSE, 0); // parameters (gboolean homogeneous_space, gint spacing);
+    gtk_container_add (GTK_CONTAINER (window), box);
+	// MenuBar for main window
+	menubar = createMenubar();
+	gtk_box_pack_start (GTK_BOX (box), menubar, FALSE, TRUE, 0); // parameters (GtkBox *box, GtkWidget *child, gboolean expand, gboolean fill, guint padding);
+	gtk_widget_size_request(menubar, &actualSize);
+	// Drawing Area : here the image will be drawed
+	da = gtk_drawing_area_new ();
+	g_signal_connect (da, "expose_event", G_CALLBACK (expose_CB), NULL);
+	gtk_box_pack_start(GTK_BOX(box), da, TRUE, TRUE, 0);
+	// StatusBar for main window
+	statusbar = gtk_statusbar_new ();
+	updateStatusbar(GTK_STATUSBAR (statusbar));
+	gtk_box_pack_start (GTK_BOX (box), statusbar, FALSE, TRUE, 0);
+	gtk_widget_size_request(statusbar, &actualSize);
+	_occupiedHeight += 2*(actualSize.height);
+
+	_inputImg.Resize(_options.windWidth, _options.windHeight);
+	frame = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, _options.windWidth, _options.windHeight);
+	// TimeOut used to refresh the screen
+	timeout_ID = gtk_timeout_add (_options.refreshTime, timeout_CB, NULL);
+	
+	return window;
+}
+
+//-------------------------------------------------
 // Service Fuctions
 //-------------------------------------------------
 void saveCurrentFrame()
@@ -522,7 +555,7 @@ bool yarpImage2pixbuf(YARPImageOf<YarpPixelRGB> *sourceImg, GdkPixbuf* destPixbu
 
 	if ( src_line_size == rowstride)
 	{
-		memcpy(dst_data, src_data, dst_size_in_memory);
+		ACE_OS::memcpy(dst_data, src_data, dst_size_in_memory);
 	}
 	else
 	{
@@ -530,7 +563,7 @@ bool yarpImage2pixbuf(YARPImageOf<YarpPixelRGB> *sourceImg, GdkPixbuf* destPixbu
 		{
 			p_dst = dst_data + i * rowstride;
 			p_src = src_data + i * src_line_size;
-			memcpy(p_dst, p_src, (n_channels*width));
+			ACE_OS::memcpy(p_dst, p_src, (n_channels*width));
 		}
 	}
 
@@ -545,16 +578,19 @@ void parseOptFile(char *fileName)
 	optFile.setName(fileName);
 
 	if ( optFile.getString("[NETWORK]", "PortName", s_tmp) == YARP_OK) 
-		sprintf(_options.portName, s_tmp);
-
+		ACE_OS::sprintf(_options.portName, s_tmp);
 	if ( optFile.getString("[NETWORK]", "NetName", s_tmp) == YARP_OK)
-		sprintf(_options.networkName, s_tmp);
-
-	optFile.get("[WINDOW]", "RefreshTime", &_options.refreshTime);
+		ACE_OS::sprintf(_options.networkName, s_tmp);
+	if ( optFile.getString("[NETWORK]", "OutPortName", s_tmp) == YARP_OK) 
+		ACE_OS::sprintf(_options.outPortName, s_tmp);
+	if ( optFile.getString("[NETWORK]", "OutNetName", s_tmp) == YARP_OK)
+		ACE_OS::sprintf(_options.outNetworkName, s_tmp);
+		optFile.get("[WINDOW]", "RefreshTime", &_options.refreshTime);
 	optFile.get("[WINDOW]", "PosX", &_options.posX);
 	optFile.get("[WINDOW]", "PosY", &_options.posY);
 	optFile.get("[WINDOW]", "Width", &_options.windWidth);
 	optFile.get("[WINDOW]", "Height", &_options.windHeight);
+	optFile.get("[PROGRAM]", "OutputEnabled", &_options.outputEnabled);
 	optFile.get("[PROGRAM]", "SaveOptions", &_options.saveOnExit);
 	optFile.get("[PROGRAM]", "Logpolar", &_options.logpolar);
 	optFile.get("[PROGRAM]", "Fovea", &_options.fovea);
@@ -563,27 +599,30 @@ void parseOptFile(char *fileName)
 void saveOptFile(char *fileName)
 {
 	FILE *optFile = NULL;
-	optFile = fopen(_options.fileName,"wt");
+	optFile = ACE_OS::fopen(_options.fileName,"wt");
 	if (optFile == NULL)
 	{
 		g_print("ERROR: Impossible to save to option file.\n");
 		return;
 	}
-	fprintf(optFile,"[NETWORK]\n" );
-	fprintf(optFile,"PortName %s\n", _options.portName);
-	fprintf(optFile,"NetName %s\n", _options.networkName);
-	fprintf(optFile,"[WINDOW]\n" );
-	fprintf(optFile,"RefreshTime %d\n", _options.refreshTime);
-	fprintf(optFile,"PosX %d\n", _options.posX);
-	fprintf(optFile,"PosY %d\n", _options.posY);
-	fprintf(optFile,"Width %d\n", _options.windWidth);
-	fprintf(optFile,"Height %d\n", _options.windHeight);
-	fprintf(optFile,"[PROGRAM]\n" );
-	fprintf(optFile,"SaveOptions %d\n", _options.saveOnExit);
-	fprintf(optFile,"Logpolar %d\n", _options.logpolar);
-	fprintf(optFile,"Fovea %d\n", _options.fovea);
+	ACE_OS::fprintf(optFile,"[NETWORK]\n" );
+	ACE_OS::fprintf(optFile,"PortName %s\n", _options.portName);
+	ACE_OS::fprintf(optFile,"NetName %s\n", _options.networkName);
+	ACE_OS::fprintf(optFile,"OutPortName %s\n", _options.outPortName);
+	ACE_OS::fprintf(optFile,"OutNetName %s\n", _options.outNetworkName);
+	ACE_OS::fprintf(optFile,"[WINDOW]\n" );
+	ACE_OS::fprintf(optFile,"RefreshTime %d\n", _options.refreshTime);
+	ACE_OS::fprintf(optFile,"PosX %d\n", _options.posX);
+	ACE_OS::fprintf(optFile,"PosY %d\n", _options.posY);
+	ACE_OS::fprintf(optFile,"Width %d\n", _options.windWidth);
+	ACE_OS::fprintf(optFile,"Height %d\n", _options.windHeight);
+	ACE_OS::fprintf(optFile,"[PROGRAM]\n" );
+	ACE_OS::fprintf(optFile,"OutputEnables %d\n", _options.outputEnabled);
+	ACE_OS::fprintf(optFile,"SaveOptions %d\n", _options.saveOnExit);
+	ACE_OS::fprintf(optFile,"Logpolar %d\n", _options.logpolar);
+	ACE_OS::fprintf(optFile,"Fovea %d\n", _options.fovea);
 	
-	fclose(optFile);
+	ACE_OS::fclose(optFile);
 }
 
 void parseParameters(int argc, char* argv[])
@@ -592,10 +631,10 @@ void parseParameters(int argc, char* argv[])
 	int i_tmp;
 
 	if(YARPParseParameters::parse(argc, argv, "-name", s_tmp))
-		sprintf(_options.portName, s_tmp);
+		ACE_OS::sprintf(_options.portName, s_tmp);
 		
 	if (YARPParseParameters::parse(argc, argv, "-net", s_tmp))
-		sprintf(_options.networkName, s_tmp);
+		ACE_OS::sprintf(_options.networkName, s_tmp);
 
 	if (YARPParseParameters::parse(argc, argv, "-p", &i_tmp))
 		_options.refreshTime = i_tmp;
@@ -626,54 +665,118 @@ void parseParameters(int argc, char* argv[])
 	else 
 		_options.fovea = 0;
 
-	/*
-	m_out_portname = "/view/o:point";
-	if (YARPParseParameters::parse(argc, argv, "-out", dummy)) 
+	if (YARPParseParameters::parse(argc, argv, "-out", s_tmp)) 
 	{ 
-		/// adds the leading /
-		m_out_portname = dummy;
-		m_enable_output = true;
-	}
-	else
-	{
-		/// default value if not specified, outport is actually disabled.
-		m_out_portname = m_portname + "/out";
-		m_enable_output = false;
+		ACE_OS::sprintf(_options.outPortName, s_tmp);
+		_options.outputEnabled = 1;
 	}
 
-	if (YARPParseParameters::parse(argc, argv, "-neto", dummy))
-		m_out_netname = dummy;
-	else
-		m_out_netname = "default";
-	*/
+
+	if (YARPParseParameters::parse(argc, argv, "-neto", s_tmp))
+		ACE_OS::sprintf(_options.outNetworkName, s_tmp);
+
 }
 
 void setOptionsToDefault()
 {
 	// Options defaults
 	_options.refreshTime = 100;
-	sprintf(_options.portName,"/gcamview/i:img");
-	sprintf(_options.networkName, "default");
+	ACE_OS::sprintf(_options.portName,"/gcamview/i:img");
+	ACE_OS::sprintf(_options.networkName, "default");
+	ACE_OS::sprintf(_options.outPortName,"/gcamview/o:point");
+	ACE_OS::sprintf(_options.outNetworkName, "default");
+	_options.outputEnabled = 0;
 	_options.windWidth = 300;
 	_options.windHeight = 300;
 	_options.posX = 100;
 	_options.posY = 100;
-	sprintf(_options.fileName,"gcamview.conf");
+	ACE_OS::sprintf(_options.fileName,"gcamview.conf");
 	_options.saveOnExit = 0;
 	_options.logpolar = 0;
 	_options.fovea = 0;
 
 }
 
+bool openPorts()
+{
+	bool ret = false;
+	int res = 0;
+	// Registering Port(s)
+	g_print("Registering port %s on network %s...\n", _options.portName, _options.networkName);
+	ret = _imgRecv.Connect(_options.portName, _options.networkName);
+	if (ret == true)
+	{
+		g_print("Port registration succeed!\n");
+	}
+	else
+	{
+		g_print("ERROR: Port registration failed.\nQuitting, sorry.\n");
+		return false;
+	}
+	if (_options.outputEnabled == 1)
+	{
+		_pOutPort = new YARPOutputPortOf<YARPBottle>(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+		g_print("Registering port %s on network %s...\n", _options.outPortName, _options.outNetworkName);
+		res = _pOutPort->Register(_options.outPortName, _options.outNetworkName);
+		if  (res == YARP_OK)
+			g_print("Port registration succeed!\n");
+		else 
+		{
+			g_print("ERROR: Port registration failed.\nQuitting, sorry.\n");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void closePorts()
+{
+	bool ret = false;
+	int res = 0;
+	g_print("Uregistering port(s)...\n");
+	ret = _imgRecv.Disconnect();
+	if (ret)
+	{
+		g_print("Port %s unregistration succeed!\n", _options.portName);
+	}
+	else
+	{
+		g_print("ERROR: Port %s unregistration failed.\n", _options.portName);
+	}
+	
+	if (_options.outputEnabled == 1)
+	{
+		res = _pOutPort->Unregister();
+		if  (res == YARP_OK)
+			g_print("Port %s unregistration succeed!\n", _options.outPortName);
+		else 
+			g_print("ERROR: Port %s unregistration failed.\n", _options.outPortName);
+		delete _pOutPort;
+	}
+}
+
+void setUp()
+{
+	if (_options.logpolar == 0)
+		_imgRecv.SetLogopolar(false);
+	else
+		_imgRecv.SetLogopolar(true);
+	if (_options.fovea == 0)
+		_imgRecv.SetFovea(false);
+	else
+		_imgRecv.SetFovea(true);
+	
+	if (openPorts() == false)
+		ACE_OS::exit(1);
+}
+
 //-------------------------------------------------
 // Main
 //-------------------------------------------------
 
-int main(int argc, char* argv[])
+ int main(int argc, char* argv[])
 {
-	// local useful variables
-	bool ret = false;
-	GtkRequisition actualSize;
 	// Global variables init
 	_frameN = 0;
 	_savingSet = false;
@@ -685,28 +788,9 @@ int main(int argc, char* argv[])
 	parseOptFile(_options.fileName);
 	// Parse command line parameters
 	parseParameters(argc, argv);
-	// Setting Up ImageReceiver parameters
-	if (_options.logpolar == 0)
-		_imgRecv.SetLogopolar(false);
-	else
-		_imgRecv.SetLogopolar(true);
-	if (_options.fovea == 0)
-		_imgRecv.SetFovea(false);
-	else
-		_imgRecv.SetFovea(true);
-	// Registering Port(s)
-	g_print("Registering port %s on network %s...\n", _options.portName, _options.networkName);
-	ret = _imgRecv.Connect(_options.portName, _options.networkName);
-	if (ret == true)
-	{
-		g_print("Port registration succeed!\n");
-	}
-	else
-	{
-		g_print("ERROR: Port registration failed.\nQuitting, sorry.\n");
-		exit(1);
-	}
-	
+	// Setting Up Program
+	setUp();
+
 	g_print("Starting application..\n");
 	
 	// This is called in all GTK applications. Arguments are parsed
@@ -714,39 +798,8 @@ int main(int argc, char* argv[])
     gtk_init (&argc, &argv);
 
 	// create a new window
-    mainWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title (GTK_WINDOW (mainWindow), "YARP GTK Image Viewer");
-	gtk_window_set_default_size(GTK_WINDOW (mainWindow), _options.windWidth, _options.windHeight); 
-	gtk_window_set_resizable (GTK_WINDOW (mainWindow), TRUE);
-    // When the window is given the "delete_event" signal (this is given
-	// by the window manager, usually by the "close" option, or on the
-	// titlebar), we ask it to call the delete_event () function
-	// as defined above. The data passed to the callback
-	// function is NULL and is ignored in the callback function.
-    g_signal_connect (G_OBJECT (mainWindow), "delete_event", G_CALLBACK (delete_event), NULL);
-    // Box for main window
-	GtkWidget *box;
-	box = gtk_vbox_new (FALSE, 0); // parameters (gboolean homogeneous_space, gint spacing);
-    gtk_container_add (GTK_CONTAINER (mainWindow), box);
-	// MenuBar for main window
-	menubar = createMenubar();
-	gtk_box_pack_start (GTK_BOX (box), menubar, FALSE, TRUE, 0); // parameters (GtkBox *box, GtkWidget *child, gboolean expand, gboolean fill, guint padding);
-	gtk_widget_size_request(menubar, &actualSize);
-	// Drawing Area : here the image will be drawed
-	da = gtk_drawing_area_new ();
-	g_signal_connect (da, "expose_event", G_CALLBACK (expose_CB), NULL);
-	gtk_box_pack_start(GTK_BOX(box), da, TRUE, TRUE, 0);
-	// StatusBar for main window
-	statusbar = gtk_statusbar_new ();
-	updateStatusbar(GTK_STATUSBAR (statusbar));
-	gtk_box_pack_start (GTK_BOX (box), statusbar, FALSE, TRUE, 0);
-	gtk_widget_size_request(statusbar, &actualSize);
-	_occupiedHeight += 2*(actualSize.height);
-
-	_inputImg.Resize(_options.windWidth, _options.windHeight);
-	frame = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, _options.windWidth, _options.windHeight);
-	// TimeOut used to refresh the screen
-	timeout_ID = gtk_timeout_add (_options.refreshTime, timeout_CB, NULL);
+    mainWindow = createMainWindow();
+	
 	// Non Modal Dialogs
 	saveSingleDialog = createSaveSingleDialog();
 	saveSetDialog = createSaveSetDialog();
