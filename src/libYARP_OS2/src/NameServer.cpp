@@ -24,7 +24,7 @@ Address NameServer::queryName(const String& name) {
 
 NameServer::NameRecord *NameServer::getNameRecord(const String& name, 
 						  bool create) {
-  ACE_Hash_Map_Entry<String,NameRecord> *entry;
+  ACE_Hash_Map_Entry<String,NameRecord> *entry = NULL;
   int result = nameMap.find(name,entry);
   if (result==-1) {
     if (!create) {
@@ -34,6 +34,7 @@ NameServer::NameRecord *NameServer::getNameRecord(const String& name,
     result = nameMap.find(name,entry);
   }
   YARP_ASSERT(result!=-1);
+  YARP_ASSERT(entry!=NULL);
   return &(entry->int_id_);
 }
 
