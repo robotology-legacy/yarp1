@@ -64,6 +64,8 @@ private:
 
   int cmdWrite(int argc, char *argv[]);
 
+  int cmdRegression(int argc, char *argv[]);
+
   static int sendMessage(const String& port, const String& msg, 
 			 bool silent = false);
 

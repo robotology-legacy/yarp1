@@ -27,6 +27,7 @@ Companion::Companion() {
   add("disconnect", &Companion::cmdDisconnect);
   add("read",       &Companion::cmdRead);
   add("write",      &Companion::cmdWrite);
+  add("regression", &Companion::cmdRegression);
 }
 
 int Companion::dispatch(const char *name, int argc, char *argv[]) {
@@ -50,7 +51,8 @@ int Companion::main(int argc, char *argv[]) {
   argv++;
 
   if (argc<=0) {
-    ACE_OS::printf("This is the YARP network companion\n");
+    ACE_OS::printf("This is the YARP network companion.\n");
+    ACE_OS::printf("Call with the argument \"help\" to see a list of ways to use this program.\n");
     return 0;
   }
 
@@ -197,6 +199,11 @@ int Companion::cmdWrite(int argc, char *argv[]) {
   return write(src,argc-1,argv+1);
 }
 
+
+int Companion::cmdRegression(int argc, char *argv[]) {
+  ACE_OS::fprintf(stderr,"no regression tests here\n");
+  return 1;
+}
 
 
 int Companion::connect(const char *src, const char *dest, bool silent) {
