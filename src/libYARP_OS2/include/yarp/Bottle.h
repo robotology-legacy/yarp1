@@ -24,6 +24,9 @@ public:
     virtual void readBlock(BlockReader& reader) = 0;
     virtual void writeBlock(BlockWriter& writer) = 0;
     virtual Storable *create() = 0;
+
+    virtual int asInt() { return 0; }
+    virtual String asString() { return ""; }
   };
 
   class StoreInt : public Storable {
@@ -37,6 +40,7 @@ public:
     virtual void readBlock(BlockReader& reader);
     virtual void writeBlock(BlockWriter& writer);
     virtual Storable *create() { return new StoreInt(0); }
+    virtual int asInt() { return x; }
   };
 
   class StoreString : public Storable {
@@ -50,6 +54,7 @@ public:
     virtual void readBlock(BlockReader& reader);
     virtual void writeBlock(BlockWriter& writer);
     virtual Storable *create() { return new StoreString(String("")); }
+    virtual String asString() { return x; }
   };
 
   /*
@@ -68,6 +73,13 @@ public:
 
   Bottle();
   virtual ~Bottle();
+
+
+  bool isInt(int index);
+  bool isString(int index);
+
+  int getInt(int index);
+  String getString(int index);
 
   void addInt(int x) {
     add(new StoreInt(x));

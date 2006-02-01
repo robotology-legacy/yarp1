@@ -5,6 +5,8 @@
 
 #include <yarp/Carriers.h>
 #include <yarp/BufferedBlockWriter.h>
+#include <yarp/PortCore.h>
+#include <yarp/Bottle.h>
 
 using namespace yarp;
 
@@ -17,6 +19,7 @@ Companion::Companion() {
   add("name",       &Companion::cmdName);
   add("connect",    &Companion::cmdConnect);
   add("disconnect", &Companion::cmdDisconnect);
+  add("read",       &Companion::cmdRead);
 }
 
 int Companion::dispatch(const char *name, int argc, char *argv[]) {
@@ -165,12 +168,82 @@ int Companion::cmdDisconnect(int argc, char *argv[]) {
 }
 
 
+
+int Companion::cmdRead(int argc, char *argv[]) {
+  if (argc!=1) {
+    ACE_OS::fprintf(stderr, "Currently supply the port name\n");
+    return 1;
+  }
+
+  const char *src = argv[0];
+  return read(src);
+}
+
+
+
 int Companion::connect(const char *src, const char *dest, bool silent) {
   return sendMessage(src,dest,silent);
 }
 
 int Companion::disconnect(const char *src, const char *dest, bool silent) {
   return sendMessage(src,String("!")+dest,silent);
+}
+
+
+
+// just a temporary implementation until real ports are available
+class BottleReader : public Readable {
+private:
+  PortCore core;
+  Semaphore done;
+public:
+  BottleReader(const char *name) : done(0) {
+    NameClient nic = NameClient::getNameClient();
+    Address address = nic.registerName(name);
+    core.setReadHandler(*this);
+    ACE_OS::fprintf(stderr,"Port %s listening at %s\n", 
+		    name,
+		    address.toString().c_str());
+    core.listen(address);
+    core.start();
+  }
+
+  void wait() {
+    done.wait();
+  }
+
+  virtual void readBlock(BlockReader& reader) {
+    Bottle bot;
+    bot.readBlock(reader);
+    if (bot.size()==2) {
+      int code = bot.getInt(0);
+      if (code!=1) {
+	ACE_OS::printf("%s\n", bot.getString(1).c_str());
+      }
+      if (code==1) {
+	done.post();
+      }
+    }
+  }
+  
+  void close() {
+    core.close();
+    core.join();
+  }
+};
+
+
+
+int Companion::read(const char *name) {
+  try {
+    BottleReader reader(name);
+    reader.wait();
+    reader.close();
+    return 0;
+  } catch (IOException e) {
+    ACE_OS::fprintf(stderr,"read failed: %s\n",e.toString().c_str());    
+  }
+  return 1;
 }
 
 

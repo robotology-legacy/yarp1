@@ -70,7 +70,12 @@ Face *Carriers::listen(const Address& address) {
   if (face == NULL) {
     face = new TcpFace();
   }
-  face->open(address);
+  try {
+    face->open(address);
+  } catch (IOException e) {
+    delete face;
+    throw e;
+  }
   return face;
 }
 

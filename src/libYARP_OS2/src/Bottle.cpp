@@ -262,3 +262,31 @@ void Bottle::StoreString::writeBlock(BlockWriter& writer) {
   writer.appendInt(x.length()+1);
   writer.appendString(x);
 }
+
+
+
+bool Bottle::isInt(int index) {
+  if (index>=0 && index<size()) {
+    return content[index]->getCode() == StoreInt(0).getCode();
+  }
+  return false;
+}
+
+
+bool Bottle::isString(int index) {
+  if (index>=0 && index<size()) {
+    return content[index]->getCode() == StoreString("").getCode();
+  }
+  return false;
+}
+
+int Bottle::getInt(int index) {
+  return content[index]->asInt();
+}
+
+String Bottle::getString(int index) {
+  return content[index]->asString();
+}
+
+
+

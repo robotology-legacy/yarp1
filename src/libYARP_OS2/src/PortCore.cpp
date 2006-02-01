@@ -46,10 +46,20 @@ bool PortCore::listen(const Address& address) {
   YARP_ASSERT(face==NULL);
   this->address = address;
   setName(address.getRegName());
+
   try {
     face = Carriers::listen(address);
+    if (face==NULL) {
+      throw IOException("no carrier");
+    }
   } catch (IOException e) {
-    YMSG(("listen failed: %s\n",e.toString().c_str()));
+    //YMSG(("listen failed: %s\n",e.toString().c_str()));
+    if (face!=NULL) {
+      face->close();
+      delete face;
+    }
+    stateMutex.post();
+    throw e;
   }
   if (face!=NULL) {
     listening = true;

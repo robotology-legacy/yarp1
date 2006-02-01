@@ -5,8 +5,7 @@ endif
 MYCODELIB = libYARP_OS2
 
 all:
-	make default
-	cd test; $(MAKE) harness.bin
+	make default && ( cd src-test; make ) && ( cd test; $(MAKE) clean harness.bin )
 	cp test/harness.bin ./cyarp
 
 trial:

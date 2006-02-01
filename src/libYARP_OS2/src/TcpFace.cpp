@@ -21,7 +21,10 @@ void TcpFace::open(const Address& address) {
 
   this->address = address;
   ACE_INET_Addr	serverAddr(address.getPort());
-  peerAcceptor.open(serverAddr,1);
+  int result = peerAcceptor.open(serverAddr,1);
+  if (result==-1) {
+    throw IOException("cannot listen on specified tcp address");
+  }
 }
 
 void TcpFace::close() {

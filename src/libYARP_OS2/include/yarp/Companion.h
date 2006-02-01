@@ -55,8 +55,12 @@ private:
 
   int cmdDisconnect(int argc, char *argv[]);
 
+  int cmdRead(int argc, char *argv[]);
+
   static int sendMessage(const String& port, const String& msg, 
 			 bool silent = false);
+
+  static int read(const char *name);
 
   class Entry {
   public:

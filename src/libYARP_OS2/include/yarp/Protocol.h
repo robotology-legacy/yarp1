@@ -337,6 +337,10 @@ private:
   void expectProtocolSpecifier() {
     int len = NetType::readFull(is(),header.bytes());
     ACE_UNUSED_ARG(len);
+    //ACE_OS::printf("len is %d but header is %d\n", len, header.length());
+    if (len==-1) {
+      throw IOException("no connection");
+    }
     YARP_ASSERT(len==header.length());
     bool already = false;
     if (delegate!=NULL) {
