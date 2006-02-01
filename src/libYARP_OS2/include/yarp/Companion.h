@@ -31,6 +31,11 @@ public:
   static int disconnect(const char *target, const char *src,
 			bool silent = false);
 
+  static int read(const char *name);
+
+  static int write(const char *name, int ntargets, char *targets[]);
+
+
 private:
 
   Companion();
@@ -57,10 +62,10 @@ private:
 
   int cmdRead(int argc, char *argv[]);
 
+  int cmdWrite(int argc, char *argv[]);
+
   static int sendMessage(const String& port, const String& msg, 
 			 bool silent = false);
-
-  static int read(const char *name);
 
   class Entry {
   public:

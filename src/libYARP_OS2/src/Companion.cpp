@@ -7,6 +7,12 @@
 #include <yarp/BufferedBlockWriter.h>
 #include <yarp/PortCore.h>
 #include <yarp/Bottle.h>
+#include <yarp/Time.h>
+
+// just for "write", which needs to read from standard input
+#include <iostream>
+using namespace std;
+
 
 using namespace yarp;
 
@@ -20,6 +26,7 @@ Companion::Companion() {
   add("connect",    &Companion::cmdConnect);
   add("disconnect", &Companion::cmdDisconnect);
   add("read",       &Companion::cmdRead);
+  add("write",      &Companion::cmdWrite);
 }
 
 int Companion::dispatch(const char *name, int argc, char *argv[]) {
@@ -171,12 +178,23 @@ int Companion::cmdDisconnect(int argc, char *argv[]) {
 
 int Companion::cmdRead(int argc, char *argv[]) {
   if (argc!=1) {
-    ACE_OS::fprintf(stderr, "Currently supply the port name\n");
+    ACE_OS::fprintf(stderr, "Please supply the port name\n");
     return 1;
   }
 
   const char *src = argv[0];
   return read(src);
+}
+
+
+int Companion::cmdWrite(int argc, char *argv[]) {
+  if (argc<1) {
+    ACE_OS::fprintf(stderr, "Please supply the port name, and optionally some targets\n");
+    return 1;
+  }
+
+  const char *src = argv[0];
+  return write(src,argc-1,argv+1);
 }
 
 
@@ -234,6 +252,7 @@ public:
 
 
 
+
 int Companion::read(const char *name) {
   try {
     BottleReader reader(name);
@@ -242,6 +261,54 @@ int Companion::read(const char *name) {
     return 0;
   } catch (IOException e) {
     ACE_OS::fprintf(stderr,"read failed: %s\n",e.toString().c_str());    
+  }
+  return 1;
+}
+
+
+
+
+int Companion::write(const char *name, int ntargets, char *targets[]) {
+  try {
+    PortCore core;
+    NameClient nic = NameClient::getNameClient();
+    Address address = nic.registerName(name);
+    ACE_OS::fprintf(stderr,"Port %s listening at %s\n", 
+		    name,
+		    address.toString().c_str());
+    core.listen(address);
+    core.start(); // this allows external connections
+
+    for (int i=0; i<ntargets; i++) {
+      connect(name,targets[i]);
+    }
+
+
+    while (!(cin.bad()||cin.eof())) {
+      // make sure this works on windows
+      char buf[25600];
+      cin.getline(buf,sizeof(buf),'\n');
+      // TODO: add longer strings together
+      
+      if (!(cin.bad()||cin.eof())) {
+	Bottle bot;
+	bot.addInt(0);
+	bot.addString(buf);
+	core.send(bot);
+      }
+    }
+
+    Bottle bot;
+    bot.addInt(1);
+    bot.addString("<EOF>");
+    core.send(bot);
+
+    core.close();
+    core.join();
+
+    return 0;
+  } catch (IOException e) {
+    ACE_OS::fprintf(stderr,"write failed: %s\n",e.toString().c_str());    
   }
   return 1;
 }
