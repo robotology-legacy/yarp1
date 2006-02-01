@@ -21,8 +21,9 @@ extern yarp::UnitTest& getStreamBlockReaderTest();
 extern yarp::UnitTest& getBufferedBlockWriterTest();
 extern yarp::UnitTest& getProtocolTest();
 extern yarp::UnitTest& getTcpFaceTest();
-extern yarp::UnitTest& getFacePortManagerTest();
 extern yarp::UnitTest& getNameServerTest();
+//extern yarp::UnitTest& getFacePortManagerTest();
+extern yarp::UnitTest& getPortCoreTest();
 
 class yarp::TestList {
 public:
@@ -42,8 +43,9 @@ public:
     root.add(getProtocolTest());
     root.add(getTcpFaceTest());
     */
-    root.add(getFacePortManagerTest());
+    //root.add(getFacePortManagerTest());
     //root.add(getNameServerTest());
+    root.add(getPortCoreTest());
   }
 };
 

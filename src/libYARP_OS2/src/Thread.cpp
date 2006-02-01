@@ -29,17 +29,22 @@ unsigned theExecutiveBranch (void *args)
 
 Thread::Thread() {
   delegate = NULL;
+  active = false;
   setOptions();
 }
 
 
 Thread::Thread(Runnable *target) {
   delegate = target;
+  active = false;
   setOptions();
 }
 
 
 Thread::~Thread() {
+  if (active) {
+    join();
+  }
 }
 
 
@@ -54,8 +59,12 @@ void Thread::setOptions(int stackSize) {
 }
 
 int Thread::join(double seconds) {
-  int result = ACE_Thread::join(hid);
-  return result;
+  if (active) {
+    int result = ACE_Thread::join(hid);
+    active = false;
+    return result;
+  }
+  return 0;
 }
 
 void Thread::run() {
@@ -70,7 +79,20 @@ void Thread::close() {
   }
 }
 
-void Thread::start() {
+void Thread::beforeStart() {
+  if (delegate!=NULL) {
+    delegate->beforeStart();
+  }
+}
+
+void Thread::afterStart(bool success) {
+  if (delegate!=NULL) {
+    delegate->afterStart(success);
+  }
+}
+
+bool Thread::start() {
+  beforeStart();
   int result = ACE_Thread::spawn((ACE_THR_FUNC)theExecutiveBranch,
 				 (void *)this,
 				 THR_JOINABLE | THR_NEW_LWP,
@@ -81,7 +103,12 @@ void Thread::start() {
 				 (size_t)stackSize);
   if (result==0) {
     Thread::changeCount(1);
+    active = true;
+    afterStart(true);
+  } else {
+    afterStart(false);
   }
+  return result==0;
 }
 
 

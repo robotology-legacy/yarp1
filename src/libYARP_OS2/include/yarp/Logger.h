@@ -109,7 +109,7 @@ private:
 #define YARP_DEBUG(log,x) log.debug(x)
 #define YARP_FAIL(log,x)  log.fail(x)
 
-#define YARP_ASSERT ACE_ASSERT
+#define YARP_ASSERT(x) if (!(x)) { ACE_OS::printf("Assertion failure %s:%d  !(%s)\n",__FILE__,__LINE__, #x ); ACE_OS::exit(1); }
 
 
 #endif

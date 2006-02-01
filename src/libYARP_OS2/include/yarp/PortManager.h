@@ -26,38 +26,33 @@ public:
     this->name = name;
   }
 
-  virtual void addOutput(const String& dest) {
+  virtual void addOutput(const String& dest, void *id, OutputStream *os) {
     ACE_OS::printf("ADDOUTPUT\n");
     ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to addOutput [%s]\n",
 	       getName().c_str(),
 	       dest.c_str()));
   }
 
-  virtual void removeInput(const String& src) {
+  virtual void removeInput(const String& src, void *id, OutputStream *os) {
     ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to removeInput [%s]\n",
 	       getName().c_str(),
 	       src.c_str()));
   }
 
-  virtual void removeOutput(const String& dest) {
+  virtual void removeOutput(const String& dest, void *id, OutputStream *os) {
     ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to removeOutput [%s]\n",
 	       getName().c_str(),
 	       dest.c_str()));
   }
   
-  virtual void describe() {
+  virtual void describe(void *id, OutputStream *os) {
     ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to describe itself\n",
 	       getName().c_str()));
   }
 
-  virtual void readBlock(BlockReader& reader) {
+  virtual void readBlock(BlockReader& reader, void *id, OutputStream *os) {
     ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to deal with data\n",
 	       getName().c_str()));
-  }
-
-  // may wish to make comments
-  virtual void replyTo(OutputStream *os) {
-    this->os = os;
   }
 
   virtual String getName() {

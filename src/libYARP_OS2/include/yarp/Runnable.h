@@ -20,6 +20,16 @@ public:
    * general-purpose way to achieve that.
    */
   virtual void close() {}
+  
+  /**
+   * Called from the creator before the new thread exists
+   * and before the associcated Thread::start() call returns
+   */
+  virtual void beforeStart() {}
+
+  virtual void afterStart(bool success) {}
+
+
 };
 
 #endif

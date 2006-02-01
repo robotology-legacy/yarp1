@@ -1,0 +1,513 @@
+#include <yarp/InputProtocol.h>
+#include <yarp/Logger.h>
+#include <yarp/PortCore.h>
+#include <yarp/BufferedBlockWriter.h>
+#include <yarp/NameClient.h>
+#include <yarp/PortCoreInputUnit.h>
+#include <yarp/PortCoreOutputUnit.h>
+
+
+#include <ace/OS_NS_stdio.h>
+
+
+#define YMSG(x) ACE_OS::printf x;
+#define YTRACE(x) YMSG(("at %s\n",x))
+
+using namespace yarp;
+
+/*
+  Phases:
+  dormant
+  listening
+  running
+ */
+
+PortCore::~PortCore() {
+  closeMain();
+}
+
+
+bool PortCore::listen(const Address& address) {
+  bool success = false;
+
+  YTRACE("PortCore::listen");
+
+  YARP_ASSERT(address.isValid());
+
+  // try to enter listening phase
+  stateMutex.wait();
+  YARP_ASSERT(listening==false);
+  YARP_ASSERT(running==false);
+  YARP_ASSERT(closing==false);
+  YARP_ASSERT(finished==false);
+  YARP_ASSERT(face==NULL);
+  this->address = address;
+  setName(address.getRegName());
+  try {
+    face = Carriers::listen(address);
+  } catch (IOException e) {
+    YMSG(("listen failed: %s\n",e.toString().c_str()));
+  }
+  if (face!=NULL) {
+    listening = true;
+    success = true;
+  }
+  stateMutex.post();
+
+  // we have either entered listening phase (face=valid, listening=true)
+  // or remained in dormant phase
+
+  return success;
+}
+
+
+void PortCore::run() {
+  YTRACE("PortCore::run");
+
+  // enter running phase
+  YARP_ASSERT(listening==true);
+  YARP_ASSERT(running==false);
+  YARP_ASSERT(closing==false);
+  YARP_ASSERT(finished==false);
+  YARP_ASSERT(starting==true); // can only run if called from start
+  running = true;
+  starting = false;
+  stateMutex.post();
+
+  YTRACE("PortCore::run running");
+
+  // main loop
+  bool shouldStop = false;
+  while (!shouldStop) {
+
+    // block and wait for an event
+    InputProtocol *ip = NULL;
+    try {
+      ip = face->read();
+    } catch (IOException e) {
+      YMSG(("read failed: %s\n",e.toString().c_str()));
+    }
+
+    // got an event, but before processing it, we check whether
+    // we should shut down
+    stateMutex.wait();
+    shouldStop |= closing;
+    events++;
+    //YMSG(("*** event count boost to %d\n", events));
+    stateMutex.post();
+
+    if (!shouldStop) {
+      // process event
+      //YMSG(("PortCore::run got something, but no processing yet\n"));
+      addInput(ip);
+      ip = NULL;
+    }
+
+    // the event normally gets handed off.  If it remains, delete it.
+    if (ip!=NULL) {
+      try {
+	ip->close();
+	delete ip;
+      } catch (IOException e) {
+	YMSG(("input protocol close failed: %s\n",e.toString().c_str()));
+      }
+      ip = NULL;
+    }
+    reapUnits();
+  }
+
+
+  YTRACE("PortCore::run closing");
+
+  // closing phase
+  stateMutex.wait();
+  finished = true;
+  stateMutex.post();
+}
+
+
+void PortCore::close() {
+  closeMain();
+}
+
+
+bool PortCore::start() {
+  YTRACE("PortCore::start");
+
+  stateMutex.wait();
+  YARP_ASSERT(listening==true);
+  YARP_ASSERT(running==false);
+  YARP_ASSERT(starting==false);
+  YARP_ASSERT(finished==false);
+  YARP_ASSERT(closing==false);
+  starting = true;
+  bool started = Thread::start();
+  if (!started) {
+    // run() won't be happening
+    stateMutex.post();
+  } else {
+    // wait for run() to change state
+    stateMutex.wait();
+    YARP_ASSERT(running==true);
+    stateMutex.post();
+  }
+  return started;
+}
+
+
+
+void PortCore::closeMain() {
+  YTRACE("PortCore::closeMain");
+
+  stateMutex.wait();
+  bool stopRunning = running;
+  stateMutex.post();
+
+  if (stopRunning) {
+    // we need to stop the thread
+    stateMutex.wait();
+    closing = true;
+    stateMutex.post();
+    try {
+      // wake it up
+      OutputProtocol *op = face->write(address);
+      if (op!=NULL) {
+	op->close();
+	delete op;
+      }
+    } catch (IOException e) {
+      // no problem
+    }
+    join();
+
+    // should be finished
+    stateMutex.wait();
+    YARP_ASSERT(finished==true);
+    stateMutex.post();
+    
+    // should down units - this is the only time it is valid to do this
+    closeUnits();
+
+    stateMutex.wait();
+    finished = false;
+    closing = false;
+    running = false;
+    stateMutex.post();
+  }
+
+  // there should be no other threads at this point
+  // can stop listening
+
+  if (listening) {
+    YARP_ASSERT(face!=NULL);
+    try {
+      face->close();
+      delete face;
+    } catch (IOException e) {
+      YMSG(("face close failed: %s\n",e.toString().c_str()));
+    }
+    face = NULL;
+    listening = false;
+  }
+
+  // fresh as a daisy
+  YARP_ASSERT(listening==false);
+  YARP_ASSERT(running==false);
+  YARP_ASSERT(starting==false);
+  YARP_ASSERT(closing==false);
+  YARP_ASSERT(finished==false);
+  YARP_ASSERT(face==NULL);
+}
+
+
+int PortCore::getEventCount() {
+  stateMutex.wait();
+  int ct = events;
+  stateMutex.post();
+  return ct;
+}
+
+
+void PortCore::closeUnits() {
+  stateMutex.wait();
+  YARP_ASSERT(finished==true); // this is the only valid phase for this
+  stateMutex.post();
+
+  // in the "finished" phase, nobody else touches the units,
+  // so we can go ahead and shut them down and delete them
+
+  for (unsigned int i=0; i<units.size(); i++) {
+    PortCoreUnit *unit = units[i];
+    if (unit!=NULL) {
+      unit->close();
+      unit->join();
+      delete unit;
+      units[i] = NULL;
+    }
+  }
+  units.clear();
+  YMSG(("closeUnits: there are now %d units\n", units.size()));
+}
+
+void PortCore::reapUnits() {
+  stateMutex.wait();
+  if (!finished) {
+    for (unsigned int i=0; i<units.size(); i++) {
+      PortCoreUnit *unit = units[i];
+      if (unit!=NULL) {
+	if (unit->isDoomed()&&!unit->isFinished()) {
+	  unit->close();
+	  unit->join();
+	}
+      }
+    }
+  }
+  stateMutex.post();
+  cleanUnits();
+}
+
+void PortCore::cleanUnits() {
+  stateMutex.wait();
+  if (!finished) {
+    
+    for (unsigned int i=0; i<units.size(); i++) {
+      PortCoreUnit *unit = units[i];
+      if (unit!=NULL) {
+	if (unit->isFinished()) {
+	  unit->close();
+	  unit->join();
+	  delete unit;
+	  units[i] = NULL;
+	}
+      }
+    }
+    unsigned int rem = 0;
+    for (unsigned int i=0; i<units.size(); i++) {
+      if (units[i]!=NULL) {
+	if (rem<i) {
+	  units[rem] = units[i];
+	  units[i] = NULL;
+	}
+	rem++;
+      }
+    }
+    for (unsigned int i=0; i<units.size()-rem; i++) {
+      units.pop_back();
+    }
+    YMSG(("cleanUnits: there are now %d units\n", units.size()));
+  }
+  stateMutex.post();
+}
+
+
+// only called by manager, in running phase
+void PortCore::addInput(InputProtocol *ip) {
+  YARP_ASSERT(ip!=NULL);
+  stateMutex.wait();
+  PortCoreUnit *unit = new PortCoreInputUnit(*this,ip);
+  YARP_ASSERT(unit!=NULL);
+  unit->start();
+  
+  units.push_back(unit);
+  YMSG(("there are now %d units\n", units.size()));
+  stateMutex.post();
+}
+
+
+void PortCore::addOutput(OutputProtocol *op) {
+  YARP_ASSERT(op!=NULL);
+  stateMutex.wait();
+  if (!finished) {
+    PortCoreUnit *unit = new PortCoreOutputUnit(*this,op);
+    YARP_ASSERT(unit!=NULL);
+    
+    unit->start();
+    
+    units.push_back(unit);
+    YMSG(("there are now %d units\n", units.size()));
+  }
+  stateMutex.post();
+}
+
+
+bool PortCore::removeUnit(const Route& route) {
+  // a request to remove a unit
+  // this is the trickiest case, since any thread could here
+  // affect any other thread
+
+  // how about waking up the manager to do this?
+  stateMutex.wait();
+  bool needReap = false;
+  if (!finished) {
+    for (unsigned int i=0; i<units.size(); i++) {
+      PortCoreUnit *unit = units[i];
+      if (unit!=NULL) {
+	Route alt = unit->getRoute();
+	String wild = "*";
+	bool ok = true;
+	if (route.getFromName()!=wild) {
+	  ok &= route.getFromName()==alt.getFromName();
+	}
+	if (route.getToName()!=wild) {
+	  ok &= route.getToName()==alt.getToName();
+	}
+	if (route.getCarrierName()!=wild) {
+	  ok &= route.getCarrierName()==alt.getCarrierName();
+	}
+	
+	if (ok) {
+	  unit->setDoomed();
+	  needReap = true;
+	}
+      }
+    }
+  }
+  stateMutex.post();
+  if (needReap) {
+    // death will happen in due course; we can speed it up a bit
+    // by waking up the grim reaper
+    try {
+      OutputProtocol *op = face->write(address);
+      if (op!=NULL) {
+	op->close();
+	delete op;
+      }
+    } catch (IOException e) {
+      // no problem
+    }
+  }
+  return needReap;
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//
+// PortManager interface
+//
+
+
+void PortCore::addOutput(const String& dest, void *id, OutputStream *os) {
+  BufferedBlockWriter bw(true);
+
+  Address address = NameClient::getNameClient().queryName(dest);
+  if (address.isValid()) {
+    bw.appendLine(String("Adding output to ") + dest);
+    OutputProtocol *op = NULL;
+    try {
+      op = Carriers::connect(address);
+      if (op!=NULL) {
+	op->open(Route(getName(),dest,"text"));
+      }
+    } catch (IOException e) { /* ok */ }
+    if (op!=NULL) {
+      addOutput(op);
+    } else {
+      bw.appendLine(String("error - cannot connect to ") + dest);
+    }
+  } else {
+    bw.appendLine(String("error - do not know how to connect to ") + dest);
+  }
+
+  if(os!=NULL) {
+    bw.write(*os);
+  }
+  cleanUnits();
+}
+
+void PortCore::removeOutput(const String& dest, void *id, OutputStream *os) {
+  BufferedBlockWriter bw(true);
+  if (removeUnit(Route("*",dest,"*"))) {
+    bw.appendLine(String("Removing connection from ") + getName() +
+		  " to " + dest);
+  } else {
+    bw.appendLine(String("Could not find an outgoing connection to ") +
+		  dest);
+  }
+  if(os!=NULL) {
+    bw.write(*os);
+  }
+  cleanUnits();
+}
+
+void PortCore::removeInput(const String& dest, void *id, OutputStream *os) {
+  BufferedBlockWriter bw(true);
+  if (removeUnit(Route(dest,"*","*"))) {
+    bw.appendLine(String("Removing connection from ") + dest + " to " +
+		  getName());
+  } else {
+    bw.appendLine(String("Could not find an incoming connection from ") +
+		  dest);
+  }
+  if(os!=NULL) {
+    bw.write(*os);
+  }
+  cleanUnits();
+}
+
+void PortCore::describe(void *id, OutputStream *os) {
+  cleanUnits();
+
+  BufferedBlockWriter bw(true);
+
+  stateMutex.wait();
+
+  bw.appendLine(String("This is ") + address.getRegName() + " at " + 
+		address.toString());
+
+  int oct = 0;
+  int ict = 0;
+  for (unsigned int i=0; i<units.size(); i++) {
+    PortCoreUnit *unit = units[i];
+    if (unit!=NULL) {
+      if (unit->isOutput()&&!unit->isFinished()) {
+	Route route = unit->getRoute();
+	String msg = "There is an output connection from " + 
+	  route.getFromName() +
+	  " to " + route.getToName() + " using " + 
+	  route.getCarrierName();
+	bw.appendLine(msg);
+	oct++;
+      }
+    }
+  }
+  if (oct<1) {
+    bw.appendLine("There are no outgoing connections");
+  } 
+  for (unsigned int i2=0; i2<units.size(); i2++) {
+    PortCoreUnit *unit = units[i2];
+    if (unit!=NULL) {
+      if (unit->isInput()&&!unit->isFinished()) {
+	Route route = unit->getRoute();
+	String msg = "There is an input connection from " + 
+	  route.getFromName() +
+	  " to " + route.getToName() + " using " + 
+	  route.getCarrierName();
+	bw.appendLine(msg);
+	ict++;
+      }
+    }
+  }
+  if (ict<1) {
+    bw.appendLine("There are no incoming connections");
+  } 
+
+  stateMutex.post();
+
+  if (os!=NULL) {
+    bw.write(*os);
+  }
+}
+
+void PortCore::readBlock(BlockReader& reader, void *id, OutputStream *os) {
+  BufferedBlockWriter bw(true);
+  bw.appendLine("not implemented");
+  if(os!=NULL) {
+    bw.write(*os);
+  }
+}
+
+
+

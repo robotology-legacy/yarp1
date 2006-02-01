@@ -22,7 +22,11 @@ public:
   virtual void run();
   virtual void close();
 
-  void start();
+  // should throw if no success
+  virtual bool start();
+
+  virtual void beforeStart();
+  virtual void afterStart(bool success);
 
   // call before start
   void setOptions(int stackSize = 0);
@@ -39,6 +43,7 @@ private:
   int stackSize;
   ACE_hthread_t hid;
   ACE_thread_t id;
+  bool active;
   Runnable *delegate;
 
   static int threadCount;

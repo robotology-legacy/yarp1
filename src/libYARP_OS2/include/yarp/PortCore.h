@@ -1,0 +1,100 @@
+#ifndef _YARP2_PORTCORE_
+#define _YARP2_PORTCORE_
+
+#include <yarp/Thread.h>
+#include <yarp/Semaphore.h>
+#include <yarp/Carriers.h>
+#include <yarp/Address.h>
+#include <yarp/PortManager.h>
+
+//#include <yarp/PortCoreUnit.h>
+
+namespace yarp {
+  class PortCore;
+  class PortCoreUnit;
+}
+
+/**
+ *
+ * This is the heart of a yarp port.  It is the thread manager.
+ * All other port components are insulated from threading
+ *
+ */
+class yarp::PortCore : public Thread, public PortManager {
+public:
+
+  PortCore() {
+    // dormant phase
+    listening = false;
+    running = false;
+    starting = false;
+    closing = false;
+    finished = false;
+    events = 0;
+    face = NULL;
+  }
+
+  virtual ~PortCore();
+
+  // configure core
+  bool listen(const Address& address);
+
+  // start up core
+  virtual bool start();
+
+  // shut down and deconfigure core
+  virtual void close();
+
+  // main manager thread
+  virtual void run();
+
+  // useful for stress-testing
+  int getEventCount();
+
+
+public:
+
+  // PortManager interface, exposed to inputs
+
+  virtual void addOutput(const String& dest, void *id, OutputStream *os);
+  virtual void removeOutput(const String& dest, void *id, OutputStream *os);
+  virtual void removeInput(const String& dest, void *id, OutputStream *os);
+  virtual void describe(void *id, OutputStream *os);
+  virtual void readBlock(BlockReader& reader, void *id, OutputStream *os);
+
+private:
+
+  // internal maintenance of sub units
+
+  ACE_Vector<PortCoreUnit *> units;
+
+  // only called in "finished" phase
+  void closeUnits();
+
+  // called anytime, garbage collects terminated units
+  void cleanUnits();
+
+  // only called by the manager
+  void reapUnits();
+
+  // only called in "running" phase
+  void addInput(InputProtocol *ip);
+
+  void addOutput(OutputProtocol *op);
+
+  bool removeUnit(const Route& route);
+
+private:
+
+  // main internal PortCore state and operations
+  Semaphore stateMutex;
+  Face *face;
+  String name;
+  Address address;
+  bool listening, running, starting, closing, finished;
+  int events;
+
+  void closeMain();
+};
+
+#endif

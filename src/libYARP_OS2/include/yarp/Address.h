@@ -74,7 +74,7 @@ public:
     return carrier + ":/" + name + ":" + buf;
   }
 
-  bool isValid() {
+  bool isValid() const {
     return port>=0;
   }
 

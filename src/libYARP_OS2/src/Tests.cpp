@@ -22,7 +22,6 @@
 #include <yarp/Time.h>
 #include <yarp/Thread.h>
 #include <yarp/Semaphore.h>
-#include <yarp/FacePortManager.h>
 
 #include <ace/OS_NS_stdio.h>
 #include <ace/OS_NS_stdlib.h>
@@ -102,24 +101,6 @@ static void checkCompanion(int argc, char *argv[]) {
 
 
 
-void checkFacePortManager() {
-  Address address = Address("localhost",8000,"tcp");
-  Bottle bot;
-  FacePortManager man("/inny",address);
-  man.setReader(bot);
-  Thread t(&man);
-  t.start();
-  String s = "x";
-  while (true) {
-    Time::delay(3);
-    ACE_OS::printf("Fire!\n");
-    Bottle bot2;
-    bot2.addInt(0);
-    bot2.addString(s.c_str());
-    man.send(bot2);
-    s += "x";
-  }
-}
 
 /**
  * This is a gateway for a test harness.
@@ -129,7 +110,6 @@ int yarp_test_main(int argc, char *argv[]) {
   if (argc<=1) {
     Logger::get().setVerbosity(5);
     ACE_OS::printf("yarp testing underway\n");
-    checkFacePortManager();
     checkCarriers();
     checkFakeFace();
     checkCompanion(argc,argv);
