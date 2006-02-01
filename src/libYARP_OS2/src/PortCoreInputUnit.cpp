@@ -53,8 +53,8 @@ void PortCoreInputUnit::run() {
 	break;
       }
       char key = cmd.getKey();
-      ACE_OS::printf("Port command is [%c:%d/%s]\n",
-		     (key>=32)?key:'?', key, cmd.getText().c_str());
+      //ACE_OS::printf("Port command is [%c:%d/%s]\n",
+      //	     (key>=32)?key:'?', key, cmd.getText().c_str());
 
       PortManager& man = getOwner();
       OutputStream *os = NULL;
@@ -90,11 +90,11 @@ void PortCoreInputUnit::run() {
       }
     }
   } catch (IOException e) {
-    YMSG(("PortCoreInputUnit got exception: %s\n",
-	  e.toString().c_str()));
+    /* ok, ports die - it is their nature */
+    ACE_DEBUG((LM_DEBUG,"PortCoreInputUnit got exception: %s\n",
+	       e.toString().c_str()));
   }
 
-  ACE_OS::printf("stopping\n");
   ip->close();
 
   running = false;

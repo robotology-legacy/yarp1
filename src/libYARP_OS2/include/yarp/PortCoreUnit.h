@@ -47,6 +47,10 @@ public:
     doomed = flag;
   }
 
+  virtual void send(Writable& writer) {
+    // do nothing
+  }
+
 protected:
   PortCore& getOwner() { return owner; }
 

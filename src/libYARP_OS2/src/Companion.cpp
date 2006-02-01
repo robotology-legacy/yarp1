@@ -108,19 +108,24 @@ int Companion::cmdVersion(int argc, char *argv[]) {
 }
 
 
-int Companion::sendMessage(const String& port, const String& msg) {
+int Companion::sendMessage(const String& port, const String& msg, 
+			   bool quiet) {
   NameClient& nic = NameClient::getNameClient();
   Address srcAddress = nic.queryName(port);
   //Address srcAddress("localhost",9999,"tcp");
   if (!srcAddress.isValid()) {
-    ACE_OS::fprintf(stderr, "Cannot find port named %s\n", port.c_str());
+    if (!quiet) {
+      ACE_OS::fprintf(stderr, "Cannot find port named %s\n", port.c_str());
+    }
     return 1;
   } 
   OutputProtocol *out = Carriers::connect(srcAddress);
   if (out==NULL) {
-    ACE_OS::fprintf(stderr, "Cannot connect to port named %s at %s\n", 
-		    port.c_str(),
-		    srcAddress.toString().c_str());
+    if (!quiet) {
+      ACE_OS::fprintf(stderr, "Cannot connect to port named %s at %s\n", 
+		      port.c_str(),
+		      srcAddress.toString().c_str());
+    }
     return 1;
   }
   Route route("external",port,"text");
@@ -160,12 +165,12 @@ int Companion::cmdDisconnect(int argc, char *argv[]) {
 }
 
 
-int Companion::connect(const char *src, const char *dest) {
-  return sendMessage(src,dest);
+int Companion::connect(const char *src, const char *dest, bool silent) {
+  return sendMessage(src,dest,silent);
 }
 
-int Companion::disconnect(const char *src, const char *dest) {
-  return sendMessage(src,String("!")+dest);
+int Companion::disconnect(const char *src, const char *dest, bool silent) {
+  return sendMessage(src,String("!")+dest,silent);
 }
 
 

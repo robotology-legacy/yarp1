@@ -6,8 +6,9 @@
 #include <yarp/Carriers.h>
 #include <yarp/Address.h>
 #include <yarp/PortManager.h>
+#include <yarp/Readable.h>
+#include <yarp/Writable.h>
 
-//#include <yarp/PortCoreUnit.h>
 
 namespace yarp {
   class PortCore;
@@ -32,6 +33,7 @@ public:
     finished = false;
     events = 0;
     face = NULL;
+    reader = NULL;
   }
 
   virtual ~PortCore();
@@ -39,8 +41,13 @@ public:
   // configure core
   bool listen(const Address& address);
 
+  void setReadHandler(Readable& reader);
+
   // start up core
   virtual bool start();
+
+  // use port as output
+  void send(Writable& writer);
 
   // shut down and deconfigure core
   virtual void close();
@@ -91,6 +98,7 @@ private:
   Face *face;
   String name;
   Address address;
+  Readable *reader;
   bool listening, running, starting, closing, finished;
   int events;
 

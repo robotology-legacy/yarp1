@@ -42,12 +42,12 @@ public:
     nic.setFakeMode(fake);
     Address address("localhost",9999,"tcp");
     nic.registerName("/foo2",address);
-    Companion::connect("/junk","/junk2");
-    Companion::connect("/foo2","/junk2");
+    Companion::connect("/junk","/junk2",true);
+    Companion::connect("/foo2","/junk2",true);
     for (int i=0; i<5; i++) {
       char buf[100];
       sprintf(buf,"/many/foo/%d", i);
-      Companion::connect(buf,"/junk2");
+      Companion::connect(buf,"/junk2",true);
     }
     nic.setFakeMode(false);
   }
@@ -56,7 +56,7 @@ public:
     checkRegister();
     checkClientInterface();
     checkCompanion(true);
-    checkCompanion(false);
+    //checkCompanion(false);
   }
 };
 

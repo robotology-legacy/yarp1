@@ -10,8 +10,11 @@
 #include <ace/OS_NS_stdio.h>
 
 
-#define YMSG(x) ACE_OS::printf x;
-#define YTRACE(x) YMSG(("at %s\n",x))
+//#define YMSG(x) ACE_OS::printf x;
+//#define YTRACE(x) YMSG(("at %s\n",x))
+
+#define YMSG(x) 
+#define YTRACE(x) 
 
 using namespace yarp;
 
@@ -59,6 +62,14 @@ bool PortCore::listen(const Address& address) {
 
   return success;
 }
+
+
+void PortCore::setReadHandler(Readable& reader) {
+  YARP_ASSERT(running==false);
+  YARP_ASSERT(this->reader==NULL);
+  this->reader = &reader;
+}
+
 
 
 void PortCore::run() {
@@ -246,7 +257,7 @@ void PortCore::closeUnits() {
     }
   }
   units.clear();
-  YMSG(("closeUnits: there are now %d units\n", units.size()));
+  //YMSG(("closeUnits: there are now %d units\n", units.size()));
 }
 
 void PortCore::reapUnits() {
@@ -294,7 +305,7 @@ void PortCore::cleanUnits() {
     for (unsigned int i=0; i<units.size()-rem; i++) {
       units.pop_back();
     }
-    YMSG(("cleanUnits: there are now %d units\n", units.size()));
+    //YMSG(("cleanUnits: there are now %d units\n", units.size()));
   }
   stateMutex.post();
 }
@@ -309,7 +320,7 @@ void PortCore::addInput(InputProtocol *ip) {
   unit->start();
   
   units.push_back(unit);
-  YMSG(("there are now %d units\n", units.size()));
+  //YMSG(("there are now %d units\n", units.size()));
   stateMutex.post();
 }
 
@@ -324,7 +335,7 @@ void PortCore::addOutput(OutputProtocol *op) {
     unit->start();
     
     units.push_back(unit);
-    YMSG(("there are now %d units\n", units.size()));
+    //YMSG(("there are now %d units\n", units.size()));
   }
   stateMutex.post();
 }
@@ -502,11 +513,43 @@ void PortCore::describe(void *id, OutputStream *os) {
 }
 
 void PortCore::readBlock(BlockReader& reader, void *id, OutputStream *os) {
-  BufferedBlockWriter bw(true);
-  bw.appendLine("not implemented");
-  if(os!=NULL) {
-    bw.write(*os);
+
+  // pass the data on out
+
+  // we are in the context of one of the input threads,
+  // so our contact with the PortCore must be absolutely minimal.
+  //
+  // it is safe to pick up the address of the reader since this is 
+  // constant over the lifetime of the input threads.
+
+  if (this->reader!=NULL) {
+    this->reader->readBlock(reader);
   }
+}
+
+
+void PortCore::send(Writable& writer) {
+
+  // pass the data to all output units.
+  // for efficiency, it should be converted to block form first.
+  // some ports may want text-mode, some may want binary, so there
+  // may need to be two caches.
+
+  // for now, just doing a sequential send with no caching.
+
+  stateMutex.wait();
+  // the whole darned port is blocked on this operation
+  if (!finished) {
+    for (unsigned int i=0; i<units.size(); i++) {
+      PortCoreUnit *unit = units[i];
+      if (unit!=NULL) {
+	if (unit->isOutput() && !unit->isFinished()) {
+	  unit->send(writer);
+	}
+      }
+    }
+  }
+  stateMutex.post();
 }
 
 

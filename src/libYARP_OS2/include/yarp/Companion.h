@@ -25,9 +25,11 @@ public:
    */
   static int main(int argc, char *argv[]);
 
-  static int connect(const char *target, const char *src);
+  static int connect(const char *target, const char *src,
+		     bool silent = false);
 
-  static int disconnect(const char *target, const char *src);
+  static int disconnect(const char *target, const char *src,
+			bool silent = false);
 
 private:
 
@@ -53,7 +55,8 @@ private:
 
   int cmdDisconnect(int argc, char *argv[]);
 
-  static int sendMessage(const String& port, const String& msg);
+  static int sendMessage(const String& port, const String& msg, 
+			 bool silent = false);
 
   class Entry {
   public:

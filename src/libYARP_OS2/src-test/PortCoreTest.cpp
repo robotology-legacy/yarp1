@@ -1,14 +1,32 @@
 #include <yarp/PortCore.h>
 #include <yarp/Time.h>
 #include <yarp/Carriers.h>
+#include <yarp/Readable.h>
+#include <yarp/NameClient.h>
+#include <yarp/Bottle.h>
+#include <yarp/Companion.h>
 
 #include "TestList.h"
 
 using namespace yarp;
 
-class PortCoreTest : public UnitTest {
+class PortCoreTest : public UnitTest, public Readable {
 public:
   virtual String getName() { return "PortCoreTest"; }
+
+  String expectation;
+  int receives;
+
+  void readBlock(BlockReader& reader) {
+    receives++;
+    Bottle bot;
+    bot.readBlock(reader);
+    if (expectation==String("")) {
+      report(1,"got unexpected input");
+      return;
+    }
+    checkEqual(bot.toString(),expectation,"received bottle");
+  }
 
   void testStartStop() {
     report(0,"checking start/stop works (requires free port 9999)...");
@@ -33,9 +51,6 @@ public:
     }
 
     Time::delay(0.2);  // close will take precedence over pending connections
-    
-    report(0,"break for user intervention - port 9999");
-    Time::delay(50);
     core.close();
     ct++; // close is an event
 
@@ -44,8 +59,59 @@ public:
     checkEqual(core.getEventCount(),ct,"Got all events");
   }
 
+
+  void testBottle() {
+    report(0,"simple bottle transmission check (needs 9997,9998,9998)...");
+
+    expectation = "";
+    receives = 0;
+
+    NameClient& nic = NameClient::getNameClient();
+    nic.setFakeMode(true);
+
+    Address write = nic.registerName("/write",Address("localhost",9999,"tcp"));
+    Address read = nic.registerName("/read",Address("localhost",9998,"tcp"));
+    Address fake = Address("localhost",9997,"tcp");
+
+    checkEqual(nic.queryName("/write").isValid(),true,"name server sanity");
+    checkEqual(nic.queryName("/read").isValid(),true,"name server sanity");
+
+    try {
+      PortCore sender;
+      PortCore receiver;
+      receiver.setReadHandler(*this);
+      sender.listen(write);
+      receiver.listen(read);
+      sender.start();
+      receiver.start();
+      Time::delay(1);
+      Bottle bot;
+      bot.addInt(0);
+      bot.addString("Hello world");
+      report(0,"sending bottle, should received nothing");
+      expectation = "";
+      sender.send(bot);
+      Time::delay(0.3);
+      checkEqual(receives,0,"nothing received");
+      Companion::connect("/write", "/read");
+      Time::delay(0.3);
+      report(0,"sending bottle, should receive it this time");
+      expectation = bot.toString();
+      sender.send(bot);
+      Time::delay(0.3);
+      checkEqual(receives,1,"something received");
+      sender.close();
+      receiver.close();
+    } catch (IOException e) {
+      report(1,e.toString() + " <<< testBottle got exception");
+    }
+    nic.setFakeMode(false);
+  }
+
+
   virtual void runTests() {
     testStartStop();
+    testBottle();
   }
 };
 

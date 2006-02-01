@@ -53,6 +53,7 @@ public:
 
   virtual Route getRoute();
 
+  virtual void send(Writable& writer);
 
 private:
   OutputProtocol *op;

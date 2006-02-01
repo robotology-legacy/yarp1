@@ -4,6 +4,7 @@
 #include <yarp/PortCoreOutputUnit.h>
 #include <yarp/PortCommand.h>
 #include <yarp/Logger.h>
+#include <yarp/BufferedBlockWriter.h>
 
 
 #define YMSG(x) ACE_OS::printf x;
@@ -42,6 +43,10 @@ void PortCoreOutputUnit::run() {
 
 
 void PortCoreOutputUnit::runSimulation() {
+  // no thread component at the moment
+  running = false;
+  return;
+
   // simulation
   running = true;
   while (true) {
@@ -93,5 +98,17 @@ Route PortCoreOutputUnit::getRoute() {
   }
   return PortCoreUnit::getRoute();
 }
+
+void PortCoreOutputUnit::send(Writable& writer) {
+  if (op!=NULL) {
+    PortCommand pc('d',"");
+    BufferedBlockWriter buf(op->isTextMode());
+    pc.writeBlock(buf);
+    writer.writeBlock(buf);
+    op->write(buf);
+  }
+}
+
+
 
 
