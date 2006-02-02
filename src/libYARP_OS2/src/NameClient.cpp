@@ -154,8 +154,8 @@ Address NameClient::registerName(const String& name, const Address& suggest) {
   Address address = probe(q);
   if (address.isValid()) {
     String reg = address.getRegName();
-    send(String("NAME_SERVER set ") + reg + " offers tcp text",false);
-    send(String("NAME_SERVER set ") + reg + " accepts tcp text",false);
+    send(String("NAME_SERVER set ") + reg + " offers tcp text udp",false);
+    send(String("NAME_SERVER set ") + reg + " accepts tcp text udp",false);
   }
   return address;
 }

@@ -21,7 +21,7 @@ void SocketTwoWayStream::open(ACE_SOCK_Acceptor& acceptor) {
 void SocketTwoWayStream::updateAddresses() {
   ACE_INET_Addr local, remote;
   stream.get_local_addr(local);
-  stream.get_remote_addr(local);
+  stream.get_remote_addr(remote);
   localAddress = Address(local.get_host_addr(),local.get_port_number());
   remoteAddress = Address(remote.get_host_addr(),remote.get_port_number());
 }

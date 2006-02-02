@@ -377,6 +377,7 @@ bool PortCore::removeUnit(const Route& route) {
 	}
 	
 	if (ok) {
+	  YARP_DEBUG(Logger::get(), String("removing unit ") + alt.toString());
 	  unit->setDoomed();
 	  needReap = true;
 	}

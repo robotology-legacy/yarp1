@@ -141,15 +141,19 @@ int Companion::sendMessage(const String& port, Writable& writable,
     }
     return 1;
   }
-  Route route("external",port,"tcp");
-  out->open(route);
-  //printf("Route %s TEXT mode %d\n", out->getRoute().toString().c_str(),
-  // out->isTextMode());
-  BufferedBlockWriter bw(out->isTextMode());
-  //bw.appendLine(msg);
-  writable.writeBlock(bw);
-  out->write(bw);
-  out->close();
+  Route route("external",port,"udp");
+  try {
+    out->open(route);
+    //printf("Route %s TEXT mode %d\n", out->getRoute().toString().c_str(),
+    // out->isTextMode());
+    BufferedBlockWriter bw(out->isTextMode());
+    //bw.appendLine(msg);
+    writable.writeBlock(bw);
+    out->write(bw);
+    out->close();
+  } catch (IOException e) {
+    YARP_ERROR(Logger::get(),e.toString() + " <<< exception during message");
+  }
   delete out;
   out = NULL;
   

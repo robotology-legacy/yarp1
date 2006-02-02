@@ -37,10 +37,12 @@ void Protocol::defaultExpectIndex() {
   if (len!=10) {
     throw IOException("broken index - header is wrong length");
   }
+  YARP_DEBUG(Logger::get(),"index coming in happily...");
   r = NetType::readFull(is(),indexHeader.bytes());
   if (r!=indexHeader.length()) {
     throw IOException("broken index, secondary header");
   }
+  YARP_DEBUG(Logger::get(),"secondary header came in happily...");
   int inLen = (unsigned char)(indexHeader.get()[0]);
   int outLen = (unsigned char)(indexHeader.get()[1]);
 

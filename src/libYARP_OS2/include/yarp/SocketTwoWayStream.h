@@ -64,6 +64,10 @@ public:
     stream.send_n(b.get(),b.length());
   }
 
+  virtual void flush() {
+    //stream.flush();
+  }
+
 private:
   ACE_SOCK_Stream stream;
   Address localAddress, remoteAddress;

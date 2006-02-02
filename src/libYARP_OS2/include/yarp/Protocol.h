@@ -243,6 +243,10 @@ public:
     return shift;
   }
 
+  void takeStreams(TwoWayStream *streams) {
+    shift.takeStream(streams);
+  }
+
   OutputStream& os() {
     return shift.getOutputStream();
   }

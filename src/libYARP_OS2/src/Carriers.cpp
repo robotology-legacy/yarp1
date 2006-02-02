@@ -5,6 +5,7 @@
 #include <yarp/FakeFace.h>
 #include <yarp/TcpCarrier.h>
 #include <yarp/TextCarrier.h>
+#include <yarp/UdpCarrier.h>
 
 using namespace yarp;
 
@@ -16,6 +17,7 @@ Carriers yarp::Carriers::instance;
 Carriers::Carriers() {
   delegates.push_back(new TcpCarrier());
   delegates.push_back(new TextCarrier());
+  delegates.push_back(new UdpCarrier());
 }
 
 Carriers::~Carriers() {

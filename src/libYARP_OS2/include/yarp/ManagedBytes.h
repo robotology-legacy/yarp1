@@ -9,12 +9,24 @@ namespace yarp {
 
 class yarp::ManagedBytes {
 public:
+  ManagedBytes() {
+    b = Bytes(NULL,0);
+    owned = 0;
+  }
+
   ManagedBytes(const Bytes& ext, bool owned = false) {
     b = ext;
     this->owned = owned;
   }
 
   ManagedBytes(int len) {
+    char *buf = new char[len];
+    b = Bytes(buf,len);
+    owned = true;
+  }
+
+  void allocate(int len) {
+    clear();
     char *buf = new char[len];
     b = Bytes(buf,len);
     owned = true;
@@ -39,11 +51,17 @@ public:
   }
 
   virtual ~ManagedBytes() {
+    clear();
+  }
+
+  void clear() {
     if (owned) {
       if (get()!=0) {
 	delete[] get();
       }
+      owned = 0;
     }
+    b = Bytes(NULL,0);
   }
 
   const Bytes& bytes() {
