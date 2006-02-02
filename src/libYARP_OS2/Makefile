@@ -38,3 +38,5 @@ add:
 	cd src && ( cvs add *.cpp || echo -n )
 	cd src-test && ( cvs add *.cpp *.h || echo -n )
 
+dox:
+	doxygen
