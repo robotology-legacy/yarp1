@@ -34,6 +34,8 @@ static gint timeout_CB (gpointer data);
 static gboolean delete_event( GtkWidget *widget, GdkEvent *event, gpointer data );
 //  Window redraw CB
 static gint expose_CB (GtkWidget *widget, GdkEventExpose *event, gpointer data);
+// Click on Drawinf Area CB
+static gint clickDA_CB (GtkWidget *widget, GdkEventButton *event, gpointer data);
 // Menubar CBs
 static gint menuFileQuit_CB(GtkWidget *widget, gpointer data);
 static gint menuHelpAbout_CB(GtkWidget *widget, gpointer data);
@@ -119,6 +121,8 @@ int _occupiedHeight;
 bool _freezed;
 // Output Point Port
 YARPOutputPortOf<YARPBottle> *_pOutPort;
+// Output Bottle Container
+YARPBottle _outBottle;
 //-------------------------------------------------
 // Program Options 
 //-------------------------------------------------

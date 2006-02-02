@@ -324,6 +324,38 @@ static gint menuImageFramerate_CB(GtkWidget *widget, gpointer data)
 	return (TRUE);
 }
 
+static gint clickDA_CB (GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+	int imageX, imageY;
+	int clickX, clickY;
+	int daWidth, daHeight;
+	int imageWidth, imageHeight;
+	double ratioX, ratioY;
+	
+	imageWidth = _imgRecv.GetWidth();
+	imageHeight = _imgRecv.GetHeight();
+	if ( (imageWidth != 0) && (imageHeight != 0) )
+	{
+		daWidth = widget->allocation.width;
+		daHeight = widget->allocation.height;
+		clickX = event->x;
+		clickY = event->y;
+		ratioX = double(clickX) / double(daWidth);
+		ratioY = double(clickY) / double(daHeight);
+		imageX = int(imageWidth * ratioX + 0.5);
+		imageY = int(imageHeight * ratioY + 0.5);
+
+		_outBottle.writeInt(imageX);
+		_outBottle.writeInt(imageY);
+		_pOutPort->Content() = _outBottle;
+		_pOutPort->Write();
+		_outBottle.reset();
+	
+	}
+
+	return TRUE;
+}
+
 //-------------------------------------------------
 // Non Modal Dialogs
 //-------------------------------------------------
@@ -489,6 +521,12 @@ GtkWidget* createMainWindow(void)
 	// Drawing Area : here the image will be drawed
 	da = gtk_drawing_area_new ();
 	g_signal_connect (da, "expose_event", G_CALLBACK (expose_CB), NULL);
+	if (_options.outputEnabled == 1)
+	{
+		g_signal_connect (da, "button_press_event", G_CALLBACK (clickDA_CB), NULL);
+		// Ask to receive events the drawing area doesn't normally subscribe to
+		gtk_widget_set_events (da, gtk_widget_get_events (da) | GDK_BUTTON_PRESS_MASK);
+	}
 	gtk_box_pack_start(GTK_BOX(box), da, TRUE, TRUE, 0);
 	// StatusBar for main window
 	statusbar = gtk_statusbar_new ();
@@ -497,7 +535,6 @@ GtkWidget* createMainWindow(void)
 	gtk_widget_size_request(statusbar, &actualSize);
 	_occupiedHeight += 2*(actualSize.height);
 
-	_inputImg.Resize(_options.windWidth, _options.windHeight);
 	frame = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, _options.windWidth, _options.windHeight);
 	// TimeOut used to refresh the screen
 	timeout_ID = gtk_timeout_add (_options.refreshTime, timeout_CB, NULL);
@@ -762,6 +799,7 @@ void setUp()
 		_imgRecv.SetLogopolar(false);
 	else
 		_imgRecv.SetLogopolar(true);
+	
 	if (_options.fovea == 0)
 		_imgRecv.SetFovea(false);
 	else
@@ -769,6 +807,8 @@ void setUp()
 	
 	if (openPorts() == false)
 		ACE_OS::exit(1);
+	
+	_inputImg.Resize(_options.windWidth, _options.windHeight);
 }
 
 //-------------------------------------------------
