@@ -9,11 +9,26 @@ namespace yarp {
   class Address;
 }
 
+/**
+ * An abstraction for a location within the YARP network.  This may be
+ * just a hostname, a port number, and the network protocol.
+ * This may need to be extended for other systems, e.g. QNX.
+ *
+ */
 class yarp::Address {
 private:
   yarp::String name, carrier, regName;
   int port;
 public:
+
+
+  /**
+   * Simplest constructor.  The simplest type of address is just a 
+   * machine name and a port, and an assumed protocol of tcp used
+   * to communicate with that port.
+   * @param name Machine name - could be a hostname or ip address.
+   * @param port Port number for socket communication.
+   */
   Address(yarp::String name,
 	  int port) {
     this->name = name;
@@ -22,6 +37,12 @@ public:
     this->regName = "";
   }
 
+  /**
+   * Constructor with explicit protocol.
+   * @param name Machine name - could be a hostname or ip address.
+   * @param port Port number for socket communication.
+   * @param carrier The raw protocol used for communication.
+   */
   Address(yarp::String name,
 	  int port,
 	  yarp::String carrier) {
@@ -31,6 +52,13 @@ public:
     this->regName = "";
   }
 
+  /**
+   * Constructor with explicit protocol and registered name.
+   * @param name Machine name - could be a hostname or ip address.
+   * @param port Port number for socket communication.
+   * @param carrier The raw protocol used for communication.
+   * @param regName A name associated with this address in the global name server.
+   */
   Address(yarp::String name,
 	  int port,
 	  yarp::String carrier,
@@ -41,6 +69,10 @@ public:
     this->regName = regName;
   }
 
+  /**
+   * Copy constructor.
+   * @param alt The address to copy.
+   */
   Address(const Address& alt) {
     name = alt.name;
     port = alt.port;
@@ -48,36 +80,71 @@ public:
     regName = alt.regName;
   }
 
+  /**
+   * Default constructor.  Creates an invalid address.
+   */
   Address() {
     port = -1;
   }
 
+  /**
+   * Get machine name.
+   * @return Machine name - could be a hostname or ip address.
+   */
   const yarp::String& getName() const {
     return name;
   }
 
+
+  /**
+   * Get port number.
+   * @return Port number for socket communication.
+   */
   int getPort() const {
     return port;
   }
 
+  /**
+   * Get protocol.
+   * @return The raw protocol used for communication.
+   */
   const yarp::String& getCarrierName() const {
     return carrier;
   }
 
+  /**
+   * Get registered name.
+   * @return The name associated with this address in the global name server.
+   */
   const yarp::String& getRegName() const {
     return regName;
   }
 
+  /**
+   * Render address textually, e.g. as something like udp://127.0.0.1:10001
+   * (host 127.0.0.1, port 10001, protocol udp)
+   * @return Textual representation of address.
+   */
   yarp::String toString() const {
     char buf[100];
     ACE_OS::itoa(port,buf,10);
-    return carrier + ":/" + name + ":" + buf;
+    return carrier + "://" + name + ":" + buf;
   }
 
+  /**
+   * Check if address is valid - in other words, that it contains some 
+   * information.
+   * @return True if address is valid.
+   */
   bool isValid() const {
     return port>=0;
   }
 
+  /**
+   * Add a registered name to an address.
+   * @param regName The registered name to add.
+   * @return A new address that is a copy of this, with the registered name set.
+   */
   Address addRegName(const String& regName) const {
     return Address(name,port,carrier,regName);
   }
