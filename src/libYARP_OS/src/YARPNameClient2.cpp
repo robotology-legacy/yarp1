@@ -106,7 +106,6 @@ int YARPNameClient2::queryName(const char *name, ACE_INET_Addr& addr,
 			       int *type) {
   YNC("queryName %s\n", name);
   YARPString cmd("NAME_SERVER query ");
-  name = "/read";
   cmd = cmd + name + "\n";
   YARPString result = send(cmd,true);
   Params p(result.c_str());
