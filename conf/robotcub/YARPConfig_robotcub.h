@@ -27,12 +27,12 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPConfig_robotcub.h,v 2.0 2005-11-10 17:50:22 gmetta Exp $
+/// $Id: YARPConfig_robotcub.h,v 2.1 2006-02-02 22:56:43 gmetta Exp $
 ///
 ///
 
-#ifndef __YARPConfigBabyboth__
-#define __YARPConfigBabyboth__
+#ifndef __YARPConfigRobotcubh__
+#define __YARPConfigRobotcubh__
 
 ///
 /// a global define to detect the robot type.
