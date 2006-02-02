@@ -141,10 +141,10 @@ int Companion::sendMessage(const String& port, Writable& writable,
     }
     return 1;
   }
-  Route route("external",port,"text");
+  Route route("external",port,"tcp");
   out->open(route);
-  printf("Route %s TEXT mode %d\n", out->getRoute().toString().c_str(),
-	 out->isTextMode());
+  //printf("Route %s TEXT mode %d\n", out->getRoute().toString().c_str(),
+  // out->isTextMode());
   BufferedBlockWriter bw(out->isTextMode());
   //bw.appendLine(msg);
   writable.writeBlock(bw);

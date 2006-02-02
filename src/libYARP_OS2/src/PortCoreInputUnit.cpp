@@ -3,6 +3,7 @@
 #include <yarp/PortCoreInputUnit.h>
 #include <yarp/PortCommand.h>
 #include <yarp/Logger.h>
+#include <yarp/Name.h>
 
 
 #define YMSG(x) ACE_OS::printf x;
@@ -12,6 +13,12 @@
 using namespace yarp;
 
 bool PortCoreInputUnit::start() {
+
+  if (ip!=NULL) {
+    Route route = ip->getRoute();
+    YARP_DEBUG(Logger::get(),String("starting output for ") + 
+	       route.toString());
+  }
 
   phase.wait();
 
@@ -31,6 +38,8 @@ void PortCoreInputUnit::run() {
   running = true;
   phase.post();
 
+  Route route;
+
   try {
     bool done = false;
 
@@ -39,8 +48,14 @@ void PortCoreInputUnit::run() {
     PortCommand cmd;
   
     ip->open(getName().c_str());
+    route = ip->getRoute();
+    if (Name(route.getFromName()).isRooted()) {
+      YARP_INFO(Logger::get(),String("Receiving input from ") + 
+		route.getFromName() + " to " + route.getToName() + " using " +
+		route.getCarrierName());
+    }
     if (closing) {
-      done = true;
+	done = true;
     }
 
     void *id = (void *)this;
@@ -64,7 +79,8 @@ void PortCoreInputUnit::run() {
 
       switch (key) {
       case '/':
-	//ACE_OS::printf("asking to add output\n");
+	YARP_DEBUG(Logger::get(),String("asking to add output to ")+
+		   cmd.getText());
 	man.addOutput(cmd.getText(),id,os);
 	break;
       case '!':
@@ -91,12 +107,17 @@ void PortCoreInputUnit::run() {
     }
   } catch (IOException e) {
     /* ok, ports die - it is their nature */
-    ACE_OS::printf("PortCoreInputUnit got exception: %s\n", e.toString().c_str());
+    YARP_DEBUG(Logger::get(),e.toString() + " <<< PortCoreInputUnit exception");
     ACE_DEBUG((LM_DEBUG,"PortCoreInputUnit got exception: %s\n",
 	       e.toString().c_str()));
   }
 
   ip->close();
+
+  if (Name(route.getFromName()).isRooted()) {
+    YARP_INFO(Logger::get(),String("Removing input from ") + 
+	      route.getFromName() + " to " + route.getToName());
+  }
 
   running = false;
   finished = true;

@@ -6,26 +6,26 @@
 
 using namespace yarp;
 
-Logger Logger::root("yarp: ");
+Logger Logger::root("yarp");
 
 Logger& Logger::get() {
   return root;
 }
 
 
-void Logger::show(int level, const char *txt) {
+void Logger::show(int level, const String& txt) {
   if (verbose>0) {
     level = 10000;
   }
   if (parent == NULL) {
     if (level>=low) {
-      ACE_OS::fprintf(stderr,"%s: %s\n",prefix.c_str(),txt);
+      ACE_OS::fprintf(stderr,"%s: %s\n",prefix.c_str(),txt.c_str());
     }
   } else {
     String more(prefix);
     more += ": ";
     more += txt;
-    parent->show(level,more.c_str());
+    parent->show(level,more);
   }
 }
 

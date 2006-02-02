@@ -9,9 +9,7 @@ void PortCommand::readBlock(BlockReader& reader) {
   ch = '\0';
   str = "";
   if (!reader.isTextMode()) {
-    ACE_OS::printf("PortCommand::readBlock pre read\n");
     reader.expectBlock(header.bytes());
-    ACE_OS::printf("PortCommand::readBlock post read\n");
     char *base = header.get();
     if (base[4] == '~') {
       ch = base[5];
@@ -36,7 +34,7 @@ void PortCommand::readBlock(BlockReader& reader) {
 
 void PortCommand::writeBlock(BlockWriter& writer) {
   ACE_DEBUG((LM_DEBUG,"PortCommand::writeBlock"));
-  ACE_OS::printf("Writing port command, text mode %d\n", writer.isTextMode());
+  //ACE_OS::printf("Writing port command, text mode %d\n", writer.isTextMode());
   if (!writer.isTextMode()) {
     int len = 0;
     if (ch=='\0') {

@@ -46,7 +46,7 @@ public:
 
   Address extractAddress(const String& txt);
 
-  String send(const String& cmd);
+  String send(const String& cmd, bool multi = true);
 
   void setFakeMode(bool fake = true) {
     this->fake = fake;

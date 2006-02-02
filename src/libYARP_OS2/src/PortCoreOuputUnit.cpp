@@ -5,6 +5,7 @@
 #include <yarp/PortCommand.h>
 #include <yarp/Logger.h>
 #include <yarp/BufferedBlockWriter.h>
+#include <yarp/Name.h>
 
 
 #define YMSG(x) ACE_OS::printf x;
@@ -43,6 +44,16 @@ void PortCoreOutputUnit::run() {
 
 
 void PortCoreOutputUnit::runSimulation() {
+
+  if (op!=NULL) {
+    Route route = op->getRoute();
+    if (Name(route.getToName()).isRooted()) {
+      YARP_INFO(Logger::get(),String("Sending output from ") + 
+		route.getFromName() + " to " + route.getToName() + " using " +
+		route.getCarrierName());
+    }
+  }
+
   // no thread component at the moment
   running = false;
   return;
@@ -76,6 +87,15 @@ void PortCoreOutputUnit::closeMain() {
     closing = true;
     join();
   }
+
+  if (op!=NULL) {
+    Route route = op->getRoute();
+    if (Name(route.getToName()).isRooted()) {
+      YARP_INFO(Logger::get(),String("Removing output from ") + 
+		route.getFromName() + " to " + route.getToName());
+    }
+  }
+
 
   if (op!=NULL) {
     try {

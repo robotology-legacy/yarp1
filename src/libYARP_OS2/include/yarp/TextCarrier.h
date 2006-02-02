@@ -72,7 +72,7 @@ public:
     String result = NetType::readLine(proto.is());
     ACE_DEBUG((LM_DEBUG,"text reply was %s",result.c_str()));
     */
-    ACE_DEBUG((LM_INFO,"don't know what to do about BECOME"));
+    ACE_DEBUG((LM_DEBUG,"don't know what to do about BECOME"));
   }
 
   void expectSenderSpecifier(Protocol& proto) {
@@ -96,7 +96,7 @@ public:
     Bytes b2((char*)from.c_str(),from.length());
     proto.os().write(b2);
     proto.os().flush();
-    ACE_DEBUG((LM_INFO,"don't know what to do about BECOME"));
+    ACE_DEBUG((LM_DEBUG,"don't know what to do about BECOME"));
   }
 };
 

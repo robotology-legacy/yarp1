@@ -26,7 +26,7 @@ public:
     INFO = LM_INFO,
     SEVERE = LM_ERROR,
 
-    DEFAULT_WARN=WARNING,
+    DEFAULT_WARN=INFO,
   };
 
   Logger(const char *prefix, Logger *parent = NULL) {
@@ -34,9 +34,7 @@ public:
     this->parent = parent;
     verbose = 0;
     low = DEFAULT_WARN;
-    low = -10000;
-    //if (this==&root) {
-    if (1) {
+    if (this==&root) {
       ACE_Log_Msg *acer = ACE_Log_Msg::instance();
       acer->set_flags(8);
       acer->clr_flags(1);
@@ -56,27 +54,27 @@ public:
     show(log_record.type(),log_record.msg_data());
   }
 
-  void debug(const char *txt) {
+  void debug(const String& txt) {
     show(DEBUG,txt);
   }
 
-  void println(const char *txt) {
+  void println(const String& txt) {
     debug(txt);
   }
 
-  void info(const char *txt) {
+  void info(const String& txt) {
     show(INFO,txt);
   }
 
-  void warning(const char *txt) {
+  void warning(const String& txt) {
     show(WARNING,txt);
   }
 
-  void error(const char *txt) {
+  void error(const String& txt) {
     show(SEVERE,txt);
   }
 
-  void fail(const char *txt) {
+  void fail(const String& txt) {
     show(SEVERE,txt);
     exit(1);
   }
@@ -92,7 +90,7 @@ public:
   }
 
 private:
-  void show(int level, const char *txt);
+  void show(int level, const String& txt);
   void exit(int result);
 
   static Logger root;

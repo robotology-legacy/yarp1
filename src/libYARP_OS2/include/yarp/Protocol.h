@@ -62,13 +62,21 @@ public:
 
   void defaultExpectSenderSpecifier() {
     int len = 0;
-    NetType::readFull(is(),number.bytes());
+    int r = NetType::readFull(is(),number.bytes());
+    if (r!=number.length()) {
+      throw new IOException("did not get sender name length");
+    }
     len = NetType::netInt(number.bytes());
     if (len>1000) len = 1000;
     if (len<1) len = 1;
-    // expect a null-terminated string
-    ManagedBytes b(len);
-    NetType::readFull(is(),b.bytes());
+    // expect a string -- these days null terminated, but not in YARP1
+    ManagedBytes b(len+1);
+    r = NetType::readFull(is(),Bytes(b.get(),len));
+    if (r!=len) {
+      throw new IOException("did not get sender name");
+    }
+    // add null termination for YARP1
+    b.get()[len] = '\0';
     String s = b.get();
     setRoute(getRoute().addFromName(s));
   }
@@ -352,6 +360,7 @@ private:
     if (delegate==NULL) {
       throw IOException("unrecognized protocol");
     }
+    setRoute(getRoute().addCarrierName(delegate->getName()));
     delegate->setParameters(header.bytes());
   }
 

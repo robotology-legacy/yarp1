@@ -23,7 +23,7 @@ void Protocol::defaultSendIndex() {
 
 
 void Protocol::defaultExpectIndex() {
-  ACE_OS::printf("expecting an index, requireAck is %d\n", delegate->requireAck());
+  YARP_DEBUG(Logger::get(),"expecting an index");
   ACE_DEBUG((LM_DEBUG,"Protocol::expectIndex for %s", getRoute().toString().c_str()));
   // expect index header
   int r = NetType::readFull(is(),header.bytes());
@@ -63,11 +63,11 @@ void Protocol::defaultExpectIndex() {
   }
   messageLen = total;
   ACE_DEBUG((LM_DEBUG,"Total message length: %d\n",messageLen));
-  ACE_OS::printf("got an index; messageLen is %d\n", messageLen);
+  YARP_DEBUG(Logger::get(),"got an index");
 }
 
 void Protocol::defaultSendAck() {
-  ACE_OS::printf("sending an ack\n");
+  YARP_DEBUG(Logger::get(),"sending an ack");
   if (delegate->requireAck()) {
     writeYarpInt(0);
   }

@@ -98,7 +98,7 @@ Address NameClient::extractAddress(const String& txt) {
 }
 
 
-String NameClient::send(const String& cmd) {
+String NameClient::send(const String& cmd, bool multi) {
   ACE_DEBUG((LM_DEBUG,">>> sending to nameserver: %s",cmd.c_str()));
   String result;
   TcpFace face;
@@ -110,7 +110,7 @@ String NameClient::send(const String& cmd) {
   String cmdn = cmd + "\n";
   Bytes b((char*)cmdn.c_str(),cmdn.length());
   ip->getOutputStream().write(b);
-  bool more = true;
+  bool more = multi;
   while (more) {
     String line = NetType::readLine(ip->getInputStream());
     if (line.length()>1) {
@@ -151,7 +151,13 @@ Address NameClient::registerName(const String& name, const Address& suggest) {
   YARP_ASSERT(suggest.isValid()==false);
   String q("NAME_SERVER register ");
   q += np;
-  return probe(q);
+  Address address = probe(q);
+  if (address.isValid()) {
+    String reg = address.getRegName();
+    send(String("NAME_SERVER set ") + reg + " offers tcp text",false);
+    send(String("NAME_SERVER set ") + reg + " accepts tcp text",false);
+  }
+  return address;
 }
 
 Address NameClient::unregisterName(const String& name) {
