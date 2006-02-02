@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPRobotcubHead.h,v 1.5 2004-09-06 23:05:33 babybot Exp $
+///  $Id: YARPRobotcubHead.h,v 1.6 2006-02-02 23:05:15 gmetta Exp $
 ///
 ///
 

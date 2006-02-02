@@ -27,27 +27,18 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.16 2005-05-24 16:01:43 babybot Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.17 2006-02-02 23:05:15 gmetta Exp $
 ///
 ///
 
 #ifndef __CanOnRobotcubArmAdapterh__
 #define __CanOnRobotcubArmAdapterh__
 
-#ifndef __ESD_DRIVER
-#define __ESD_DRIVER
-#endif
-
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/log_msg.h>
 
-#ifdef __ESD_DRIVER
 #include <yarp/YARPEsdCanDeviceDriver.h>
-#else
-#include <yarp/YARPValueCanDeviceDriver.h>
-#endif
-
 #include <yarp/YARPConfigFile.h>
 #include <yarp/YARPRobotMath.h>
 
@@ -113,6 +104,7 @@ namespace _RobotcubArm
 	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
+	const double _currentLimits[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
 	const int CANBUS_DEVICE_NUM			= 1; ///1;	[must be 1 if two cards are present]
 	const int CANBUS_MY_ADDRESS			= 0;
@@ -163,7 +155,8 @@ public:
 		_limitsMax = NULL;
 		_limitsMin = NULL;
 		_destinations = NULL;
-		
+		_currentLimits = NULL;
+
 		_nj = _RobotcubArm::_nj;
 		_realloc(_nj);
 
@@ -177,6 +170,7 @@ public:
 		ACE_OS::memcpy (_stiffPID, _RobotcubArm::_stiffPID, sizeof(int) * _nj);
 		ACE_OS::memcpy (_maxDAC, _RobotcubArm::_maxDAC, sizeof(double) * _nj);
 		ACE_OS::memcpy (_destinations, _RobotcubArm::_destinations, sizeof(unsigned char) * _RobotcubArm::CANBUS_MAXCARDS);
+		ACE_OS::memcpy (_currentLimits, _RobotcubArm::_currentLimits, sizeof(double) * _nj);
 
 		// invert the axis map.
 		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
@@ -215,6 +209,7 @@ public:
 		if (_limitsMax != NULL) delete [] _limitsMax;
 		if (_limitsMin != NULL) delete [] _limitsMin;
 		if (_destinations != NULL) delete[] _destinations;
+		if (_currentLimits != NULL) delete[] _currentLimits;
 	}
 
 	/**
@@ -280,6 +275,8 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
 			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "CurrentLimits", _currentLimits, _nj) == YARP_FAIL)
+			return YARP_FAIL;
 
 		int tmp[_RobotcubArm::CANBUS_MAXCARDS];
 		if (cfgFile.get("[GENERAL]", "CanAddresses", tmp, _RobotcubArm::CANBUS_MAXCARDS) == YARP_FAIL)
@@ -335,7 +332,7 @@ public:
 			ACE_OS::memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
 			ACE_OS::memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
 			ACE_OS::memcpy (_destinations, peer._destinations, sizeof(unsigned char) * _RobotcubArm::CANBUS_MAXCARDS);
-
+			ACE_OS::memcpy (_currentLimits, peer._currentLimits, sizeof(double) * _nj);
 			_p = peer._p;
 			_message_filter = peer._message_filter;
 		}
@@ -353,6 +350,7 @@ public:
 			if (_limitsMax != NULL) delete [] _limitsMax;
 			if (_limitsMin != NULL) delete [] _limitsMin;
 			if (_destinations != NULL) delete[] _destinations;
+			if (_currentLimits != NULL) delete[] _currentLimits;
 
 			_highPIDs = NULL;
 			_lowPIDs = NULL;
@@ -366,6 +364,7 @@ public:
 			_limitsMax = NULL;
 			_limitsMin = NULL;
 			_destinations = NULL;
+			_currentLimits = NULL;
 
 			_p = peer._p;
 			_message_filter = peer._message_filter;
@@ -393,6 +392,7 @@ private:
 		if (_limitsMax != NULL) delete [] _limitsMax;
 		if (_limitsMin != NULL) delete [] _limitsMin;
 		if (_destinations != NULL) delete[] _destinations;
+		if (_currentLimits != NULL) delete[] _currentLimits;
 
 		_highPIDs = new LowLevelPID [nj];
 		_lowPIDs = new LowLevelPID [nj];
@@ -406,6 +406,9 @@ private:
 		_stiffPID = new int [nj];
 		_maxDAC = new double [nj];
 		_destinations = new unsigned char[_RobotcubArm::CANBUS_MAXCARDS];
+		_currentLimits = new double [nj];
+
+		// LATER: add missing check on memory allocation.
 	}
 
 public:
@@ -423,8 +426,9 @@ public:
 	double			*_limitsMax;
 	double			*_limitsMin;
 	unsigned char	*_destinations;
+	double			*_currentLimits;
 
-	int (* _p) (char *fmt, ...);
+	int (* _p) (const char *fmt, ...);
 	int _message_filter;
 };
 
@@ -436,11 +440,7 @@ public:
  * uninitialize while it leaves much of the burden of calling the device driver
  * to a generic template class called YARPGenericControlBoard.
  */
-#ifdef __ESD_DRIVER
 class YARPCanOnRobotcubArmAdapter : public YARPEsdCanDeviceDriver
-#else
-class YARPCanOnRobotcubArmAdapter : public YARPValueCanDeviceDriver
-#endif
 {
 public:
 	/**
@@ -480,7 +480,6 @@ public:
 		_parameters = par;
 
 		/// either of the two available cards.
-#ifdef __ESD_DRIVER
 		EsdCanOpenParameters op_par;
 		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
@@ -495,22 +494,7 @@ public:
 			YARPEsdCanDeviceDriver::close();
 			return YARP_FAIL;
 		}
-#else
-		ValueCanOpenParameters op_par;
-		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
-		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
-		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
-		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
 
-		op_par._njoints = _parameters->_nj;
-		op_par._p = _parameters->_p;
-
-		if (YARPValueCanDeviceDriver::open ((void *)&op_par) < 0)
-		{
-			YARPValueCanDeviceDriver::close();
-			return YARP_FAIL;
-		}
-#endif
 
 		// filters out certain messages.
 		int msg = _parameters->_message_filter;
@@ -557,6 +541,8 @@ public:
 			double pos = 0.0;
 			cmd.parameters = &pos;
 			IOCtl(CMDDefinePosition, &cmd);
+			IOCtl(CMDSetCommand, &cmd);
+
 
 			// and set the limits too from the data in the initialization file.
 			double min, max;
@@ -582,7 +568,11 @@ public:
 			IOCtl(CMDSetSWNegativeLimit, &cmd);
 
 			cmd.parameters = &max;
-			IOCtl(CMDSetSWPositiveLimit, &cmd);			
+			IOCtl(CMDSetSWPositiveLimit, &cmd);
+			
+			// sets the current limit on each joint according to the configuration file.
+			cmd.parameters = &_parameters->_currentLimits[i];
+			IOCtl(CMDSetCurrentLimit, &cmd);
 		}
 
 		_initialized = true;
@@ -595,11 +585,7 @@ public:
 	 */
 	int uninitialize()
 	{
-#ifdef __ESD_DRIVER
 		if (YARPEsdCanDeviceDriver::close() != 0)
-#else
-		if (YARPValueCanDeviceDriver::close() != 0)
-#endif
 			return YARP_FAIL;
 
 		_initialized = false;
@@ -827,7 +813,5 @@ private:
 	/** Allocation and management of this object is typically done by the generic template. */
 	YARPRobotcubArmParameters *_parameters;
 };
-
-#undef __ESD_DRIVER
 
 #endif	// .h

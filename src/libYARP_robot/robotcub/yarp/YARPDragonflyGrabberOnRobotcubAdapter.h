@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPDragonflyGrabberOnRobotcubAdapter.h,v 1.1 2005-04-17 15:41:56 babybot Exp $
+/// $Id: YARPDragonflyGrabberOnRobotcubAdapter.h,v 1.2 2006-02-02 23:05:15 gmetta Exp $
 ///
 ///
 
@@ -74,5 +74,5 @@ public:
 	}
 };
 
-
 #endif
+

@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPRobotcubArm.h,v 1.2 2004-09-03 22:48:42 gmetta Exp $
+///  $Id: YARPRobotcubArm.h,v 1.3 2006-02-02 23:05:15 gmetta Exp $
 ///
 ///
 
