@@ -12,6 +12,9 @@ namespace yarp {
   class NameServer;
 }
 
+/*
+  Implementation of a YARP2-conforming name server.
+ */
 class yarp::NameServer {
 public:
 

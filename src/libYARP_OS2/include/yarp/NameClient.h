@@ -8,9 +8,17 @@ namespace yarp {
   class NameServer;
 }
 
+/**
+ * Client for YARP name server.  There is one global client available
+ * from the getNameClient method.
+ */
 class yarp::NameClient {
 public:
   
+  /**
+   * Get an instance of the name client.
+   * return the name client
+   */
   static NameClient& getNameClient() {
     if (instance==NULL) {
       instance = new NameClient();
@@ -26,6 +34,11 @@ public:
     }
   }
 
+
+  /**
+   * The address of the name server.
+   * @return the address of the name server
+   */
   Address getAddress() {
     return address;
   }
@@ -34,9 +47,33 @@ public:
     return name;
   }
 
+  /**
+   * Look up the address of a named port.
+   * @param name the name of the port
+   * @return the address associated with the port
+   */
   Address queryName(const String& name);
+
+  /**
+   * Register a port with a given name.
+   * @param name the name of the port
+   * @return the address associated with the port
+   */
   Address registerName(const String& name);
+
+  /**
+   * Register a port with a given name and a partial address.
+   * @param name the name of the port
+   * @param address a partially completed address
+   * @return the address associated with the port
+   */
   Address registerName(const String& name, const Address& address);
+
+  /**
+   * Register disassociation of name from port.
+   * @param name the name to remove
+   * @return the new result of queries for that name (should be empty)
+   */
   Address unregisterName(const String& name);
 
   Address probe(const String& cmd) {

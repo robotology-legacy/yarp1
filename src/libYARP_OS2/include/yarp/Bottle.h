@@ -13,63 +13,13 @@ namespace yarp {
   class Bottle;
 }
 
+/**
+ * A flexible data format for holding a bunch of numbers and strings.
+ * Handy to use until you work out how to make your own more 
+ * efficient formats for transmission.
+ */
 class yarp::Bottle : public Portable {
 public:
-  class Storable {
-  public:
-    virtual ~Storable() {}
-    virtual String toString() = 0;
-    virtual void fromString(const String& src) = 0;
-    virtual int getCode() = 0;
-    virtual void readBlock(BlockReader& reader) = 0;
-    virtual void writeBlock(BlockWriter& writer) = 0;
-    virtual Storable *create() = 0;
-
-    virtual int asInt() { return 0; }
-    virtual String asString() { return ""; }
-  };
-
-  class StoreInt : public Storable {
-  private:
-    int x;
-  public:
-    StoreInt(int x) { this->x = x; }
-    virtual String toString();
-    virtual void fromString(const String& src);
-    virtual int getCode();
-    virtual void readBlock(BlockReader& reader);
-    virtual void writeBlock(BlockWriter& writer);
-    virtual Storable *create() { return new StoreInt(0); }
-    virtual int asInt() { return x; }
-  };
-
-  class StoreString : public Storable {
-  private:
-    String x;
-  public:
-    StoreString(const String& x) { this->x = x; }
-    virtual String toString();
-    virtual void fromString(const String& src);
-    virtual int getCode();
-    virtual void readBlock(BlockReader& reader);
-    virtual void writeBlock(BlockWriter& writer);
-    virtual Storable *create() { return new StoreString(String("")); }
-    virtual String asString() { return x; }
-  };
-
-  /*
-  template <class T>
-  class Store : public Storable {
-  private:
-    T x;
-  public:
-    Store(const T& x) { this->x = x; }
-    const T& get() { return x; }
-
-    virtual String toString() = 0;
-    virtual void fromString(const String& src) = 0;    
-  };
-  */
 
   Bottle();
   virtual ~Bottle();
@@ -116,6 +66,49 @@ public:
   int byteCount();
 
 private:
+  class Storable {
+  public:
+    virtual ~Storable() {}
+    virtual String toString() = 0;
+    virtual void fromString(const String& src) = 0;
+    virtual int getCode() = 0;
+    virtual void readBlock(BlockReader& reader) = 0;
+    virtual void writeBlock(BlockWriter& writer) = 0;
+    virtual Storable *create() = 0;
+
+    virtual int asInt() { return 0; }
+    virtual String asString() { return ""; }
+  };
+
+  class StoreInt : public Storable {
+  private:
+    int x;
+  public:
+    StoreInt(int x) { this->x = x; }
+    virtual String toString();
+    virtual void fromString(const String& src);
+    virtual int getCode();
+    virtual void readBlock(BlockReader& reader);
+    virtual void writeBlock(BlockWriter& writer);
+    virtual Storable *create() { return new StoreInt(0); }
+    virtual int asInt() { return x; }
+  };
+
+  class StoreString : public Storable {
+  private:
+    String x;
+  public:
+    StoreString(const String& x) { this->x = x; }
+    virtual String toString();
+    virtual void fromString(const String& src);
+    virtual int getCode();
+    virtual void readBlock(BlockReader& reader);
+    virtual void writeBlock(BlockWriter& writer);
+    virtual Storable *create() { return new StoreString(String("")); }
+    virtual String asString() { return x; }
+  };
+
+
   ACE_Vector<Storable*> content;
   ACE_Vector<char> data;
   bool dirty;

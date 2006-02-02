@@ -13,6 +13,9 @@ namespace yarp {
   class Companion;
 }
 
+/**
+ * Implementation of a standard set of YARP utilities.
+ */
 class yarp::Companion {
 public:
 
@@ -22,16 +25,40 @@ public:
 
   /**
    * The standard main method for the YARP companion utility.
+   * @param argc Argument count
    * @param argv Command line arguments
+   * @return 0 on success, non-zero on failure
    */
   static int main(int argc, char *argv[]);
 
+  /**
+   * Request that an output port connect to an input port.
+   * @param source the name of an output port
+   * @param target the name of an input port
+   * @param silent whether to print comments on the result
+   * @return 0 on success, non-zero on failure
+   */
   static int connect(const char *target, const char *src,
 		     bool silent = false);
 
+  /**
+   * Request that an output port disconnect from an input port.
+   * @source the name of an output port
+   * @target the name of an input port
+   * @param silent whether to print comments on the result
+   * @return 0 on success, non-zero on failure
+   */
   static int disconnect(const char *target, const char *src,
 			bool silent = false);
 
+  /**
+   * Create a port to read Bottles and prints them to standard input.
+   * It assumes the Bottles consist of an integer followed by a string.
+   * The integer indicates whether the "end-of-file" has been reached.
+   * The string is what gets printed.
+   * @param name the name which which to register the port
+   * @return 0 on success, non-zero on failure
+   */
   static int read(const char *name);
 
   static int write(const char *name, int ntargets, char *targets[]);

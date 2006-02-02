@@ -12,7 +12,7 @@ public:
     report(0,"checking string representation");
     Address address("localhost",10000,"tcp");
     String txt = address.toString();
-    checkEqual(txt,"tcp:/localhost:10000","string rep example");
+    checkEqual(txt,"tcp://localhost:10000","string rep example");
   }
 
   virtual void runTests() {

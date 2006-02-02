@@ -9,6 +9,13 @@ namespace yarp {
   class Protocol;
 }
 
+/**
+ * Class representing one specific protocol for sending and receiving
+ * YARP messages.  YARP communication occurs through a series of
+ * defined phases that make it easy to duplicate output.  Any process
+ * that goes through the same phases can be described as a Carrier and
+ * then made available (through the Carriers class) for connections.
+ */
 class yarp::Carrier : public ShiftStream {
 public:
 

@@ -12,9 +12,9 @@ namespace yarp {
 }
 
 /**
- *
- * This is currently a sad mixture of the jyarp logging mechanism
- * and ACE.  PENDING: make it less schizophrenic...
+ * This is a wrapper for message logging.
+ * This is currently a sad mixture of the java yarp logging mechanism
+ * and ACE.
  *
  */
 class yarp::Logger : public ACE_Log_Msg_Callback {

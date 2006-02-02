@@ -15,6 +15,10 @@ namespace yarp {
   class Protocol;
 }
 
+/**
+ * Connection Communication choreographer.  Handles a single YARP connection,
+ * and insulates ports from the details of the particular Carrier in use.
+ */
 class yarp::Protocol : public OutputProtocol, public InputProtocol {
 public:
 

@@ -8,6 +8,12 @@ namespace yarp {
   class BlockWriter;
 }
 
+/**
+ * Write to an output port.  This is the interface available when
+ * describing an object.  The underlying protocol is hidden,
+ * except that the object may optionally be described in a more
+ * human-friendly form for text-mode connections.
+ */
 class yarp::BlockWriter {
 public:
   virtual ~BlockWriter() {}

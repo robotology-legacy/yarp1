@@ -16,10 +16,12 @@ namespace yarp {
 }
 
 /**
- *
  * This is the heart of a yarp port.  It is the thread manager.
  * All other port components are insulated from threading
- *
+ * It maintains a collection of incoming and
+ * outgoing connections.  Data coming from incoming connections is
+ * directed to the handler set with setReadHandler().  Calls to send()
+ * result in data begin sent to all the outgoing connections.
  */
 class yarp::PortCore : public Thread, public PortManager {
 public:

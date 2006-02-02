@@ -9,8 +9,9 @@ namespace yarp {
 }
 
 /**
- * Container for a i/o streams that can be displaced.
- * Owns the streams - should close them, destroy them.
+ * Container for a replacable I/O stream.
+ * Classes implementing this interface can 
+ * have their streams "borrowed" or replaced.
  */
 class yarp::ShiftStream : public TwoWayStream {
 public:
