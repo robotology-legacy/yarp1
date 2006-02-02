@@ -10,7 +10,7 @@
 #		  --distribution <PATH> is the path where ACE was unpacked
 #		  --os <OS> is the operating system you're compiling for
 #
-# $Id: build.pl,v 1.13 2006-01-26 23:08:32 gmetta Exp $
+# $Id: build.pl,v 1.14 2006-02-02 22:20:07 babybot Exp $
 #
 # This script can be (at least in theory) configured to
 # do some useful thing in Linux and/or Qnx too. It's definitely
@@ -105,20 +105,20 @@ if ($clean)
 	}
 	elsif ($os eq "qnx6")
 	{
-		symlink ("$yarp_root/include/$os/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-		symlink ("$yarp_root/include/$os/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
+		copy ("$yarp_root/include/$os/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		copy ("$yarp_root/include/$os/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
 		call_make_and_print ('', 'clean');
 	}
 	elsif ($os eq "linux")
 	{
-		symlink ("$yarp_root/include/$os/ace/platform_linux.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-		symlink ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
+		copy ("$yarp_root/include/$os/ace/platform_linux.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		copy ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
 		call_make_and_print ('', 'clean');
 	}
         elsif ($os eq "darwin")
         {
-                symlink ("$yarp_root/include/$os/ace/platform_macosx_panther.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-                symlink ("$yarp_root/include/$os/ace/config-macosx-panther.h", "$distribution/ace/config.h");
+                copy ("$yarp_root/include/$os/ace/platform_macosx_panther.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+                copy ("$yarp_root/include/$os/ace/config-macosx-panther.h", "$distribution/ace/config.h");
                 call_make_and_print ('', 'clean');
         }
 	print "\n";
@@ -142,31 +142,40 @@ if ($debug)
 	elsif ($os eq "qnx6" && $release == 0)
 	{
 		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
-		symlink ("$yarp_root/include/$os/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-		symlink ("$yarp_root/include/$os/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
+		copy ("$yarp_root/include/$os/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		copy ("$yarp_root/include/$os/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
 
 		call_make_and_print ('', 'debug=1 optimize=0');
 	
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
+
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
 	elsif ($os eq "linux" && $release == 0)
 	{
 		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
-		symlink ("$yarp_root/include/$os/ace/platform_linux.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-		symlink ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
+		copy ("$yarp_root/include/$os/ace/platform_linux.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		copy ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
 
 		call_make_and_print ('', 'debug=1 optimize=0');
+
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
 
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
         elsif ($os eq "darwin" && $release == 0)
         {
                 chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
-                symlink ("$yarp_root/include/$os/ace/platform_macosx_panther.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-                symlink ("$yarp_root/include/$os/ace/config-macosx-panther.h", "$distribution/ace/config.h");
+                copy ("$yarp_root/include/$os/ace/platform_macosx_panther.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+                copy ("$yarp_root/include/$os/ace/config-macosx-panther.h", "$distribution/ace/config.h");
 
                 call_make_and_print ('', 'debug=1 optimize=0');
                 
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
+
                 chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
         }
 }
@@ -188,29 +197,38 @@ if ($release)
 	elsif ($os eq "qnx6")
 	{
 		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
-		symlink ("$yarp_root/include/$os/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-		symlink ("$yarp_root/include/$os/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
+		copy ("$yarp_root/include/$os/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		copy ("$yarp_root/include/$os/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
 
 		call_make_and_print ('', 'optimize=1 debug=0');
 	
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
+
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
 	elsif ($os eq "linux")
 	{
 		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
-		symlink ("$yarp_root/include/$os/ace/platform_linux.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-		symlink ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
+		copy ("$yarp_root/include/$os/ace/platform_linux.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		copy ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
 
 		call_make_and_print ('', 'optimize=1 debug=0');
+
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
 
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
         elsif ($os eq "darwin")
         {
                 chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
-                symlink ("$yarp_root/include/$os/ace/platform_macosx_panther.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-                symlink ("$yarp_root/include/$os/ace/config-macosx-panther.h", "$distribution/ace/config.h");
+                copy ("$yarp_root/include/$os/ace/platform_macosx_panther.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+                copy ("$yarp_root/include/$os/ace/config-macosx-panther.h", "$distribution/ace/config.h");
                 call_make_and_print ('', 'optimize=1 debug=0');
+
+		unlink "config.h";
+		unlink "$distribution/include/makeinclude/platform_macros.GNU";
 
                 chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
         }
