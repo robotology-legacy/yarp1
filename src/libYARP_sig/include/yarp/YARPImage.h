@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.8 2005-11-03 22:50:33 gmetta Exp $
+/// $Id: YARPImage.h,v 1.9 2006-02-02 23:19:51 gmetta Exp $
 ///
 ///
 
@@ -683,7 +683,7 @@ template<class T>
 inline int YARPImageOf<T>::GetID() const
 { return -((int)sizeof(T)); }
 
-#define __YARPIMAGE_ASSOCIATE_TAG(tag,T) inline int YARPImageOf<T>::GetID() const { return tag; }
+#define __YARPIMAGE_ASSOCIATE_TAG(tag,T) template<> inline int YARPImageOf<T>::GetID() const { return tag; }
 
 __YARPIMAGE_ASSOCIATE_TAG(YARP_PIXEL_MONO,YarpPixelMono)
 __YARPIMAGE_ASSOCIATE_TAG(YARP_PIXEL_RGB,YarpPixelRGB)

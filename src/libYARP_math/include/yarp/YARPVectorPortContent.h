@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPVectorPortContent.h,v 1.3 2004-07-30 14:55:46 babybot Exp $
+/// $Id: YARPVectorPortContent.h,v 1.4 2006-02-02 23:19:51 gmetta Exp $
 ///
 ///
 
@@ -112,7 +112,7 @@ public:
     YVector& operator=(const YVector &vec) { return YVector::operator= (vec); }
 };
 
-
+template <>
 class YARPInputPortOf<YVector> : public YARPBasicInputPort<YARPVectorPortContent>
 {
 public:
@@ -122,6 +122,7 @@ public:
 	virtual ~YARPInputPortOf<YVector> () { YARPPort::End(); }
 };
 
+template <>
 class YARPOutputPortOf<YVector> : public YARPBasicOutputPort<YARPVectorPortContent>
 {
 public:
@@ -173,7 +174,7 @@ public:
     YMatrix& operator=(const YMatrix &mat) { return YMatrix::operator= (mat); }
 };
 
-
+template <>
 class YARPInputPortOf<YMatrix> : public YARPBasicInputPort<YARPMatrixPortContent>
 {
 public:
@@ -183,6 +184,7 @@ public:
 	virtual ~YARPInputPortOf<YMatrix> () { YARPPort::End(); }
 };
 
+template <>
 class YARPOutputPortOf<YMatrix> : public YARPBasicOutputPort<YARPMatrixPortContent>
 {
 public:

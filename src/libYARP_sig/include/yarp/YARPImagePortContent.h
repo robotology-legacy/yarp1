@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImagePortContent.h,v 1.2 2004-07-20 12:27:16 eshuy Exp $
+/// $Id: YARPImagePortContent.h,v 1.3 2006-02-02 23:19:51 gmetta Exp $
 ///
 ///
 
@@ -151,6 +151,7 @@ public:
 
 // The following has not been tested yet 
 
+template<>
 class YARPInputPortOf<YARPGenericImage> : public YARPBasicInputPort<YARPImagePortContent>
 {
 public:
@@ -161,6 +162,7 @@ public:
 	virtual ~YARPInputPortOf<YARPGenericImage> () { YARPPort::End(); }
 };
 
+template<>
 class YARPOutputPortOf<YARPGenericImage> : public YARPBasicOutputPort<YARPImagePortContent>
 {
 public:
