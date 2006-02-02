@@ -35,6 +35,8 @@ public:
 
   static int readFull(InputStream& is, const Bytes& b);
 
+  static int readDiscard(InputStream& is, int len);
+
 
 
   /**

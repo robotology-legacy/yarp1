@@ -91,6 +91,17 @@ public:
     }    
   }
 
+  virtual int length() {
+    return lst.size();
+  }
+
+  virtual int length(int index) {
+    ManagedBytes& b = *(lst[index]);
+    return b.length();
+  }
+
+
+
   String toString() {
     StringOutputStream sos;
     write(sos);

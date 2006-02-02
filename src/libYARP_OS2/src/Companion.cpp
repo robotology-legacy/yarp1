@@ -2,6 +2,7 @@
 #include <yarp/Companion.h>
 #include <yarp/NameClient.h>
 #include <yarp/Logger.h>
+#include <yarp/PortCommand.h>
 
 #include <yarp/Carriers.h>
 #include <yarp/BufferedBlockWriter.h>
@@ -120,7 +121,7 @@ int Companion::cmdVersion(int argc, char *argv[]) {
 }
 
 
-int Companion::sendMessage(const String& port, const String& msg, 
+int Companion::sendMessage(const String& port, Writable& writable, 
 			   bool quiet) {
   NameClient& nic = NameClient::getNameClient();
   Address srcAddress = nic.queryName(port);
@@ -142,8 +143,11 @@ int Companion::sendMessage(const String& port, const String& msg,
   }
   Route route("external",port,"text");
   out->open(route);
-  BufferedBlockWriter bw;
-  bw.appendLine(msg);
+  printf("Route %s TEXT mode %d\n", out->getRoute().toString().c_str(),
+	 out->isTextMode());
+  BufferedBlockWriter bw(out->isTextMode());
+  //bw.appendLine(msg);
+  writable.writeBlock(bw);
   out->write(bw);
   out->close();
   delete out;
@@ -207,11 +211,13 @@ int Companion::cmdRegression(int argc, char *argv[]) {
 
 
 int Companion::connect(const char *src, const char *dest, bool silent) {
-  return sendMessage(src,dest,silent);
+  PortCommand pc('\0',dest);
+  return sendMessage(src,pc,silent);
 }
 
 int Companion::disconnect(const char *src, const char *dest, bool silent) {
-  return sendMessage(src,String("!")+dest,silent);
+  PortCommand pc('\0',String("!")+dest);
+  return sendMessage(src,pc,silent);
 }
 
 

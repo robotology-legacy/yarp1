@@ -91,6 +91,7 @@ void PortCoreInputUnit::run() {
     }
   } catch (IOException e) {
     /* ok, ports die - it is their nature */
+    ACE_OS::printf("PortCoreInputUnit got exception: %s\n", e.toString().c_str());
     ACE_DEBUG((LM_DEBUG,"PortCoreInputUnit got exception: %s\n",
 	       e.toString().c_str()));
   }

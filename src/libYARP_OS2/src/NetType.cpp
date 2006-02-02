@@ -1,4 +1,5 @@
 #include <yarp/NetType.h>
+#include <yarp/ManagedBytes.h>
 
 using namespace yarp;
 
@@ -32,10 +33,24 @@ int NetType::readFull(InputStream& is, const Bytes& b) {
   int result = 1;
   while (result>0&&remLen>0) {
     result = is.read(b,off,remLen);
+    //printf("read result is %d\n",result);
     if (result>0) {
       remLen -= result;
       off += result;
     }
   }
-  return (result<0)?result:fullLen;
+  return (result<=0)?-1:fullLen;
 }
+
+int NetType::readDiscard(InputStream& is, int len) {
+  if (len<100) {
+    char buf[100];
+    Bytes b(buf,len);
+    return readFull(is,b);
+  } else {
+    ManagedBytes b(len);
+    return readFull(is,b.bytes());
+  }
+}
+
+

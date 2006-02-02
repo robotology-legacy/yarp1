@@ -68,6 +68,7 @@ InputProtocol *TcpFace::read() {
   try {
     stream->open(peerAcceptor);
   } catch (IOException e) {
+    ACE_OS::printf("exception on tcp stream read: %s\n", e.toString().c_str());
     stream->close();
     delete stream;
     stream = NULL;

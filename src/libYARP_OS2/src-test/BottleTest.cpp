@@ -41,8 +41,24 @@ public:
     checkEqual(2,bot2.size(),"return from string rep");
   }
 
+  void testBinary() {
+    report(0,"testing binary representation...");
+    Bottle bot;
+    bot.addInt(5);
+    bot.addString("hello");
+    checkEqual(bot.isInt(0),true,"type check");
+    checkEqual(bot.isString(1),true,"type check");
+    ManagedBytes store(bot.byteCount());
+    bot.toBytes(store.bytes());
+    Bottle bot2;
+    bot2.fromBytes(store.bytes());
+    checkEqual(bot2.size(),2,"recovery binary, length");
+    checkEqual(bot2.isInt(0),bot.isInt(0),"recovery binary, integer");
+    checkEqual(bot2.isString(1),bot.isString(1),"recovery binary, integer");
+  }
+
   void testStreaming() {
-    report(0,"testing streaming (just text mode so far)...");
+    report(0,"testing streaming (just text mode)...");
 
     Bottle bot;
     bot.addInt(5);
@@ -71,6 +87,7 @@ public:
   virtual void runTests() {
     testSize();
     testString();
+    testBinary();
     testStreaming();
   }
 

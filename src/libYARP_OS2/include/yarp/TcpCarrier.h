@@ -50,13 +50,14 @@ public:
   }
 
   virtual void respondToHeader(Protocol& proto) {
+    ACE_OS::printf("booga booga, not really implemented yet\n");
     int cport = proto.getStreams().getLocalAddress().getPort();
     proto.writeYarpInt(cport);
   }
 
   virtual void expectReplyToHeader(Protocol& proto) {
     ACE_DEBUG((LM_DEBUG,"TcpCarrier::expectReplyToHeader"));
-    ACE_OS::printf("booga booga\n");
+    ACE_OS::printf("booga booga, not really implemented yet\n");
     proto.readYarpInt(); // ignore result
   }
 

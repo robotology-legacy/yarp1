@@ -111,8 +111,42 @@ int Bottle::size() {
 
 void Bottle::fromBytes(const Bytes& data) {
   clear();
-  dirty = true;
+  dirty = true; // for clarity
+  int index = 0;
+  int len = data.length();
+  while (index<len-4) {
+    int id = NetType::netInt(Bytes(data.get()+index,4));
+    index+=4;
+    //log.println("Id is " + id);
+    switch (id) {
+    case 1:
+      {
+	int v = NetType::netInt(Bytes(data.get()+index,4));
+	index+=4;
+	//log.println(" > num is " + v);
+	addInt(v);
+	break;
+      }
+    case 5:
+      {
+	int l = NetType::netInt(Bytes(data.get()+index,4));
+	index+=4;
+	String txt = (data.get()+index);
+	index+=l;
+	//log.println(" > string is " + txt);
+	addString(txt.c_str());
+      }
+      break;
+    }
+  }
 }
+
+void Bottle::toBytes(const Bytes& data) {
+  synch();
+  YARP_ASSERT(data.length()==byteCount());
+  ACE_OS::memcpy(data.get(),getBytes(),byteCount());
+}
+
 
 const char *Bottle::getBytes() {
   synch();
@@ -144,10 +178,13 @@ void Bottle::readBlock(BlockReader& reader) {
     String str = reader.expectLine();
     fromString(str);
   } else {
-    ACE_OS::printf("Bottle::readBlock cannot yet handle binary data\n");
+    int len = reader.expectInt();
+    String name = reader.expectString(len);
+    int bct = reader.expectInt();
+    ManagedBytes b(bct);
+    reader.expectBlock(b.bytes());
+    fromBytes(b.bytes());
   }
-  //ACE_OS::printf("Bottle::readBlock gives [%s]\n",
-  //	 toString().c_str());
 }
 
 
@@ -281,10 +318,12 @@ bool Bottle::isString(int index) {
 }
 
 int Bottle::getInt(int index) {
+  if (!isInt(index)) { return 0; }
   return content[index]->asInt();
 }
 
 String Bottle::getString(int index) {
+  if (!isString(index)) { return ""; }
   return content[index]->asString();
 }
 

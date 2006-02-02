@@ -36,7 +36,11 @@ int main(int argc, char *argv[]) {
       done = true;
       UnitTest::startTestSystem();
       TestList::collectTests();  // just in case automation doesn't work
-      UnitTest::getRoot().run();
+      if (argc>2) {
+	UnitTest::getRoot().run(argc-2,argv+2);
+      } else {
+	UnitTest::getRoot().run();
+      }
       UnitTest::stopTestSystem();
       NameClient::removeNameClient();
     }

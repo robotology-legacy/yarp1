@@ -36,10 +36,12 @@ public:
 
   virtual void run();
 
+  virtual void run(int argc, char *argv[]);
+
   virtual void runTests() {
   }
 
-  virtual void runSubTests();
+  virtual void runSubTests(int argc, char *argv[]);
 
 
   bool checkEqualImpl(int x, int y, 

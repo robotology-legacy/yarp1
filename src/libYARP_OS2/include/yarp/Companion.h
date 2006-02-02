@@ -2,6 +2,7 @@
 #define _YARP2_COMPANION_
 
 #include <yarp/String.h>
+#include <yarp/Writable.h>
 
 #include <ace/Hash_Map_Manager.h>
 #include <ace/Null_Mutex.h>
@@ -66,7 +67,7 @@ private:
 
   int cmdRegression(int argc, char *argv[]);
 
-  static int sendMessage(const String& port, const String& msg, 
+  static int sendMessage(const String& port, Writable& writable, 
 			 bool silent = false);
 
   class Entry {

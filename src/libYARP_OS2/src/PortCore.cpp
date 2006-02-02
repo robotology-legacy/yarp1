@@ -420,7 +420,7 @@ void PortCore::addOutput(const String& dest, void *id, OutputStream *os) {
     try {
       op = Carriers::connect(address);
       if (op!=NULL) {
-	op->open(Route(getName(),dest,"text"));
+	op->open(Route(getName(),dest,"tcp"));
       }
     } catch (IOException e) { /* ok */ }
     if (op!=NULL) {

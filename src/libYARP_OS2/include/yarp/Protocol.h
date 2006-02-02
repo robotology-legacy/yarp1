@@ -24,7 +24,7 @@ public:
    * This becomes owner of shiftstream
    */
   Protocol(TwoWayStream *stream) : 
-    log(Logger::get()), header(8), number(4) {
+    log(Logger::get()), header(8), number(4), indexHeader(10) {
     shift.takeStream(stream);
     route = Route("null","null","tcp");
     delegate = NULL;
@@ -136,7 +136,7 @@ public:
     }
     char *base = header.get();
     base[0] = 'Y';
-    base[1] = 'Y';
+    base[1] = 'A';
     base[6] = 'R';
     base[7] = 'P';
     Bytes code(base+2,4);
@@ -150,10 +150,7 @@ public:
     delegate->sendIndex(*this);
   }
 
-  void defaultSendIndex() {
-    ACE_DEBUG((LM_ERROR,"not implemented"));
-    throw IOException("not implemented");
-  }
+  void defaultSendIndex();
 
   void sendContent() {
     YARP_ASSERT(writer!=NULL);
@@ -169,11 +166,7 @@ public:
     reader.reset(is(),messageLen,delegate->isTextMode());
   }
 
-  void defaultExpectIndex() {
-    ACE_DEBUG((LM_DEBUG,"Protocol::expectIndex for %s", getRoute().toString().c_str()));
-    ACE_DEBUG((LM_ERROR,"not implemented"));
-    throw IOException("not implemented");
-  }
+  void defaultExpectIndex();
 
   void respondToIndex() {
   }
@@ -182,9 +175,18 @@ public:
   void expectAck() {
     YARP_ASSERT(delegate!=NULL);
     if (delegate->requireAck()) {
-      ACE_DEBUG((LM_DEBUG,"Protocol::expectAck for %s", getRoute().toString().c_str()));
-      ACE_DEBUG((LM_ERROR,"not implemented"));
-      throw IOException("not implemented");
+      int hdr = NetType::readFull(is(),header.bytes());
+      if (hdr!=header.length()) {
+	throw IOException("did not get acknowledgement header");
+      }
+      int len = interpretYarpNumber(header.bytes());
+      if (len<0) {
+	throw IOException("acknowledgement header is bad");
+      }
+      int len2 = NetType::readDiscard(is(),len);
+      if (len!=len2) {
+	throw IOException("did not get an acknowledgement of the promised length");
+      }
     }
   }
 
@@ -196,11 +198,7 @@ public:
     }
   }
 
-  void defaultSendAck() {
-    ACE_DEBUG((LM_DEBUG,"Protocol::sendAck for %s", getRoute().toString().c_str()));
-    ACE_DEBUG((LM_ERROR,"not implemented"));
-    throw IOException("not implemented");
-  }
+  void defaultSendAck();
 
   void interrupt() {
     if (pendingAck) {
@@ -278,7 +276,7 @@ public:
 
   virtual bool isTextMode() {
     YARP_ASSERT(delegate!=NULL);
-    return delegate->isActive();
+    return delegate->isTextMode();
   }
 
   virtual void write(SizedWriter& writer) {
@@ -379,6 +377,7 @@ private:
   Logger& log;
   ManagedBytes header;
   ManagedBytes number;
+  ManagedBytes indexHeader;
   ShiftStream shift;
   Carrier *delegate;
   Route route;

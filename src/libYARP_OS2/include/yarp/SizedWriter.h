@@ -13,6 +13,10 @@ public:
 
   virtual void write(OutputStream& os) = 0;
 
+  virtual int length() = 0;
+
+  virtual int length(int index) = 0;
+
   // also way to extract block sizes
 };
 

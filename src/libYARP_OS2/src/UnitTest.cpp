@@ -71,28 +71,52 @@ void UnitTest::count(int severity) {
 }
 
 
-void UnitTest::runSubTests() {
+void UnitTest::runSubTests(int argc, char *argv[]) {
   //char buf[256];
   //sprintf(buf,"size is %d", subTests.size());
   //report(0,buf);
   for (unsigned int i=0; i<subTests.size(); i++) {
-    subTests[i]->run();
+    subTests[i]->run(argc,argv);
   }
 }
 
 
 void UnitTest::run() {
+  run(0,NULL);
+}
+
+
+void UnitTest::run(int argc, char *argv[]) {
   //report(0,String("starting tests for " + getName()));
-  runTests();
-  runSubTests();
+  bool ran = false;
+  if (argc==0) {
+    runTests();
+    ran = true;
+  } else {
+    String name = getName();
+    bool onList = false;
+    for (int i=0; i<argc; i++) {
+      if (name == String(argv[i])) {
+	onList = true;
+	break;
+      }
+    }
+    if (onList) {
+      runTests();
+      ran = true;
+    }
+  }
+  runSubTests(argc,argv);
   //report(0,String("ending tests for " + getName()));
   if (hasProblem) {
     report(0,"A PROBLEM WAS ENCOUNTERED");
-  } else {
-    report(0,"no problems reported");
+  } 
+  else {
+    if (ran) {
+      report(0,"no problems reported");
+    }
   }
 }
-
 
 
 

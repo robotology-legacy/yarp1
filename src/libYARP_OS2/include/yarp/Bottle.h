@@ -106,6 +106,7 @@ public:
   int size();
 
   void fromBytes(const Bytes& data);
+  void toBytes(const Bytes& data);
 
   void writeBlock(BlockWriter& writer);
 

@@ -34,7 +34,9 @@ public:
     this->parent = parent;
     verbose = 0;
     low = DEFAULT_WARN;
-    if (this==&root) {
+    low = -10000;
+    //if (this==&root) {
+    if (1) {
       ACE_Log_Msg *acer = ACE_Log_Msg::instance();
       acer->set_flags(8);
       acer->clr_flags(1);

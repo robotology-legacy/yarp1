@@ -5,6 +5,8 @@ endif
 MYCODELIB = libYARP_OS2
 
 all:
+	rm -f lib/linux/*.a
+	rm -f $(YARP_ROOT)/lib/linux/*.a
 	make default && ( cd src-test; make ) && ( cd test; $(MAKE) clean harness.bin )
 	cp test/harness.bin ./cyarp
 

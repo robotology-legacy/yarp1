@@ -20,16 +20,9 @@ public:
   SocketTwoWayStream() {
   }
 
-  int open(const Address& address) {
-    ACE_SOCK_Connector connector;
-    ACE_INET_Addr addr(address.getPort(),address.getName().c_str());
-    int result = connector.connect(stream,addr);
-    return result;
-  }
+  int open(const Address& address);
 
-  void open(ACE_SOCK_Acceptor& acceptor) {
-    acceptor.accept(stream);
-  }
+  void open(ACE_SOCK_Acceptor& acceptor);
 
   virtual ~SocketTwoWayStream() {
     close();
@@ -44,11 +37,11 @@ public:
   }
 
   virtual const Address& getLocalAddress() {
-    return dummy;
+    return localAddress;
   }
 
   virtual const Address& getRemoteAddress() {
-    return dummy;
+    return remoteAddress;
   }
 
   virtual void interrupt() {
@@ -73,7 +66,8 @@ public:
 
 private:
   ACE_SOCK_Stream stream;
-  Address dummy;
+  Address localAddress, remoteAddress;
+  void updateAddresses();
 };
 
 #endif
