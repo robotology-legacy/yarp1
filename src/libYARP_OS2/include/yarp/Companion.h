@@ -51,6 +51,9 @@ public:
   static int disconnect(const char *target, const char *src,
 			bool silent = false);
 
+  static int disconnectInput(const char *target, const char *src,
+			     bool silent = false);
+
   /**
    * Create a port to read Bottles and prints them to standard input.
    * It assumes the Bottles consist of an integer followed by a string.

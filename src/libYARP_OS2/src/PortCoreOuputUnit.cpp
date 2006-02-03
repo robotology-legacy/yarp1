@@ -6,6 +6,7 @@
 #include <yarp/Logger.h>
 #include <yarp/BufferedBlockWriter.h>
 #include <yarp/Name.h>
+#include <yarp/Companion.h>
 
 
 #define YMSG(x) ACE_OS::printf x;
@@ -90,6 +91,16 @@ void PortCoreOutputUnit::closeMain() {
 
   if (op!=NULL) {
     Route route = op->getRoute();
+    if (op->isConnectionless()) {
+      YARP_DEBUG(Logger::get(),"asking other side to close, it is connectionless");
+      try {
+	Companion::disconnectInput(route.getToName().c_str(),
+				   route.getFromName().c_str(),true);
+      } catch (IOException e) {
+	YARP_DEBUG(Logger::get(),e.toString() + 
+		   " <<< exception during request to close input");
+      }
+    }
     if (Name(route.getToName()).isRooted()) {
       YARP_INFO(Logger::get(),String("Removing output from ") + 
 		route.getFromName() + " to " + route.getToName());
@@ -108,7 +119,7 @@ void PortCoreOutputUnit::closeMain() {
   }
   running = false;
   closing = false;
-  finished = false;
+  finished = true;
 }
 
 

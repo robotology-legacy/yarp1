@@ -5,7 +5,7 @@
 #include <yarp/NameClient.h>
 #include <yarp/PortCoreInputUnit.h>
 #include <yarp/PortCoreOutputUnit.h>
-
+#include <yarp/Name.h>
 
 #include <ace/OS_NS_stdio.h>
 
@@ -397,9 +397,9 @@ bool PortCore::removeUnit(const Route& route) {
     }
   }
   stateMutex.post();
-  ACE_OS::printf("should I reap?\n");
+  YARP_DEBUG(Logger::get(),"should I reap?");
   if (needReap) {
-    ACE_OS::printf("yes!\n");
+    YARP_DEBUG(Logger::get(),"reaping...");
     // death will happen in due course; we can speed it up a bit
     // by waking up the grim reaper
     try {
@@ -428,14 +428,16 @@ bool PortCore::removeUnit(const Route& route) {
 void PortCore::addOutput(const String& dest, void *id, OutputStream *os) {
   BufferedBlockWriter bw(true);
 
-  Address address = NameClient::getNameClient().queryName(dest);
+  Address parts = Name(dest).toAddress();
+  Address address = NameClient::getNameClient().queryName(parts.getRegName());
   if (address.isValid()) {
     bw.appendLine(String("Adding output to ") + dest);
     OutputProtocol *op = NULL;
     try {
       op = Carriers::connect(address);
       if (op!=NULL) {
-	op->open(Route(getName(),dest,"tcp"));
+	op->open(Route(getName(),address.getRegName(),
+		       parts.hasCarrierName()?parts.getCarrierName():"tcp"));
       }
     } catch (IOException e) { /* ok */ }
     if (op!=NULL) {

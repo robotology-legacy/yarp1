@@ -2,6 +2,7 @@
 #define _YARP2_NAME_
 
 #include <yarp/String.h>
+#include <yarp/Address.h>
 
 namespace yarp {
   class Name;
@@ -11,9 +12,9 @@ class yarp::Name {
 public:
   Name(const String& txt);
 
-  bool isRooted();
+  bool isRooted() const;
 
-  // other utilities coming...
+  Address toAddress() const;
 
 private:
   String txt;

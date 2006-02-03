@@ -141,7 +141,7 @@ int Companion::sendMessage(const String& port, Writable& writable,
     }
     return 1;
   }
-  Route route("external",port,"udp");
+  Route route("external",port,"tcp");
   try {
     out->open(route);
     //printf("Route %s TEXT mode %d\n", out->getRoute().toString().c_str(),
@@ -223,6 +223,13 @@ int Companion::disconnect(const char *src, const char *dest, bool silent) {
   PortCommand pc('\0',String("!")+dest);
   return sendMessage(src,pc,silent);
 }
+
+int Companion::disconnectInput(const char *src, const char *dest,
+			       bool silent) {
+  PortCommand pc('\0',String("~")+dest);
+  return sendMessage(src,pc,silent);
+}
+
 
 
 

@@ -295,6 +295,11 @@ public:
     return delegate->isTextMode();
   }
 
+  virtual bool isConnectionless() {
+    YARP_ASSERT(delegate!=NULL);
+    return delegate->isConnectionless();
+  }
+
   virtual void write(SizedWriter& writer) {
     this->writer = &writer;
     if (isActive()) {

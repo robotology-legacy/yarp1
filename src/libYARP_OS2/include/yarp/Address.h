@@ -148,6 +148,14 @@ public:
   Address addRegName(const String& regName) const {
     return Address(name,port,carrier,regName);
   }
+
+  bool hasRegName() const {
+    return regName != "";
+  }
+
+  bool hasCarrierName() const {
+    return carrier != "";
+  }
 };
 
 #endif

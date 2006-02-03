@@ -22,6 +22,7 @@ public:
   virtual const Route& getRoute() = 0;
   virtual bool isActive() = 0;
   virtual bool isTextMode() = 0;
+  virtual bool isConnectionless() = 0;
 
   virtual void write(SizedWriter& writer) = 0;
 
