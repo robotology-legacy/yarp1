@@ -8,7 +8,13 @@ using namespace yarp;
 Address NameServer::registerName(const String& name, 
 				 const Address& address) {
   NameRecord& nameRecord = getNameRecord(name);
-  nameRecord.setAddress(address.addRegName(name));
+  static int ct = 10050; // temporary measure;
+  Address suggestion = address;
+  if (!suggestion.isValid()) {
+    suggestion = Address("localhost",ct);
+    ct++;
+  }
+  nameRecord.setAddress(suggestion.addRegName(name));
   return nameRecord.getAddress();
 }
 

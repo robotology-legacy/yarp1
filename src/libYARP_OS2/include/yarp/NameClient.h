@@ -102,6 +102,10 @@ private:
     fakeServer = NULL;
   }
 
+  NameClient(const NameClient& nic) {
+    // make sure no-one tries to do this accidentally
+  }
+
   NameServer& getServer();
 
 

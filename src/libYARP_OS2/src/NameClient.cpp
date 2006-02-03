@@ -145,7 +145,6 @@ Address NameClient::registerName(const String& name) {
 Address NameClient::registerName(const String& name, const Address& suggest) {
   String np = getNamePart(name);
   if (isFakeMode()) {
-    YARP_ASSERT(suggest.isValid()==true);
     return getServer().registerName(np,suggest);
   }
   YARP_ASSERT(suggest.isValid()==false);

@@ -18,9 +18,15 @@ at:
 
 State of development:
   + tcp connections work - YARP1 compatible
-  + udp connections work - YARP1 compatible (not optimized)
+  + udp connections work - YARP1 compatible
   + text connections work
   + port infrastructure
   + partial companion
+
+Compatibility files:
+  + src/YARPPort.cpp
+  + src-test/HeaderCompatibilityTest.cpp [listed in src-test/TestList.h]
+give a little bit of YARPPort support.  YARP1 headers need to be available
+for this to compile and run.
 
 ===============================================================================
