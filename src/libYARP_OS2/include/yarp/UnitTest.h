@@ -72,6 +72,8 @@ private:
 // add info 
 
 #define checkEqual(x,y,desc) checkEqualImpl(x,y,desc,#x,#y,__FILE__,__LINE__)
+#define checkTrue(x,desc) checkEqualImpl((x)?true:false,true,desc,#x,"true",__FILE__,__LINE__)
+#define checkFalse(x,desc) checkEqualImpl((x)?true:false,false,desc,#x,"false",__FILE__,__LINE__)
 
 
 #endif

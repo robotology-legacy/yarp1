@@ -9,6 +9,9 @@
 //#include <yarp/HeaderCompatibility.h>
 
 #include <yarp/YARPPort.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPSemaphore.h>
+
 #include <yarp/NameClient.h>
 #include <yarp/Time.h>
 
@@ -21,7 +24,7 @@ public:
   virtual String getName() { return "HeaderCompatibilityTest"; }
 
   void testPorts() {
-    report(0,"checking ports...");
+    report(0,"checking YARPPort...");
     NameClient& nic = NameClient::getNameClient();
     nic.setFakeMode(true);
 
@@ -41,13 +44,33 @@ public:
     out.Write();
     checkEqual(in.Read()!=0,true,"read something");
     checkEqual((int)(in.Content()),15,"got right value at input port");
-    //checkEqual(out.Content(),15,"output content");
-
     nic.setFakeMode(false);    
+  }
+
+  virtual void testTime() {
+    report(0,"testing YARPTime (there will be a short pause)...");
+    double target = 0.5;
+    double t1 = YARPTime::GetTimeAsSeconds();
+    YARPTime::DelayInSeconds(target);
+    double t2 = YARPTime::GetTimeAsSeconds();
+    double dt = t2-t1-target;
+    double limit = 0.1; // don't be too picky, there is a lot of undefined slop
+    bool inLimits = (-limit<dt)&&(dt<limit);
+    checkEqual(true,inLimits,"delay for 0.5 seconds");    
+  }
+
+  virtual void testSema() {
+    report(0,"very soft test of YARPSemaphore...");
+    YARPSemaphore sema(2);
+    checkTrue(sema.PollingWait(),"down one");
+    checkTrue(sema.PollingWait(),"down two");
+    checkFalse(sema.PollingWait(),"and done");
   }
 
   virtual void runTests() {
     testPorts();
+    testTime();
+    testSema();
   }
 };
 

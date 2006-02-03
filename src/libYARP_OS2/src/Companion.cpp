@@ -240,7 +240,7 @@ public:
 
 int Companion::cmdCheck(int argc, char *argv[]) {
   Logger& log = Logger::get();
-  NameClient nic = NameClient::getNameClient();
+  NameClient& nic = NameClient::getNameClient();
 
   YARP_INFO(log,"==================================================================");
   YARP_INFO(log,"=== Trying to register some ports");
@@ -335,7 +335,7 @@ private:
   Semaphore done;
 public:
   BottleReader(const char *name) : done(0) {
-    NameClient nic = NameClient::getNameClient();
+    NameClient& nic = NameClient::getNameClient();
     Address address = nic.registerName(name);
     core.setReadHandler(*this);
     ACE_OS::fprintf(stderr,"Port %s listening at %s\n", 
@@ -390,7 +390,7 @@ int Companion::read(const char *name) {
 int Companion::write(const char *name, int ntargets, char *targets[]) {
   try {
     PortCore core;
-    NameClient nic = NameClient::getNameClient();
+    NameClient& nic = NameClient::getNameClient();
     Address address = nic.registerName(name);
     ACE_OS::fprintf(stderr,"Port %s listening at %s\n", 
 		    name,

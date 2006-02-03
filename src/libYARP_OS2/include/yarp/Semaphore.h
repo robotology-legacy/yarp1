@@ -21,7 +21,7 @@ public:
 
   // polling wait
   bool check() {
-    return sema.tryacquire();
+    return (sema.tryacquire()<0)?0:1;
   }
 
   // increment
