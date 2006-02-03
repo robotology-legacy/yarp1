@@ -170,7 +170,7 @@ static gint menuImageRatio_CB(GtkWidget *widget, gpointer data)
 	daWidth = da->allocation.width;
 	daHeight = da->allocation.height;
 	ratio = double(imgWidth) / double(imgHeight);
-	targetWidth = double(daHeight) * ratio;
+	targetWidth = int(double(daHeight) * ratio);
 	targetHeight = daHeight;
 	// TO DO : resize DrawingArea Directly
 	gtk_window_resize(GTK_WINDOW(mainWindow), targetWidth, (targetHeight+_occupiedHeight));
@@ -313,7 +313,7 @@ static gint menuImageFramerate_CB(GtkWidget *widget, gpointer data)
 
 	if (response == GTK_RESPONSE_OK)
 	{
-		_options.refreshTime = gtk_spin_button_get_value (GTK_SPIN_BUTTON(spinner));
+		_options.refreshTime = (int) gtk_spin_button_get_value (GTK_SPIN_BUTTON(spinner));
 		gtk_timeout_remove (_options.refreshTime);
 		timeout_ID = gtk_timeout_add (_options.refreshTime, timeout_CB, NULL);
 		updateStatusbar(GTK_STATUSBAR (statusbar));
@@ -338,8 +338,8 @@ static gint clickDA_CB (GtkWidget *widget, GdkEventButton *event, gpointer data)
 	{
 		daWidth = widget->allocation.width;
 		daHeight = widget->allocation.height;
-		clickX = event->x;
-		clickY = event->y;
+		clickX = (int) event->x;
+		clickY = (int) event->y;
 		ratioX = double(clickX) / double(daWidth);
 		ratioY = double(clickY) / double(daHeight);
 		imageX = int(imageWidth * ratioX + 0.5);
