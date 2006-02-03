@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.26 2005-08-21 00:28:31 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.27 2006-02-03 00:00:08 gmetta Exp $
 ///
 ///
 
@@ -47,7 +47,8 @@
 
 #ifdef YARP_GEN_CB_VERBOSE
 #define YARP_GEN_CB_DEBUG(string) YARP_DEBUG("GEN_COMPONENT_DEBUG :", string)
-#else YARP_GEN_CB_DEBUG(string) YARP_NULL_DEBUG
+#else 
+#define YARP_GEN_CB_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 /*

@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPRobotcubHead.h,v 1.6 2006-02-02 23:05:15 gmetta Exp $
+///  $Id: YARPRobotcubHead.h,v 1.7 2006-02-03 00:00:08 gmetta Exp $
 ///
 ///
 
@@ -165,3 +165,4 @@ public:
 };
 
 #endif
+

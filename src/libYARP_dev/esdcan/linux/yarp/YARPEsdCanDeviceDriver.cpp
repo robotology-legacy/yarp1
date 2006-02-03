@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.2 2005-12-18 22:31:43 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.3 2006-02-03 00:00:07 gmetta Exp $
 ///
 ///
 
@@ -49,7 +49,7 @@
 
 #define BUF_SIZE 2047
 
-typedef int (*PV) (char *fmt, ...);
+typedef int (*PV) (const char *fmt, ...);
 
 ///
 ///
@@ -391,6 +391,8 @@ YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void)
 	m_cmds[CMDGetTorqueLimits] = &YARPEsdCanDeviceDriver::getTorqueLimits;
 	m_cmds[CMDSetTorqueLimit] = &YARPEsdCanDeviceDriver::setTorqueLimit;
 	m_cmds[CMDSetTorqueLimits] = &YARPEsdCanDeviceDriver::setTorqueLimits;
+	m_cmds[CMDSetCurrentLimit] = &YARPEsdCanDeviceDriver::setCurrentLimit;
+	m_cmds[CMDSetCurrentLimits] = &YARPEsdCanDeviceDriver::setCurrentLimits;
 
 	m_cmds[CMDSetDebugMessageFilter] = &YARPEsdCanDeviceDriver::setDebugMessageFilter;
 	m_cmds[CMDSetDebugPrintFunction] = &YARPEsdCanDeviceDriver::setDebugPrintFunction;
@@ -656,7 +658,7 @@ int YARPEsdCanDeviceDriver::setDebugPrintFunction (void *cmd)
 {
 	_mutex.Wait();
 	EsdCanResources& r = RES(system_resources);
-	_p = (int (*) (char *fmt, ...))cmd;
+	_p = (int (*) (const char *fmt, ...))cmd;
 	_mutex.Post();
 
 	return YARP_OK;
@@ -707,15 +709,16 @@ int YARPEsdCanDeviceDriver::setPositions (void *cmd)
 	{
 		if (ENABLED(i))
 		{
-			SingleAxisParameters x;
-			x.axis = i;
-			x.parameters = tmp+i;	
+			//SingleAxisParameters x;
+			//x.axis = i;
+			//x.parameters = tmp+i;	
 
 			r.addMessage (CAN_POSITION_MOVE, i);
+			const int j = r._writeMessages - 1;
 			_ref_positions[i] = tmp[i];
-			*((int*)(r._writeBuffer[i].data+1)) = S_32(_ref_positions[i]);		/// pos
-			*((short*)(r._writeBuffer[i].data+5)) = S_16(_ref_speeds[i]);		/// speed
-			r._writeBuffer[i].len = 7;
+			*((int*)(r._writeBuffer[j].data+1)) = S_32(_ref_positions[i]);		/// pos
+			*((short*)(r._writeBuffer[j].data+5)) = S_16(_ref_speeds[i]);		/// speed
+			r._writeBuffer[j].len = 7;
 		}
 		else
 		{
@@ -796,10 +799,11 @@ int YARPEsdCanDeviceDriver::velocityMove (void *cmd)
 		if (ENABLED (i))
 		{
 			r.addMessage (CAN_VELOCITY_MOVE, i);
+			const int j = r._writeMessages - 1;
 			_ref_speeds[i] = tmp[i];
-			*((short*)(r._writeBuffer[i].data+1)) = S_16(_ref_speeds[i]);	/// speed
-			*((short*)(r._writeBuffer[i].data+3)) = S_16(_ref_accs[i]);		/// accel
-			r._writeBuffer[i].len = 5;
+			*((short*)(r._writeBuffer[j].data+1)) = S_16(_ref_speeds[i]);	/// speed
+			*((short*)(r._writeBuffer[j].data+3)) = S_16(_ref_accs[i]);		/// accel
+			r._writeBuffer[j].len = 5;
 		}
 		else
 		{
@@ -855,7 +859,7 @@ int YARPEsdCanDeviceDriver::setCommand (void *cmd)
 	return _writeDWord (CAN_SET_COMMAND_POSITION, axis, S_32(*((double *)tmp->parameters)));
 }
 
-/// cmd is an array of double
+/// cmd is an array of double (LATER: to be optimized).
 int YARPEsdCanDeviceDriver::setCommands (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
@@ -875,21 +879,6 @@ int YARPEsdCanDeviceDriver::setCommands (void *cmd)
 int YARPEsdCanDeviceDriver::getRefPositions (void *cmd)
 {
 	return _readDWordArray (CAN_GET_DESIRED_POSITION, (double *)cmd);
-#if 0
-	EsdCanResources& r = RES(system_resources);
-	double *out = (double *) cmd;
-	int i, value = 0;
-
-	for(i = 0; i < r.getJoints(); i++)
-	{
-		if (_readDWord (CAN_GET_DESIRED_POSITION, i, value) == YARP_OK)
-			out[i] = double (value);
-		else
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-#endif
 }
 
 /// cmd is a SingleAxis pointer with double arg
@@ -945,7 +934,7 @@ int YARPEsdCanDeviceDriver::getSpeeds (void *cmd)
 	return _readWord16Array (CAN_GET_DESIRED_VELOCITY, (double *)cmd);
 }
 
-/// cmd is an array of double
+/// cmd is an array of double (LATER: to be optimized).
 int YARPEsdCanDeviceDriver::getRefSpeeds (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
@@ -977,7 +966,7 @@ int YARPEsdCanDeviceDriver::setAcceleration (void *cmd)
 	return _writeWord16 (CAN_SET_DESIRED_ACCELER, axis, s);
 }
 
-/// cmd is an array of double
+/// cmd is an array of double (LATER: to be optimized, WARNING: doesn't skip disabled joints).
 int YARPEsdCanDeviceDriver::setAccelerations (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
@@ -994,7 +983,7 @@ int YARPEsdCanDeviceDriver::setAccelerations (void *cmd)
 	return YARP_OK;
 }
 
-/// cmd is an array of double
+/// cmd is an array of double (LATER: to be optimized).
 int YARPEsdCanDeviceDriver::getRefAccelerations (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
@@ -1024,7 +1013,7 @@ int YARPEsdCanDeviceDriver::setOffset (void *cmd)
 	return _writeWord16 (CAN_SET_OFFSET, axis, s);
 }
 
-/// cmd is an array of double
+/// cmd is an array of double (LATER: to be optimized).
 int YARPEsdCanDeviceDriver::setOffsets (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
@@ -1051,7 +1040,7 @@ int YARPEsdCanDeviceDriver::setIntegratorLimit (void *cmd)
 	return _writeWord16 (CAN_SET_ILIM_GAIN, axis, s);
 }
 
-/// cmd is an array of double 
+/// cmd is an array of double (LATER: to be optimized, WARNING: doesn't check disabled cards).
 int YARPEsdCanDeviceDriver::setIntegratorLimits (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
@@ -1068,6 +1057,7 @@ int YARPEsdCanDeviceDriver::setIntegratorLimits (void *cmd)
 }
 
 /// cmd is a SingleAxis pointer with a LowLevelPID argument pointer
+/// LATER: can be optimized.
 int YARPEsdCanDeviceDriver::setPid (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
@@ -1143,6 +1133,7 @@ int YARPEsdCanDeviceDriver::controllerIdle (void *cmd)
 }
 
 /// cmd is an array of double
+/// LATER: can be optimized, we can also be reading current back.
 int YARPEsdCanDeviceDriver::getTorques (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
@@ -1198,6 +1189,34 @@ int YARPEsdCanDeviceDriver::getError (void *cmd)
 	return YARP_OK;
 }
 
+/// cmd is a SingleAxis poitner with 1 double arg
+int YARPEsdCanDeviceDriver::setCurrentLimit (void *cmd)
+{
+	/// prepare can message.
+
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	
+	return _writeDWord (CAN_SET_CURRENT_LIMIT, axis, S_32(*((double *)tmp->parameters)));
+}
+
+/// cmd is an array of double
+/// LATER: can be optimized.
+int YARPEsdCanDeviceDriver::setCurrentLimits (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	double *tmp = (double *)cmd;
+
+	int i;
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		if (_writeDWord (CAN_SET_CURRENT_LIMIT, i, S_32(tmp[i])) != YARP_OK)
+			return YARP_FAIL;
+	}
+
+	return YARP_OK;
+}
 
 /// cmd is a pointer to SingleAxisParameters struct with no argument.
 int YARPEsdCanDeviceDriver::readBootMemory (void *cmd)
@@ -1278,6 +1297,7 @@ int YARPEsdCanDeviceDriver::setTorqueLimit (void *cmd)
 }
 
 /// cmd is an array of double
+/// LATER: can be optimized.
 int YARPEsdCanDeviceDriver::setTorqueLimits (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
@@ -1308,6 +1328,7 @@ int YARPEsdCanDeviceDriver::getTorqueLimit (void *cmd)
 }
 
 /// cmd is an array of double
+/// LATER: can be optimized.
 int YARPEsdCanDeviceDriver::getTorqueLimits (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
@@ -1488,7 +1509,13 @@ int YARPEsdCanDeviceDriver::_readWord16Array (int msg, double *out)
 	}
 
 	if (r._writeMessages < 1)
+
+	{
+
+		_mutex.Post();
 		return YARP_FAIL;
+	}
+
 
 	_writerequested = true;
 	_noreply = false;
@@ -1666,7 +1693,13 @@ int YARPEsdCanDeviceDriver::_readDWordArray (int msg, double *out)
 	}
 
 	if (r._writeMessages < 1)
+
+	{
+
+		_mutex.Post();
 		return YARP_FAIL;
+	}
+
 
 	_writerequested = true;
 	_noreply = false;

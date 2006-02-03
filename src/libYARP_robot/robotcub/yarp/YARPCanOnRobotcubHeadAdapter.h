@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.26 2006-02-02 23:05:15 gmetta Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.27 2006-02-03 00:00:08 gmetta Exp $
 ///
 ///
 
@@ -46,7 +46,8 @@
 
 #ifdef YARP_ROBOTCUB_HEAD_ADAPTER_VERBOSE
 #define YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_DEBUG("ROBOTCUB_HEAD_ADAPTER_DEBUG:", string)
-#else  YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#else  
+#define YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 #define MY_DEBUG \
@@ -870,3 +871,4 @@ private:
 };
 
 #endif	// .h
+

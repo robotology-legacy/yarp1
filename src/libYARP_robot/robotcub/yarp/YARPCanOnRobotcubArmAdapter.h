@@ -2,7 +2,7 @@
 ///                                                                   ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-///                    #pasa#				                          ///
+///                    #pasa#		                              ///
 ///                                                                   ///
 ///     "Licensed under the Academic Free License Version 1.0"        ///
 ///                                                                   ///
@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.17 2006-02-02 23:05:15 gmetta Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.18 2006-02-03 00:00:08 gmetta Exp $
 ///
 ///
 
@@ -46,7 +46,8 @@
 
 #ifdef YARP_ROBOTCUB_ARM_ADAPTER_VERBOSE
 #define YARP_ROBOTCUB_ARM_ADAPTER_DEBUG(string) YARP_DEBUG("ROBOTCUB_ARM_ADAPTER_DEBUG:", string)
-#else  YARP_ROBOTCUB_ARM_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#else  
+#define YARP_ROBOTCUB_ARM_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 /**
@@ -815,3 +816,4 @@ private:
 };
 
 #endif	// .h
+

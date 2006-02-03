@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPNullGrabberOnRobotcubAdapter.h,v 1.2 2004-08-30 16:05:47 babybot Exp $
+/// $Id: YARPNullGrabberOnRobotcubAdapter.h,v 1.3 2006-02-03 00:00:08 gmetta Exp $
 ///
 ///
 
@@ -76,3 +76,4 @@ public:
 
 
 #endif
+

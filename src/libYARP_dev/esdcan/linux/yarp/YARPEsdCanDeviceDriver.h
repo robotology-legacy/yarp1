@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.2 2005-12-18 22:31:43 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.3 2006-02-03 00:00:08 gmetta Exp $
 ///
 ///
 
@@ -86,7 +86,7 @@ struct EsdCanOpenParameters
 	unsigned char _my_address;					/** my address */
 	int _polling_interval;						/** thread polling interval [ms] */
 	int _timeout;								/** number of cycles before timing out */
-	int (*_p) (char *fmt, ...);					/** printf-like function for spying messages */
+	int (*_p) (const char *fmt, ...);			/** printf-like function for spying messages */
 };
 
 
@@ -171,6 +171,8 @@ protected:
 	int getTorqueLimits (void *cmd);
 	int getErrorStatus (void *cmd);
 	int checkMotionDone (void *cmd);
+	int setCurrentLimit (void *cmd);
+	int setCurrentLimits (void *cmd);
 
 	int setDebugMessageFilter (void *cmd);
 	int setDebugPrintFunction (void *cmd);
@@ -186,7 +188,7 @@ protected:
 	/**
 	 * pointer to the function printing the device debug information.
 	 */
-	int (*_p) (char *fmt, ...);
+	int (*_p) (const char *fmt, ...);
 
 	/**
 	 * filter for recurrent messages.
@@ -245,5 +247,7 @@ protected:
 };
 
 
+
 #endif
+
 
