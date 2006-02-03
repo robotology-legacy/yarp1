@@ -11,6 +11,7 @@
 #include <yarp/YARPPort.h>
 #include <yarp/YARPTime.h>
 #include <yarp/YARPSemaphore.h>
+#include <yarp/YARPThread.h>
 
 #include <yarp/NameClient.h>
 #include <yarp/Time.h>
@@ -67,10 +68,31 @@ public:
     checkFalse(sema.PollingWait(),"and done");
   }
 
+  class ThreadTest : public YARPThread {
+  public:
+    int v;
+    ThreadTest() : v(0) {}
+    void Body() {
+      YARPTime::DelayInSeconds(1);
+      v = 1;
+    }
+  };
+
+  virtual void testThread() {
+    report(0,"very soft test of YARPThread...");
+    ThreadTest tt;
+    checkEqual(tt.v,0,"starting value");
+    tt.Begin();
+    checkEqual(tt.v,0,"starting value repeat");
+    tt.Join();
+    checkEqual(tt.v,1,"ending value");
+  }
+
   virtual void runTests() {
     testPorts();
     testTime();
     testSema();
+    testThread();
   }
 };
 

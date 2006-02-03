@@ -25,6 +25,9 @@ State of development:
 
 Compatibility files:
   + src/YARPPort.cpp
+  + src/YARPSemaphore.cpp
+  + src/YARPTime.cpp
+  + src/YARPThread.cpp
   + src-test/HeaderCompatibilityTest.cpp [listed in src-test/TestList.h]
 give a little bit of YARPPort support.  YARP1 headers need to be available
 for this to compile and run.
