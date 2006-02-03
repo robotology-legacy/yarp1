@@ -854,7 +854,7 @@ void setUp()
   return 0;
 }
 
-#ifdef _MSC_VER
+#ifdef __WIN32__
 #include <windows.h>
 
 int WINAPI WinMain(HINSTANCE hInstance,
