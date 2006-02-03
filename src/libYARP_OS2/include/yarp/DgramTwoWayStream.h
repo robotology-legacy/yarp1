@@ -15,7 +15,11 @@ class yarp::DgramTwoWayStream : public TwoWayStream, public InputStream, public 
 
 public:
   DgramTwoWayStream() {
+    closed = false;
+    reader = false;
   }
+
+  virtual void open(const Address& remote);
 
   virtual void open(const Address& local, const Address& remote);
 
@@ -48,6 +52,7 @@ public:
   virtual void flush();
 
 private:
+  bool closed, reader;
   ACE_SOCK_Dgram dgram;
   ACE_INET_Addr localHandle, remoteHandle;
   Address localAddress, remoteAddress;

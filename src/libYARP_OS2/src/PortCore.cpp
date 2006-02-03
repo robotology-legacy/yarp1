@@ -105,6 +105,7 @@ void PortCore::run() {
     InputProtocol *ip = NULL;
     try {
       ip = face->read();
+      YARP_DEBUG(Logger::get(),"PortCore got something");
     } catch (IOException e) {
       YMSG(("read failed: %s\n",e.toString().c_str()));
     }
@@ -276,9 +277,11 @@ void PortCore::reapUnits() {
     for (unsigned int i=0; i<units.size(); i++) {
       PortCoreUnit *unit = units[i];
       if (unit!=NULL) {
-	if (unit->isDoomed()&&!unit->isFinished()) {
+	if (unit->isDoomed()&&!unit->isFinished()) {	
+	  YARP_DEBUG(Logger::get(),"REAPING a unit");
 	  unit->close();
 	  unit->join();
+	  YARP_DEBUG(Logger::get(),"done REAPING a unit");
 	}
       }
     }
@@ -288,17 +291,25 @@ void PortCore::reapUnits() {
 }
 
 void PortCore::cleanUnits() {
+  YARP_DEBUG(Logger::get(),"CLEANING scan");
   stateMutex.wait();
   if (!finished) {
     
     for (unsigned int i=0; i<units.size(); i++) {
       PortCoreUnit *unit = units[i];
       if (unit!=NULL) {
+	YARP_DEBUG(Logger::get(),String("checking ") + unit->getRoute().toString());
 	if (unit->isFinished()) {
-	  unit->close();
-	  unit->join();
+	  YARP_DEBUG(Logger::get(),"CLEANING a unit");
+	  try {
+	    unit->close();
+	    unit->join();
+	  } catch (IOException e) {
+	    YARP_DEBUG(Logger::get(),e.toString() + " <<< cleanUnits error");
+	  }
 	  delete unit;
 	  units[i] = NULL;
+	  YARP_DEBUG(Logger::get(),"done CLEANING a unit");
 	}
       }
     }
@@ -318,6 +329,7 @@ void PortCore::cleanUnits() {
     //YMSG(("cleanUnits: there are now %d units\n", units.size()));
   }
   stateMutex.post();
+  YARP_DEBUG(Logger::get(),"CLEANING scan done");
 }
 
 
@@ -385,7 +397,9 @@ bool PortCore::removeUnit(const Route& route) {
     }
   }
   stateMutex.post();
+  ACE_OS::printf("should I reap?\n");
   if (needReap) {
+    ACE_OS::printf("yes!\n");
     // death will happen in due course; we can speed it up a bit
     // by waking up the grim reaper
     try {

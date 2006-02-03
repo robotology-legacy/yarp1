@@ -5,14 +5,22 @@
 
 using namespace yarp;
 
+void DgramTwoWayStream::open(const Address& remote) {
+  Address local;
+  ACE_INET_Addr anywhere((u_short)0, INADDR_ANY);
+  local = Address(anywhere.get_host_addr(),
+		  anywhere.get_port_number());
+  open(local,remote);
+}
+
 void DgramTwoWayStream::open(const Address& local, const Address& remote) {
-  YARP_ERROR(Logger::get(),"DGRAM is *very* experimental 2");
+  YARP_DEBUG(Logger::get(),"DGRAM is *very* experimental");
 
   localAddress = local;
   remoteAddress = remote;
 
-  YARP_ERROR(Logger::get(),String("DGRAM from ") + local.toString() + 
-	     " to " + remote.toString());
+  //YARP_ERROR(Logger::get(),String("DGRAM from ") + local.toString() + 
+  //     " to " + remote.toString());
 
 
   //localHandle.set(localAddress.getPort(),localAddress.getName().c_str());
@@ -26,6 +34,13 @@ void DgramTwoWayStream::open(const Address& local, const Address& remote) {
   if (result!=0) {
     throw IOException("could not open dgram socket");
   }
+  dgram.get_local_addr(localHandle);
+  localAddress = Address(localHandle.get_host_addr(),
+			 localHandle.get_port_number());
+  YARP_DEBUG(Logger::get(),String("Update: DGRAM from ") + 
+	     localAddress.toString() + 
+	     " to " + remote.toString());
+
 
   readBuffer.allocate(512);
   writeBuffer.allocate(512);
@@ -39,23 +54,43 @@ DgramTwoWayStream::~DgramTwoWayStream() {
 }
 
 void DgramTwoWayStream::interrupt() {
-  ACE_OS::printf("dgram interrupt\n");
-  dgram.close();
+  if (!closed) {
+    closed = true;
+    if (reader) {
+      YARP_DEBUG(Logger::get(),"dgram interrupt");
+      try {
+	DgramTwoWayStream tmp;
+	tmp.open(Address(localAddress.getName(),0),localAddress);
+	ManagedBytes empty(10000);
+	tmp.write(empty.bytes());
+	tmp.close();
+      } catch (IOException e) {
+	YARP_DEBUG(Logger::get(),e.toString() + " <<< closer dgram exception");
+      }
+    YARP_DEBUG(Logger::get(),"finished dgram interrupt");
+    }
+  }
 }
 
 void DgramTwoWayStream::close() {
-  ACE_OS::printf("dgram close\n");
+  interrupt();
   dgram.close();
 }
 
 int DgramTwoWayStream::read(const Bytes& b) {
-  //ACE_OS::printf("dgram read\n");
+  reader = true;
+
+  if (closed) { return -1; }
 
   // if nothing is available, try to grab stuff
   if (readAvail==0) {
     readAt = 0;
+    ACE_INET_Addr dummy;
     int result = 
-      dgram.recv(readBuffer.get(),readBuffer.length(),remoteHandle,1);
+      dgram.recv(readBuffer.get(),readBuffer.length(),dummy,1);
+    YARP_DEBUG(Logger::get(),"DGRAM Got something!");
+    //dgram.recv(readBuffer.get(),readBuffer.length(),remoteHandle,1);
+    if (closed) { return -1; }
     if (result<0) return result;
     readAvail = result;
   }

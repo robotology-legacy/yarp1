@@ -169,8 +169,8 @@ void PortCoreInputUnit::closeMain() {
   }
   running = false;
   closing = false;
-  finished = false;
-  setDoomed(false);
+  //finished = false;
+  //setDoomed(false);
 }
 
 

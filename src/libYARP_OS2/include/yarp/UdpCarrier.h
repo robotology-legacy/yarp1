@@ -51,26 +51,26 @@ public:
     // I am the receiver
 
     // issue: need a fresh port number...
-    int myPort = proto.getStreams().getLocalAddress().getPort()+101;
-
-    Address local = proto.getStreams().getLocalAddress();
-    Address remote = proto.getStreams().getRemoteAddress();
-
-    proto.writeYarpInt(myPort);
-
     DgramTwoWayStream *stream = new DgramTwoWayStream();
     YARP_ASSERT(stream!=NULL);
-    
-    YARP_DEBUG(Logger::get(),
-	       "booga booga, UdpCarrier not really implemented yet");
-    proto.takeStreams(NULL); // free up port from tcp
     try {
-      stream->open(Address(local.getName(),myPort),remote);
+      Address remote = proto.getStreams().getRemoteAddress();
+      stream->open(remote);
+
+      int myPort = stream->getLocalAddress().getPort();
+      proto.writeYarpInt(myPort);
+      
+      YARP_DEBUG(Logger::get(),
+		 "booga booga, UdpCarrier not really implemented yet");
+      //proto.takeStreams(NULL); // free up port from tcp
+      //stream->open(Address(local.getName(),myPort),remote);
+
+      proto.takeStreams(stream);
+
     } catch (IOException e) {
       delete stream;
       throw e;
     }
-    proto.takeStreams(stream);
   }
 
   virtual void expectReplyToHeader(Protocol& proto) {
