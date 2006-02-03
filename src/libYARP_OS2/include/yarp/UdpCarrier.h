@@ -23,7 +23,7 @@ public:
     return "udp";
   }
 
-  int getSpecifierCode() {
+  virtual int getSpecifierCode() {
     return 0;
   }
 
@@ -60,11 +60,6 @@ public:
       int myPort = stream->getLocalAddress().getPort();
       proto.writeYarpInt(myPort);
       
-      YARP_DEBUG(Logger::get(),
-		 "booga booga, UdpCarrier not really implemented yet");
-      //proto.takeStreams(NULL); // free up port from tcp
-      //stream->open(Address(local.getName(),myPort),remote);
-
       proto.takeStreams(stream);
 
     } catch (IOException e) {
@@ -79,8 +74,6 @@ public:
     String myName = proto.getStreams().getLocalAddress().getName();
     String altName = proto.getStreams().getRemoteAddress().getName();
 
-    YARP_DEBUG(Logger::get(),
-	       "booga booga, UdpCarrier not really implemented yet");
     int altPort = proto.readYarpInt();
 
     DgramTwoWayStream *stream = new DgramTwoWayStream();
@@ -100,7 +93,7 @@ public:
     //TwoWayStream *str = previous.giveStream();
     //takeStream(str);
     YARP_ERROR(Logger::get(),
-	       "UdpCarrier should start streams, but doesn't yet");
+	       "I don't think this method is needed anymore");
   }
 
 

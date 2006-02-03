@@ -23,6 +23,8 @@ public:
 
   virtual void open(const Address& local, const Address& remote);
 
+  virtual void subscribe(const Address& group);
+
   virtual ~DgramTwoWayStream();
 
   virtual InputStream& getInputStream() {

@@ -6,6 +6,7 @@
 #include <yarp/TcpCarrier.h>
 #include <yarp/TextCarrier.h>
 #include <yarp/UdpCarrier.h>
+#include <yarp/McastCarrier.h>
 
 using namespace yarp;
 
@@ -18,6 +19,7 @@ Carriers::Carriers() {
   delegates.push_back(new TcpCarrier());
   delegates.push_back(new TextCarrier());
   delegates.push_back(new UdpCarrier());
+  delegates.push_back(new McastCarrier());
 }
 
 Carriers::~Carriers() {

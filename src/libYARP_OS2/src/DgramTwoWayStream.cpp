@@ -3,6 +3,8 @@
 
 #include <yarp/Logger.h>
 
+#include <ace/SOCK_Dgram_Mcast.h>
+
 using namespace yarp;
 
 void DgramTwoWayStream::open(const Address& remote) {
@@ -47,6 +49,16 @@ void DgramTwoWayStream::open(const Address& local, const Address& remote) {
   readAt = 0;
   readAvail = 0;
   writeAvail = 0;
+}
+
+
+void DgramTwoWayStream::subscribe(const Address& group) {
+  dgram = ACE_SOCK_Dgram_Mcast();
+  YARP_DEBUG(Logger::get(),String("subscribing to mcast address ") + 
+	     group.toString());
+  ACE_INET_Addr addr(group.getPort(),group.getName().c_str());
+  ((ACE_SOCK_Dgram_Mcast*)&dgram)->subscribe(addr);
+
 }
 
 DgramTwoWayStream::~DgramTwoWayStream() {

@@ -9,6 +9,7 @@ namespace yarp {
 }
 
 class yarp::AbstractCarrier : public Carrier {
+public:
 
   virtual Carrier *create() = 0;
 
