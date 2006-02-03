@@ -29,6 +29,8 @@ Companion::Companion() {
   add("read",       &Companion::cmdRead);
   add("write",      &Companion::cmdWrite);
   add("regression", &Companion::cmdRegression);
+  add("server",     &Companion::cmdServer);
+  add("check",      &Companion::cmdCheck);
 }
 
 int Companion::dispatch(const char *name, int argc, char *argv[]) {
@@ -212,6 +214,99 @@ int Companion::cmdRegression(int argc, char *argv[]) {
   ACE_OS::fprintf(stderr,"no regression tests here\n");
   return 1;
 }
+
+
+int Companion::cmdServer(int argc, char *argv[]) {
+  ACE_OS::fprintf(stderr,"no server available yet\n");
+  return 1;
+}
+
+
+class CompanionCheckHelper : public Readable {
+public:
+  Bottle bot;
+  bool got;
+  virtual void readBlock(BlockReader& reader) {
+    bot.readBlock(reader);
+    got = true;
+  }
+  Bottle *get() {
+    if (got) {
+      return &bot;
+    }
+    return NULL;
+  }
+};
+
+int Companion::cmdCheck(int argc, char *argv[]) {
+  Logger& log = Logger::get();
+  NameClient nic = NameClient::getNameClient();
+
+  YARP_INFO(log,"==================================================================");
+  YARP_INFO(log,"=== Trying to register some ports");
+
+  CompanionCheckHelper check;
+  PortCore in;
+  Address address = nic.registerName("...");
+  in.listen(address);
+  in.setReadHandler(check);
+  in.start();
+  PortCore out;
+  Address address2 = nic.registerName("...");
+  out.listen(address2);
+  out.start();
+
+  Time::delay(1);
+
+  YARP_INFO(log,"==================================================================");
+  YARP_INFO(log,"=== Trying to connect some ports");
+
+  connect(out.getName().c_str(),in.getName().c_str());
+
+  Time::delay(1);
+
+  YARP_INFO(log,"==================================================================");
+  YARP_INFO(log,"=== Trying to write some data");
+
+  Bottle bot;
+  bot.addInt(42);
+  out.send(bot);
+
+  Time::delay(1);
+
+  YARP_INFO(log,"==================================================================");
+  bool ok = false;
+  for (int i=0; i<3; i++) {
+    YARP_INFO(log,"=== Trying to read some data");
+    Time::delay(1);
+    if (check.get()!=NULL) {
+      int x = check.get()->getInt(0);
+      char buf[256];
+      ACE_OS::sprintf(buf, "*** Read number %d", x);
+      YARP_INFO(log,buf);
+      if (x==42) {
+	ok = true;
+	break;
+      }
+    }
+  }
+  YARP_INFO(log,"==================================================================");
+  YARP_INFO(log,"=== Trying to close some ports");
+  in.close();
+  out.close();
+  Time::delay(1);
+  if (!ok) {
+    YARP_INFO(log,"*** YARP seems broken.");
+    //diagnose();
+    return 1;
+  } else {
+    YARP_INFO(log,"*** YARP seems okay!");
+  }
+  return 0;
+}
+
+
+
 
 
 int Companion::connect(const char *src, const char *dest, bool silent) {

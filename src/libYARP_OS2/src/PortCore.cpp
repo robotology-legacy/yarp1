@@ -215,6 +215,11 @@ void PortCore::closeMain() {
     closing = false;
     running = false;
     stateMutex.post();
+
+    String name = getName();
+    if (name!=String("")) {
+      NameClient::getNameClient().unregisterName(name);
+    }
   }
 
   // there should be no other threads at this point

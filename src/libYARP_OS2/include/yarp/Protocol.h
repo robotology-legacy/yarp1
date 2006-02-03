@@ -390,7 +390,7 @@ private:
   void expectSenderSpecifier() {
     YARP_ASSERT(delegate!=NULL);
     delegate->expectSenderSpecifier(*this);
-    ACE_DEBUG((LM_INFO,"Sender name is %s",getRoute().getFromName().c_str()));
+    ACE_DEBUG((LM_DEBUG,"Sender name is %s",getRoute().getFromName().c_str()));
   }
   
 

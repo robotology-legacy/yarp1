@@ -97,6 +97,10 @@ private:
 
   int cmdRegression(int argc, char *argv[]);
 
+  int cmdServer(int argc, char *argv[]);
+
+  int cmdCheck(int argc, char *argv[]);
+
   static int sendMessage(const String& port, Writable& writable, 
 			 bool silent = false);
 
