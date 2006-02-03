@@ -52,12 +52,13 @@ public:
   virtual void flush();
 
 private:
+
   bool closed, reader;
   ACE_SOCK_Dgram dgram;
   ACE_INET_Addr localHandle, remoteHandle;
   Address localAddress, remoteAddress;
   ManagedBytes readBuffer, writeBuffer;
-  int readAt, readAvail, writeAt;
+  int readAt, readAvail, writeAvail;
 
 };
 

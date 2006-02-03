@@ -15,3 +15,12 @@ at:
 -- paulfitz, Genoa Italy, Thursday Jan 26, 2006
 
 ===============================================================================
+
+State of development:
+  + tcp connections work - YARP1 compatible
+  + udp connections work - YARP1 compatible (not optimized)
+  + text connections work
+  + port infrastructure
+  + partial companion
+
+===============================================================================

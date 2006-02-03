@@ -46,7 +46,7 @@ void DgramTwoWayStream::open(const Address& local, const Address& remote) {
   writeBuffer.allocate(512);
   readAt = 0;
   readAvail = 0;
-  writeAt = 0;
+  writeAvail = 0;
 }
 
 DgramTwoWayStream::~DgramTwoWayStream() {
@@ -116,17 +116,37 @@ void DgramTwoWayStream::write(const Bytes& b) {
   //int packetLen = buffer.length();
   //int len = b.length();
 
-  // should buffer, but no buffering right now
-  dgram.send(b.get(),b.length(),remoteHandle);
+  Bytes local = b;
+  while (local.length()>0) {
+    int rem = local.length();
+    int space = writeBuffer.length()-writeAvail;
+    bool shouldFlush = false;
+    if (rem>=space) {
+      rem = space;
+      shouldFlush = true;
+    }
+    memcpy(writeBuffer.get()+writeAvail, local.get(), rem);
+    writeAvail+=rem;
+    local = Bytes(local.get()+rem,local.length()-rem);
+    if (shouldFlush) {
+      flush();
+    }
+  }
 }
 
+
 void DgramTwoWayStream::flush() {
-  /*
-  if (at>0) {
-    dgram.send(buffer.get(),at,target);
-    at = 0;
+  while (writeAvail>0) {
+    int writeAt = 0;
+    YARP_DEBUG(Logger::get(),"DGRAM writing");
+    int len = dgram.send(writeBuffer.get()+writeAt,writeAvail-writeAt,
+			 remoteHandle);
+    if (len<0) {
+      throw IOException("DGRAM failed to write");
+    }
+    writeAt += len;
+    writeAvail -= len;
   }
-  */
 }
 
 

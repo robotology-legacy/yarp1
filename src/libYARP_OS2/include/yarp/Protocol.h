@@ -125,7 +125,6 @@ public:
   void writeYarpInt(int n) {
     createYarpNumber(n,header.bytes());
     os().write(header.bytes());
-    os().flush();
   }
 
   static int interpretYarpNumber(const Bytes& b) {
@@ -138,7 +137,6 @@ public:
 	return x;
       }
     }
-    // throw IOException("bad yarp number");
     return -1;
   }
 
