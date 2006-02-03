@@ -10,7 +10,7 @@
 ///
 /// based on Id: YARPThread.cpp,v 2.0 2005/11/06 22:21:26 gmetta Exp
 //
-/// $Id: YARPThread.cpp,v 1.1 2006-02-03 16:32:12 eshuy Exp $
+/// $Id: YARPThread.cpp,v 1.2 2006-02-03 16:59:48 eshuy Exp $
 ///
 ///
 
@@ -25,6 +25,8 @@ using namespace yarp;
 const size_t DEFAULT_THREAD_STACK_SIZE = 8000;
 
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 class ThreadAdaptor : public Thread {
 private:
   YARPBareThread& owner;
@@ -36,6 +38,8 @@ public:
     owner.Body();
   }
 };
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
 YARPBareThread::YARPBareThread(void) : sema(0) {

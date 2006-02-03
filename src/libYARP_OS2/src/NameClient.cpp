@@ -22,6 +22,9 @@ NameClient *NameClient::instance = NULL;
 #define MAX_ARG_CT (20)
 #define MAX_ARG_LEN (256)
 
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 class Params {
 private:
   int argc;
@@ -78,6 +81,7 @@ public:
   }
 };
 
+#endif /*DOXYGEN_SHOULD_SKIP_THIS*/
 
 
 

@@ -221,6 +221,7 @@ int Companion::cmdServer(int argc, char *argv[]) {
   return 1;
 }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 class CompanionCheckHelper : public Readable {
 public:
@@ -237,6 +238,8 @@ public:
     return NULL;
   }
 };
+#endif /*DOXYGEN_SHOULD_SKIP_THIS*/
+
 
 int Companion::cmdCheck(int argc, char *argv[]) {
   Logger& log = Logger::get();
@@ -327,6 +330,7 @@ int Companion::disconnectInput(const char *src, const char *dest,
 
 
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 // just a temporary implementation until real ports are available
 class BottleReader : public Readable {
@@ -368,6 +372,8 @@ public:
     core.join();
   }
 };
+
+#endif /*DOXYGEN_SHOULD_SKIP_THIS*/
 
 
 

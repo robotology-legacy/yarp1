@@ -8,6 +8,8 @@ using namespace yarp;
 
 UnitTest *UnitTest::theRoot = NULL;
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 class RootUnitTest : public UnitTest {
 public:
   RootUnitTest(UnitTest *parent) : UnitTest(parent) {
@@ -18,6 +20,8 @@ public:
     return "root";
   }
 };
+
+#endif /*DOXYGEN_SHOULD_SKIP_THIS*/
 
 
 

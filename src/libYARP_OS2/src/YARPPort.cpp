@@ -10,7 +10,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.1 2006-02-03 15:34:01 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.2 2006-02-03 16:59:48 eshuy Exp $
 //
 /// Based on: Id: YARPPort.cpp,v 2.0 2005/11/06 22:21:26 gmetta Exp
 //
@@ -45,6 +45,8 @@ using namespace yarp;
 #endif
 
 using namespace std;
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 class BlockWriter_to_YARPPortWriter : public YARPPortWriter {
 private:
@@ -210,6 +212,9 @@ PortData& CastPortData(void *system_resource)
 }
 
 #define PD CastPortData(system_resource)
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 
 YARPPort::YARPPort()
 {
