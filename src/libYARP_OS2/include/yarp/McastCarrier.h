@@ -36,7 +36,7 @@ public:
     YARP_DEBUG(Logger::get(),"Adding extra mcast header");
 
     // hard-code mcast address for now
-    Address addr("224.3.1.1",1100);
+    Address addr("224.3.1.1",11000);
     int ip[] = { 224, 3, 1, 1 };
     int port = 11000;
 
@@ -82,9 +82,14 @@ public:
     YARP_ERROR(Logger::get(),"MCAST is very experimental, and should not work yet...");
     DgramTwoWayStream *stream = new DgramTwoWayStream();
     YARP_ASSERT(stream!=NULL);
+    Address remote = proto.getStreams().getRemoteAddress();
     proto.takeStreams(NULL); // free up port from tcp
     try {
-      stream->subscribe(mcastAddress);
+      stream->join(mcastAddress,sender);
+      //ManagedBytes b(100);
+      //stream->write(b.bytes());
+      //stream->open(remote);
+      
     } catch (IOException e) {
       delete stream;
       throw e;
@@ -100,6 +105,12 @@ public:
   virtual void expectReplyToHeader(Protocol& proto) {
     becomeMcast(proto,true);
   }
+
+  virtual void start(const Address& address, ShiftStream& previous) {
+    YARP_ERROR(Logger::get(),
+	       "I don't think this method is needed anymore");
+  }
+
 };
 
 #endif

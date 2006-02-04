@@ -17,13 +17,15 @@ public:
   DgramTwoWayStream() {
     closed = false;
     reader = false;
+    mcast = false;
+    dgram = NULL;
   }
 
   virtual void open(const Address& remote);
 
   virtual void open(const Address& local, const Address& remote);
 
-  virtual void subscribe(const Address& group);
+  virtual void join(const Address& group, bool sender);
 
   virtual ~DgramTwoWayStream();
 
@@ -55,8 +57,8 @@ public:
 
 private:
 
-  bool closed, reader;
-  ACE_SOCK_Dgram dgram;
+  bool closed, reader, mcast;
+  ACE_SOCK_Dgram *dgram;
   ACE_INET_Addr localHandle, remoteHandle;
   Address localAddress, remoteAddress;
   ManagedBytes readBuffer, writeBuffer;
