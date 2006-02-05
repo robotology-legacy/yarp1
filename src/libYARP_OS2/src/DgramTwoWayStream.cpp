@@ -17,19 +17,10 @@ void DgramTwoWayStream::open(const Address& remote) {
 }
 
 void DgramTwoWayStream::open(const Address& local, const Address& remote) {
-  YARP_DEBUG(Logger::get(),"DGRAM is *very* experimental");
-
   localAddress = local;
   remoteAddress = remote;
 
-  //YARP_ERROR(Logger::get(),String("DGRAM from ") + local.toString() + 
-  //     " to " + remote.toString());
-
-
-  //localHandle.set(localAddress.getPort(),localAddress.getName().c_str());
-
   localHandle = ACE_INET_Addr(localAddress.getPort());
-  //remoteHandle = ACE_INET_Addr(remoteAddress.getPort());
   if (remote.isValid()) {
     remoteHandle.set(remoteAddress.getPort(),remoteAddress.getName().c_str());
   }
@@ -37,7 +28,7 @@ void DgramTwoWayStream::open(const Address& local, const Address& remote) {
   YARP_ASSERT(dgram!=NULL);
   int result = dgram->open(localHandle);
   if (result!=0) {
-    throw IOException("could not open dgram socket");
+    throw IOException("could not open datagram socket");
   }
   dgram->get_local_addr(localHandle);
   localAddress = Address(localHandle.get_host_addr(),
@@ -58,26 +49,9 @@ void DgramTwoWayStream::open(const Address& local, const Address& remote) {
 void DgramTwoWayStream::join(const Address& group, bool sender) {
 
   if (sender) {
+    // just use udp as normal
     open(group);
     return;
-    /*
-    dgram = new ACE_SOCK_Dgram(ACE_INET_Addr((u_short)0));
-    YARP_ASSERT(dgram!=NULL);
-    localAddress = group;
-    remoteAddress = group;
-    localHandle = ACE_INET_Addr(localAddress.getPort(),
-				localAddress.getName().c_str());
-    remoteHandle = ACE_INET_Addr(remoteAddress.getPort(),
-				 remoteAddress.getName().c_str());
-    //open(group);
-    readBuffer.allocate(512);
-    writeBuffer.allocate(512);
-    readAt = 0;
-    readAvail = 0;
-    writeAvail = 0;
-    mcast = true;
-    return;
-    */
   }
 
   ACE_SOCK_Dgram_Mcast *dmcast = new ACE_SOCK_Dgram_Mcast;
@@ -86,21 +60,14 @@ void DgramTwoWayStream::join(const Address& group, bool sender) {
   YARP_DEBUG(Logger::get(),String("subscribing to mcast address ") + 
 	     group.toString());
   ACE_INET_Addr addr(group.getPort(),group.getName().c_str());
-  int result = 0;
-  if (sender) {
-    result = dmcast->open(addr);
-  } else {
-    //ACE_OS::printf("pausing receiver\n");
-    //Time::delay(1);
-    //result = dmcast->open(addr,"eth1");
-    result = dmcast->subscribe(addr,1,"eth1");
+  int result = dmcast->subscribe(addr,1);
+  if (result!=0) {
+    throw IOException("cannot connect to multi-cast address");
   }
-  ACE_OS::printf("result is %d\n", result);
   localAddress = group;
   remoteAddress = group;
   localHandle.set(localAddress.getPort(),localAddress.getName().c_str());
   remoteHandle.set(remoteAddress.getPort(),remoteAddress.getName().c_str());
-  mcast = true;
 
   readBuffer.allocate(512);
   writeBuffer.allocate(512);
@@ -152,15 +119,12 @@ int DgramTwoWayStream::read(const Bytes& b) {
   // if nothing is available, try to grab stuff
   if (readAvail==0) {
     readAt = 0;
-    //ACE_INET_Addr dummy = ACE_Addr::sap_any;
-    //ACE_INET_Addr dummy;
     ACE_INET_Addr dummy((u_short)0, INADDR_ANY);
     YARP_ASSERT(dgram!=NULL);
     YARP_DEBUG(Logger::get(),"DGRAM Waiting for something!");
     int result =
       dgram->recv(readBuffer.get(),readBuffer.length(),dummy,1);
     YARP_DEBUG(Logger::get(),"DGRAM Got something!");
-    //dgram.recv(readBuffer.get(),readBuffer.length(),remoteHandle,1);
     if (closed) { return -1; }
     if (result<0) return result;
     readAvail = result;
@@ -175,25 +139,19 @@ int DgramTwoWayStream::read(const Bytes& b) {
     ACE_OS::memcpy(b.get(),readBuffer.get()+readAt,take);
     readAt += take;
     readAvail -= take;
-    //ACE_OS::printf("dgram read ends %d\n", take);
     return take;
   }
 
-  //ACE_OS::printf("dgram read ends\n");
   return 0;
 }
 
 void DgramTwoWayStream::write(const Bytes& b) {
-  //int packetLen = buffer.length();
-  //int len = b.length();
-
-  YARP_DEBUG(Logger::get(),"DGRAM prep writing");
-  ACE_OS::printf("byte ct %d\n", b.length());
+  //YARP_DEBUG(Logger::get(),"DGRAM prep writing");
+  //ACE_OS::printf("DGRAM write %d bytes\n",b.length());
 
   Bytes local = b;
-  ACE_OS::printf("byte ct %d\n", local.length());
   while (local.length()>0) {
-    YARP_DEBUG(Logger::get(),"DGRAM prep writing");
+    //YARP_DEBUG(Logger::get(),"DGRAM prep writing");
     int rem = local.length();
     int space = writeBuffer.length()-writeAvail;
     bool shouldFlush = false;
@@ -207,8 +165,6 @@ void DgramTwoWayStream::write(const Bytes& b) {
     if (shouldFlush) {
       flush();
     }
-    ACE_OS::printf("%d %d %d %d\n", rem, space, shouldFlush, writeAvail);
-    //Time::delay(0.5);
   }
 }
 

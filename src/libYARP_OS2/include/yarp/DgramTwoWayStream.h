@@ -17,7 +17,6 @@ public:
   DgramTwoWayStream() {
     closed = false;
     reader = false;
-    mcast = false;
     dgram = NULL;
   }
 
@@ -57,7 +56,7 @@ public:
 
 private:
 
-  bool closed, reader, mcast;
+  bool closed, reader;
   ACE_SOCK_Dgram *dgram;
   ACE_INET_Addr localHandle, remoteHandle;
   Address localAddress, remoteAddress;

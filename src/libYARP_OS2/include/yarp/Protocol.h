@@ -118,7 +118,9 @@ public:
   int readYarpInt() {
     int len = NetType::readFull(is(),header.bytes());
     ACE_UNUSED_ARG(len);
-    YARP_ASSERT(len==header.length());
+    if (len!=header.length()) {
+      throw IOException("data stream died");
+    }
     return interpretYarpNumber(header.bytes());
   }
 
@@ -358,7 +360,9 @@ private:
     if (len==-1) {
       throw IOException("no connection");
     }
-    YARP_ASSERT(len==header.length());
+    if(len!=header.length()) {
+      throw IOException("data stream died");
+    }
     bool already = false;
     if (delegate!=NULL) {
       if (delegate->checkHeader(header.bytes())) {
