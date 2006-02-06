@@ -25,8 +25,8 @@ public:
     argc = 0;
   }
 
-  SplitString(const char *command) {
-    apply(command);
+  SplitString(const char *command, const char splitter = ' ') {
+    apply(command,splitter);
   }
 
   int size() {
@@ -41,7 +41,7 @@ public:
     return (const char **)argv;
   }
 
-  void apply(const char *command) {
+  void apply(const char *command, char splitter=' ') {
     int at = 0;
     int sub_at = 0;
     unsigned int i;
@@ -49,7 +49,7 @@ public:
       if (at<MAX_ARG_CT) {
 	char ch = command[i];
 	if (ch>=32||ch=='\0'||ch=='\n') {
-	  if (ch==' '||ch=='\n') {
+	  if (ch==splitter||ch=='\n') {
 	    ch = '\0';
 	  }
 	  if (sub_at<MAX_ARG_LEN) {

@@ -5,8 +5,11 @@
 #include <yarp/Address.h>
 #include <yarp/Logger.h>
 #include <yarp/Dispatcher.h>
+#include <yarp/NetType.h>
+#include <yarp/Time.h>
 
 #include <ace/Hash_Map_Manager.h>
+#include <ace/Vector_T.h>
 #include <ace/Null_Mutex.h>
 
 namespace yarp {
@@ -19,7 +22,9 @@ namespace yarp {
 class yarp::NameServer {
 public:
 
-  NameServer();
+  NameServer() : nameMap(17), hostMap(17) {
+    setup();
+  }
 
   virtual ~NameServer() {}
 
@@ -34,25 +39,173 @@ public:
 
   Address queryName(const String& name);
 
-  Address unregisterName(const String& name) {
-    ACE_OS::printf("NameServer::unregisterName not implemented\n");
-    return Address();
-  }
+  Address unregisterName(const String& name);
 
   static int main(int argc, char *argv[]);
 
 protected:
 
-  String cmdRegister(int argc, char *argv[]);
+  void setup();
 
-  String textify(const Address& addr);
-  String terminate(const String& str);
+  template <class T>
+  class ReusableRecord {
+  private:
+    ACE_Vector<T> reuse;
+  public:
+    virtual ~ReusableRecord() {}
+
+    virtual T fresh() = 0;
+
+    void release(const T& o) {
+      reuse.push_back(o);
+    }
+
+    T getFree() {
+      if (reuse.size()>=1) {
+	T result = reuse[reuse.size()-1];
+	reuse.pop_back();
+	return result;
+      }
+      return fresh();
+    }
+  };
+
+
+  class DisposableNameRecord : public ReusableRecord<int> {
+  private:
+    int base;
+    String prefix;
+  public:
+    DisposableNameRecord() {
+      base = 1;
+      prefix = "/tmp/port/";
+    }
+
+    String get() {
+      return prefix + NetType::toString(getFree());
+    }
+
+    virtual int fresh() {
+      int result = base;
+      base++;
+      return result;
+    }
+
+    bool release(const String& name) {
+      if (name.strstr(prefix)==0) {
+	String num = name.substr(prefix.length());
+	int x = NetType::toInt(num);
+	ReusableRecord<int>::release(x);
+	return true;
+      }
+      return false;
+    }
+  };
+
+
+  class HostRecord : public ReusableRecord<int> {
+  private:
+    int base;
+    int legacyStep; // this is for YARP1 compatibility
+
+  public:
+    HostRecord() {
+      //YARP_DEBUG(Logger::get(),"FIXME: HostRecord has hardcoded base");
+      base = 10002;
+      legacyStep = 10;
+    }
+
+    int get() {
+      return ReusableRecord<int>::getFree();
+    }
+
+    virtual int fresh() {
+      int result = base;
+      base += legacyStep;
+      return result;
+    }
+  };
+
+
+  class McastRecord : public ReusableRecord<int> {
+  private:
+    int base;
+  public:
+    McastRecord() {
+      //YARP_DEBUG(Logger::get(),"FIXME: mcast records are never reused");
+      base = 0;
+    }
+
+    virtual int fresh() {
+      int result = base;
+      base++;
+      return result;
+    }
+
+    String get() {
+      int x = getFree();
+      int v1 = x%255;
+      int v2 = x/255;
+      YARP_ASSERT(v2<255);
+      return String("224.1.") + NetType::toString(v2+1) + "." + 
+	NetType::toString(v1+1);
+    }
+  };
+
+
+  class PropertyRecord {
+  private:
+    ACE_Vector<String> prop;
+  public:
+    PropertyRecord() {
+    }
+    
+    void clear() {
+      prop.clear();
+    }
+
+    void add(const String& p) {
+      prop.push_back(p);
+    }
+
+    bool check(const String& p) {
+      for (unsigned int i=0; i<prop.size(); i++) {
+	if (prop[i]==p) {
+	  return true;
+	}
+      }
+      return false;
+    }
+
+    String toString() {
+      String base = "";
+      for (unsigned int i=0; i<prop.size(); i++) {
+	if (i>0) {
+	  base += " ";
+	}
+	base += prop[i];
+      }
+      return base;
+    }
+  };
 
 
   class NameRecord {
   private:
     Address address;
+    ACE_Hash_Map_Manager<String,PropertyRecord,ACE_Null_Mutex> propMap;
   public:
+    NameRecord() : propMap(5) {
+    }
+
+    NameRecord(const NameRecord& alt) : propMap(5) {
+    }
+
+    void clear() {
+      propMap.unbind_all();
+      address = Address();
+    }
+
     void setAddress(const Address& address) {
       this->address = address;
     }
@@ -60,14 +213,79 @@ protected:
     Address getAddress() {
       return address;
     }
+
+
+    PropertyRecord *getPR(const String& key, bool create = true) {
+      ACE_Hash_Map_Entry<String,PropertyRecord> *entry = NULL;
+      int result = propMap.find(key,entry);
+      if (result==-1 && create) {
+	propMap.bind(key,PropertyRecord());
+	result = propMap.find(key,entry);
+	YARP_ASSERT(result!=-1);
+      }
+      if (result==-1) {
+	return NULL;
+      }
+      return &(entry->int_id_);
+    }
+
+    void clearProp(const String& key) {
+      getPR(key)->clear();
+    }
+
+    void addProp(const String& key, const String& val) {
+      getPR(key)->add(val);
+    }
+
+    String getProp(const String& key) {
+      PropertyRecord *rec = getPR(key,false);
+      if (rec!=NULL) {
+	return rec->toString();
+      }
+      return "";
+    }
+
+    bool checkProp(const String& key, const String& val) {
+      PropertyRecord *rec = getPR(key,false);
+      if (rec!=NULL) {
+	return rec->check(val);
+      }
+      return false;
+    }
+
   };
 
+
+  
+
+
+
+  String cmdRegister(int argc, char *argv[]);
+  String cmdQuery(int argc, char *argv[]);
+  String cmdUnregister(int argc, char *argv[]);
+  String cmdHelp(int argc, char *argv[]);
+
+  String textify(const Address& addr);
+  String terminate(const String& str);
+
+
   ACE_Hash_Map_Manager<String,NameRecord,ACE_Null_Mutex> nameMap;
+  ACE_Hash_Map_Manager<String,HostRecord,ACE_Null_Mutex> hostMap;
+  McastRecord mcastRecord;
+  DisposableNameRecord tmpNames;
   
   NameRecord *getNameRecord(const String& name, bool create);
 
   NameRecord& getNameRecord(const String& name) {
     NameRecord *result = getNameRecord(name,true);
+    YARP_ASSERT(result!=NULL);
+    return *result;
+  }
+
+  HostRecord *getHostRecord(const String& name, bool create);
+
+  HostRecord& getHostRecord(const String& name) {
+    HostRecord *result = getHostRecord(name,true);
     YARP_ASSERT(result!=NULL);
     return *result;
   }

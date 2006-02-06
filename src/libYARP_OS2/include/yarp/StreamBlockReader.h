@@ -33,14 +33,11 @@ public:
     int len = b.length();
     if (len==0) return;
     if (len<0) { len = messageLen; }
-    if (messageLen>=len && len>0) {
+    if (len>0) {
       NetType::readFull(*in,b);
       messageLen -= len;
       return;
     }
-    ACE_OS::printf("wanted %d messageLen is %d\n", 
-		   len,
-		   messageLen);
     throw IOException("expectBlock size conditions failed");
   }
 

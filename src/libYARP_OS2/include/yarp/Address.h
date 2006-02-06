@@ -80,6 +80,14 @@ public:
     regName = alt.regName;
   }
 
+  const Address& operator = (const Address& alt) {
+    name = alt.name;
+    port = alt.port;
+    carrier = alt.carrier;
+    regName = alt.regName;
+    return *this;
+  }
+
   /**
    * Default constructor.  Creates an invalid address.
    */

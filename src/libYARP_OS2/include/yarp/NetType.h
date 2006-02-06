@@ -39,6 +39,8 @@ public:
 
   static String toString(int x);
 
+  static int NetType::toInt(String x);
+
   /**
    * Definition of the NetInt32 type
    */

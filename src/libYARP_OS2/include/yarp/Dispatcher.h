@@ -53,6 +53,9 @@ public:
     return RET();
   }
 
+  ACE_Vector<String> getNames() {
+    return names;
+  }
 };
 
 #endif

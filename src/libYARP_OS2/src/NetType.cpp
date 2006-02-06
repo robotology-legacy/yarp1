@@ -61,3 +61,7 @@ String NetType::toString(int x) {
 }
 
 
+int NetType::toInt(String x) {
+  return ACE_OS::atoi(x.c_str());
+}
+

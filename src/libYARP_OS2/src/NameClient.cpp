@@ -151,9 +151,20 @@ Address NameClient::registerName(const String& name, const Address& suggest) {
   if (isFakeMode()) {
     return getServer().registerName(np,suggest);
   }
-  YARP_ASSERT(suggest.isValid()==false);
   String q("NAME_SERVER register ");
   q += np;
+  if (suggest.isValid()) {
+    q += " ";
+    q += suggest.getCarrierName();
+    q += " ";
+    q += suggest.getName();
+    q += " ";
+    if (suggest.getPort()==0) {
+      q += "...";
+    } else {
+      q += NetType::toString(suggest.getPort());
+    }
+  }
   Address address = probe(q);
   if (address.isValid()) {
     String reg = address.getRegName();

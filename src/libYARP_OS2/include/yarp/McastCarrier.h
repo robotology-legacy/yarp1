@@ -6,6 +6,8 @@
 #include <yarp/DgramTwoWayStream.h>
 
 #include <yarp/Election.h>
+#include <yarp/SplitString.h>
+#include <yarp/NameClient.h>
 
 namespace yarp {
   class McastCarrier;
@@ -40,10 +42,22 @@ public:
     proto.defaultSendHeader();
     YARP_DEBUG(Logger::get(),"Adding extra mcast header");
 
-    // hard-code mcast address for now
-    Address addr("224.3.1.1",11000);
+    // fetch an mcast address
+    NameClient& nic = NameClient::getNameClient();
+    Address addr = nic.registerName("...",
+				    Address("...",0,"mcast","..."));
     int ip[] = { 224, 3, 1, 1 };
     int port = 11000;
+    if (!addr.isValid()) {
+      YARP_ERROR(Logger::get(), "name server not responding helpfully, setting mcast name arbitrarily");
+    } else {
+      SplitString ss(addr.getName().c_str(),'.');
+      YARP_ASSERT(ss.size()==4);
+      for (int i=0; i<4; i++) {
+	ip[i] = NetType::toInt(ss.get(i));
+      }
+      port = addr.getPort();
+    }
 
     ManagedBytes block(6);
     for (int i=0; i<4; i++) {
