@@ -61,45 +61,57 @@ void PortCoreInputUnit::run() {
     void *id = (void *)this;
 
     while (!done) {
-      BlockReader& br = ip->beginRead();
-      cmd.readBlock(br);
-      if (closing||isDoomed()) {
-	done = true;
-	break;
+      try {
+	BlockReader& br = ip->beginRead();
+	cmd.readBlock(br);
+	if (closing||isDoomed()) {
+	  done = true;
+	  break;
+	}
+	char key = cmd.getKey();
+	//ACE_OS::printf("Port command is [%c:%d/%s]\n",
+	//	     (key>=32)?key:'?', key, cmd.getText().c_str());
+	
+	PortManager& man = getOwner();
+	OutputStream *os = NULL;
+	if (br.isTextMode()) {
+	  os = &(ip->getOutputStream());
+	}
+	
+	switch (key) {
+	case '/':
+	  YARP_DEBUG(Logger::get(),String("asking to add output to ")+
+		     cmd.getText());
+	  man.addOutput(cmd.getText(),id,os);
+	  break;
+	case '!':
+	  man.removeOutput(cmd.getText().substring(1,-1),id,os);
+	  break;
+	case '~':
+	  man.removeInput(cmd.getText().substring(1,-1),id,os);
+	  break;
+	case '*':
+	  man.describe(id,os);
+	  break;
+	case 'd':
+	  man.readBlock(br,id,os);
+	  break;
+	case 'q':
+	  done = true;
+	  break;
+	}
+	ip->endRead();
+      } catch (IOException e) {
+	YARP_DEBUG(Logger::get(),e.toString() + " <<< initial PortCoreInputUnit exception");
+	if (!ip->checkStreams()) {
+	  // pass it on
+	  YARP_DEBUG(Logger::get(), "passing on exception");
+	  throw e;
+	} else {
+	  // clear out any garbage
+	  ip->resetStreams();
+	}
       }
-      char key = cmd.getKey();
-      //ACE_OS::printf("Port command is [%c:%d/%s]\n",
-      //	     (key>=32)?key:'?', key, cmd.getText().c_str());
-
-      PortManager& man = getOwner();
-      OutputStream *os = NULL;
-      if (br.isTextMode()) {
-	os = &(ip->getOutputStream());
-      }
-
-      switch (key) {
-      case '/':
-	YARP_DEBUG(Logger::get(),String("asking to add output to ")+
-		   cmd.getText());
-	man.addOutput(cmd.getText(),id,os);
-	break;
-      case '!':
-	man.removeOutput(cmd.getText().substring(1,-1),id,os);
-	break;
-      case '~':
-	man.removeInput(cmd.getText().substring(1,-1),id,os);
-	break;
-      case '*':
-	man.describe(id,os);
-	break;
-      case 'd':
-	man.readBlock(br,id,os);
-	break;
-      case 'q':
-	done = true;
-	break;
-      }
-      ip->endRead();
       if (closing||isDoomed()) {
 	done = true;
 	break;

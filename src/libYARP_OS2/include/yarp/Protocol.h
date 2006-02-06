@@ -344,6 +344,14 @@ public:
     sendAck();
   }
 
+  virtual bool checkStreams() {
+    return shift.isOk();
+  }
+
+  virtual void resetStreams() {
+    shift.reset();
+  }
+
 private:
 
   void sendProtocolSpecifier() {

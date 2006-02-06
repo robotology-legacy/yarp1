@@ -18,6 +18,7 @@ class yarp::SocketTwoWayStream : public TwoWayStream,
 	    InputStream, OutputStream {
 public:
   SocketTwoWayStream() {
+    happy = false;
   }
 
   int open(const Address& address);
@@ -47,30 +48,50 @@ public:
   virtual void interrupt() {
     stream.close_reader();
     stream.close_writer();
+    happy = false;
   }
 
   virtual void close() {
     stream.close();
+    happy = false;
   }
 
   virtual int read(const Bytes& b) {
     //ACE_OS::printf("STWS::read pre \n");
     int result = stream.recv_n(b.get(),b.length());
+    //ACE_OS::printf("socket read %d\n", result);
     //ACE_OS::printf("STWS::read post \n");
+    if (result<=0) {
+      happy = false;
+      throw IOException("bad socket read");
+    }
     return result;
   }
 
   virtual void write(const Bytes& b) {
-    stream.send_n(b.get(),b.length());
+    int result = stream.send_n(b.get(),b.length());
+    //ACE_OS::printf("socket write %d\n", result);
+    if (result<0) {
+      happy = false;
+      throw IOException("bad socket write");
+    }
   }
 
   virtual void flush() {
     //stream.flush();
   }
 
+  virtual bool isOk() {
+    return happy;
+  }
+  
+  virtual void reset() {
+  }
+
 private:
   ACE_SOCK_Stream stream;
   Address localAddress, remoteAddress;
+  bool happy;
   void updateAddresses();
 };
 

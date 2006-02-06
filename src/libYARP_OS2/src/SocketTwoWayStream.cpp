@@ -9,12 +9,18 @@ int SocketTwoWayStream::open(const Address& address) {
   ACE_SOCK_Connector connector;
   ACE_INET_Addr addr(address.getPort(),address.getName().c_str());
   int result = connector.connect(stream,addr);
+  if (result>=0) {
+    happy = true;
+  }
   updateAddresses();
   return result;
 }
 
 void SocketTwoWayStream::open(ACE_SOCK_Acceptor& acceptor) {
-  acceptor.accept(stream);
+  int result = acceptor.accept(stream);
+  if (result>=0) {
+    happy = true;
+  }
   updateAddresses();
 }
 

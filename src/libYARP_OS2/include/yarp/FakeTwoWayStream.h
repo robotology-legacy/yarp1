@@ -68,6 +68,13 @@ public:
     return in.toString();
   }
 
+  virtual bool isOk() {
+    return true;
+  }
+
+  virtual void reset() {
+  }
+
 private:
 
   class ActiveStringOutputStream : public StringOutputStream {

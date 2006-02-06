@@ -20,6 +20,10 @@ public:
   virtual const Address& getLocalAddress() = 0; // throws
   virtual const Address& getRemoteAddress() = 0; // throws
 
+  virtual bool isOk() = 0;
+
+  virtual void reset() = 0;
+
   virtual void close() = 0; // throws
 };
 

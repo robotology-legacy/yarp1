@@ -43,6 +43,7 @@ void DgramTwoWayStream::open(const Address& local, const Address& remote) {
   readAt = 0;
   readAvail = 0;
   writeAvail = 0;
+  happy = true;
 }
 
 
@@ -74,7 +75,7 @@ void DgramTwoWayStream::join(const Address& group, bool sender) {
   readAt = 0;
   readAvail = 0;
   writeAvail = 0;
-
+  happy = true;
 }
 
 DgramTwoWayStream::~DgramTwoWayStream() {
@@ -89,8 +90,12 @@ void DgramTwoWayStream::interrupt() {
       try {
 	DgramTwoWayStream tmp;
 	tmp.open(Address(localAddress.getName(),0),localAddress);
-	ManagedBytes empty(10000);
+	ManagedBytes empty(10);
+	for (int i=0; i<empty.length(); i++) {
+	  empty.get()[i] = 0;
+	}
 	tmp.write(empty.bytes());
+	tmp.flush();
 	tmp.close();
       } catch (IOException e) {
 	YARP_DEBUG(Logger::get(),e.toString() + " <<< closer dgram exception");
@@ -98,6 +103,7 @@ void DgramTwoWayStream::interrupt() {
     YARP_DEBUG(Logger::get(),"finished dgram interrupt");
     }
   }
+  happy = false;
 }
 
 void DgramTwoWayStream::close() {
@@ -109,12 +115,15 @@ void DgramTwoWayStream::close() {
       dgram = NULL;
     }
   }
+  happy = false;
 }
 
 int DgramTwoWayStream::read(const Bytes& b) {
   reader = true;
 
-  if (closed) { return -1; }
+  if (closed) { 
+    return -1; 
+  }
 
   // if nothing is available, try to grab stuff
   if (readAvail==0) {
@@ -126,7 +135,10 @@ int DgramTwoWayStream::read(const Bytes& b) {
       dgram->recv(readBuffer.get(),readBuffer.length(),dummy,1);
     YARP_DEBUG(Logger::get(),"DGRAM Got something!");
     if (closed) { return -1; }
-    if (result<0) return result;
+    if (result<0) {
+      happy = false;
+      return result;
+    }
     readAvail = result;
   }
 
@@ -180,6 +192,7 @@ void DgramTwoWayStream::flush() {
 		      remoteHandle);
 
     if (len<0) {
+      happy = false;
       throw IOException("DGRAM failed to write");
     }
     writeAt += len;
@@ -187,6 +200,17 @@ void DgramTwoWayStream::flush() {
   }
 }
 
+
+bool DgramTwoWayStream::isOk() {
+  return happy;
+}
+
+
+void DgramTwoWayStream::reset() {
+  readAt = 0;
+  readAvail = 0;
+  writeAvail = 0;
+}
 
 
 

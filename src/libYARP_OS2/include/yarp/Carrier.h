@@ -19,6 +19,7 @@ namespace yarp {
 class yarp::Carrier : public ShiftStream {
 public:
 
+
   virtual Carrier *create() = 0;
 
   virtual String getName() = 0;

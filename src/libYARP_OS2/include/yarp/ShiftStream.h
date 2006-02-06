@@ -76,6 +76,19 @@ public:
     return stream==NULL;
   }
 
+  virtual bool isOk() {
+    if (stream!=NULL) {
+      return stream->isOk();
+    }
+    return false;
+  }
+
+  virtual void reset() {
+    if (stream!=NULL) {
+      stream->reset();
+    }
+  }
+
 private:
   TwoWayStream *stream;
 };

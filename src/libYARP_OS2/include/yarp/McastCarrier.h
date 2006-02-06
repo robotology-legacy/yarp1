@@ -2,7 +2,10 @@
 #define _YARP2_MCASTCARRIER_
 
 #include <yarp/AbstractCarrier.h>
+#include <yarp/UdpCarrier.h>
 #include <yarp/DgramTwoWayStream.h>
+
+#include <yarp/Election.h>
 
 namespace yarp {
   class McastCarrier;
@@ -11,6 +14,8 @@ namespace yarp {
 class yarp::McastCarrier : public UdpCarrier {
 protected:
   Address mcastAddress;
+
+  static ElectionOf<McastCarrier> caster;
 
 public:
 
@@ -89,6 +94,9 @@ public:
       //ManagedBytes b(100);
       //stream->write(b.bytes());
       //stream->open(remote);
+      if (sender) {
+	addSender(mcastAddress.toString());
+      }
       
     } catch (IOException e) {
       delete stream;
@@ -109,6 +117,25 @@ public:
   virtual void start(const Address& address, ShiftStream& previous) {
     YARP_ERROR(Logger::get(),
 	       "I don't think this method is needed anymore");
+  }
+
+
+  void addSender(const String& key) {
+    caster.add(key,this);
+  }
+  
+  void addRemove(const String& key) {
+    caster.remove(key,this);
+  }
+  
+  bool isElect() {
+    void *elect = caster.getElect(mcastAddress.toString());
+    return elect==this || elect==NULL;
+  }
+
+
+  virtual bool isActive() {
+    return isElect();
   }
 
 };

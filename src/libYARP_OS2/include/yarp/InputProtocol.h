@@ -27,6 +27,10 @@ public:
   virtual BlockReader& beginRead() = 0;
   virtual void endRead() = 0;
 
+  virtual bool checkStreams() = 0;
+
+  virtual void resetStreams() = 0;
+
   // some connections are capable of ping-ponging
   virtual OutputProtocol& getOutput() = 0;
   

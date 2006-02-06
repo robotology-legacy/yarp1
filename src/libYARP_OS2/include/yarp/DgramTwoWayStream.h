@@ -18,6 +18,7 @@ public:
     closed = false;
     reader = false;
     dgram = NULL;
+    happy = false;
   }
 
   virtual void open(const Address& remote);
@@ -54,6 +55,10 @@ public:
 
   virtual void flush();
 
+  virtual bool isOk();
+
+  virtual void reset();
+
 private:
 
   bool closed, reader;
@@ -62,6 +67,7 @@ private:
   Address localAddress, remoteAddress;
   ManagedBytes readBuffer, writeBuffer;
   int readAt, readAvail, writeAvail;
+  bool happy;
 
 };
 
