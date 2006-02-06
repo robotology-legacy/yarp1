@@ -105,8 +105,7 @@ static gint expose_CB (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 
 static gint menuFileQuit_CB(GtkWidget *widget, gpointer data)
 {
-	//delete_event(mainWindow, NULL, NULL);
-	g_signal_emit_by_name(G_OBJECT (mainWindow), "delete_event");
+	gtk_widget_destroy (mainWindow);
  
 	return TRUE;
 }
