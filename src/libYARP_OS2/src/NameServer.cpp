@@ -34,7 +34,7 @@ String NameServer::textify(const Address& address) {
 
 
 String NameServer::terminate(const String& str) {
-  return str + "*** end of message";
+  return str + "*** end of message\n";
 }
 
 
@@ -120,7 +120,7 @@ int NameServer::main(int argc, char *argv[]) {
   MainNameServer name;
   server.setReadHandler(name);
   server.setAutoHandshake(false);
-  server.listen(Address("localhost",9000,"tcp","root"));
+  server.listen(Address("localhost",10000,"tcp","root"));
   server.start();
   Time::delay(60);
   server.close();

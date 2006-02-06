@@ -54,3 +54,10 @@ int NetType::readDiscard(InputStream& is, int len) {
 }
 
 
+String NetType::toString(int x) {
+  char buf[256];
+  ACE_OS::sprintf(buf,"%d",x);
+  return buf;
+}
+
+

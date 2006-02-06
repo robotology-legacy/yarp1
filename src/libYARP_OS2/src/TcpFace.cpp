@@ -17,7 +17,7 @@ TcpFace::~TcpFace() {
 
 
 void TcpFace::open(const Address& address) {
-  YARP_DEBUG(log,"TcpFace should throw exceptions");
+  YARP_DEBUG(log,String("TcpFace opening for address ") + address.toString());
 
   this->address = address;
   ACE_INET_Addr	serverAddr(address.getPort());
@@ -64,6 +64,7 @@ void TcpFace::closeFace() {
 InputProtocol *TcpFace::read() {
 
   SocketTwoWayStream *stream  = new SocketTwoWayStream();
+  YARP_ASSERT(stream!=NULL);
 
   try {
     stream->open(peerAcceptor);

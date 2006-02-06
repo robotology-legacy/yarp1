@@ -47,13 +47,20 @@ void PortCoreInputUnit::run() {
 
     PortCommand cmd;
   
-    ip->open(getName().c_str());
-    route = ip->getRoute();
-    if (Name(route.getFromName()).isRooted()) {
-      YARP_INFO(Logger::get(),String("Receiving input from ") + 
-		route.getFromName() + " to " + route.getToName() + " using " +
-		route.getCarrierName());
+    if (autoHandshake) {
+      ip->open(getName().c_str());
+      route = ip->getRoute();
+      if (Name(route.getFromName()).isRooted()) {
+	YARP_INFO(Logger::get(),String("Receiving input from ") + 
+		  route.getFromName() + " to " + route.getToName() + 
+		  " using " +
+		  route.getCarrierName());
+      }
+    } else {
+      ip->open(""); // anonymous connection
+      route = ip->getRoute();
     }
+
     if (closing) {
 	done = true;
     }
@@ -63,7 +70,13 @@ void PortCoreInputUnit::run() {
     while (!done) {
       try {
 	BlockReader& br = ip->beginRead();
-	cmd.readBlock(br);
+
+	if (autoHandshake) {
+	  cmd.readBlock(br);
+	} else {
+	  cmd = PortCommand('d',"");
+	}
+
 	if (closing||isDoomed()) {
 	  done = true;
 	  break;
@@ -94,7 +107,15 @@ void PortCoreInputUnit::run() {
 	  man.describe(id,os);
 	  break;
 	case 'd':
-	  man.readBlock(br,id,os);
+	  {
+	    try {
+	      man.readBlock(br,id,os);
+	    } catch (IOException e) {
+	      YARP_DEBUG(Logger::get(),e.toString() + " <<< user level PortCoreInputUnit exception, passing on");
+	      done = true;
+	      throw e;
+	    }
+	  }
 	  break;
 	case 'q':
 	  done = true;
@@ -112,7 +133,7 @@ void PortCoreInputUnit::run() {
 	  ip->resetStreams();
 	}
       }
-      if (closing||isDoomed()) {
+      if (closing||isDoomed()||(!ip->checkStreams())) {
 	done = true;
 	break;
       }
@@ -124,11 +145,18 @@ void PortCoreInputUnit::run() {
 	       e.toString().c_str()));
   }
 
+  
+  YARP_DEBUG(Logger::get(),"PortCoreInputUnit closing ip");
   ip->close();
+  YARP_DEBUG(Logger::get(),"PortCoreInputUnit closed ip");
 
-  if (Name(route.getFromName()).isRooted()) {
-    YARP_INFO(Logger::get(),String("Removing input from ") + 
-	      route.getFromName() + " to " + route.getToName());
+  if (autoHandshake) {
+    if (Name(route.getFromName()).isRooted()) {
+      YARP_INFO(Logger::get(),String("Removing input from ") + 
+		route.getFromName() + " to " + route.getToName());
+    }
+  } else {
+    YARP_DEBUG(Logger::get(),"PortCoreInputUnit shutting down");
   }
 
   running = false;
@@ -160,11 +188,14 @@ void PortCoreInputUnit::runSimulation() {
 
 
 void PortCoreInputUnit::closeMain() {
+  YARP_DEBUG(Logger::get(),"PortCoreInputUnit closing");
 
   if (running) {
     // give a kick (unfortunately unavoidable)
     if (ip!=NULL) {
+      YARP_DEBUG(Logger::get(),"PortCoreInputUnit interrupting");
       ip->interrupt();
+      YARP_DEBUG(Logger::get(),"PortCoreInputUnit interrupted");
     }
     closing = true;
     join();

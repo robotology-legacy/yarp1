@@ -21,7 +21,7 @@ unsigned theExecutiveBranch (void *args)
   Thread *thread = (Thread *)args;
   thread->run();
   Thread::changeCount(-1);
-  //ACE_OS::printf("Thread shutting down\n");
+  YARP_DEBUG(Logger::get(),"Thread shutting down");
   //ACE_Thread::exit();
   return 0;
 }
@@ -42,6 +42,7 @@ Thread::Thread(Runnable *target) {
 
 
 Thread::~Thread() {
+  YARP_DEBUG(Logger::get(),"Thread being deleted");
   if (active) {
     join();
   }

@@ -266,9 +266,12 @@ void PortCore::closeUnits() {
   for (unsigned int i=0; i<units.size(); i++) {
     PortCoreUnit *unit = units[i];
     if (unit!=NULL) {
+      YARP_DEBUG(Logger::get(),"closing a unit");
       unit->close();
+      YARP_DEBUG(Logger::get(),"joining a unit");
       unit->join();
       delete unit;
+      YARP_DEBUG(Logger::get(),"deleting a unit");
       units[i] = NULL;
     }
   }
@@ -342,12 +345,12 @@ void PortCore::cleanUnits() {
 void PortCore::addInput(InputProtocol *ip) {
   YARP_ASSERT(ip!=NULL);
   stateMutex.wait();
-  PortCoreUnit *unit = new PortCoreInputUnit(*this,ip);
+  PortCoreUnit *unit = new PortCoreInputUnit(*this,ip,autoHandshake);
   YARP_ASSERT(unit!=NULL);
   unit->start();
   
   units.push_back(unit);
-  //YMSG(("there are now %d units\n", units.size()));
+  YMSG(("there are now %d units\n", units.size()));
   stateMutex.post();
 }
 
