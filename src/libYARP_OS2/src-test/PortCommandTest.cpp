@@ -30,9 +30,10 @@ public:
 
     PortCommand cmd;
     StringInputStream sis;
+    StringOutputStream sos;
     StreamBlockReader br;
     sis.add("d\n");
-    br.reset(sis,sis.toString().length(),true);
+    br.reset(sis,sos,sis.toString().length(),true);
     cmd.readBlock(br);
     char key = cmd.getKey();
     checkEqual('d',cmd.getKey(),"basic data command");

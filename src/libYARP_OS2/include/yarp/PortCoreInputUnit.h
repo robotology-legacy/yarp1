@@ -14,8 +14,9 @@ class yarp::PortCoreInputUnit : public PortCoreUnit {
 public:
   // specifically for managing input connections
 
-  PortCoreInputUnit(PortCore& owner, InputProtocol *ip) : 
-    PortCoreUnit(owner), ip(ip), phase(1) {
+  PortCoreInputUnit(PortCore& owner, InputProtocol *ip, 
+		    bool autoHandshake) : 
+    PortCoreUnit(owner), ip(ip), phase(1), autoHandshake(autoHandshake) {
 
     YARP_ASSERT(ip!=NULL);
     closing = false;
@@ -56,9 +57,10 @@ public:
 
 private:
   InputProtocol *ip;
+  Semaphore phase;
+  bool autoHandshake;
   bool closing, finished, running;
   String name;
-  Semaphore phase;
 
   void closeMain();
 };

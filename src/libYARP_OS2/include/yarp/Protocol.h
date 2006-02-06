@@ -175,7 +175,7 @@ public:
     messageLen = 0;
     YARP_ASSERT(delegate!=NULL);
     delegate->expectIndex(*this);
-    reader.reset(is(),messageLen,delegate->isTextMode());
+    reader.reset(is(),os(),messageLen,delegate->isTextMode());
   }
 
   void defaultExpectIndex();
@@ -224,6 +224,7 @@ public:
   }
 
   void closeHelper() {
+    YARP_DEBUG(Logger::get(),"Protocol object closing");
     try {
       if (pendingAck) {
 	sendAck();
@@ -237,6 +238,7 @@ public:
       delete delegate;
       delegate = NULL;
     }
+    YARP_DEBUG(Logger::get(),"Protocol object closed");
   }
 
   TwoWayStream& getStreams() {
@@ -280,9 +282,14 @@ public:
   }
 
   virtual void open(const String& name) {
-    expectHeader();
-    respondToHeader();
-    setRoute(getRoute().addToName(name));
+    if (name=="") {
+      setCarrier("text");
+      setRoute(Route("no-name","no-name","no-carrier"));
+    } else {
+      expectHeader();
+      respondToHeader();
+      setRoute(getRoute().addToName(name));
+    }
   }
 
   virtual bool isActive() {

@@ -2,6 +2,7 @@
 #define _YARP2_OUTPUTSTREAM_
 
 #include <yarp/Bytes.h>
+#include <yarp/String.h>
 
 namespace yarp {
   class OutputStream;
@@ -25,6 +26,12 @@ public:
   virtual void close() = 0;
 
   virtual void flush() {
+  }
+
+  virtual void writeLine(const String& data) {
+    Bytes b((char*)(data.c_str()),data.length());
+    write(b);
+    write('\n');
   }
 };
 

@@ -3,6 +3,7 @@
 
 #include <yarp/TwoWayStream.h>
 #include <yarp/IOException.h>
+#include <yarp/Logger.h>
 
 #include <ace/config.h>
 #include <ace/SOCK_Acceptor.h>
@@ -63,7 +64,7 @@ public:
     //ACE_OS::printf("STWS::read post \n");
     if (result<=0) {
       happy = false;
-      throw IOException("bad socket read");
+      YARP_DEBUG(Logger::get(),"bad socket read");
     }
     return result;
   }
@@ -73,7 +74,7 @@ public:
     //ACE_OS::printf("socket write %d\n", result);
     if (result<0) {
       happy = false;
-      throw IOException("bad socket write");
+      YARP_DEBUG(Logger::get(),"bad socket write");
     }
   }
 

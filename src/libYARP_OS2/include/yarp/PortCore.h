@@ -33,6 +33,7 @@ public:
     starting = false;
     closing = false;
     finished = false;
+    autoHandshake = true;
     events = 0;
     face = NULL;
     reader = NULL;
@@ -44,6 +45,10 @@ public:
   bool listen(const Address& address);
 
   void setReadHandler(Readable& reader);
+
+  void setAutoHandshake(bool autoHandshake) {
+    this->autoHandshake = autoHandshake;
+  }
 
   // start up core
   virtual bool start();
@@ -101,7 +106,7 @@ private:
   String name;
   Address address;
   Readable *reader;
-  bool listening, running, starting, closing, finished;
+  bool listening, running, starting, closing, finished, autoHandshake;
   int events;
 
   void closeMain();

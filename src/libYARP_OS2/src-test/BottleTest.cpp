@@ -70,11 +70,12 @@ public:
       
       String s;
       StringInputStream sis;
+      StringOutputStream sos;
       StreamBlockReader sbr;
       
       s = bbw.toString();
       sis.add(s);
-      sbr.reset(sis,s.length(),true);
+      sbr.reset(sis,sos,s.length(),true);
       
       Bottle bot2;
       bot2.readBlock(sbr);

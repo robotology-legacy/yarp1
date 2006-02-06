@@ -9,6 +9,7 @@
 #include <yarp/PortCore.h>
 #include <yarp/Bottle.h>
 #include <yarp/Time.h>
+#include <yarp/NameServer.h>
 
 // just for "write", which needs to read from standard input
 #include <iostream>
@@ -217,8 +218,8 @@ int Companion::cmdRegression(int argc, char *argv[]) {
 
 
 int Companion::cmdServer(int argc, char *argv[]) {
-  ACE_OS::fprintf(stderr,"no server available yet\n");
-  return 1;
+  ACE_OS::fprintf(stderr,"no server available yet, really... faking it\n");
+  return NameServer::main(argc,argv);
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

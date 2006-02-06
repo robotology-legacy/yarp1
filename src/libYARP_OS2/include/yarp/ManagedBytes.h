@@ -2,6 +2,7 @@
 #define _YARP2_MANAGEDBYTES_
 
 #include <yarp/Bytes.h>
+#include <yarp/Logger.h>
 
 namespace yarp {
   class ManagedBytes;
@@ -11,7 +12,7 @@ class yarp::ManagedBytes {
 public:
   ManagedBytes() {
     b = Bytes(NULL,0);
-    owned = 0;
+    owned = false;
   }
 
   ManagedBytes(const Bytes& ext, bool owned = false) {
@@ -19,8 +20,28 @@ public:
     this->owned = owned;
   }
 
+  ManagedBytes(const ManagedBytes& alt) {
+    b = alt.b;
+    owned = false;
+    if (alt.owned) {
+      copy();
+    }
+  }
+
+  const ManagedBytes& operator = (const ManagedBytes& alt) {
+    clear();
+    b = alt.b;
+    owned = false;
+    if (alt.owned) {
+      copy();
+    }
+    return *this;
+  }
+
+
   ManagedBytes(int len) {
     char *buf = new char[len];
+    YARP_ASSERT(buf!=NULL);
     b = Bytes(buf,len);
     owned = true;
   }
@@ -36,6 +57,7 @@ public:
     if (!owned) {
       int len = length();
       char *buf = new char[len];
+      YARP_ASSERT(buf!=NULL);
       ACE_OS::memcpy(buf,get(),len);
       b = Bytes(buf,len);
       owned = true;

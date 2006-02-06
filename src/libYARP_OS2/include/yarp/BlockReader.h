@@ -3,6 +3,7 @@
 
 #include <yarp/Bytes.h>
 #include <yarp/String.h>
+#include <yarp/OutputStream.h>
 
 namespace yarp {
   class BlockReader;
@@ -29,6 +30,8 @@ public:
 
   virtual bool isTextMode() = 0;
   virtual int getSize() = 0;
+
+  virtual OutputStream *getReplyStream() = 0;
 };
 
 #endif

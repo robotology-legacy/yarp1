@@ -37,7 +37,7 @@ public:
 
   static int readDiscard(InputStream& is, int len);
 
-
+  static String toString(int x);
 
   /**
    * Definition of the NetInt32 type

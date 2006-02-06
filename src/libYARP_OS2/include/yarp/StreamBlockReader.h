@@ -16,12 +16,14 @@ class yarp::StreamBlockReader : public BlockReader {
 public:
   StreamBlockReader() {
     in = NULL;
+    out = NULL;
     messageLen = 0;
     textMode = false;
   }
 
-  void reset(InputStream& in, int len, bool textMode) {
+  void reset(InputStream& in, OutputStream& out, int len, bool textMode) {
     this->in = &in;
+    this->out = &out;
     this->messageLen = len;
     this->textMode = textMode;
   }
@@ -74,9 +76,15 @@ public:
     return messageLen;
   }
 
+  virtual OutputStream *getReplyStream() {
+    YARP_ASSERT(out!=NULL);
+    return out;
+  }
+
 private:
 
   InputStream *in;
+  OutputStream *out;
   int messageLen;
   bool textMode;
 };
