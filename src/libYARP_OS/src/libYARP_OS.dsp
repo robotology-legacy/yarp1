@@ -279,6 +279,10 @@ SOURCE=..\include\yarp\YARPNameClient.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\YARPNameClient2.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPNameID.h
 # End Source File
 # Begin Source File
