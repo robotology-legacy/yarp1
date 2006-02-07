@@ -26,8 +26,8 @@ public:
 
   void testPorts() {
     report(0,"checking YARPPort...");
+
     NameClient& nic = NameClient::getNameClient();
-    nic.setFakeMode(true);
 
     YARPInputPortOf<int> in;
     YARPOutputPortOf<int> out;
@@ -45,7 +45,6 @@ public:
     out.Write();
     checkEqual(in.Read()!=0,true,"read something");
     checkEqual((int)(in.Content()),15,"got right value at input port");
-    nic.setFakeMode(false);    
   }
 
   virtual void testTime() {
@@ -89,10 +88,15 @@ public:
   }
 
   virtual void runTests() {
+    NameClient& nic = NameClient::getNameClient();
+    nic.setFakeMode(true);
+
     testPorts();
     testTime();
     testSema();
     testThread();
+
+    nic.setFakeMode(false);
   }
 };
 

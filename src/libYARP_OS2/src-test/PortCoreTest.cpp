@@ -30,6 +30,9 @@ public:
 
   void testStartStop() {
     report(0,"checking start/stop works (requires free port 9999)...");
+    NameClient& nic = NameClient::getNameClient();
+    nic.setFakeMode(true);
+
     Address address("localhost",9999,"tcp","/port");
     PortCore core;
     core.listen(address);
@@ -57,6 +60,8 @@ public:
     core.join();
     int x = core.getEventCount();
     checkEqual(core.getEventCount(),ct,"Got all events");
+
+    nic.setFakeMode(false);
   }
 
 

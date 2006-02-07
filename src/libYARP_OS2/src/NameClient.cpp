@@ -110,8 +110,11 @@ String NameClient::send(const String& cmd, bool multi) {
   TcpFace face;
   OutputProtocol *ip = face.write(getAddress());
   if (ip==NULL) {
-    YARP_INFO(Logger::get(),"no connection to nameserver, scanning mcast");
-    Address alt = FallbackNameClient::seek();
+    Address alt;
+    if (!isFakeMode()) {
+      YARP_INFO(Logger::get(),"no connection to nameserver, scanning mcast");
+      alt = FallbackNameClient::seek();
+    }
     if (alt.isValid()) {
       NameConfig nc;
       nc.setAddress(alt);
