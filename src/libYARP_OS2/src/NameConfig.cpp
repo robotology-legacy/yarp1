@@ -190,6 +190,25 @@ bool NameConfig::isLocalName(const String& name) {
 }
 
 
+String NameConfig::getIps() {
+  String result = "";
+  ACE_INET_Addr *ips = NULL;
+  size_t count = 0;
+  if (ACE::get_ip_interfaces(count,ips)>=0) {
+    for (size_t i=0; i<count; i++) {
+      String ip = ips[i].get_host_addr();
+      if (i>0) {
+	result += " ";
+      }
+      result += ip;
+    }
+    delete[] ips;
+  }
+  return result;
+}
+
+
+
 void NameConfig::setAddress(const Address& address) {
   this->address = address;
 }

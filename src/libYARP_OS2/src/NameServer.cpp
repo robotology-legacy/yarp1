@@ -155,15 +155,23 @@ void NameServer::setup() {
   dispatcher.add("unregister", &NameServer::cmdUnregister);
   dispatcher.add("query", &NameServer::cmdQuery);
   dispatcher.add("help", &NameServer::cmdHelp);
+  dispatcher.add("set", &NameServer::cmdSet);
+  dispatcher.add("get", &NameServer::cmdGet);
+  dispatcher.add("check", &NameServer::cmdCheck);
 }
 
 String NameServer::cmdRegister(int argc, char *argv[]) {
+
+  String remote = argv[0];
+  argc--;
+  argv++;
+
   if (argc<1) {
     return "need at least one argument";
   }
   String portName = argv[0];
 
-  String machine = "...";
+  String machine = remote;
   String carrier = "...";
   int port = 0;
   if (argc>=2) {
@@ -187,6 +195,10 @@ String NameServer::cmdRegister(int argc, char *argv[]) {
 
 
 String NameServer::cmdQuery(int argc, char *argv[]) {
+  // ignore source
+  argc--;
+  argv++;
+
   if (argc<1) {
     return "need at least one argument";
   }
@@ -196,6 +208,10 @@ String NameServer::cmdQuery(int argc, char *argv[]) {
 }
 
 String NameServer::cmdUnregister(int argc, char *argv[]) {
+  // ignore source
+  argc--;
+  argv++;
+
   if (argc<1) {
     return "need at least one argument";
   }
@@ -206,6 +222,10 @@ String NameServer::cmdUnregister(int argc, char *argv[]) {
 
 
 String NameServer::cmdHelp(int argc, char *argv[]) {
+  // ignore source
+  argc--;
+  argv++;
+
   String result = "Here are some ways to use the name server:\n";
   ACE_Vector<String> names = dispatcher.getNames();
   for (unsigned i=0; i<names.size(); i++) {
@@ -214,6 +234,69 @@ String NameServer::cmdHelp(int argc, char *argv[]) {
   }
   return terminate(result);
 }
+
+
+String NameServer::cmdSet(int argc, char *argv[]) {
+  // ignore source
+  argc--;
+  argv++;
+
+  if (argc<2) {
+    return "need at least two arguments: the port name, and a key";
+  }
+  String target = argv[0];
+  String key = argv[1];
+  NameRecord& nameRecord = getNameRecord(target);
+  nameRecord.clearProp(key);
+  for (int i=2; i<argc; i++) {
+    nameRecord.addProp(key,argv[i]);
+  }
+  return String("port ") + target + " property " + key + " = " +
+    nameRecord.getProp(key);
+}
+
+String NameServer::cmdGet(int argc, char *argv[]) {
+  // ignore source
+  argc--;
+  argv++;
+
+  if (argc<2) {
+    return "need exactly two arguments: the port name, and a key";
+  }
+  String target = argv[0];
+  String key = argv[1];
+  NameRecord& nameRecord = getNameRecord(target);
+  return String("port ") + target + " property " + key + " = " +
+    nameRecord.getProp(key);
+}
+
+String NameServer::cmdCheck(int argc, char *argv[]) {
+  // ignore source
+  argc--;
+  argv++;
+
+  if (argc<2) {
+    return "need at least two arguments: the port name, and a key";
+  }
+  String response = "";
+  String target = argv[0];
+  String key = argv[1];
+  NameRecord& nameRecord = getNameRecord(target);
+  for (int i=2; i<argc; i++) {
+    String val = "false";
+    if (nameRecord.checkProp(key,argv[i])) {
+      val = "true";
+    }
+    if (i>2) {
+      response += "\n";
+    }
+    response += "port " + target + " property " + 
+      key + " value " + argv[i] + " present " + val;
+  }
+  return response;
+}
+
+
 
 String NameServer::textify(const Address& address) {
   String result = "";
@@ -233,13 +316,15 @@ String NameServer::terminate(const String& str) {
 }
 
 
-String NameServer::apply(const String& txt) {
+String NameServer::apply(const String& txt, const Address& remote) {
   SplitString ss(txt.c_str());
   String result = "no command given";
   if (ss.size()>=2) {
-    YARP_DEBUG(Logger::get(),String("dispatching to ") + ss.get(1));
-    result = dispatcher.dispatch(this,ss.get(1),ss.size()-2,
-				 (char **)(ss.get()+2));
+    String key = ss.get(1);
+    YARP_DEBUG(Logger::get(),String("dispatching to ") + key);
+    ss.set(1,remote.getName().c_str());
+    result = dispatcher.dispatch(this,key.c_str(),ss.size()-1,
+				 (char **)(ss.get()+1));
   }
   return result;
 }
@@ -269,8 +354,14 @@ public:
     YARP_DEBUG(Logger::get(),String("name server got message ") + msg);
     int index = msg.find("NAME_SERVER");
     if (index==0) {
+      Address remote;
+      if (reader.getStreams()!=NULL) {
+	remote = reader.getStreams()->getRemoteAddress();
+      }
+      YARP_INFO(Logger::get(),String("name server receiving from ") + 
+		remote.toString());
       YARP_INFO(Logger::get(),String("name server received message: ") + msg);
-      String result = apply(msg);
+      String result = apply(msg,remote);
       OutputStream *os = reader.getReplyStream();
       if (os!=NULL) {
 	if (result=="") {

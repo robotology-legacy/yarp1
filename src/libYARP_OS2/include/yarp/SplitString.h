@@ -1,6 +1,9 @@
 #ifndef _YARP2_SPLITSTRING_
 #define _YARP2_SPLITSTRING_
 
+#include <ace/OS_NS_stdlib.h>
+#include <ace/OS_NS_string.h>
+
 namespace yarp {
   class SplitString;
 }
@@ -31,6 +34,12 @@ public:
 
   int size() {
     return argc;
+  }
+
+  void set(int index, const char *txt) {
+    if (index>=0&&index<size()) {
+      ACE_OS::strncpy(buf[index],(char*)txt,MAX_ARG_LEN);
+    }
   }
 
   const char *get(int idx) {

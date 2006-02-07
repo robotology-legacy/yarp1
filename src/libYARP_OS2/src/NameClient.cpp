@@ -132,7 +132,14 @@ String NameClient::send(const String& cmd, bool multi) {
   ip->getOutputStream().write(b);
   bool more = multi;
   while (more) {
-    String line = NetType::readLine(ip->getInputStream());
+    String line = "";
+    try {
+      line = NetType::readLine(ip->getInputStream());
+    } catch (IOException e) {
+      more = false;
+      break;
+      YARP_DEBUG(Logger::get(), e.toString() + " <<< exception from name server");
+    }
     if (line.length()>1) {
       if (line[0] == '*') {
 	more = false;
@@ -184,8 +191,12 @@ Address NameClient::registerName(const String& name, const Address& suggest) {
   Address address = probe(q);
   if (address.isValid()) {
     String reg = address.getRegName();
-    send(String("NAME_SERVER set ") + reg + " offers tcp text udp",false);
-    send(String("NAME_SERVER set ") + reg + " accepts tcp text udp",false);
+    send(String("NAME_SERVER set ") + reg + " offers tcp text udp mcast",
+	 false);
+    send(String("NAME_SERVER set ") + reg + " accepts tcp text udp mcast",
+	 false);
+    send(String("NAME_SERVER set ") + reg + " ips " + NameConfig::getIps(),
+	 false);
   }
   return address;
 }

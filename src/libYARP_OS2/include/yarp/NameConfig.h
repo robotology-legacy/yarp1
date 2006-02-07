@@ -31,6 +31,8 @@ public:
 
   String getHostName();
 
+  static String getIps();
+
   bool isLocalName(const String& name);
 
   Address getAddress();

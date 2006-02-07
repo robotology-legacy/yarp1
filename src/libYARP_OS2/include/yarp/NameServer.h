@@ -43,7 +43,11 @@ public:
 
   static int main(int argc, char *argv[]);
 
-  String apply(const String& txt);
+  String apply(const String& txt, const Address& remote);
+
+  String apply(const String& txt) {
+    return apply(txt,Address());
+  }
 
 protected:
 
@@ -266,6 +270,9 @@ protected:
   String cmdQuery(int argc, char *argv[]);
   String cmdUnregister(int argc, char *argv[]);
   String cmdHelp(int argc, char *argv[]);
+  String cmdSet(int argc, char *argv[]);
+  String cmdGet(int argc, char *argv[]);
+  String cmdCheck(int argc, char *argv[]);
 
   String textify(const Address& addr);
   String terminate(const String& str);

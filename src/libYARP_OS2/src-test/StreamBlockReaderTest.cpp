@@ -16,7 +16,7 @@ public:
     StringOutputStream sos;
     sis.add("Hello\ngood evening and welcome");
     StreamBlockReader sbr;
-    sbr.reset(sis,sos,10,true);
+    sbr.reset(sis,NULL,10,true);
     String line = sbr.expectLine();
     checkEqual(line,"Hello","one line");
   }

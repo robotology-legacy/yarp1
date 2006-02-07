@@ -2,6 +2,7 @@
 #define _YARP2_STREAMBLOCKREADER_
 
 #include <yarp/InputStream.h>
+#include <yarp/TwoWayStream.h>
 #include <yarp/BlockReader.h>
 #include <yarp/IOException.h>
 #include <yarp/NetType.h>
@@ -16,14 +17,15 @@ class yarp::StreamBlockReader : public BlockReader {
 public:
   StreamBlockReader() {
     in = NULL;
-    out = NULL;
+    str = NULL;
     messageLen = 0;
     textMode = false;
   }
 
-  void reset(InputStream& in, OutputStream& out, int len, bool textMode) {
+  void reset(InputStream& in, TwoWayStream *str, 
+	     int len, bool textMode) {
     this->in = &in;
-    this->out = &out;
+    this->str = str;
     this->messageLen = len;
     this->textMode = textMode;
   }
@@ -74,14 +76,20 @@ public:
   }
 
   virtual OutputStream *getReplyStream() {
-    YARP_ASSERT(out!=NULL);
-    return out;
+    if (str==NULL) {
+      return NULL;
+    }
+    return &(str->getOutputStream());
+  }
+
+  virtual TwoWayStream *getStreams() {
+    return str;
   }
 
 private:
 
   InputStream *in;
-  OutputStream *out;
+  TwoWayStream *str;
   int messageLen;
   bool textMode;
 };

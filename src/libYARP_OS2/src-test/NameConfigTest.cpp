@@ -14,9 +14,9 @@ public:
     NameConfig nc;
     //bool result = nc.createPath("/tmp/work/bozo/foo/namer.conf");
     String fname = nc.getConfigFileName();
-    String txt = nc.readConfig(fname);
+    //String txt = nc.readConfig(fname);
     report(0,fname);
-    report(0,txt);
+    //report(0,txt);
   }
 
   virtual void runTests() {

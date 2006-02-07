@@ -4,6 +4,7 @@
 #include <yarp/Bytes.h>
 #include <yarp/String.h>
 #include <yarp/OutputStream.h>
+#include <yarp/TwoWayStream.h>
 
 namespace yarp {
   class BlockReader;
@@ -32,6 +33,7 @@ public:
   virtual int getSize() = 0;
 
   virtual OutputStream *getReplyStream() = 0;
+  virtual TwoWayStream *getStreams() = 0;
 };
 
 #endif

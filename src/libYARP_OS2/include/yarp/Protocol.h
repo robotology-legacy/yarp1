@@ -175,7 +175,7 @@ public:
     messageLen = 0;
     YARP_ASSERT(delegate!=NULL);
     delegate->expectIndex(*this);
-    reader.reset(is(),os(),messageLen,delegate->isTextMode());
+    reader.reset(is(),&getStreams(),messageLen,delegate->isTextMode());
   }
 
   void defaultExpectIndex();
