@@ -164,6 +164,10 @@ void DgramTwoWayStream::write(const Bytes& b) {
   //YARP_DEBUG(Logger::get(),"DGRAM prep writing");
   //ACE_OS::printf("DGRAM write %d bytes\n",b.length());
 
+  if (reader) {
+    return;
+  }
+
   Bytes local = b;
   while (local.length()>0) {
     //YARP_DEBUG(Logger::get(),"DGRAM prep writing");
