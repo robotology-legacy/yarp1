@@ -1,10 +1,10 @@
-# Microsoft Developer Studio Project File - Name="libYARP_OS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="libYARP_OS2_test" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
-CFG=libYARP_OS - Win32 Debug
+CFG=libYARP_OS2_test - Win32 Release
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,7 +13,7 @@ CFG=libYARP_OS - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "libYARP_OS2_test.mak" CFG="libYARP_OS2_test - Win32 Debug"
+!MESSAGE NMAKE /f "libYARP_OS2_test.mak" CFG="libYARP_OS2_test - Win32 Release"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -99,7 +99,27 @@ SOURCE=.\BufferedBlockWriterTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ElectionTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\HeaderCompatibilityTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\NameConfigTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\NameServerTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\PortCommandTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PortCoreTest.cpp
 # End Source File
 # Begin Source File
 
@@ -123,10 +143,6 @@ SOURCE=.\StringTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\TcpFaceTest.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ThreadTest.cpp
 # End Source File
 # Begin Source File
@@ -139,7 +155,7 @@ SOURCE=.\TimeTest.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\include\yarp\String.h
+SOURCE=..\include\yarp\AbstractCarrier.h
 # End Source File
 # Begin Source File
 
@@ -147,91 +163,7 @@ SOURCE=..\include\yarp\Address.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\TcpCarrier.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Carriers.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Carrier.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Face.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Logger.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\OutputProtocol.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Bytes.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\InputProtocol.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\TcpFace.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Route.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\FakeFace.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\include\yarp\BlockReader.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\InputStream.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\OutputStream.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\IOException.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\TwoWayStream.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\StringInputStream.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\StringOutputStream.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\StreamBlockReader.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\FakeTwoWayStream.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\NetType.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Protocol.h
 # End Source File
 # Begin Source File
 
@@ -239,11 +171,7 @@ SOURCE=..\include\yarp\BlockWriter.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\ManagedBytes.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\ShiftStream.h
+SOURCE=..\include\yarp\Bottle.h
 # End Source File
 # Begin Source File
 
@@ -251,19 +179,15 @@ SOURCE=..\include\yarp\BufferedBlockWriter.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\SocketTwoWayStream.h
+SOURCE=..\include\yarp\Bytes.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\AbstractCarrier.h
+SOURCE=..\include\yarp\Carrier.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\TextCarrier.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Time.h
+SOURCE=..\include\yarp\Carriers.h
 # End Source File
 # Begin Source File
 
@@ -271,7 +195,43 @@ SOURCE=..\include\yarp\Companion.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\SizedWriter.h
+SOURCE=..\include\yarp\Face.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\FacePortManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\FakeFace.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\FakeTwoWayStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\InputConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\InputProtocol.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\InputStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\IOException.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Logger.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\ManagedBytes.h
 # End Source File
 # Begin Source File
 
@@ -279,11 +239,7 @@ SOURCE=..\include\yarp\NameClient.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\Bottle.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Portable.h
+SOURCE=..\include\yarp\NetType.h
 # End Source File
 # Begin Source File
 
@@ -291,7 +247,15 @@ SOURCE=..\include\yarp\OutputConnection.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\InputConnection.h
+SOURCE=..\include\yarp\OutputProtocol.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\OutputStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Portable.h
 # End Source File
 # Begin Source File
 
@@ -303,19 +267,7 @@ SOURCE=..\include\yarp\PortManager.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\FacePortManager.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Runnable.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Thread.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\Semaphore.h
+SOURCE=..\include\yarp\Protocol.h
 # End Source File
 # Begin Source File
 
@@ -323,7 +275,71 @@ SOURCE=..\include\yarp\Readable.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\Writable.h
+SOURCE=..\include\yarp\Route.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Runnable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Semaphore.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\ShiftStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\SizedWriter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\SocketTwoWayStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\StreamBlockReader.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\String.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\StringInputStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\StringOutputStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\TcpCarrier.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\TcpFace.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TestList.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\TextCarrier.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Thread.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Time.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\TwoWayStream.h
 # End Source File
 # Begin Source File
 
@@ -331,7 +347,7 @@ SOURCE=..\include\yarp\UnitTest.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\TestList.h
+SOURCE=..\include\yarp\Writable.h
 # End Source File
 # End Group
 # End Target

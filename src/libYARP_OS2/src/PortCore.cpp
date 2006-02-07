@@ -322,16 +322,16 @@ void PortCore::cleanUnits() {
       }
     }
     unsigned int rem = 0;
-    for (unsigned int i=0; i<units.size(); i++) {
-      if (units[i]!=NULL) {
-	if (rem<i) {
-	  units[rem] = units[i];
-	  units[i] = NULL;
+    for (unsigned int i2=0; i2<units.size(); i2++) {
+      if (units[i2]!=NULL) {
+	if (rem<i2) {
+	  units[rem] = units[i2];
+	  units[i2] = NULL;
 	}
 	rem++;
       }
     }
-    for (unsigned int i=0; i<units.size()-rem; i++) {
+    for (unsigned int i3=0; i3<units.size()-rem; i3++) {
       units.pop_back();
     }
     //YMSG(("cleanUnits: there are now %d units\n", units.size()));

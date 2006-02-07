@@ -208,7 +208,6 @@ protected:
     }
   };
 
-
   class NameRecord {
   private:
     Address address;
@@ -238,7 +237,8 @@ protected:
       ACE_Hash_Map_Entry<String,PropertyRecord> *entry = NULL;
       int result = propMap.find(key,entry);
       if (result==-1 && create) {
-	propMap.bind(key,PropertyRecord());
+		  PropertyRecord blank;
+	propMap.bind(key,blank);
 	result = propMap.find(key,entry);
 	YARP_ASSERT(result!=-1);
       }

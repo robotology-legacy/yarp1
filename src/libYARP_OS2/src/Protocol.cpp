@@ -55,7 +55,7 @@ void Protocol::defaultExpectIndex() {
     int x = NetType::netInt(number.bytes());
     total += x;
   }
-  for (int i=0; i<outLen; i++) {
+  for (int i2=0; i2<outLen; i2++) {
     int l = NetType::readFull(is(),number.bytes());
     if (l!=number.length()) {
       throw IOException("bad output block length");

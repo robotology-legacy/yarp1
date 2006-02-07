@@ -6,6 +6,7 @@
 #include <ace/Log_Msg.h>
 #include <ace/Log_Record.h>
 #include <ace/Log_Msg_Callback.h>
+#include <ace/OS_NS_stdio.h>
 
 namespace yarp {
   class Logger;

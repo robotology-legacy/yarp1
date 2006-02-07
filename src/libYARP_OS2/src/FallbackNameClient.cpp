@@ -67,7 +67,7 @@ Address FallbackNameClient::seek() {
       return seeker.getAddress();
     }
     int len = 40;
-    for (int i=0; i<len; i++) {
+    for (int i0=0; i0<len; i0++) {
       ACE_OS::fprintf(stderr,"+");
     }
     ACE_OS::fprintf(stderr,"\n");
