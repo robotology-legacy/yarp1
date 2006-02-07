@@ -7,6 +7,7 @@
 #include <yarp/NetType.h>
 #include <yarp/ManagedBytes.h>
 #include <yarp/NameConfig.h>
+#include <yarp/FallbackNameServer.h>
 
 using namespace yarp;
 
@@ -232,6 +233,17 @@ String NameServer::terminate(const String& str) {
 }
 
 
+String NameServer::apply(const String& txt) {
+  SplitString ss(txt.c_str());
+  String result = "no command given";
+  if (ss.size()>=2) {
+    YARP_DEBUG(Logger::get(),String("dispatching to ") + ss.get(1));
+    result = dispatcher.dispatch(this,ss.get(1),ss.size()-2,
+				 (char **)(ss.get()+2));
+  }
+  return result;
+}
+
 
 
 
@@ -258,13 +270,7 @@ public:
     int index = msg.find("NAME_SERVER");
     if (index==0) {
       YARP_INFO(Logger::get(),String("name server received message: ") + msg);
-      SplitString ss(msg.c_str());
-      String result = "no command given";
-      if (ss.size()>=2) {
-	YARP_DEBUG(Logger::get(),String("dispatching to ") + ss.get(1));
-	result = dispatcher.dispatch(this,ss.get(1),ss.size()-2,
-				     (char **)(ss.get()+2));
-      }
+      String result = apply(msg);
       OutputStream *os = reader.getReplyStream();
       if (os!=NULL) {
 	if (result=="") {
@@ -342,17 +348,24 @@ int NameServer::main(int argc, char *argv[]) {
 
   PortCore server;  // we use a subset of the PortCore functions
   MainNameServer name;
+  name.registerName("root",suggest);
   server.setReadHandler(name);
   server.setAutoHandshake(false);
   server.listen(Address(suggest.addRegName("root")));
   YARP_INFO(Logger::get(), String("Name server listening at ") + 
 	    suggest.toString());
   server.start();
+
+  FallbackNameServer fallback(name);
+  fallback.start();
+
   while (true) {
     YARP_DEBUG(Logger::get(),"name server running happily");
     Time::delay(60);
   }
   server.close();
+  fallback.close();
+  fallback.join();
   return 0;
 }
 

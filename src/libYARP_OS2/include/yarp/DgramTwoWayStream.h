@@ -68,7 +68,6 @@ private:
   ManagedBytes readBuffer, writeBuffer;
   int readAt, readAvail, writeAvail;
   bool happy;
-
 };
 
 #endif

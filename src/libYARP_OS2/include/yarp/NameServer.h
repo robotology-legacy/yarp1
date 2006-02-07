@@ -43,6 +43,8 @@ public:
 
   static int main(int argc, char *argv[]);
 
+  String apply(const String& txt);
+
 protected:
 
   void setup();

@@ -33,6 +33,7 @@ public:
     write(b);
     write('\n');
   }
+
 };
 
 #endif
