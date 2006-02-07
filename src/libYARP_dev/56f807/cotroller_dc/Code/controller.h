@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.27 2006-01-26 23:08:32 gmetta Exp $
+/// $Id: controller.h,v 1.28 2006-02-07 11:44:34 gmetta Exp $
 ///
 ///
 
@@ -51,10 +51,10 @@
 #define true 1
 #endif
 
-//#define VERSION 0x0111   				/* standard/basic implementation */
+#define VERSION 0x0111   				/* standard/basic implementation */
 //#define VERSION 0x0112				/* decouples shoulder first two joints */
 //#define VERSION 0x0113			   	/* decouples the third joint of the shoulder */
-#define VERSION 0x0114		    		/* feedback from the AD */
+//#define VERSION 0x0114		    		/* feedback from the AD */
 
 //#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
@@ -190,8 +190,9 @@ typedef struct canmsg_tag
 #define CAN_SET_ACTIVE_ENCODER_POSITION 71
 
 #define CAN_SET_CURRENT_LIMIT		72
+#define CAN_SET_BCAST_POLICY		73
 
-#define NUM_OF_MESSAGES				73
+#define NUM_OF_MESSAGES				74
 
 /* error status values */
 #define ERROR_NONE					0			/* no error, all ok */
@@ -199,6 +200,18 @@ typedef struct canmsg_tag
 #define ERROR_MODE					2			/* mode error, can't apply command in current mode */
 #define ERROR_FMT					3			/* format error, command in wrong format */
 #define ERROR_SEND					4			/* can't send answer back */
+
+/* 
+ * class 1 messages, broadcast 
+ * when in bcast mode, messages are sent periodically by the controller
+ *
+ */
+#define CAN_BCAST_NONE				0
+#define CAN_BCAST_POSITION			1
+#define CAN_BCAST_VELOCITY			2
+#define CAN_BCAST_ACCELERATION		3
+#define CAN_BCAST_CURRENT			4
+#define CAN_BCAST_MAX_MSGS			5
 
 /* */
 
@@ -222,6 +235,7 @@ byte writeToFlash (word addr);
 byte readFromFlash (word addr);
 void generatePwm (byte i);
 Int32 step_velocity (byte jj);
+void can_send_broadcast(void);
 
 void print_can (byte data[], byte len, char c);
 void print_can_error (CAN1_TError *e);

@@ -786,6 +786,18 @@
 		_general_board_error = ERROR_FMT; \
 }
 
+#define CAN_SET_BCAST_POLICY_HANDLER(x) \
+{ \
+	int i = CHANNEL(CAN_DATA[0]); \
+	if (CAN_LEN == 5) \
+	{ \
+		_broadcast_mask = BYTE_C(CAN_DATA[1], CAN_DATA[2], CAN_DATA[3], CAN_DATA[4]); \
+		_general_board_error = ERROR_NONE; \
+	} \
+	else \
+		_general_board_error = ERROR_FMT; \
+}
+
 /* end of messages */
 #endif
 

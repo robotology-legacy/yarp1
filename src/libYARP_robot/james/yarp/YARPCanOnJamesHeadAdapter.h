@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.5 2006-01-27 18:16:27 gmetta Exp $
+/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.6 2006-02-07 11:44:34 gmetta Exp $
 ///
 ///
 
@@ -46,7 +46,8 @@
 
 #ifdef YARP_ROBOTCUB_HEAD_ADAPTER_VERBOSE
 #define YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_DEBUG("ROBOTCUB_HEAD_ADAPTER_DEBUG:", string)
-#else  YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#else  
+#define YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 #define MY_DEBUG \
@@ -495,6 +496,10 @@ public:
 		op_par._njoints = _parameters->_nj;
 		op_par._p = _parameters->_p;
 
+		// before opening the device driver, I play a little trick here
+		// until I finished debugging the new broadcast feature.
+		m_cmds[CMDGetPositions] = &YARPEsdCanDeviceDriver::getBCastPositions;
+
 		if (YARPEsdCanDeviceDriver::open ((void *)&op_par) < 0)
 		{
 			YARPEsdCanDeviceDriver::close();
@@ -505,7 +510,7 @@ public:
 		int msg = _parameters->_message_filter;
 		IOCtl(CMDSetDebugMessageFilter, (void *)&msg);
 
-		for(int i=0; i < _parameters->_nj; i++)
+		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			int actual_axis = _parameters->_axis_map[i];
 			SingleAxisParameters cmd;
@@ -577,6 +582,14 @@ public:
 			// sets the current limit on each joint according to the configuration file.
 			cmd.parameters = &_parameters->_currentLimits[i];
 			IOCtl(CMDSetCurrentLimit, &cmd);
+
+			// sets the broadcast messages for each card.
+			if (!(i % 2))
+			{
+				double tmp = double(0x12);	/// 0x12 activates position and current consumption broadcast.
+				cmd.parameters = &tmp;
+				IOCtl (CMDSetBCastMsgs, &cmd);
+			}
 		}
 
 		_initialized = true;

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.13 2006-01-27 10:53:16 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.14 2006-02-07 11:44:34 gmetta Exp $
 ///
 ///
 
@@ -50,6 +50,37 @@
 #define BUF_SIZE 2047
 
 typedef int (*PV) (const char *fmt, ...);
+
+///
+///
+///
+class BCastBufferElement
+{
+public:
+	int _position;
+	double _update_p;
+	short _velocity;
+	double _update_v;
+	short _acceleration;
+	double _update_a;
+	short _current;
+	double _update_c;
+
+	BCastBufferElement () { zero (); }
+
+	void zero (void)
+	{
+		_position = 0;
+		_velocity = 0;
+		_acceleration = 0;
+		_current = 0;
+		_update_p = .0;
+		_update_v = .0;
+		_update_a = .0;
+		_update_c = .0;
+	}
+};
+
 
 ///
 ///
@@ -96,6 +127,8 @@ public:
 	CMSG _writeBuffer[BUF_SIZE];				/// write buffer.
 	CMSG _replyBuffer[BUF_SIZE];				/// reply buffer.
 
+	BCastBufferElement *_bcastRecvBuffer;		/// local storage for bcast messages.
+
 	unsigned char _my_address;					/// 
 	unsigned char _destinations[ESD_MAX_CARDS];	/// list of connected cards (and their addresses).
 	int _njoints;								/// number of joints (ncards * 2).
@@ -130,6 +163,8 @@ EsdCanResources::EsdCanResources ()
 	_readMessages = 0;
 	_msg_lost = 0;
 	_writeMessages = 0;
+	_bcastRecvBuffer = NULL;
+
 	_error_status = YARP_OK;
 }
 
@@ -166,6 +201,9 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 	_txTimeout = parms._txTimeout;
 	_rxTimeout = parms._rxTimeout;
 
+	_bcastRecvBuffer = new BCastBufferElement[_njoints];
+	ACE_ASSERT (_bcastRecvBuffer != NULL);
+
 	/// clean up buffers.
 	memset (_readBuffer, 0, sizeof(CMSG)*BUF_SIZE);
 	memset (_writeBuffer, 0, sizeof(CMSG)*BUF_SIZE);
@@ -197,6 +235,8 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 
 int EsdCanResources::uninitialize ()
 {
+	if (_bcastRecvBuffer != NULL) delete[] _bcastRecvBuffer;
+
 	if (_handle != ACE_INVALID_HANDLE)
 	{
 		int res = canClose (_handle);
@@ -394,6 +434,12 @@ YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void)
 	m_cmds[CMDSetCurrentLimit] = &YARPEsdCanDeviceDriver::setCurrentLimit;
 	m_cmds[CMDSetCurrentLimits] = &YARPEsdCanDeviceDriver::setCurrentLimits;
 
+	m_cmds[CMDSetBCastMsgs] = &YARPEsdCanDeviceDriver::setBCastMessages;
+	m_cmds[CMDGetBCastPositions] = &YARPEsdCanDeviceDriver::getBCastPositions;
+	m_cmds[CMDGetBCastVelocities] = &YARPEsdCanDeviceDriver::getBCastVelocities;
+	m_cmds[CMDGetBCastAccelerations] = &YARPEsdCanDeviceDriver::getBCastAccelerations;
+	m_cmds[CMDGetBCastCurrents] = &YARPEsdCanDeviceDriver::getBCastCurrents;
+
 	m_cmds[CMDSetDebugMessageFilter] = &YARPEsdCanDeviceDriver::setDebugMessageFilter;
 	m_cmds[CMDSetDebugPrintFunction] = &YARPEsdCanDeviceDriver::setDebugPrintFunction;
 
@@ -494,6 +540,95 @@ void YARPEsdCanDeviceDriver::Body (void)
 			if (r._p) 
 				(*r._p) ("CAN: read failed\n");
 
+		// handle broadcast messages.
+		// (class 1, 8 bits of the ID used to define the message type and source address).
+		//
+		for (i = 0; i < r._readMessages; i++)
+		{
+			CMSG& m = r._readBuffer[i];
+			if (m.len & NTCAN_NO_DATA)
+				if (r._p)
+				{
+					(*r._p) ("CAN: error in message %x len: %d type: %x: %x\n",
+							m.id, m.len, m.data[0], m.msg_lost);
+						continue;
+				}
+
+			if ((m.id & 0x700) == 0x100) // class = 1.
+			{
+				// 4 next bits = source address, next 4 bits = msg type
+				// this allows sending two 32-bit numbers is a single CAN message.
+				//
+				// need an array here for storing the messages on a per-joint basis.
+
+				const int addr = ((m.id & 0x0f0) >> 4);
+				int j;
+				for (j = 0; j < ESD_MAX_CARDS; j++)
+				{
+					if (r._destinations[j] == addr)
+						break;
+				}
+
+				j *= 2;
+
+				/* less sign nibble specifies msg type */
+				switch (m.id & 0x00f)
+				{
+				case CAN_BCAST_POSITION:
+					r._bcastRecvBuffer[j]._position = *((int *)(m.data));
+					r._bcastRecvBuffer[j]._update_p = before;
+					j++;
+					if (j < r.getJoints())
+					{
+						r._bcastRecvBuffer[j]._position = *((int *)(m.data+4));
+						r._bcastRecvBuffer[j]._update_p = before;
+					}
+					break;
+
+				case CAN_BCAST_VELOCITY:
+					r._bcastRecvBuffer[j]._velocity = *((short *)(m.data));
+					r._bcastRecvBuffer[j]._update_v = before;
+					j++;
+					if (j < r.getJoints())
+					{
+						r._bcastRecvBuffer[j]._velocity = *((short *)(m.data+2));
+						r._bcastRecvBuffer[j]._update_v = before;
+					}
+					break;
+
+				case CAN_BCAST_ACCELERATION:
+					r._bcastRecvBuffer[j]._acceleration = *((short *)(m.data));
+					r._bcastRecvBuffer[j]._update_a = before;
+					j++;
+					if (j < r.getJoints())
+					{
+						r._bcastRecvBuffer[j]._acceleration = *((short *)(m.data+2));
+						r._bcastRecvBuffer[j]._update_a = before;
+					}
+					break;
+
+				case CAN_BCAST_CURRENT:
+					r._bcastRecvBuffer[j]._current = *((short *)(m.data));
+					r._bcastRecvBuffer[j]._update_c = before;
+					j++;
+					if (j < r.getJoints())
+					{
+						r._bcastRecvBuffer[j]._current = *((short *)(m.data+2));
+						r._bcastRecvBuffer[j]._update_c = before;
+					}
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+
+		//
+		// handle class 0 messages - polling messages.
+		// (class 0, 8 bits of the ID used to represent the source and destination).
+		// the first byte of the message is the message type and motor number (0 or 1).
+		//
 		if (messagePending)
 		{
 			for (i = 0; i < r._readMessages; i++)
@@ -1421,6 +1556,74 @@ int YARPEsdCanDeviceDriver::checkMotionDone (void *cmd)
 	return YARP_OK;
 }
 
+
+/// sets the broadcast policy for a given board (don't need to be called twice).
+/// the parameter is a 32-bit integer: bit X = 1 -> message X = active
+/// e.g. 0x02 activates the broadcast of position information
+///		 0x04 activates the broadcast of velocity ...
+///
+int YARPEsdCanDeviceDriver::setBCastMessages (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+
+	return _writeDWord (CAN_SET_BCAST_POLICY, axis, S_32(*((double *)tmp->parameters)));
+}
+
+///
+/// reads an array of double from the broadcast message position buffer.
+/// LATER: add a check of timing/error message.
+///
+int YARPEsdCanDeviceDriver::getBCastPositions (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	double *tmp = (double *)cmd;
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = double(r._bcastRecvBuffer[i]._position);
+	}
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastVelocities (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	double *tmp = (double *)cmd;
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = double(r._bcastRecvBuffer[i]._velocity);
+	}
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastAccelerations (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	double *tmp = (double *)cmd;
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = double(r._bcastRecvBuffer[i]._acceleration);
+	}
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastCurrents (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	double *tmp = (double *)cmd;
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = double(r._bcastRecvBuffer[i]._current);
+	}
+	return YARP_OK;
+}
+
+
 ///
 /// helper functions.
 ///
@@ -1693,13 +1896,10 @@ int YARPEsdCanDeviceDriver::_readDWordArray (int msg, double *out)
 	}
 
 	if (r._writeMessages < 1)
-
 	{
-
 		_mutex.Post();
 		return YARP_FAIL;
 	}
-
 
 	_writerequested = true;
 	_noreply = false;

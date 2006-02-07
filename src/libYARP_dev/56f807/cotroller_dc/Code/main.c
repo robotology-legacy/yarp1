@@ -83,12 +83,15 @@ Int16 _counter = 0;						/* used to count cycles, it resets now and then */
 Int16 _flash_addr = 0;
 byte _write_buffer = 0;					/* the current CAN bus buffer, buffers alternate */
 
-word _current[JN] = { 0, 0};			/* current through the transistors*/
-word _current_old[JN] = { 0, 0};		/* current at t-1*/
-dword _filt_current[JN] = { 0, 0};      /* filtered current through the transistors*/
-dword _filt_current_old[JN] = { 0, 0};  /* filtered current at t-1*/
+word _current[JN] = { 0, 0 };			/* current through the transistors*/
+word _current_old[JN] = { 0, 0 };		/* current at t-1*/
+dword _filt_current[JN] = { 0, 0 };     /* filtered current through the transistors*/
+dword _filt_current_old[JN] = { 0, 0 }; /* filtered current at t-1*/
 dword _limit_current[JN] = { 4000000, 4000000 }; 
 										/* limit on the current in micro-ampere*/
+										
+dword _broadcast_mask = 0;				/* specifies which broadcast messages are to be sent */
+
 float _conversion_factor[JN] = { 0f, 0f };	/* limit on the current as set by the interface (later converted into the filter parameter) */
 
 /*
@@ -506,6 +509,73 @@ void can_send_request(void)
 }
 #endif
 
+/* send broadcast messages according to mask */
+void can_send_broadcast(void)
+{
+	if (!_broadcast_mask)
+		return;
+	
+	if ((_broadcast_mask & 0x02) && _counter == 0)
+	{
+		_canmsg.CAN_messID = 0x100;
+		_canmsg.CAN_messID |= (_board_ID) << 4;
+		_canmsg.CAN_messID |= 0x001;
+
+		_canmsg.CAN_data[0] = BYTE_4(_position[0]);
+		_canmsg.CAN_data[1] = BYTE_3(_position[0]);
+		_canmsg.CAN_data[2] = BYTE_2(_position[0]);
+		_canmsg.CAN_data[3] = BYTE_1(_position[0]);
+		_canmsg.CAN_data[0] = BYTE_4(_position[1]);
+		_canmsg.CAN_data[1] = BYTE_3(_position[1]);
+		_canmsg.CAN_data[2] = BYTE_2(_position[1]);
+		_canmsg.CAN_data[3] = BYTE_1(_position[1]);
+			
+		_canmsg.CAN_length = 8;
+		_canmsg.CAN_frameType = DATA_FRAME;
+		if (CAN1_sendFrame (1, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data) != ERR_OK)
+			AS1_printStringEx("send err\r\n");
+	}
+
+	if ((_broadcast_mask & 0x04) && _counter == 1)
+	{
+		_canmsg.CAN_messID = 0x100;
+		_canmsg.CAN_messID |= (_board_ID) << 4;
+		_canmsg.CAN_messID |= 0x002;
+
+		_canmsg.CAN_data[0] = BYTE_H(_speed[0]);
+		_canmsg.CAN_data[1] = BYTE_L(_speed[0]);
+		_canmsg.CAN_data[2] = BYTE_H(_speed[1]);
+		_canmsg.CAN_data[3] = BYTE_L(_speed[1]);
+			
+		_canmsg.CAN_length = 4;
+		_canmsg.CAN_frameType = DATA_FRAME;
+		if (CAN1_sendFrame (1, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data) != ERR_OK)
+			AS1_printStringEx("send err\r\n");
+	}
+	
+	if ((_broadcast_mask & 0x08) && _counter == 2)
+	{
+		/* nothing to do yet: LATER: send acceleration */ 
+	}
+	
+	if ((_broadcast_mask & 0x10) && _counter == 3)
+	{
+		_canmsg.CAN_messID = 0x100;
+		_canmsg.CAN_messID |= (_board_ID) << 4;
+		_canmsg.CAN_messID |= 0x004;
+
+		_canmsg.CAN_data[0] = BYTE_H(_current[0]);
+		_canmsg.CAN_data[1] = BYTE_L(_current[0]);
+		_canmsg.CAN_data[2] = BYTE_H(_current[1]);
+		_canmsg.CAN_data[3] = BYTE_L(_current[1]);
+			
+		_canmsg.CAN_length = 4;
+		_canmsg.CAN_frameType = DATA_FRAME;
+		if (CAN1_sendFrame (1, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data) != ERR_OK)
+			AS1_printStringEx("send err\r\n");		
+	}
+}
+
 /* defined by the linker */
 extern _data_ROM2_addr;
 asm int get_flash_addr (void)
@@ -723,6 +793,7 @@ void main(void)
 
 		/* do extra functions, communicate, etc. */
 		/* LATER */
+		can_send_broadcast();
 		
 		/* tells that the control cycle is completed */
 		_wait = true;	
@@ -1015,6 +1086,7 @@ byte can_interface (void)
 			HANDLE_MSG (CAN_SET_TLIM, CAN_SET_TLIM_HANDLER)
 			HANDLE_MSG (CAN_GET_TLIM, CAN_GET_TLIM_HANDLER)
 			HANDLE_MSG (CAN_SET_CURRENT_LIMIT, CAN_SET_CURRENT_LIMIT_HANDLER)
+			HANDLE_MSG (CAN_SET_BCAST_POLICY, CAN_SET_BCAST_POLICY_HANDLER)
 			HANDLE_MSG (CAN_GET_ERROR_STATUS, CAN_GET_ERROR_STATUS_HANDLER)
 
 			HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)

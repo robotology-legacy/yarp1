@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesArmAdapter.h,v 1.5 2006-01-27 18:16:27 gmetta Exp $
+/// $Id: YARPCanOnJamesArmAdapter.h,v 1.6 2006-02-07 11:44:34 gmetta Exp $
 ///
 ///
 
@@ -46,7 +46,8 @@
 
 #ifdef YARP_ROBOTCUB_ARM_ADAPTER_VERBOSE
 #define YARP_ROBOTCUB_ARM_ADAPTER_DEBUG(string) YARP_DEBUG("ROBOTCUB_ARM_ADAPTER_DEBUG:", string)
-#else  YARP_ROBOTCUB_ARM_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#else  
+#define YARP_ROBOTCUB_ARM_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 /**

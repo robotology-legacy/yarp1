@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.7 2006-01-18 10:32:21 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.8 2006-02-07 11:44:34 gmetta Exp $
 ///
 ///
 
@@ -173,6 +173,12 @@ protected:
 	int checkMotionDone (void *cmd);
 	int setCurrentLimit (void *cmd);
 	int setCurrentLimits (void *cmd);
+	
+	int setBCastMessages (void *cmd);
+	int getBCastPositions (void *cmd);
+	int getBCastVelocities (void *cmd);
+	int getBCastAccelerations (void *cmd);
+	int getBCastCurrents (void *cmd);
 
 	int setDebugMessageFilter (void *cmd);
 	int setDebugPrintFunction (void *cmd);
