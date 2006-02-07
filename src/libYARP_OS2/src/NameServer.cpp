@@ -91,8 +91,28 @@ Address NameServer::registerName(const String& name,
 
 
 Address NameServer::queryName(const String& name) {
-  NameRecord *rec = getNameRecord(name,false);
+  String base = name;
+  String pat = "";
+  if (name.strstr("/net=") == 0) {
+    int patStart = 5;
+    int patEnd = name.find('/',patStart);
+    if (patEnd>=patStart) {
+      pat = name.substr(patStart,patEnd-patStart);
+      base = name.substr(patEnd);
+      YARP_DEBUG(Logger::get(),String("Special query form ") +
+		 name + " (" + pat + "/" + base + ")");
+    }
+  }
+
+  NameRecord *rec = getNameRecord(base,false);
   if (rec!=NULL) {
+    if (pat!="") {
+      String ip = rec->matchProp("ips",pat);
+      if (ip!="") {
+	SplitString sip(ip.c_str());
+	return (rec->getAddress()).addName(sip.get(0));
+      }
+    }
     return rec->getAddress();
   }
   return Address();

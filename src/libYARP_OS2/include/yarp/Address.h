@@ -157,6 +157,10 @@ public:
     return Address(name,port,carrier,regName);
   }
 
+  Address addName(const String& name) const {
+    return Address(name,port,carrier,regName);
+  }
+
   bool hasRegName() const {
     return regName != "";
   }
