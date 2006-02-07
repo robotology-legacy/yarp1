@@ -237,7 +237,7 @@ protected:
       ACE_Hash_Map_Entry<String,PropertyRecord> *entry = NULL;
       int result = propMap.find(key,entry);
       if (result==-1 && create) {
-		  PropertyRecord blank;
+	PropertyRecord blank;
 	propMap.bind(key,blank);
 	result = propMap.find(key,entry);
 	YARP_ASSERT(result!=-1);
