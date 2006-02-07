@@ -158,6 +158,8 @@ void NameServer::setup() {
   dispatcher.add("set", &NameServer::cmdSet);
   dispatcher.add("get", &NameServer::cmdGet);
   dispatcher.add("check", &NameServer::cmdCheck);
+  dispatcher.add("match", &NameServer::cmdMatch);
+  dispatcher.add("list", &NameServer::cmdList);
 }
 
 String NameServer::cmdRegister(int argc, char *argv[]) {
@@ -270,6 +272,22 @@ String NameServer::cmdGet(int argc, char *argv[]) {
     nameRecord.getProp(key);
 }
 
+String NameServer::cmdMatch(int argc, char *argv[]) {
+  // ignore source
+  argc--;
+  argv++;
+
+  if (argc<3) {
+    return "need exactly three arguments: the port name, a key, and a prefix";
+  }
+  String target = argv[0];
+  String key = argv[1];
+  String prefix = argv[2];
+  NameRecord& nameRecord = getNameRecord(target);
+  return String("port ") + target + " property " + key + " = " +
+    nameRecord.matchProp(key,prefix);
+}
+
 String NameServer::cmdCheck(int argc, char *argv[]) {
   // ignore source
   argc--;
@@ -294,6 +312,18 @@ String NameServer::cmdCheck(int argc, char *argv[]) {
       key + " value " + argv[i] + " present " + val;
   }
   return response;
+}
+
+
+String NameServer::cmdList(int argc, char *argv[]) {
+  String response = "";
+
+  for (NameMapHash::iterator it = nameMap.begin(); it!=nameMap.end(); it++) {
+    NameRecord& rec = (*it).int_id_;
+    response += textify(rec.getAddress());
+  }
+
+  return terminate(response);
 }
 
 

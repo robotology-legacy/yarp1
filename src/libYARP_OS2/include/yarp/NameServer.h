@@ -183,6 +183,19 @@ protected:
       return false;
     }
 
+    String match(const String& str) {
+      String base = "";
+      bool needSpace = false;
+      for (unsigned int i=0; i<prop.size(); i++) {
+	if (prop[i].strstr(str)==0) {
+	  if (needSpace) base += " ";
+	  base += prop[i];
+	  needSpace = true;
+	}
+      }
+      return base;
+    }
+
     String toString() {
       String base = "";
       for (unsigned int i=0; i<prop.size(); i++) {
@@ -259,6 +272,14 @@ protected:
       return false;
     }
 
+    String matchProp(const String& key, const String& val) {
+      PropertyRecord *rec = getPR(key,false);
+      if (rec!=NULL) {
+	return rec->match(val);
+      }
+      return "";
+    }
+
   };
 
 
@@ -273,12 +294,16 @@ protected:
   String cmdSet(int argc, char *argv[]);
   String cmdGet(int argc, char *argv[]);
   String cmdCheck(int argc, char *argv[]);
+  String cmdMatch(int argc, char *argv[]);
+  String cmdList(int argc, char *argv[]);
 
   String textify(const Address& addr);
   String terminate(const String& str);
 
 
-  ACE_Hash_Map_Manager<String,NameRecord,ACE_Null_Mutex> nameMap;
+  typedef ACE_Hash_Map_Manager<String,NameRecord,ACE_Null_Mutex> NameMapHash;
+
+  NameMapHash nameMap;
   ACE_Hash_Map_Manager<String,HostRecord,ACE_Null_Mutex> hostMap;
   McastRecord mcastRecord;
   DisposableNameRecord tmpNames;
