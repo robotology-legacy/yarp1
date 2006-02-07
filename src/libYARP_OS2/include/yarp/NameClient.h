@@ -81,7 +81,7 @@ public:
     return extractAddress(result);
   }
 
-  Address extractAddress(const String& txt);
+  static Address extractAddress(const String& txt);
 
   String send(const String& cmd, bool multi = true);
 

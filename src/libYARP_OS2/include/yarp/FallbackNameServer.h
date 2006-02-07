@@ -23,7 +23,7 @@ public:
   virtual void run();
   virtual void close();
 
-  const Address& getAddress() {
+  static const Address& getAddress() {
     return mcastLastResort;
   }
 

@@ -4,6 +4,7 @@
 #include <yarp/NetType.h>
 #include <yarp/NameServer.h>
 #include <yarp/NameConfig.h>
+#include <yarp/FallbackNameClient.h>
 
 using namespace yarp;
 
@@ -109,8 +110,22 @@ String NameClient::send(const String& cmd, bool multi) {
   TcpFace face;
   OutputProtocol *ip = face.write(getAddress());
   if (ip==NULL) {
-    ACE_OS::fprintf(stderr,"no connection to nameserver\n");
-    return "";
+    YARP_INFO(Logger::get(),"no connection to nameserver, scanning mcast");
+    Address alt = FallbackNameClient::seek();
+    if (alt.isValid()) {
+      NameConfig nc;
+      nc.setAddress(alt);
+      nc.toFile();
+      address = alt;
+      ip = face.write(getAddress());
+      if (ip==NULL) {
+	YARP_ERROR(Logger::get(),
+		   "no connection to nameserver, scanning mcast");
+	return "";
+      }
+    } else {
+      return "";
+    }
   }
   String cmdn = cmd + "\n";
   Bytes b((char*)cmdn.c_str(),cmdn.length());
@@ -205,11 +220,12 @@ NameServer& NameClient::getServer() {
 
 NameClient::NameClient() {
   NameConfig conf;
+  address = Address();
   if (conf.fromFile()) {
     address = conf.getAddress();
   } else {
     YARP_ERROR(Logger::get(),"Cannot find name server");
-    address = Address("localhost",10000);
+    //address = Address("localhost",10000);
   }
   YARP_DEBUG(Logger::get(),String("name server address is ") + 
 	     address.toString());
