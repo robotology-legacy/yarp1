@@ -218,7 +218,6 @@ int Companion::cmdRegression(int argc, char *argv[]) {
 
 
 int Companion::cmdServer(int argc, char *argv[]) {
-  ACE_OS::fprintf(stderr,"no server available yet, really... faking it\n");
   return NameServer::main(argc,argv);
 }
 

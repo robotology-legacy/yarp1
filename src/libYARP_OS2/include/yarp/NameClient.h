@@ -97,10 +97,7 @@ public:
 
 
 private:
-  NameClient() : address("localhost",10000) { 
-    fake = false;
-    fakeServer = NULL;
-  }
+  NameClient();
 
   NameClient(const NameClient& nic) {
     // make sure no-one tries to do this accidentally

@@ -3,6 +3,7 @@
 #include <yarp/TcpFace.h>
 #include <yarp/NetType.h>
 #include <yarp/NameServer.h>
+#include <yarp/NameConfig.h>
 
 using namespace yarp;
 
@@ -202,3 +203,16 @@ NameServer& NameClient::getServer() {
 
 
 
+NameClient::NameClient() {
+  NameConfig conf;
+  if (conf.fromFile()) {
+    address = conf.getAddress();
+  } else {
+    YARP_ERROR(Logger::get(),"Cannot find name server");
+    address = Address("localhost",10000);
+  }
+  YARP_DEBUG(Logger::get(),String("name server address is ") + 
+	     address.toString());
+  fake = false;
+  fakeServer = NULL;
+}

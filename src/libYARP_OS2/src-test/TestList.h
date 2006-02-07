@@ -24,6 +24,7 @@ extern yarp::UnitTest& getNameServerTest();
 extern yarp::UnitTest& getPortCoreTest();
 extern yarp::UnitTest& getHeaderCompatibilityTest();
 extern yarp::UnitTest& getElectionTest();
+extern yarp::UnitTest& getNameConfigTest();
 
 class yarp::TestList {
 public:
@@ -44,6 +45,7 @@ public:
     root.add(getPortCoreTest());
     root.add(getHeaderCompatibilityTest());
     root.add(getElectionTest());
+    root.add(getNameConfigTest());
   }
 };
 
