@@ -3,6 +3,7 @@
 
 #include <yarp/Logger.h>
 #include <yarp/Time.h>
+#include <yarp/NetType.h>
 
 #include <ace/SOCK_Dgram_Mcast.h>
 
@@ -135,8 +136,8 @@ int DgramTwoWayStream::read(const Bytes& b) {
     YARP_ASSERT(dgram!=NULL);
     YARP_DEBUG(Logger::get(),"DGRAM Waiting for something!");
     int result =
-      dgram->recv(readBuffer.get(),readBuffer.length(),dummy,1);
-    YARP_DEBUG(Logger::get(),"DGRAM Got something!");
+      dgram->recv(readBuffer.get(),readBuffer.length(),dummy);
+    YARP_DEBUG(Logger::get(),String("DGRAM Got something! ") + NetType::toString(result));
     if (closed) { return -1; }
     if (result<0) {
       happy = false;

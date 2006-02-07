@@ -20,7 +20,9 @@ void FallbackNameServer::run() {
   YARP_DEBUG(Logger::get(),"Fallback server running");
   while (listen.isOk()&&send.isOk()&&!closed) {
     YARP_DEBUG(Logger::get(),"Fallback server waiting");
-    String msg = NetType::readLine(listen);
+    String msg;
+	try {
+		msg = NetType::readLine(listen);
     YARP_DEBUG(Logger::get(),"Fallback server got something");
     if (listen.isOk()&&!closed) {
       YARP_DEBUG(Logger::get(),String("Fallback server got ") + msg);
@@ -31,6 +33,9 @@ void FallbackNameServer::run() {
 	send.flush();
       }
     }
+	} catch (IOException e) {
+		YARP_DEBUG(Logger::get(),e.toString() + " <<< fallback exception");
+	}
   }
 }
 

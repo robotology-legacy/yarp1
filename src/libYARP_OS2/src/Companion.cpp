@@ -416,6 +416,9 @@ int Companion::write(const char *name, int ntargets, char *targets[]) {
       // TODO: add longer strings together
       
       if (!(cin.bad()||cin.eof())) {
+		  if (buf[0]<32) {
+			  break;  // for example, horrible windows ^D
+		  }
 	Bottle bot;
 	bot.addInt(0);
 	bot.addString(buf);
