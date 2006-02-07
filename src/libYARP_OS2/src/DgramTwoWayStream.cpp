@@ -56,12 +56,15 @@ void DgramTwoWayStream::join(const Address& group, bool sender) {
   }
 
   ACE_SOCK_Dgram_Mcast *dmcast = new ACE_SOCK_Dgram_Mcast;
+
+  //possible flags: ((ACE_SOCK_Dgram_Mcast::options)(ACE_SOCK_Dgram_Mcast::OPT_NULLIFACE_ALL | ACE_SOCK_Dgram_Mcast::OPT_BINDADDR_YES));
+
   dgram = dmcast;
   YARP_ASSERT(dgram!=NULL);
   YARP_DEBUG(Logger::get(),String("subscribing to mcast address ") + 
 	     group.toString());
   ACE_INET_Addr addr(group.getPort(),group.getName().c_str());
-  int result = dmcast->subscribe(addr,1);
+  int result = dmcast->join(addr,1);
   if (result!=0) {
     throw IOException("cannot connect to multi-cast address");
   }

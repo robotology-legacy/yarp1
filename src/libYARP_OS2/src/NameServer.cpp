@@ -437,6 +437,7 @@ public:
 
 
 int NameServer::main(int argc, char *argv[]) {
+  try {
 
   // pick an address
   Address suggest("...",0); // suggestion is initially empty
@@ -507,6 +508,14 @@ int NameServer::main(int argc, char *argv[]) {
   server.close();
   fallback.close();
   fallback.join();
+
+  } catch (IOException e) {
+    YARP_DEBUG(Logger::get(),e.toString() + " <<< name server exception");
+    YARP_ERROR(Logger::get(), "name server failed");
+    return 1;
+  }
+
+
   return 0;
 }
 
