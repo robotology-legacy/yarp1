@@ -57,7 +57,7 @@ void DgramTwoWayStream::join(const Address& group, bool sender) {
 
   ACE_SOCK_Dgram_Mcast *dmcast = new ACE_SOCK_Dgram_Mcast;
   dgram = dmcast;
-  assert(dgram!=NULL);
+  YARP_ASSERT(dgram!=NULL);
   YARP_DEBUG(Logger::get(),String("subscribing to mcast address ") + 
 	     group.toString());
   ACE_INET_Addr addr(group.getPort(),group.getName().c_str());
