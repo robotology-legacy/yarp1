@@ -21,7 +21,7 @@ void DgramTwoWayStream::open(const Address& local, const Address& remote) {
   localAddress = local;
   remoteAddress = remote;
 
-  localHandle = ACE_INET_Addr(localAddress.getPort());
+  localHandle = ACE_INET_Addr(localAddress.getPort(),INADDR_ANY);
   if (remote.isValid()) {
     remoteHandle.set(remoteAddress.getPort(),remoteAddress.getName().c_str());
   }
@@ -32,7 +32,8 @@ void DgramTwoWayStream::open(const Address& local, const Address& remote) {
     throw IOException("could not open datagram socket");
   }
   dgram->get_local_addr(localHandle);
-  localAddress = Address(localHandle.get_host_addr(),
+  YARP_DEBUG(Logger::get(),String("starting DGRAM entity on port number ") + NetType::toString(localHandle.get_port_number()));
+  localAddress = Address("127.0.0.1",
 			 localHandle.get_port_number());
   YARP_DEBUG(Logger::get(),String("Update: DGRAM from ") + 
 	     localAddress.toString() + 
@@ -137,7 +138,7 @@ int DgramTwoWayStream::read(const Bytes& b) {
     YARP_ASSERT(dgram!=NULL);
     YARP_DEBUG(Logger::get(),"DGRAM Waiting for something!");
     int result =
-      dgram->recv(readBuffer.get(),readBuffer.length(),dummy,1);
+      dgram->recv(readBuffer.get(),readBuffer.length(),dummy);
     YARP_DEBUG(Logger::get(),String("DGRAM Got something! ") + NetType::toString(result));
     if (closed||result<0) {
       happy = false;
