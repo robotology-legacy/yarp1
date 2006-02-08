@@ -512,6 +512,8 @@ void can_send_request(void)
 /* send broadcast messages according to mask */
 void can_send_broadcast(void)
 {
+	int iretval; 
+	
 	if (!_broadcast_mask)
 		return;
 	
@@ -519,16 +521,16 @@ void can_send_broadcast(void)
 	{
 		_canmsg.CAN_messID = 0x100;
 		_canmsg.CAN_messID |= (_board_ID) << 4;
-		_canmsg.CAN_messID |= 0x001;
+		_canmsg.CAN_messID |= CAN_BCAST_POSITION;
 
 		_canmsg.CAN_data[0] = BYTE_4(_position[0]);
 		_canmsg.CAN_data[1] = BYTE_3(_position[0]);
 		_canmsg.CAN_data[2] = BYTE_2(_position[0]);
 		_canmsg.CAN_data[3] = BYTE_1(_position[0]);
-		_canmsg.CAN_data[0] = BYTE_4(_position[1]);
-		_canmsg.CAN_data[1] = BYTE_3(_position[1]);
-		_canmsg.CAN_data[2] = BYTE_2(_position[1]);
-		_canmsg.CAN_data[3] = BYTE_1(_position[1]);
+		_canmsg.CAN_data[4] = BYTE_4(_position[1]);
+		_canmsg.CAN_data[5] = BYTE_3(_position[1]);
+		_canmsg.CAN_data[6] = BYTE_2(_position[1]);
+		_canmsg.CAN_data[7] = BYTE_1(_position[1]);
 			
 		_canmsg.CAN_length = 8;
 		_canmsg.CAN_frameType = DATA_FRAME;
@@ -538,9 +540,10 @@ void can_send_broadcast(void)
 
 	if ((_broadcast_mask & 0x04) && _counter == 1)
 	{
+		/* LATER: add acceleration to the same message */
 		_canmsg.CAN_messID = 0x100;
 		_canmsg.CAN_messID |= (_board_ID) << 4;
-		_canmsg.CAN_messID |= 0x002;
+		_canmsg.CAN_messID |= CAN_BCAST_VELOCITY;
 
 		_canmsg.CAN_data[0] = BYTE_H(_speed[0]);
 		_canmsg.CAN_data[1] = BYTE_L(_speed[0]);
@@ -555,21 +558,27 @@ void can_send_broadcast(void)
 	
 	if ((_broadcast_mask & 0x08) && _counter == 2)
 	{
-		/* nothing to do yet: LATER: send acceleration */ 
+		/* nothing to do yet: LATER: send the PID error */ 
 	}
 	
 	if ((_broadcast_mask & 0x10) && _counter == 3)
 	{
 		_canmsg.CAN_messID = 0x100;
 		_canmsg.CAN_messID |= (_board_ID) << 4;
-		_canmsg.CAN_messID |= 0x004;
+		_canmsg.CAN_messID |= CAN_BCAST_CURRENT;
 
 		_canmsg.CAN_data[0] = BYTE_H(_current[0]);
 		_canmsg.CAN_data[1] = BYTE_L(_current[0]);
 		_canmsg.CAN_data[2] = BYTE_H(_current[1]);
 		_canmsg.CAN_data[3] = BYTE_L(_current[1]);
+		iretval = getReg (PWMA_PMFSA);
+		_canmsg.CAN_data[4] = BYTE_H(iretval);
+		_canmsg.CAN_data[5] = BYTE_L(iretval);
+		iretval = getReg (PWMB_PMFSA);
+		_canmsg.CAN_data[6] = BYTE_H(iretval);
+		_canmsg.CAN_data[7] = BYTE_L(iretval);
 			
-		_canmsg.CAN_length = 4;
+		_canmsg.CAN_length = 8;
 		_canmsg.CAN_frameType = DATA_FRAME;
 		if (CAN1_sendFrame (1, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data) != ERR_OK)
 			AS1_printStringEx("send err\r\n");		

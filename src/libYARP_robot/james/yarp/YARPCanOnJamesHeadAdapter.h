@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.6 2006-02-07 11:44:34 gmetta Exp $
+/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.7 2006-02-08 16:59:24 babybot Exp $
 ///
 ///
 
@@ -497,7 +497,7 @@ public:
 		op_par._p = _parameters->_p;
 
 		// before opening the device driver, I play a little trick here
-		// until I finished debugging the new broadcast feature.
+		// to replace the getPosition with the broadcast version.
 		m_cmds[CMDGetPositions] = &YARPEsdCanDeviceDriver::getBCastPositions;
 
 		if (YARPEsdCanDeviceDriver::open ((void *)&op_par) < 0)
@@ -584,7 +584,7 @@ public:
 			IOCtl(CMDSetCurrentLimit, &cmd);
 
 			// sets the broadcast messages for each card.
-			if (!(i % 2))
+			if (!(actual_axis % 2))
 			{
 				double tmp = double(0x12);	/// 0x12 activates position and current consumption broadcast.
 				cmd.parameters = &tmp;
@@ -602,6 +602,23 @@ public:
 	 */
 	int uninitialize()
 	{
+		int i;
+		for (i = 0; i < _parameters->_nj; i++)
+		{
+			int actual_axis = _parameters->_axis_map[i];
+
+			// sets the broadcast messages for each card.
+			if (!(actual_axis % 2))
+			{
+				SingleAxisParameters cmd;
+				cmd.axis = actual_axis;
+
+				double tmp = double(0x0);	/// 0x0 deactivates broadcast messages.
+				cmd.parameters = &tmp;
+				IOCtl (CMDSetBCastMsgs, &cmd);
+			}			
+		}
+
 		if (YARPEsdCanDeviceDriver::close() != 0)
 			return YARP_FAIL;
 

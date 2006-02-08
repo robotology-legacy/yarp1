@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.14 2006-02-07 11:44:34 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.15 2006-02-08 16:59:24 babybot Exp $
 ///
 ///
 
@@ -64,6 +64,7 @@ public:
 	short _acceleration;
 	double _update_a;
 	short _current;
+	short _fault;
 	double _update_c;
 
 	BCastBufferElement () { zero (); }
@@ -74,6 +75,7 @@ public:
 		_velocity = 0;
 		_acceleration = 0;
 		_current = 0;
+		_fault = 0;
 		_update_p = .0;
 		_update_v = .0;
 		_update_a = .0;
@@ -221,11 +223,14 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 		return YARP_FAIL;
 	}
 
-	/// sets all message ID's.
+	/// sets all message ID's for class 0 and 1.
 	int i;
 	for (i = 0; i < 0xff; i++)
 		canIdAdd (_handle, i);
 	
+	for (i = 0x100; i < 0x1ff; i++)
+		canIdAdd (_handle, i);
+
 	//canIdAdd (_handle, 0x1bc);
 	//canIdAdd (_handle, 0x1cb);
 
@@ -588,32 +593,29 @@ void YARPEsdCanDeviceDriver::Body (void)
 				case CAN_BCAST_VELOCITY:
 					r._bcastRecvBuffer[j]._velocity = *((short *)(m.data));
 					r._bcastRecvBuffer[j]._update_v = before;
+					r._bcastRecvBuffer[j]._acceleration = *((short *)(m.data+4));
 					j++;
 					if (j < r.getJoints())
 					{
 						r._bcastRecvBuffer[j]._velocity = *((short *)(m.data+2));
 						r._bcastRecvBuffer[j]._update_v = before;
+						r._bcastRecvBuffer[j]._acceleration = *((short *)(m.data+6));
 					}
 					break;
 
-				case CAN_BCAST_ACCELERATION:
-					r._bcastRecvBuffer[j]._acceleration = *((short *)(m.data));
-					r._bcastRecvBuffer[j]._update_a = before;
-					j++;
-					if (j < r.getJoints())
-					{
-						r._bcastRecvBuffer[j]._acceleration = *((short *)(m.data+2));
-						r._bcastRecvBuffer[j]._update_a = before;
-					}
+				case CAN_BCAST_PIDERROR:
 					break;
 
 				case CAN_BCAST_CURRENT:
+					// also receives the fault bits.
 					r._bcastRecvBuffer[j]._current = *((short *)(m.data));
+					r._bcastRecvBuffer[j]._fault = *((short *)(m.data+4));
 					r._bcastRecvBuffer[j]._update_c = before;
 					j++;
 					if (j < r.getJoints())
 					{
 						r._bcastRecvBuffer[j]._current = *((short *)(m.data+2));
+						r._bcastRecvBuffer[j]._fault = *((short *)(m.data+6));
 						r._bcastRecvBuffer[j]._update_c = before;
 					}
 					break;
@@ -1623,6 +1625,20 @@ int YARPEsdCanDeviceDriver::getBCastCurrents (void *cmd)
 	return YARP_OK;
 }
 
+int YARPEsdCanDeviceDriver::getBCastFaults (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	short *tmp = (short *)cmd;
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = short(r._bcastRecvBuffer[i]._fault);
+	}
+	return YARP_OK;
+}
+
+///
+/// int YARPEsdCanDeviceDriver::getBCastPidError (void *cmd)
 
 ///
 /// helper functions.
