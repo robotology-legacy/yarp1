@@ -89,6 +89,23 @@ In YARP1, the programmer chose the communication protocol when creating
 a port.  In YARP2, this is a run-time property.  You can type:
 
   yarp connect /source /target udp
+or
+  yarp connect /source udp://target
+
+to say that the connection to /target should use UDP.
+
+In YARP1, the programmer chose the communication protocol when creating
+a port.  In YARP2, this is a run-time property.  You can type:
+
+  yarp connect /source udp://net=127/target
+
+(or any unambiguous prefix like net=127.0.0.1, net=127.0 and so on)
+to say that the connection to /target should be on the 127.0.0.1 network
+interface.
+
+You can also "log on" to ports and the name server, and rummage around
+in them -- see the specification document.
+
 
 ===============================================================================
 
