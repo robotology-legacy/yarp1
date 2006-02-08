@@ -123,3 +123,147 @@ give a little bit of YARPPort support.  YARP1 headers need to be available
 for this to compile and run.
 
 ===============================================================================
+
+IMPLEMENTATION OF PORTS AND CONNECTIONS
+
+What are all these strange classes?  Carriers, Connections, Ports?
+This section works through examples that are ONLY of interest
+to developers and NOT users of the library.
+
+
+CASE 1: Creating an output connection
+=====================================
+
+Suppose you want to communicate with an input port "/read" from your
+code, and do it from scratch, using the implementation classes.
+
+First thing you need to do is find the address of that port,
+if you don't already know it.
+
+   #include <yarp/NameClient.h>
+   using namespace yarp;
+   ...
+
+   // get a client for talking to the yarp name server
+   NameClient& nc = NameClient::getNameClient()
+   Address addr = nc.queryName("/read");
+   if (!addr.isValid()) { /* failure */ }
+
+Once you have an address, you can connect as follows:
+
+   #include <yarp/Carriers.h>
+   ...
+
+   OutputProtocol *out = Carriers::connect(addr);
+   if (out == NULL) { /* failure */ }
+
+Do you want to talk in tcp, mcast, udp, ...?  Pick one.
+And pick a name to call yourself, say "external".
+Then complete setting up the connection with:
+
+   out->open(Route("external","/read","tcp"));
+
+Now you can start to send some data.  For example,
+a bottle message.
+
+   #include <yarp/PortCommand.h>
+   #include <yarp/Bottle.h>
+   ...
+
+   PortCommand pc('d',""); // data tag
+   Bottle bot;
+   bot.addInt(0);
+   bot.addString("hello");
+   BufferedBlockWriter writer(false);
+   pc.writeBlock(writer);
+   bot.writeBlock(writer);
+   out->write(writer);
+
+This will tell the receiving port that the message is "data",
+and then pass the bottle content to it.  Now let's
+close our connection:
+
+   out->close();
+   delete out;
+
+The only class mentioned here that knows about specific protocols
+is "Carriers".
+
+
+
+CASE 2: Creating an input connection
+====================================
+
+The above example relied on having a port on the receiving end.
+We could make a crude approximation to handle just this
+single connection as follows.
+
+First, we decide on an address to use.  We can let the
+name server decide that instead:
+
+   #include <yarp/NameClient.h>
+   using namespace yarp;
+   ...
+
+   // get a client for talking to the yarp name server
+   NameClient& nc = NameClient::getNameClient()
+   Address addr = nc.registerName("/read");
+   if (!addr.isValid()) { /* failure */ }
+
+This will allocate an address for us if one doesn't already exist.
+Now we can acquire a "Face", an object that will listen on that
+address:
+
+   #include <yarp/Carriers.h>
+   ...
+
+   Face *face = Carriers::listen(addr);
+   if (face == NULL) { /* failure */ }
+
+The Face will generally be a TcpFace, which listens to a 
+specified socket.  We could have requested a particular kind
+of protocol in our call to registerName.
+
+Now, we read from the Face, which will sit and wait for a connection:
+
+   InputProtocol *in = face->read();
+   if (in == NULL) { /* failure */ }
+
+Once we've got something, we need to initialize the connection as
+follows:
+
+   in->open("/read");
+
+We pass along the name we've registered with.  This done, we can
+start to actually read data.  Real ports are quite flexible in
+what they read; we'll just deal with the output from Case 1 above:
+
+
+   #include <yarp/PortCommand.h>
+   #include <yarp/Bottle.h>
+   ...
+
+   PortCommand pc;
+   Bottle bot;
+   BlockReader& reader = in->beginRead();
+   pc.readBlock(reader);
+   bot.readBlock(reader);
+   in->endRead();
+
+Now pc and bot should have the values chosen by the sender in Case 1.
+Now we can close everything down:
+
+   in->close();
+   delete in;
+   face->close();
+   delete face;
+
+Note that we did not implement a full YARP2 compliant port this way.
+The easiest way to do that is this way:
+
+   PortCore core;
+   core.listen(addr);
+   core.start();
+
+===============================================================================
+
