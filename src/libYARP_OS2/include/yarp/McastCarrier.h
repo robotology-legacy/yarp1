@@ -101,7 +101,6 @@ public:
 
   virtual void becomeMcast(Protocol& proto, bool sender) {
     ACE_UNUSED_ARG(sender);
-    YARP_ERROR(Logger::get(),"MCAST is very experimental, and should not work yet...");
     DgramTwoWayStream *stream = new DgramTwoWayStream();
     YARP_ASSERT(stream!=NULL);
     Address remote = proto.getStreams().getRemoteAddress();
