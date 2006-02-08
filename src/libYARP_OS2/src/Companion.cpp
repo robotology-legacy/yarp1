@@ -165,20 +165,24 @@ int Companion::sendMessage(const String& port, Writable& writable,
 
 
 int Companion::cmdConnect(int argc, char *argv[]) {
-  if (argc!=2) {
-    ACE_OS::fprintf(stderr, "Currently must have two arguments, a sender port and receiver port\n");
+  if (argc<2||argc>3) {
+    ACE_OS::fprintf(stderr, "Currently must have two/three arguments, a sender port and receiver port (and an optional protocol)\n");
     return 1;
   }
 
   const char *src = argv[0];
-  const char *dest = argv[1];
-  return connect(src,dest);
+  String dest = argv[1];
+  if (argc>=3) {
+    const char *proto = argv[2];
+    dest = String(proto) + ":/" + slashify(dest);
+  }
+  return connect(src,dest.c_str());
 }
 
 
 int Companion::cmdDisconnect(int argc, char *argv[]) {
   if (argc!=2) {
-    ACE_OS::fprintf(stderr, "Currently must have two arguments, a sender port and receiver port\n");
+    ACE_OS::fprintf(stderr, "Must have two arguments, a sender port and receiver port\n");
     return 1;
   }
 

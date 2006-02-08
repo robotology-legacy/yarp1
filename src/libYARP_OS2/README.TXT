@@ -80,6 +80,15 @@ Here we give the new equivalents of the command-line interface to yarp:
 
   "yarp-write /write [/read]" ....... "yarp write /write [/read]"
 
+You need to have the name server running somewhere on your system,
+as in YARP1.  If you don't set up a configuration file saying where
+it is, or if that file is inaccurate, other programs using yarp
+will scan for it using multi-cast.
+
+In YARP1, the programmer chose the communication protocol when creating
+a port.  In YARP2, this is a run-time property.  You can type:
+
+  yarp connect /source /target udp
 
 ===============================================================================
 
