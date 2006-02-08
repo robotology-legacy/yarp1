@@ -126,6 +126,7 @@ int DgramTwoWayStream::read(const Bytes& b) {
   reader = true;
 
   if (closed) { 
+    happy = false;
     return -1; 
   }
 
@@ -136,10 +137,9 @@ int DgramTwoWayStream::read(const Bytes& b) {
     YARP_ASSERT(dgram!=NULL);
     YARP_DEBUG(Logger::get(),"DGRAM Waiting for something!");
     int result =
-      dgram->recv(readBuffer.get(),readBuffer.length(),dummy);
+      dgram->recv(readBuffer.get(),readBuffer.length(),dummy,1);
     YARP_DEBUG(Logger::get(),String("DGRAM Got something! ") + NetType::toString(result));
-    if (closed) { return -1; }
-    if (result<0) {
+    if (closed||result<0) {
       happy = false;
       return result;
     }
