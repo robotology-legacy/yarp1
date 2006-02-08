@@ -10,6 +10,9 @@ namespace yarp {
   class InputProtocol;
 }
 
+/**
+ * The output side of an active connection between two ports.
+ */
 class yarp::OutputProtocol {
 public:
   // all can throw IOException

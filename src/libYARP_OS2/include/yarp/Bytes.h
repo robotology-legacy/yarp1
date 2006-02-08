@@ -7,6 +7,11 @@ namespace yarp {
 }
 
 
+/**
+ * A simple abstraction for a block of bytes.  This class is not
+ * responsible for allocating or destroying those bytes, just
+ * recording their location.
+ */
 class yarp::Bytes {
 public:
   Bytes() {

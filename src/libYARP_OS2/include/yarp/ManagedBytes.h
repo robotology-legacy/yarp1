@@ -8,6 +8,10 @@ namespace yarp {
   class ManagedBytes;
 }
 
+/**
+ * An abstraction for a block of bytes, with optional
+ * responsibility for allocating/destroying that block.
+ */
 class yarp::ManagedBytes {
 public:
   ManagedBytes() {

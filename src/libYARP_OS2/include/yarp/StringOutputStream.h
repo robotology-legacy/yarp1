@@ -8,6 +8,9 @@ namespace yarp {
   class StringOutputStream;
 }
 
+/**
+ * An OutputStream that produces a String.  For testing purposes.
+ */
 class yarp::StringOutputStream : public OutputStream {
 public:
   using OutputStream::write;

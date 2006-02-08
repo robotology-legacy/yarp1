@@ -8,6 +8,9 @@ namespace yarp {
   class Name;
 }
 
+/**
+ * Simple abstraction for a YARP name.
+ */
 class yarp::Name {
 public:
   Name(const String& txt);

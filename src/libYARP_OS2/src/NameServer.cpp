@@ -383,6 +383,8 @@ String NameServer::apply(const String& txt, const Address& remote) {
 
 
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 class MainNameServer : public NameServer, public Readable {
 public:
   virtual void readBlock(BlockReader& reader) {
@@ -434,6 +436,10 @@ public:
     }
   }
 };
+
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 
 
 int NameServer::main(int argc, char *argv[]) {

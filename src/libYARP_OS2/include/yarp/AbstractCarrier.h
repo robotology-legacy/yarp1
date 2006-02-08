@@ -8,6 +8,10 @@ namespace yarp {
   class AbstractCarrier;
 }
 
+/**
+ * A starter class for implementing simple carriers.
+ * It implements reasonable default behavior.
+ */
 class yarp::AbstractCarrier : public Carrier {
 public:
 

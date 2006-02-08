@@ -13,6 +13,9 @@ namespace yarp {
   class NetType;
 }
 
+/**
+ * Various utilities related to types and formats.
+ */
 class yarp::NetType {
 public:
 

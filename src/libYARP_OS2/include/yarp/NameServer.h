@@ -16,8 +16,8 @@ namespace yarp {
   class NameServer;
 }
 
-/*
-  Implementation of a YARP2-conforming name server.
+/**
+ * Implementation of a YARP2-conforming name server.
  */
 class yarp::NameServer {
 public:
@@ -49,7 +49,7 @@ public:
     return apply(txt,Address());
   }
 
-protected:
+private:
 
   void setup();
 
@@ -297,9 +297,6 @@ protected:
   String cmdMatch(int argc, char *argv[]);
   String cmdList(int argc, char *argv[]);
 
-  String textify(const Address& addr);
-  String terminate(const String& str);
-
 
   typedef ACE_Hash_Map_Manager<String,NameRecord,ACE_Null_Mutex> NameMapHash;
 
@@ -325,6 +322,12 @@ protected:
   }
 
   Dispatcher<NameServer,String> dispatcher;
+
+protected:
+
+  String textify(const Address& addr);
+  String terminate(const String& str);
+
 
 };
 

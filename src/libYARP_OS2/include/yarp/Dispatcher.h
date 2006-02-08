@@ -13,6 +13,9 @@ namespace yarp {
   template <class T, class RET> class Dispatcher;
 }
 
+/**
+ * Dispatch to named methods based on string input.
+ */
 template <class T, class RET>
 class yarp::Dispatcher {
 private:

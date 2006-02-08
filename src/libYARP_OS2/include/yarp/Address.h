@@ -10,7 +10,9 @@ namespace yarp {
 }
 
 /**
- * An abstraction for a location within the YARP network.  This may be
+ * An abstraction for a location within the YARP network.
+ * Should contain all the information need to connection
+ * to that location from a peer.  This is currently
  * just a hostname, a port number, and the network protocol.
  * This may need to be extended for other systems, e.g. QNX.
  *

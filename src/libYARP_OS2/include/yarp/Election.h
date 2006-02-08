@@ -11,8 +11,13 @@ namespace yarp {
   template <class T> class ElectionOf;
 }
 
+/**
+ * Pick one of a set of peers to be "active".  Used for situations
+ * where a manager is required for some resource used by several
+ * peers, but it doesn't matter which peer plays that role.
+ */
 class yarp::Election {
-protected:
+private:
   typedef void *voidPtr;
 
   class PeerRecord {
@@ -59,6 +64,9 @@ public:
   long getEventCount();
 };
 
+/**
+ * Type-safe wrapper for the Election class.
+ */
 template <class T>
 class yarp::ElectionOf : protected Election {
 public:

@@ -16,7 +16,7 @@ namespace yarp {
 }
 
 /**
- * One of the few classes that actually is in direct contact with the network
+ * Communicating with a port via TCP.
  */
 class yarp::TcpFace : public Face {
 public:

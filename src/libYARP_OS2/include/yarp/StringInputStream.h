@@ -9,9 +9,8 @@ namespace yarp {
 }
 
 /**
- * This class is just for testing purposes
+ * An InputStream that reads from String.  For testing purposes.
  */
-
 class yarp::StringInputStream : public InputStream {
 public:
   using InputStream::read;

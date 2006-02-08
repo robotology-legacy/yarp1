@@ -5,6 +5,9 @@ namespace yarp {
   class Time;
 }
 
+/**
+ * Services related to time -- delay, current time.
+ */
 class yarp::Time {
 public:
   static void delay(double seconds);

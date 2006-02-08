@@ -5,6 +5,9 @@ namespace yarp {
   class Runnable;
 }
 
+/**
+ * A class that can be managed by a Thread object.
+ */
 class yarp::Runnable {
 public:
   virtual ~Runnable() {}

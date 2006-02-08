@@ -7,6 +7,9 @@ namespace yarp {
   class Semaphore;
 }
 
+/**
+ * A semaphore abstraction for mutual exclusion and resource management.
+ */
 class yarp::Semaphore {
 public:
   Semaphore(int initialCount = 1) : sema(initialCount) {

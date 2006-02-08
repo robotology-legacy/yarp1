@@ -7,6 +7,10 @@ namespace yarp {
   class Writable;
 }
 
+/**
+ * Specification of minimal operations an object must support to
+ * be writable from a port.
+ */
 class yarp::Writable {
 public:
   virtual ~Writable() {}

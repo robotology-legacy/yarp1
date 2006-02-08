@@ -7,6 +7,9 @@ namespace yarp {
   class IOException;
 }
 
+/**
+ * General communication error.
+ */
 class yarp::IOException {
 public:
   IOException(const char *txt = NULL) {

@@ -11,6 +11,9 @@ namespace yarp {
   class Thread;
 }
 
+/**
+ * An abstraction for a thread of executation.
+ */
 class yarp::Thread : public Runnable {
 public:
   Thread();

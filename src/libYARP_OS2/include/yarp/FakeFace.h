@@ -7,6 +7,9 @@ namespace yarp {
   class FakeFace;
 }
 
+/**
+ * A dummy Face for testing purposes.
+ */
 class yarp::FakeFace : public Face {
 public:
   virtual void open(const Address& address);

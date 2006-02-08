@@ -12,6 +12,9 @@ namespace yarp {
   class PortManager;
 }
 
+/**
+ * Specification of minimal operations a port must support.
+ */
 class yarp::PortManager {
 public:
   PortManager() {

@@ -9,6 +9,9 @@ namespace yarp {
   class UdpCarrier;
 }
 
+/**
+ * Communicating between two ports via UDP.
+ */
 class yarp::UdpCarrier : public AbstractCarrier {
 public:
 

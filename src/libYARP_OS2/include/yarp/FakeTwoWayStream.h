@@ -11,9 +11,7 @@ namespace yarp {
 
 
 /**
- * This class is used for testing.
- * It provides a fake two way stream.
- * Override apply to make stuff happen - default is echo. 
+ * A dummy two way stream for testing purposes.
  */
 class yarp::FakeTwoWayStream : public TwoWayStream {
 public:

@@ -10,6 +10,10 @@ namespace yarp {
   class PortCoreOutputUnit;
 }
 
+/**
+ * Manager for a single output from a port.  Associated
+ * with a PortCore object.
+ */
 class yarp::PortCoreOutputUnit : public PortCoreUnit {
 public:
   // specifically for managing input connections

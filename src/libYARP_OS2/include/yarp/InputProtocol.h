@@ -12,6 +12,9 @@ namespace yarp {
   class OutputProtocol;
 }
 
+/**
+ * The input side of an active connection between two ports.
+ */
 class yarp::InputProtocol {
 public:
   virtual ~InputProtocol() {}

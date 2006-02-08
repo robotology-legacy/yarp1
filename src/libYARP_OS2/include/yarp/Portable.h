@@ -8,6 +8,9 @@ namespace yarp {
   class Portable;
 }
 
+/**
+ * Readable and Writable.
+ */
 class yarp::Portable : public Readable, public Writable {
 public:
   virtual void readBlock(BlockReader& reader) = 0;

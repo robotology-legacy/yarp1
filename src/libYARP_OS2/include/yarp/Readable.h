@@ -7,6 +7,10 @@ namespace yarp {
   class Readable;
 }
 
+/**
+ * Specification of minimal operations an object must support to
+ * be readable from a port.
+ */
 class yarp::Readable {
 public:
   virtual ~Readable() { }

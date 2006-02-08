@@ -15,6 +15,9 @@ namespace yarp {
   class SocketTwoWayStream;
 }
 
+/**
+ * A stream abstraction for socket communication.  It supports TCP.
+ */
 class yarp::SocketTwoWayStream : public TwoWayStream, 
 	    InputStream, OutputStream {
 public:

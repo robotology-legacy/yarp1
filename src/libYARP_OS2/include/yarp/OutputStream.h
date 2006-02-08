@@ -8,6 +8,10 @@ namespace yarp {
   class OutputStream;
 }
 
+/**
+ * Simple specification of the minimum functions needed from output streams.
+ * The streams could be TCP, UDP, MCAST, ...
+ */
 class yarp::OutputStream {
 public:
 

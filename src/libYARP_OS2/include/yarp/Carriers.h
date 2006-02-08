@@ -15,9 +15,7 @@ namespace yarp {
 }
 
 /**
- *
- * The Carriers class is the starting point for all communication.
- *
+ * This class is the starting point for all communication.
  */
 class yarp::Carriers {
 public:

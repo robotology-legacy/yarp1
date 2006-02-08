@@ -9,6 +9,9 @@ namespace yarp {
   class Face;
 }
 
+/**
+ * A way to communicate with a port.
+ */
 class yarp::Face {
 public:
   virtual ~Face() {} // destructors must be virtual

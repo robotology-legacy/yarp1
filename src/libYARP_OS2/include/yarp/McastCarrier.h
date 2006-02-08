@@ -13,6 +13,9 @@ namespace yarp {
   class McastCarrier;
 }
 
+/**
+ * Communicating between two ports via MCAST.
+ */
 class yarp::McastCarrier : public UdpCarrier {
 protected:
   Address mcastAddress;

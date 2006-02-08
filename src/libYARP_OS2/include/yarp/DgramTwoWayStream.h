@@ -11,6 +11,10 @@ namespace yarp {
   class DgramTwoWayStream;
 }
 
+/**
+ * A stream abstraction for datagram communication.  It supports UDP and
+ * MCAST.  This class is not concerned with making the stream reliable.
+ */
 class yarp::DgramTwoWayStream : public TwoWayStream, public InputStream, public OutputStream {
 
 public:

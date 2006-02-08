@@ -9,6 +9,9 @@ namespace yarp {
   class TcpCarrier;
 }
 
+/**
+ * Communicating between two ports via TCP.
+ */
 class yarp::TcpCarrier : public AbstractCarrier {
 public:
 

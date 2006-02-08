@@ -13,6 +13,11 @@ namespace yarp {
   class StreamBlockReader;
 }
 
+
+/**
+ * Lets Readable objects read from the underlying InputStream
+ * associated with the connection between two ports.
+ */
 class yarp::StreamBlockReader : public BlockReader {
 public:
   StreamBlockReader() {

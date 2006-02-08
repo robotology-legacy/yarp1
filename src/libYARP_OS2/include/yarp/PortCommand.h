@@ -8,6 +8,9 @@ namespace yarp {
   class PortCommand;
 }
 
+/**
+ * Simple Readable and Writable object representing a command to a YARP port.
+ */
 class yarp::PortCommand : public Portable {
 public:
 

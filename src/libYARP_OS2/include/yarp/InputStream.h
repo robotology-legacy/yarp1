@@ -7,6 +7,10 @@ namespace yarp {
   class InputStream;
 }
 
+/**
+ * Simple specification of the minimum functions needed from input streams.
+ * The streams could be TCP, UDP, MCAST, ...
+ */
 class yarp::InputStream {
 public:
   InputStream() {

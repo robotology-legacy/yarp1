@@ -9,14 +9,14 @@ namespace yarp {
 }
 
 
-/*
-  Old class for splitting string based on spaces - should update it
- */
-
 #define MAX_ARG_CT (20)
 #define MAX_ARG_LEN (256)
 
 
+/**
+ * Split a string into pieces.
+ * This class is a bit crufty, and should be replaced.
+ */
 class yarp::SplitString {
 private:
   int argc;

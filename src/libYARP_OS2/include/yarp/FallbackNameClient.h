@@ -9,6 +9,10 @@ namespace yarp {
   class FallbackNameClient;
 }
 
+/**
+ * A client for the FallbackNameServer class.  Provides a last-resort
+ * means of searching for the name server.
+ */
 class yarp::FallbackNameClient : public Thread {
 public:
   FallbackNameClient() {

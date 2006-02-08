@@ -7,6 +7,11 @@ namespace yarp {
   class Route;
 }
 
+/**
+ * Information about a connection between two ports.
+ * Contains the names of the endpoints, and the name of 
+ * the carrier in use between them.
+ */
 class yarp::Route {
 public:
   Route() {}

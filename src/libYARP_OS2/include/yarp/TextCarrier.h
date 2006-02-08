@@ -7,6 +7,9 @@ namespace yarp {
   class TextCarrier;
 }
 
+/**
+ * Communicating between two ports via a plain-text protocol.
+ */
 class yarp::TextCarrier : public TcpCarrier {
 public:
 

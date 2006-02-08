@@ -9,6 +9,9 @@ namespace yarp {
   class TwoWayStream;
 }
 
+/**
+ * An object containing an InputStream + OutputStream pair.
+ */
 class yarp::TwoWayStream {
 public:
   virtual ~TwoWayStream() {

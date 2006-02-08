@@ -14,6 +14,9 @@ namespace yarp {
   class BufferedBlockWriter;
 }
 
+/**
+ * A helper for creating cached object descriptions.
+ */
 class yarp::BufferedBlockWriter : public BlockWriter, public SizedWriter {
 public:
 
