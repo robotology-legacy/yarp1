@@ -104,6 +104,15 @@ private:
   static int sendMessage(const String& port, Writable& writable, 
 			 bool silent = false);
 
+  static String slashify(const String& src) {
+    if (src.length()>0) {
+      if (src[0] == '/') {
+	return src;
+      }
+    }
+    return String("/") + src;
+  }
+
   class Entry {
   public:
     String name;

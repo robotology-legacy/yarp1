@@ -313,7 +313,7 @@ int Companion::cmdCheck(int argc, char *argv[]) {
 
 
 int Companion::connect(const char *src, const char *dest, bool silent) {
-  PortCommand pc('\0',dest);
+  PortCommand pc('\0',slashify(dest));
   return sendMessage(src,pc,silent);
 }
 
