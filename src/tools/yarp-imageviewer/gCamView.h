@@ -82,6 +82,7 @@ void setOptionsToDefault();
 bool openPorts();
 void closePorts();
 void setUp();
+void cleanExit();
 
 //-------------------------------------------------
 // Global Variables

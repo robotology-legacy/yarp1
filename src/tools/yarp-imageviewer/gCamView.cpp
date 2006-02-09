@@ -39,15 +39,7 @@ static gboolean delete_event( GtkWidget *widget, GdkEvent *event, gpointer data 
     // This is useful for popping up 'are you sure you want to quit?'
     // type dialogs. 
 
-	g_source_remove (timeout_ID);
-	timeout_ID = 0;
-	closePorts();
-	if (_options.saveOnExit != 0)
-		saveOptFile(_options.fileName);
-	if (frame)
-		g_object_unref(frame);
-	// Exit from application
-	gtk_main_quit ();
+	cleanExit();
 
 	return TRUE;
 
@@ -109,7 +101,7 @@ static gint expose_CB (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 
 static gint menuFileQuit_CB(GtkWidget *widget, gpointer data)
 {
-	gtk_widget_destroy (mainWindow);
+	cleanExit();
  
 	return TRUE;
 }
@@ -485,10 +477,8 @@ void updateStatusbar (GtkStatusbar  *statusbar)
   float fps;
   fps = 1000 / float(_options.refreshTime);
  
-  gtk_statusbar_pop (statusbar, 0); /* clear any previous message, 
-				     * underflow is allowed 
-				     */
-
+  gtk_statusbar_pop (statusbar, 0); // clear any previous message, underflow is allowed 
+				    
   msg = g_strdup_printf ("%s - %.1f fps",_options.portName, fps);
 
   gtk_statusbar_push (statusbar, 0, msg);
@@ -524,14 +514,12 @@ GtkWidget* createMainWindow(void)
 	// Drawing Area : here the image will be drawed
 	da = gtk_drawing_area_new ();
 	g_signal_connect (da, "expose_event", G_CALLBACK (expose_CB), NULL);
-	/*
 	if (_options.outputEnabled == 1)
 	{
 		g_signal_connect (da, "button_press_event", G_CALLBACK (clickDA_CB), NULL);
 		// Ask to receive events the drawing area doesn't normally subscribe to
 		gtk_widget_set_events (da, gtk_widget_get_events (da) | GDK_BUTTON_PRESS_MASK);
 	}
-	*/
 	gtk_box_pack_start(GTK_BOX(box), da, TRUE, TRUE, 0);
 	// StatusBar for main window
 	statusbar = gtk_statusbar_new ();
@@ -757,7 +745,7 @@ bool openPorts()
 	}
 	if (_options.outputEnabled == 1)
 	{
-		/*
+		
 		_pOutPort = new YARPOutputPortOf<YARPBottle>(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 		g_print("Registering port %s on network %s...\n", _options.outPortName, _options.outNetworkName);
 		res = _pOutPort->Register(_options.outPortName, _options.outNetworkName);
@@ -768,7 +756,6 @@ bool openPorts()
 			g_print("ERROR: Port registration failed.\nQuitting, sorry.\n");
 			return false;
 		}
-		*/
 	}
 
 	return true;
@@ -816,6 +803,19 @@ void setUp()
 		ACE_OS::exit(1);
 	
 	_inputImg.Resize(_options.windWidth, _options.windHeight);
+}
+
+void cleanExit()
+{
+	g_source_remove (timeout_ID);
+	timeout_ID = 0;
+	closePorts();
+	if (_options.saveOnExit != 0)
+		saveOptFile(_options.fileName);
+	if (frame)
+		g_object_unref(frame);
+	// Exit from application
+	gtk_main_quit ();
 }
 
 //-------------------------------------------------
