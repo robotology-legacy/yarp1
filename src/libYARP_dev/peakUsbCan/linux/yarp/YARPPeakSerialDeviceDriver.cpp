@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.9 2005-11-10 20:11:13 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.10 2006-02-09 22:01:02 natta Exp $
 ///
 ///
 /// June 05 -- by nat
@@ -186,7 +186,7 @@ int YARPPeakSerialDeviceDriver::setPid(void *cmd)
   LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
   int value = ( ((int) pid->KP & 0x00007FFF)); //prevent overflow, make always > 0
 
-  ret = _writeWord(CAN_SET_PID, axis, value);
+  ret = _writeWord(CAN_SET_PID, axis, value, CAN_REPLY_NO_CHECK);
 
   return ret;
 }
@@ -201,9 +201,17 @@ int YARPPeakSerialDeviceDriver::getPositions(void *cmd)
   //  fprintf(stderr, "B");
   //fprintf(stderr, "%.2lf %.2lf %.2lf %.2lf\n", tmp[0], tmp[1], tmp[2], tmp[3]);
   if (ret == YARP_FAIL)
-    return YARP_FAIL;
+    {
+      fprintf(stderr, "YARPPeakSerialDD::CAN_READ_POSITIONS_0TO3 returned error\n");
+      return YARP_FAIL;
+    }
   //  fprintf(stderr, "C");
   ret = _readU16Vector(CAN_READ_POSITIONS_4TO5, tmp+3, 3, CAN_REPLY_POSITIONS2);
+  if (ret == YARP_FAIL)
+    {
+      fprintf(stderr, "YARPPeakSerialDD::CAN_READ_POSITIONS_4TO5 returned error\n");
+    }
+
   //  fprintf(stderr, " %.2lf %.2lf\n", tmp[4], tmp[5]);
   return ret;
 }
@@ -355,7 +363,10 @@ int YARPPeakSerialDeviceDriver::getTorque(void *cmd)
 
   ret = _readS16Vector(CAN_READ_TORQUES_0TO2, _tmpDouble, 3, CAN_REPLY_NO_CHECK);
   if (ret == YARP_FAIL)
-    return YARP_FAIL;
+    {
+      
+      return YARP_FAIL;
+    }
 
   ret = _readS16Vector(CAN_READ_TORQUES_3TO5, _tmpDouble+3, 3, CAN_REPLY_NO_CHECK);
 	
@@ -373,7 +384,10 @@ int YARPPeakSerialDeviceDriver::getTorques(void *cmd)
 
   ret = _readS16Vector(CAN_READ_TORQUES_0TO2, tmp, 3, CAN_REPLY_TORQUES1);
   if (ret == YARP_FAIL)
-    return YARP_FAIL;
+    {
+      fprintf(stderr, "YARPPeakSerialDD::CAN_READ_TORQUES_0TO2 returned error\n");
+      return YARP_FAIL;
+    }
 
   ret = _readS16Vector(CAN_READ_TORQUES_3TO5, tmp+3, 3, CAN_REPLY_TORQUES2);
 

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.h,v 1.6 2005-11-10 20:11:13 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.h,v 1.7 2006-02-09 22:01:02 natta Exp $
 ///
 ///
 /// Implements device driver for the Peak usb to can board. The driver
@@ -123,9 +123,10 @@ class YARPPeakSerialDeviceDriver :
   int _readU16Vector(char msg, double *v, int n, char checkReply);
   int _readS16Vector(char msg, double *v, int n, char checkReply);
 
-  int _writeWord(char msg, char joint, int value, char checkReply);
-  int _writeWord(char msg, char joint, char checkReply);
   int _writeWord(char msg, char checkReply);
+  int _writeWord(char msg, char joint, char checkReply);
+  int _writeWord(char msg, char joint, int value, char checkReply);
+
   int _readPWMGroup(char msg, double *v, int n, char checkReply);
 
   int _writeVector(char msg, const int *values, int n, char checkReply);
