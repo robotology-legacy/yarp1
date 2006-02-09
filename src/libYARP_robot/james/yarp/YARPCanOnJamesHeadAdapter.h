@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.7 2006-02-08 16:59:24 babybot Exp $
+/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.8 2006-02-09 22:48:07 babybot Exp $
 ///
 ///
 
@@ -586,7 +586,7 @@ public:
 			// sets the broadcast messages for each card.
 			if (!(actual_axis % 2))
 			{
-				double tmp = double(0x12);	/// 0x12 activates position and current consumption broadcast.
+				double tmp = double(0x1A);	/// 0x1A activates position and current consumption broadcast + fault events.
 				cmd.parameters = &tmp;
 				IOCtl (CMDSetBCastMsgs, &cmd);
 			}

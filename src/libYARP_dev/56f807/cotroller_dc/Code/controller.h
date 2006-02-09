@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.29 2006-02-08 16:59:24 babybot Exp $
+/// $Id: controller.h,v 1.30 2006-02-09 22:51:38 babybot Exp $
 ///
 ///
 
@@ -209,7 +209,7 @@ typedef struct canmsg_tag
 #define CAN_BCAST_NONE				0
 #define CAN_BCAST_POSITION			1
 #define CAN_BCAST_VELOCITY			2
-#define CAN_BCAST_PIDERROR			3
+#define CAN_BCAST_FAULT				3
 #define CAN_BCAST_CURRENT			4
 #define CAN_BCAST_MAX_MSGS			5
 

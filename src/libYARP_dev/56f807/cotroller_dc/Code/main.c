@@ -68,6 +68,7 @@ Int16  _integral_limit[JN] = { 0x7fff, 0x7fff };
 
 Int16  _error[JN] = { 0, 0 };			/* actual feedback error */
 Int16  _error_old[JN] = { 0, 0 };		/* error at t-1 */
+Int16  _fault[JN] = { 0, 0 };			/* amp fault memory */
 
 Int16  _pid[JN] = { 0, 0 };				/* pid result */
 Int16  _pid_limit[JN] = { 100, 100 };	/* pid limit */
@@ -558,7 +559,58 @@ void can_send_broadcast(void)
 	
 	if ((_broadcast_mask & 0x08) && _counter == 2)
 	{
-		/* nothing to do yet: LATER: send the PID error */ 
+		/* if a new fault is detected then sends a message */
+		_canmsg.CAN_messID = 0x100;
+		_canmsg.CAN_messID |= (_board_ID) << 4;
+		_canmsg.CAN_messID |= CAN_BCAST_FAULT;
+		_canmsg.CAN_data[0] = 0;
+		_canmsg.CAN_data[1] = 0;
+		_canmsg.CAN_data[2] = 0;
+		_canmsg.CAN_data[3] = 0;
+		
+		iretval = getReg (PWMA_PMFSA);
+		
+		if (_fault[0] == 0 && iretval != 0)
+		{
+			// new fault, copy iretval in _fault.
+			_fault[0] = iretval;
+			_canmsg.CAN_data[0] = BYTE_H(iretval);
+			_canmsg.CAN_data[1] = BYTE_L(iretval);
+		}
+		else
+		if (_fault[0] != 0 && iretval == 0)
+		{
+			// reset fault.
+			_fault[0] = 0;
+		}
+		
+		iretval = getReg (PWMB_PMFSA);
+		
+		if (_fault[1] == 0 && iretval != 0)
+		{
+			// new fault, copy iretval in _fault.
+			_fault[1] = iretval;
+			_canmsg.CAN_data[2] = BYTE_H(iretval);
+			_canmsg.CAN_data[3] = BYTE_L(iretval);
+		}
+		else
+		if (_fault[1] != 0 && iretval == 0)
+		{
+			// reset fault.
+			_fault[1] = 0;
+		}
+
+		// if new fault, send message.		
+		if (_canmsg.CAN_data[0] != 0 || 
+			_canmsg.CAN_data[1] != 0 ||
+			_canmsg.CAN_data[2] != 0 ||
+			_canmsg.CAN_data[3] != 0)
+		{
+			_canmsg.CAN_length = 4;
+			_canmsg.CAN_frameType = DATA_FRAME;
+			if (CAN1_sendFrame (1, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data) != ERR_OK)
+				AS1_printStringEx("send err\r\n");
+		}
 	}
 	
 	if ((_broadcast_mask & 0x10) && _counter == 3)
@@ -571,12 +623,7 @@ void can_send_broadcast(void)
 		_canmsg.CAN_data[1] = BYTE_L(_current[0]);
 		_canmsg.CAN_data[2] = BYTE_H(_current[1]);
 		_canmsg.CAN_data[3] = BYTE_L(_current[1]);
-		iretval = getReg (PWMA_PMFSA);
-		_canmsg.CAN_data[4] = BYTE_H(iretval);
-		_canmsg.CAN_data[5] = BYTE_L(iretval);
-		iretval = getReg (PWMB_PMFSA);
-		_canmsg.CAN_data[6] = BYTE_H(iretval);
-		_canmsg.CAN_data[7] = BYTE_L(iretval);
+		
 			
 		_canmsg.CAN_length = 8;
 		_canmsg.CAN_frameType = DATA_FRAME;
