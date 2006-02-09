@@ -18,6 +18,8 @@ using namespace std;
 #define UNINTERPRETED
 
 void listen(unsigned char *sample, int len) {
+  return;
+
   static ofstream fout("/tmp/snd.txt");
   static ofstream fout2("/tmp/mot.txt");
 

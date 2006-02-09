@@ -42,25 +42,25 @@ scale .constrict.scroll_0 \
     -command {scaler 0} -from 2 -to 0 -resolution 0.1
 
 scale .constrict.scroll_1 \
-    -command {scaler 1} -from 2 -to 0 -resolution 0.1
+    -command {scaler 1} -from 2 -to 0 -resolution 0.01
 
 scale .constrict.scroll_2 \
-    -command {scaler 2} -from 2 -to 0 -resolution 0.1
+    -command {scaler 2} -from 2 -to 0 -resolution 0.01
 
 scale .constrict.scroll_3 \
-    -command {scaler 3} -from 2 -to 0 -resolution 0.1
+    -command {scaler 3} -from 2 -to 0 -resolution 0.01
 
 scale .constrict.scroll_4 \
-    -command {scaler 4} -from 2 -to 0 -resolution 0.1
+    -command {scaler 4} -from 2 -to 0 -resolution 0.01
 
 scale .constrict.scroll_5 \
-    -command {scaler 5} -from 2 -to 0 -resolution 0.1
+    -command {scaler 5} -from 2 -to 0 -resolution 0.01
 
 scale .constrict.scroll_6 \
-    -command {scaler 6} -from 2 -to 0 -resolution 0.1
+    -command {scaler 6} -from 2 -to 0 -resolution 0.01
 
 scale .constrict.scroll_7 \
-    -command {scaler 7} -from 2 -to 0 -resolution 0.1
+    -command {scaler 7} -from 2 -to 0 -resolution 0.01
 
 scale .scroll_volume \
     -command {altscaler 0 0} -orient horizontal -label "glottal"

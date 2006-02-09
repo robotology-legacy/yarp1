@@ -100,9 +100,9 @@ public:
     float factor = 0.05;
     float prev = prev_params[x][y];
     float diff = params[x][y]-prev;
-    if (fabs(diff)<0.2) {
-      factor = 0.4;
-    }
+    //if (fabs(diff)<0.2) {
+    //factor = 0.4;
+    //}
     prev_params[x][y] += diff*factor;
     /*
     if (fabs(diff)<0.001) {

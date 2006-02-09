@@ -1,5 +1,5 @@
 2         ; output file format (0 = AU, 1 = AIFF, 2 = WAVE)
-48000.0   ; output sample rate (22050.0, 44100.0)
+22050.0   ; output sample rate (22050.0, 44100.0)
 250.0     ; input control rate (1 - 1000 Hz)
 60.0	  ; master volume (0 - 60 dB)
 2         ; number of sound output channels (1 or 2)
