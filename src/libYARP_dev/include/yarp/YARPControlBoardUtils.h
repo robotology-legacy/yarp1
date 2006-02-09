@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.12 2006-02-07 11:44:34 gmetta Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.13 2006-02-09 22:52:24 babybot Exp $
 ///
 ///
 
@@ -198,11 +198,16 @@ enum ControlBoardCmd
 	CMDSetBoardID			= 75,	// broadcasts a set board ID command.
 	CMDGetBoardID			= 76,	// broadcasts a get board ID command.
 
+	//
+	// Broadcast management of messages (on interrupt/event based).
+	//
 	CMDSetBCastMsgs			= 95,	// prepares the remote to broadcast certain info back automatically.
 	CMDGetBCastPositions	= 96,	// reads the values of the positions.
 	CMDGetBCastVelocities	= 97,	// ditto for velocities.
 	CMDGetBCastAccelerations= 98,	// accelerations.
 	CMDGetBCastCurrents		= 99,	// reads the values of the current consumption.
+	CMDGetBCastFaultsAndReset = 100, // reads the faults and reset them (until next fault is generated - one shot event).
+	CMDGetBCastControlValues = 101,	 // reads the control values from the internal (PID?) controller.
 
 	//
 	// Specific to the device driver behavior (nothing is sent to the card) - used for debugging.
@@ -214,7 +219,7 @@ enum ControlBoardCmd
 	//
 	// Make sure the CBNCmds is always up to date.
 	//
-	CBNCmds 				= 100 	// required! tells the total number of commands
+	CBNCmds 				= 102 	// required! tells the total number of commands
 };
 
 
