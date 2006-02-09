@@ -87,9 +87,9 @@ void setUp();
 // Global Variables
 //-------------------------------------------------
 // main window 
-static GtkWidget *mainWindow;
+static GtkWidget *mainWindow = NULL;
 // Current frame
-static GdkPixbuf *frame;
+static GdkPixbuf *frame = NULL;
 // Drawing Area
 static GtkWidget *da;
 // Non Modal Dialogs

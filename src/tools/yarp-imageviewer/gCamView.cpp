@@ -1,7 +1,7 @@
 // gCamView.cpp : Defines the entry point for the application.
 //
 
-#include "gCamView.h"
+#include "gCamView.h" 
 
 //-------------------------------------------------
 // Main Window Callbacks
@@ -44,6 +44,8 @@ static gboolean delete_event( GtkWidget *widget, GdkEvent *event, gpointer data 
 	closePorts();
 	if (_options.saveOnExit != 0)
 		saveOptFile(_options.fileName);
+	if (frame)
+		g_object_unref(frame);
 	// Exit from application
 	gtk_main_quit ();
 
@@ -53,53 +55,55 @@ static gboolean delete_event( GtkWidget *widget, GdkEvent *event, gpointer data 
 
 static gint expose_CB (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
-	guchar *pixels;
-	unsigned int rowstride;
-	unsigned int imageWidth, imageHeight, areaWidth, areaHeight;
+	if ((frame) && (mainWindow))
+	{
+		guchar *pixels;
+		unsigned int rowstride;
+		unsigned int imageWidth, imageHeight, areaWidth, areaHeight;
 
-	_semaphore.Wait();
-	yarpImage2pixbuf(&_inputImg, frame);
-	_semaphore.Post();
+		_semaphore.Wait();
+		yarpImage2pixbuf(&_inputImg, frame);
+		_semaphore.Post();
  
-	imageWidth = _inputImg.GetWidth();
-	imageHeight = _inputImg.GetHeight();
-	areaWidth = event->area.width;
-	areaHeight = event->area.height;
+		imageWidth = _inputImg.GetWidth();
+		imageHeight = _inputImg.GetHeight();
+		areaWidth = event->area.width;
+		areaHeight = event->area.height;
 
-	if ( (areaWidth != imageWidth) || (areaHeight != imageHeight) )
-	{
-		GdkPixbuf *scaledFrame;
-		scaledFrame = gdk_pixbuf_scale_simple(	frame,
-												areaWidth,
-												areaHeight,
-												GDK_INTERP_BILINEAR); // Best quality
-												//GDK_INTERP_NEAREST); // Best speed
+		if ( (areaWidth != imageWidth) || (areaHeight != imageHeight) )
+		{
+			GdkPixbuf *scaledFrame;
+			scaledFrame = gdk_pixbuf_scale_simple(	frame,
+													areaWidth,
+													areaHeight,
+													GDK_INTERP_BILINEAR); // Best quality
+													//GDK_INTERP_NEAREST); // Best speed
 
-		pixels = gdk_pixbuf_get_pixels (scaledFrame);
-		rowstride = gdk_pixbuf_get_rowstride(scaledFrame);
-		gdk_draw_rgb_image (widget->window,
-			widget->style->black_gc,
-			event->area.x, event->area.y,
-			event->area.width, event->area.height,
-			GDK_RGB_DITHER_NORMAL,
-			pixels,
-			rowstride);
-		g_object_unref(scaledFrame);
-		
-	}
-	else
-	{
-		pixels = gdk_pixbuf_get_pixels (frame);
-		rowstride = gdk_pixbuf_get_rowstride(frame);
-		gdk_draw_rgb_image (widget->window,
+			pixels = gdk_pixbuf_get_pixels (scaledFrame);
+			rowstride = gdk_pixbuf_get_rowstride(scaledFrame);
+			gdk_draw_rgb_image (widget->window,
 				widget->style->black_gc,
 				event->area.x, event->area.y,
 				event->area.width, event->area.height,
 				GDK_RGB_DITHER_NORMAL,
 				pixels,
 				rowstride);
+			g_object_unref(scaledFrame);
+			
+		}
+		else
+		{
+			pixels = gdk_pixbuf_get_pixels (frame);
+			rowstride = gdk_pixbuf_get_rowstride(frame);
+			gdk_draw_rgb_image (widget->window,
+					widget->style->black_gc,
+					event->area.x, event->area.y,
+					event->area.width, event->area.height,
+					GDK_RGB_DITHER_NORMAL,
+					pixels,
+					rowstride);
+		}
 	}
-
 	return TRUE;
 }
 
