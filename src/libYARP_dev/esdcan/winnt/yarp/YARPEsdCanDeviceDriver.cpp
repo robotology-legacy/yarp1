@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.15 2006-02-08 16:59:24 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.16 2006-02-09 22:47:08 babybot Exp $
 ///
 ///
 
@@ -57,14 +57,22 @@ typedef int (*PV) (const char *fmt, ...);
 class BCastBufferElement
 {
 public:
+	// msg 1
 	int _position;
 	double _update_p;
+
+	// msg 2
 	short _velocity;
 	double _update_v;
 	short _acceleration;
-	double _update_a;
-	short _current;
+
+	// msg 3
 	short _fault;
+	double _update_e;
+
+	// msg 4
+	short _current;
+	short _controlvalue;
 	double _update_c;
 
 	BCastBufferElement () { zero (); }
@@ -76,9 +84,11 @@ public:
 		_acceleration = 0;
 		_current = 0;
 		_fault = 0;
+		_controlvalue = 0;
+
 		_update_p = .0;
 		_update_v = .0;
-		_update_a = .0;
+		_update_e = .0;
 		_update_c = .0;
 	}
 };
@@ -444,6 +454,8 @@ YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void)
 	m_cmds[CMDGetBCastVelocities] = &YARPEsdCanDeviceDriver::getBCastVelocities;
 	m_cmds[CMDGetBCastAccelerations] = &YARPEsdCanDeviceDriver::getBCastAccelerations;
 	m_cmds[CMDGetBCastCurrents] = &YARPEsdCanDeviceDriver::getBCastCurrents;
+	m_cmds[CMDGetBCastFaultsAndReset] = &YARPEsdCanDeviceDriver::getBCastFaultsAndReset;
+	m_cmds[CMDGetBCastControlValues] = &YARPEsdCanDeviceDriver::getBCastControlValues;
 
 	m_cmds[CMDSetDebugMessageFilter] = &YARPEsdCanDeviceDriver::setDebugMessageFilter;
 	m_cmds[CMDSetDebugPrintFunction] = &YARPEsdCanDeviceDriver::setDebugPrintFunction;
@@ -603,19 +615,28 @@ void YARPEsdCanDeviceDriver::Body (void)
 					}
 					break;
 
-				case CAN_BCAST_PIDERROR:
+				case CAN_BCAST_FAULT:
+					// fault signals.
+					r._bcastRecvBuffer[j]._fault = *((short *)(m.data));
+					r._bcastRecvBuffer[j]._update_e = before;
+					j++;
+					if (j < r.getJoints())
+					{
+						r._bcastRecvBuffer[j]._fault = *((short *)(m.data+2));
+						r._bcastRecvBuffer[j]._update_e = before;
+					}
 					break;
 
 				case CAN_BCAST_CURRENT:
-					// also receives the fault bits.
+					// also receives the control values.
 					r._bcastRecvBuffer[j]._current = *((short *)(m.data));
-					r._bcastRecvBuffer[j]._fault = *((short *)(m.data+4));
+					r._bcastRecvBuffer[j]._controlvalue = *((short *)(m.data+4));
 					r._bcastRecvBuffer[j]._update_c = before;
 					j++;
 					if (j < r.getJoints())
 					{
 						r._bcastRecvBuffer[j]._current = *((short *)(m.data+2));
-						r._bcastRecvBuffer[j]._fault = *((short *)(m.data+6));
+						r._bcastRecvBuffer[j]._controlvalue = *((short *)(m.data+6));
 						r._bcastRecvBuffer[j]._update_c = before;
 					}
 					break;
@@ -1625,7 +1646,7 @@ int YARPEsdCanDeviceDriver::getBCastCurrents (void *cmd)
 	return YARP_OK;
 }
 
-int YARPEsdCanDeviceDriver::getBCastFaults (void *cmd)
+int YARPEsdCanDeviceDriver::getBCastFaultsAndReset (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
 	int i;
@@ -1633,12 +1654,22 @@ int YARPEsdCanDeviceDriver::getBCastFaults (void *cmd)
 	for (i = 0; i < r.getJoints(); i++)
 	{
 		tmp[i] = short(r._bcastRecvBuffer[i]._fault);
+		r._bcastRecvBuffer[i]._fault = 0x0;	// reset after read.
 	}
 	return YARP_OK;
 }
 
-///
-/// int YARPEsdCanDeviceDriver::getBCastPidError (void *cmd)
+int YARPEsdCanDeviceDriver::getBCastControlValues (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	int *tmp = (int *)cmd;
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = int(r._bcastRecvBuffer[i]._controlvalue);
+	}
+	return YARP_OK;
+}
 
 ///
 /// helper functions.
