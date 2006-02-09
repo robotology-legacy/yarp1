@@ -17,6 +17,7 @@
 // -int 10				--> store 10 as an integer
 // -float 0.2				--> store 0.2 as a float
 // 
+// - disabled sh mem Jan06
 
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBottle.h>
@@ -150,6 +151,7 @@ void command(int argc, char* argv[])
 	sprintf(tmp, "%d/o:bot", rand());
 	portName.append(tmp);
 	_outPort.Register(portName.c_str());
+	_outPort.SetAllowShmem(0); // no nasty sh mem, please!!!
 	
 	if (!YARPParseParameters::parse(argc, argv, "port", remotePortName))
 		error(PARAMETERS);
