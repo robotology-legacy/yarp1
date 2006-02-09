@@ -10,7 +10,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.2 2006-02-03 16:59:48 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.3 2006-02-09 15:33:34 eshuy Exp $
 //
 /// Based on: Id: YARPPort.cpp,v 2.0 2005/11/06 22:21:26 gmetta Exp
 //
@@ -57,8 +57,9 @@ public:
   virtual ~BlockWriter_to_YARPPortWriter() {}
 
   virtual int Write(char *buffer, int length) {
+    //ACE_OS::printf("Writing %d bytes\n", length);
     writer.appendBlock(Bytes(buffer,length));
-    return 0;
+    return 1;
   }
 };
 
@@ -71,8 +72,9 @@ public:
   virtual ~BlockReader_to_YARPPortReader() {}
 
   virtual int Read(char *buffer, int length) {
+    //ACE_OS::printf("Reading %d bytes\n", length);
     reader.expectBlock(Bytes(buffer,length));
-    return 0;
+    return 1;
   }
 };
 
@@ -181,15 +183,25 @@ public:
     YARPPortContent *content = ypc;
     YARP_ASSERT(content!=NULL);
     WritableContent wc(*content);
+    //ACE_OS::printf("writing!\n");
     core.send(wc);
   }
 
   int Read(bool wait) {
+    //ACE_OS::printf("reading!\n");
     if (wait) {
       incoming.wait();
+      //ACE_OS::printf("got something!\n");
       return 1;
     } else {
-      return incoming.check();
+      int result = incoming.check();
+      if (result) {
+	while (incoming.check()) {
+	  // blow away back log
+	}
+      }
+      //ACE_OS::printf("got %d!\n", result);
+      return result;
     }
     return 1;
   }
@@ -197,7 +209,7 @@ public:
   virtual void readBlock(BlockReader& reader) {
     //ACE_OS::printf("got some data!\n");
     if (ypc!=NULL) {
-      //printf("there is some content too so can read\n");
+      //ACE_OS::printf("there is some content too so can read\n");
       ReadableContent rc(*ypc);
       rc.readBlock(reader);
       incoming.post();
@@ -240,39 +252,41 @@ void YARPPort::End()
 int YARPPort::Register(const char *name, const char *net_name /* = YARP_DEFAULT_NET */)
 {
   Content();
-	return PD.SetName (name, net_name);
+  return 0==(PD.SetName (name, net_name));
 }
 
 int YARPPort::Unregister(void)
 {
-	PD.End ();
-	return YARP_OK;
+  PD.End ();
+  return YARP_OK;
 }
 
 int YARPPort::IsReceiving()
 {
-	return PD.CountClients();
+  return PD.CountClients();
 }
 
 int YARPPort::IsSending()
 {
-	return PD.IsSending();
+  return PD.IsSending();
 }
 
 void YARPPort::FinishSend()
 {
-	PD.FinishSend();
+  PD.FinishSend();
 }
 
 int YARPPort::Connect(const char *name)
 {
-	return PD.Say(name);
+  int result = PD.Say(name);
+  return (result==0);
 }
 
 
 int YARPPort::Connect(const char *src_name, const char *dest_name)
 {
-  return Companion::connect(src_name,dest_name);
+  int result = Companion::connect(src_name,dest_name);
+  return (result==0);
 }
 
 
@@ -385,14 +399,14 @@ void YARPOutputPort::Write(bool wait)
 
 void YARPOutputPort::SetAllowShmem(int flag)
 {
-  ACE_OS::printf("%s:%d -- not implemented\n",__FILE__,__LINE__);
+  ACE_OS::printf("%s:%d -- shared memory not implemented\n",__FILE__,__LINE__);
   //PD.SetAllowShmem(flag);
 }
 
 
 int YARPOutputPort::GetAllowShmem(void)
 {
-  ACE_OS::printf("%s:%d -- not implemented\n",__FILE__,__LINE__);
+  ACE_OS::printf("%s:%d -- shared memory not implemented\n",__FILE__,__LINE__);
   //return PD.GetAllowShmem();
   return 0;
 }

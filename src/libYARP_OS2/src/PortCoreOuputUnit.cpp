@@ -131,12 +131,18 @@ Route PortCoreOutputUnit::getRoute() {
 }
 
 void PortCoreOutputUnit::send(Writable& writer) {
-  if (op!=NULL) {
-    PortCommand pc('d',"");
-    BufferedBlockWriter buf(op->isTextMode());
-    pc.writeBlock(buf);
-    writer.writeBlock(buf);
-    op->write(buf);
+  try {
+    if (op!=NULL) {
+      PortCommand pc('d',"");
+      BufferedBlockWriter buf(op->isTextMode());
+      pc.writeBlock(buf);
+      writer.writeBlock(buf);
+      op->write(buf);
+    }
+  } catch (IOException e) {
+    YARP_DEBUG(Logger::get(), e.toString() + " <<< output exception");
+    finished = true;
+    setDoomed(true);
   }
 }
 

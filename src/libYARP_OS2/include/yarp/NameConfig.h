@@ -37,10 +37,11 @@ public:
 
   Address getAddress();
 
+  static String getEnv(const String& key);
+
+
 private:
   Address address;
-
-  String getEnv(const String& key);
 
   bool fromString(const String& txt);
 };
