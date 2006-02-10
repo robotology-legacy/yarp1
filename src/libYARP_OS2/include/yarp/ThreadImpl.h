@@ -28,6 +28,8 @@ public:
   // should throw if no success
   virtual bool start();
 
+  bool isClosing();
+
   virtual void beforeStart();
   virtual void afterStart(bool success);
 
@@ -47,6 +49,7 @@ private:
   ACE_hthread_t hid;
   ACE_thread_t id;
   bool active;
+  bool closing;
   Runnable *delegate;
 
   static int threadCount;

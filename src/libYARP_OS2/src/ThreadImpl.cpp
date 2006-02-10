@@ -30,6 +30,7 @@ unsigned theExecutiveBranch (void *args)
 ThreadImpl::ThreadImpl() {
   delegate = NULL;
   active = false;
+  closing = false;
   setOptions();
 }
 
@@ -37,6 +38,7 @@ ThreadImpl::ThreadImpl() {
 ThreadImpl::ThreadImpl(Runnable *target) {
   delegate = target;
   active = false;
+  closing = false;
   setOptions();
 }
 
@@ -60,6 +62,7 @@ void ThreadImpl::setOptions(int stackSize) {
 }
 
 int ThreadImpl::join(double seconds) {
+  closing = true;
   if (active) {
     int result = ACE_Thread::join(hid);
     active = false;
@@ -75,6 +78,7 @@ void ThreadImpl::run() {
 }
 
 void ThreadImpl::close() {
+  closing = true;
   if (delegate!=NULL) {
     delegate->close();
   }
@@ -93,6 +97,7 @@ void ThreadImpl::afterStart(bool success) {
 }
 
 bool ThreadImpl::start() {
+  closing = false;
   beforeStart();
   int result = ACE_Thread::spawn((ACE_THR_FUNC)theExecutiveBranch,
 				 (void *)this,
@@ -113,6 +118,9 @@ bool ThreadImpl::start() {
 }
 
 
+bool ThreadImpl::isClosing() {
+  return closing;
+}
 
 int ThreadImpl::getCount() {
   threadMutex.wait();

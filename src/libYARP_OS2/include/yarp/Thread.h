@@ -21,16 +21,17 @@ public:
   virtual void run();
   virtual void close();
 
-  // should throw if no success
-  virtual bool start();
+  bool start();
+
+  virtual void beforeStart();
+  virtual void afterStart(bool success);
+
+  bool isClosing();
 
   // call before start
   void setOptions(int stackSize = 0);
 
   static int getCount();
-
-  // won't be public for long...
-  static void changeCount(int delta);
 
   // get a unique key
   long int getKey();

@@ -6,8 +6,35 @@
 using namespace yarp;
 using namespace yarp::os;
 
+class ThreadCallbackAdapter : public ThreadImpl {
+private:
+  Thread& owner;
+public:
+
+  ThreadCallbackAdapter(Thread& owner) : owner(owner) {
+  }
+
+  virtual void beforeStart() {
+    owner.beforeStart();
+  }
+
+  virtual void afterStart(bool success) {
+    owner.afterStart(success);
+  }
+
+  virtual void run() {
+    owner.run();
+  }
+
+  virtual void close() {
+    owner.close();
+    ThreadImpl::close();
+  }
+};
+
+
 Thread::Thread() {
-  implementation = new ThreadImpl;
+  implementation = new ThreadCallbackAdapter(*this);
   YARP_ASSERT(implementation!=NULL);
 }
 
@@ -26,7 +53,6 @@ int Thread::join(double seconds) {
 
 
 void Thread::run() {
-  ((ThreadImpl*)implementation)->run();
 }
 
 
@@ -37,6 +63,17 @@ void Thread::close() {
 bool Thread::start() {
   return ((ThreadImpl*)implementation)->start();
 }
+
+bool Thread::isClosing() {
+  return ((ThreadImpl*)implementation)->isClosing();
+}
+
+void Thread::beforeStart() {
+}
+
+void Thread::afterStart(bool success) {
+}
+
 
 void Thread::setOptions(int stackSize) {
   return ((ThreadImpl*)implementation)->setOptions(stackSize);
