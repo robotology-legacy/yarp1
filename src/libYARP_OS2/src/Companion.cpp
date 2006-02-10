@@ -360,7 +360,7 @@ public:
   virtual void readBlock(BlockReader& reader) {
     Bottle bot;
     bot.readBlock(reader);
-    if (bot.size()==2) {
+    if (bot.size()==2 && bot.isInt(0) && bot.isString(1)) {
       int code = bot.getInt(0);
       if (code!=1) {
 	ACE_OS::printf("%s\n", bot.getString(1).c_str());
@@ -368,6 +368,8 @@ public:
       if (code==1) {
 	done.post();
       }
+    } else {
+      ACE_OS::printf("%s\n", bot.toString().c_str());
     }
   }
   
@@ -420,9 +422,9 @@ int Companion::write(const char *name, int ntargets, char *targets[]) {
       // TODO: add longer strings together
       
       if (!(cin.bad()||cin.eof())) {
-		  if (buf[0]<32) {
-			  break;  // for example, horrible windows ^D
-		  }
+	if (buf[0]<32) {
+	  break;  // for example, horrible windows ^D
+	}
 	Bottle bot;
 	bot.addInt(0);
 	bot.addString(buf);
