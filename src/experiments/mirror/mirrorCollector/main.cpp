@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.9 2006-01-18 10:40:27 claudio72 Exp $
+/// $Id: main.cpp,v 1.10 2006-02-10 17:05:58 claudio72 Exp $
 ///
 ///
 
@@ -637,9 +637,13 @@ int main (int argc, char *argv[])
 	do {
 
 		while ( ! _cmd_inport.Read(false) ) {
+
+			// if no command has arrived thru the command port,
+			// wait for one from the keyboard (25 times a second)
 			if ( _kbhit() ) {
 				switch ( _getch() ) {
 				case 'r':
+					// RESET: if streaming, stop it, then if connected, disconnect sensors
 					if ( bStreaming ) {
 						stream.End();
 						bStreaming = false;
@@ -652,6 +656,7 @@ int main (int argc, char *argv[])
 					}
 					break;
 				case 'q':
+					// QUIT: unregister ports and bail out
 					if ( bConnected ) {
 						cout << endl << "Reset me first ('r')." << endl;
 					} else {
@@ -663,11 +668,17 @@ int main (int argc, char *argv[])
 					}
 					break;
 				default:
+					// unrecognised keyboard command
 					cout << "Unrecognised keyboard command." << endl;
+					cout << "'r' (stop streaming and) disconnect sensors" << endl;
+					cout << "'q' quit" << endl;
+					cout << endl;
 					break;
 				}
 			}
-			YARPTime::DelayInSeconds(0.01);
+
+			YARPTime::DelayInSeconds(1.0/25.0);
+
 		}
 
 		switch( _cmd_inport.Content() ) {

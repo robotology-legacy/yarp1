@@ -14,26 +14,24 @@
 class CSaverThread : public YARPThread  
 {
 public:
-	CSaverThread(BodyMapOptions& programOptions, BodyMapSettings& programSettings) :
-	  _options(&programOptions), _settings(&programSettings), _frameN(0), _saveFile(NULL) {}
+	CSaverThread(BodyMapOptions& programOptions,
+		         BodyMapSettings& programSettings,
+				 BodyMapLearningBlock& learningBlock) :
+	  _options(&programOptions),
+	  _settings(&programSettings),
+	  _learningBlock(&learningBlock) {}
+
 	~CSaverThread() {}
 	
 	virtual void Body();
 	
-	int openFile();
-	void closeFile();
-	void writeHeaderToFile();
-	void writeDataToFile();
-
 private:
 
-	int _frameN;
 	int _x0, _y0, _w0, _x1, _y1, _w1;
 
 	BodyMapOptions* _options;
 	BodyMapSettings* _settings;
-
-	FILE* _saveFile;
+	BodyMapLearningBlock* _learningBlock;
 
 };
 

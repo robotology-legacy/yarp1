@@ -80,6 +80,7 @@ void CSaverThread::writeHeaderToFile()
 	fprintf(pFile,"frameN;");
 	fprintf(pFile,"X0;Y0;Z0;Azimuth0;Elevation0;Roll0;");
 	fprintf(pFile,"X1;Y1;Z1;Azimuth1;Elevation1;Roll1;");
+	fprintf(pFile,"PupilDiameter;PupilX;PupilY;");
 	fprintf(pFile,"ThumbInner;ThumbMiddle;ThumbOuter;");
 	fprintf(pFile,"IndexInner;IndexMiddle;IndexOuter;");
 	fprintf(pFile,"MiddleInner;MiddleMiddle;MiddleOuter;");

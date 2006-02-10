@@ -14,6 +14,8 @@
 
 #include "resource.h"		// main symbols
 
+#include "libsvm.h"
+
 // ----------- general functions, used by all classes of the application
 void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*, int*);
 
@@ -40,7 +42,7 @@ typedef struct BodyMapSettingsStruct {
 	  _img1_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
 	  _cmd_inport (YARPInputPort::NO_BUFFERS, YARP_TCP),
 	  _cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP),
-	  _sequenceNumber(0), _timerID(0)
+	  _timerID(0)
 	{
 		ACE_OS::strcpy(BodyMapPortName, "BodyMap");
 		ACE_OS::strcpy(MirrorCollectorPortName, "mirrorCollector");
@@ -58,8 +60,6 @@ typedef struct BodyMapSettingsStruct {
 	CollectorNumericalData _data;
 	CollectorImage         _img0;
 	CollectorImage         _img1;
-	// the saved sequence order number
-	int _sequenceNumber;
 	// communication ports: data
 	YARPInputPortOf<CollectorNumericalData> _data_inport;
 	YARPInputPortOf<YARPGenericImage>       _img0_inport;
@@ -70,6 +70,38 @@ typedef struct BodyMapSettingsStruct {
 	// ID of live acquisition timer
 	UINT _timerID;
 } BodyMapSettings;
+
+// how many samples do we ever consider at a time?
+const int numOfSamples = 50;
+
+// ----------- learning stuff
+typedef struct BodyMapLearningBlockStruct {
+
+	// constructor and destructor
+	BodyMapLearningBlockStruct( CWnd* );
+	~BodyMapLearningBlockStruct();
+
+	// svm-related structures
+	struct svm_parameter param;
+	struct svm_problem prob;
+	struct svm_model* model;
+	unsigned int sampleCount;
+	struct svm_node newSample[4];
+
+	// the data
+	// Cartesian coordinates in the workspace
+	double x, y, z;
+	// Cartesian coordinates in the image spaces
+	int x0, y0, x1, y1;
+	
+	// methods
+	void predict();
+	void train();
+	int addSample(double, double, double, double);
+
+	CWnd* _myDlg;
+
+} BodyMapLearningBlock;
 
 /////////////////////////////////////////////////////////////////////////////
 // CBodyMapApp:

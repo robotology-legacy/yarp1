@@ -166,8 +166,12 @@ void CGraspCaptureDlg::OnLiveCamera()
 {
 
 	// toggle dialogs
-	Camera0Dialog.ShowWindow(!Camera0Dialog.ShowWindow(SW_SHOWNA));
-	Camera1Dialog.ShowWindow(!Camera1Dialog.ShowWindow(SW_SHOWNA));
+	if ( _options.useCamera0 ) {
+		Camera0Dialog.ShowWindow(!Camera0Dialog.ShowWindow(SW_SHOWNA));
+	}
+	if ( _options.useCamera1 ) {
+		Camera1Dialog.ShowWindow(!Camera1Dialog.ShowWindow(SW_SHOWNA));
+	}
 
 }
 
@@ -183,8 +187,12 @@ void CGraspCaptureDlg::OnLiveTracker()
 {
 
 	// toggle dialogs
-	Tracker0Dialog.ShowWindow(!Tracker0Dialog.ShowWindow(SW_SHOWNA));
-	Tracker1Dialog.ShowWindow(!Tracker1Dialog.ShowWindow(SW_SHOWNA));
+	if ( _options.useTracker0 ) {
+		Tracker0Dialog.ShowWindow(!Tracker0Dialog.ShowWindow(SW_SHOWNA));
+	}
+	if ( _options.useTracker1 ) {
+		Tracker1Dialog.ShowWindow(!Tracker1Dialog.ShowWindow(SW_SHOWNA));
+	}
 	
 }
 

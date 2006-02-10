@@ -23,7 +23,8 @@ public:
 
 	int RegisterAndConnectPorts(void);
 	void DisconnectAndUnregisterPorts(void);
-	void ShowTrackerXY(YARPImageOf<YarpPixelBGR>&);
+	void ShowTrackerXY(YARPImageOf<YarpPixelBGR>&, int, int);
+	void ShowExpectedTrackerXY(YARPImageOf<YarpPixelBGR>&, int, int);
 
 	CBodyMapDlg(CWnd* pParent = NULL);	// standard constructor
 
@@ -76,6 +77,9 @@ private:
 
 	// program settings
 	BodyMapSettings _settings;
+
+	// learning module
+	BodyMapLearningBlock _learningBlock;
 
 	// data saving thread
 	CSaverThread _saverThread;

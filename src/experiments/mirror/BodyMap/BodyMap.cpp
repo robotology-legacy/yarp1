@@ -71,7 +71,114 @@ BOOL CBodyMapApp::InitInstance()
 	return FALSE;
 }
 
+BodyMapLearningBlockStruct::BodyMapLearningBlockStruct( CWnd* dlg ) : _myDlg(dlg)
+{
 
+	// learning block constructor
+
+	// initialise basic data types
+	x = y = z = x0 = y0 = x1 = y1 = 0;
+	sampleCount = 0;
+
+	// initialise SVM paramters
+	param.svm_type = EPSILON_SVR;
+	param.kernel_type = RBF;
+	param.degree = 3;
+	param.gamma = 1/3.0;      // 1/k
+	param.coef0 = 0;
+	param.nu = 0.5;
+	param.cache_size = 10;
+	param.C = 1;
+	param.eps = 1e-3;
+	param.p = 0.1;
+	param.shrinking = 1;
+	param.probability = 0;
+	param.nr_weight = 0;
+	param.weight_label = NULL;
+	param.weight = NULL;
+
+	// initialise problem. sample buffer is fixed, and so
+	// is the dimension of the samples.
+	prob.l = numOfSamples;
+	prob.y = (double*) calloc( 1, sizeof(double)*prob.l );
+	prob.x = (struct svm_node**) calloc( 1, sizeof(struct svm_node*)*prob.l );
+	for ( int i=0; i<prob.l; ++i ) {
+		prob.x[i] = (struct svm_node*) malloc( sizeof(struct svm_node)*4 );
+	}
+
+	// check paramters. problem is not required unless we use NU-SVC,
+	// which is never the case for us.
+	const char* error_msg;
+	error_msg = svm_check_parameter( &prob, &param );
+	if ( error_msg != NULL ) {
+		exit(YARP_FAIL);
+	}
+
+	train();
+
+	return;
+
+}
+
+BodyMapLearningBlockStruct::~BodyMapLearningBlockStruct()
+{
+
+	// learning block destructor
+    svm_destroy_param( &param );
+    free( prob.y );
+	free( prob.x );
+
+}
+
+void BodyMapLearningBlockStruct::predict()
+{
+
+	// fill new sample whose value to predict
+	newSample[0].index = 1; newSample[0].value = x;
+	newSample[1].index = 2; newSample[1].value = y;
+	newSample[2].index = 3; newSample[2].value = z;
+	newSample[3].index = -1; newSample[3].value = 0;
+
+	// predict !!
+	x0 = svm_predict( model, newSample );
+
+}
+
+int BodyMapLearningBlockStruct::addSample(double x, double y, double z, double value)
+{
+
+	// add a new sample to our training set.
+
+	// if the buffer is full, stop and return failure, but reset
+	// counter, so that next time it will be ok
+	if ( sampleCount == numOfSamples ) {
+		sampleCount = 0;
+		return YARP_FAIL;
+	} else {
+		// otherwise, store a new sample and go on
+		prob.x[sampleCount][0].index = 1; prob.x[sampleCount][0].value = x;
+		prob.x[sampleCount][1].index = 2; prob.x[sampleCount][1].value = y;
+		prob.x[sampleCount][2].index = 3; prob.x[sampleCount][2].value = z;
+		prob.x[sampleCount][3].index = -1; prob.x[sampleCount][3].value = 0;
+		prob.y[sampleCount] = value;
+
+char title[50];
+ACE_OS::sprintf(title, "%d samples loaded...", sampleCount+1);
+AfxGetMainWnd()->SetWindowText(title);
+
+		sampleCount++;
+		return YARP_OK;
+	}
+
+}
+
+void BodyMapLearningBlockStruct::train()
+{
+
+	model = svm_train( &prob, &param );
+
+}
+	
 void FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y, int* w)
 {
 
