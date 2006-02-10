@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.27 2006-02-03 00:00:08 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.28 2006-02-10 22:41:16 natta Exp $
 ///
 ///
 
@@ -546,7 +546,6 @@ public:
 								 _parameters._zeros[i],
 								 (int) _parameters._signs[i]);
 			cmd.parameters = &pos;
-			
 			_adapter.IOCtl(CMDSetPosition, &cmd);
 			_unlock();
 
@@ -952,6 +951,29 @@ public:
 	    return YARP_FAIL;
 	}
 
+	/**
+	 * Gets the current PID error for all axis.
+	 * @param err pointer to the array that will contain the return values.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int getPIDErrors(double *err)
+	  {
+	    int ret;
+	    _lock();
+	    ret = _adapter.IOCtl(CMDGetPIDErrors, _temp_double);
+	    int j;
+	    for (int i = 0; i < _parameters._nj; i++) 
+	      {
+		j = _parameters._inv_axis_map[i];
+		err[j] = encoderToAngle(_temp_double[i],
+					_parameters._encoderToAngles[j],
+					0.0,
+					(int) _parameters._signs[j]);
+	      }
+	    _unlock();
+	    return ret;
+	  }
+
 	/**      
  	 * Perform a relative movement.
 	 * @param axis is the axis to move.
@@ -997,6 +1019,38 @@ public:
 	  _unlock();
 	  return YARP_OK;
 	}
+
+	/**
+	 * Set the PID error limit (the actual behavior of the PID when 
+	 * the error exceeds this threshold might depend on the control 
+	 * board and/or its configuration, check the board documentation).
+	 * @param i the axis number
+	 * @param limit (degrees), should always be positive
+	 * @return YARP_OK on success.
+	 */
+	int setErrorLimit(int i, double limit)
+	  {
+	    _lock();
+	    if (i >= 0 && i < _parameters._nj)
+	      {
+		SingleAxisParameters cmd;
+		cmd.axis = _parameters._axis_map[i];
+		limit = angleToEncoder(limit,
+				       _parameters._encoderToAngles[i],
+				       0.0,
+				       0); // always positive
+		cmd.parameters = &limit;
+			
+		_adapter.IOCtl(CMDErrorLimit, &cmd);
+		_unlock();
+
+		return YARP_OK;
+	      }
+
+	    _unlock ();
+	    return YARP_FAIL;
+	  }
+
 
 	/**
 	 * Gets the card's max torque: this value is a function of the specific 

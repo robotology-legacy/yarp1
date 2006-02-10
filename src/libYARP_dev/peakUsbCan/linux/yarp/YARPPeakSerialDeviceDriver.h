@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.h,v 1.7 2006-02-09 22:01:02 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.h,v 1.8 2006-02-10 22:41:17 natta Exp $
 ///
 ///
 /// Implements device driver for the Peak usb to can board. The driver
@@ -101,6 +101,8 @@ class YARPPeakSerialDeviceDriver :
   int servoHere(void *cmd);
 
   int getPIDError(void *cmd);
+  int getPIDErrors(void *cmd);
+  int setErrorLimit(void *cmd);
   int relativeMotion(void *cmd);
   int relativeMotionMultiple(void *cmd);
 
@@ -112,10 +114,6 @@ class YARPPeakSerialDeviceDriver :
 
   int setDebugPrintFunction (void *cmd);
 
-  /**
-   * Helpers to write/read from/to the serial port
-   */
-	
   // LATER: inline
   int _readUWord(char msg, char joint, unsigned int &value, char checkReply);
   int _readSWord(char msg, char joint, int &value, char checkReply);

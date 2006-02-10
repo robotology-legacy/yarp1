@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.10 2006-02-09 22:01:02 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.11 2006-02-10 22:41:16 natta Exp $
 ///
 ///
 /// June 05 -- by nat
@@ -42,9 +42,6 @@
 const int MAX_ADC = 15;
 const int __nj = 6;
 #include <yarp/YARPTime.h>
-
-/// get the message types from the DSP code.
-// #include "../56f807/cotroller_dc/Code/controller.h"
 
 YARPPeakSerialDeviceDriver::YARPPeakSerialDeviceDriver(void) 
 	: YARPDeviceDriver<YARPNullSemaphore, YARPPeakSerialDeviceDriver>(CBNCmds), _mutex(1)
@@ -65,6 +62,8 @@ YARPPeakSerialDeviceDriver::YARPPeakSerialDeviceDriver(void)
   m_cmds[CMDServoHere] = &YARPPeakSerialDeviceDriver::servoHere;
 
   m_cmds[CMDGetPIDError] = &YARPPeakSerialDeviceDriver::getPIDError;
+  m_cmds[CMDGetPIDErrors] = &YARPPeakSerialDeviceDriver::getPIDErrors;
+  m_cmds[CMDErrorLimit] = &YARPPeakSerialDeviceDriver::setErrorLimit;
   m_cmds[CMDRelativeMotion] = &YARPPeakSerialDeviceDriver::relativeMotion;
   m_cmds[CMDRelativeMotionMultiple] = &YARPPeakSerialDeviceDriver::relativeMotionMultiple;
 
@@ -197,7 +196,7 @@ int YARPPeakSerialDeviceDriver::getPositions(void *cmd)
   ACE_ASSERT (cmd!=NULL);
   double *tmp = (double *) cmd;
   ///=  fprintf(stderr, "A");
-  ret = _readU16Vector(CAN_READ_POSITIONS_0TO3, tmp, 3, CAN_REPLY_POSITIONS1);
+  ret = _readU16Vector(CAN_READ_POSITIONS_0TO2, tmp, 3, CAN_REPLY_POSITIONS1);
   //  fprintf(stderr, "B");
   //fprintf(stderr, "%.2lf %.2lf %.2lf %.2lf\n", tmp[0], tmp[1], tmp[2], tmp[3]);
   if (ret == YARP_FAIL)
@@ -206,7 +205,32 @@ int YARPPeakSerialDeviceDriver::getPositions(void *cmd)
       return YARP_FAIL;
     }
   //  fprintf(stderr, "C");
-  ret = _readU16Vector(CAN_READ_POSITIONS_4TO5, tmp+3, 3, CAN_REPLY_POSITIONS2);
+  ret = _readU16Vector(CAN_READ_POSITIONS_3TO5, tmp+3, 3, CAN_REPLY_POSITIONS2);
+  if (ret == YARP_FAIL)
+    {
+      fprintf(stderr, "YARPPeakSerialDD::CAN_READ_POSITIONS_4TO5 returned error\n");
+    }
+
+  //  fprintf(stderr, " %.2lf %.2lf\n", tmp[4], tmp[5]);
+  return ret;
+}
+
+int YARPPeakSerialDeviceDriver::getPIDErrors(void *cmd)
+{
+  int ret;
+  ACE_ASSERT (cmd!=NULL);
+  double *tmp = (double *) cmd;
+  ///=  fprintf(stderr, "A");
+  ret = _readS16Vector(CAN_READ_ERRORS_0TO2, tmp, 3, CAN_REPLY_ERRORS1);
+  //  fprintf(stderr, "B");
+  //fprintf(stderr, "%.2lf %.2lf %.2lf %.2lf\n", tmp[0], tmp[1], tmp[2], tmp[3]);
+  if (ret == YARP_FAIL)
+    {
+      fprintf(stderr, "YARPPeakSerialDD::CAN_READ_ERRORS_0TO3 returned error\n");
+      return YARP_FAIL;
+    }
+  //  fprintf(stderr, "C");
+  ret = _readS16Vector(CAN_READ_ERRORS_3TO5, tmp+3, 3, CAN_REPLY_ERRORS2);
   if (ret == YARP_FAIL)
     {
       fprintf(stderr, "YARPPeakSerialDD::CAN_READ_POSITIONS_4TO5 returned error\n");
@@ -246,6 +270,17 @@ int YARPPeakSerialDeviceDriver::setPosition(void *cmd)
   double value = *((double *) tmp->parameters);
 
   ret = _writeWord(CAN_SET_POSITION, axis, (int)(value), CAN_REPLY_NO_CHECK);
+  return ret;
+}
+
+int YARPPeakSerialDeviceDriver::setErrorLimit(void *cmd)
+{
+  int ret;
+  SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+  const int axis = tmp->axis;
+  double value = *((double *) tmp->parameters);
+
+  ret = _writeWord(CAN_SET_ERROR_LIMIT, axis, (int)(value), CAN_REPLY_NO_CHECK);
   return ret;
 }
 
