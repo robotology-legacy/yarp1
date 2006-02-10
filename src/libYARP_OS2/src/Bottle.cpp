@@ -3,6 +3,7 @@
 #include <yarp/BufferedBlockWriter.h>
 #include <yarp/StreamBlockReader.h>
 #include <yarp/StringOutputStream.h>
+#include <yarp/StringInputStream.h>
 
 #include <ace/OS_NS_stdlib.h>
 #include <ace/OS_NS_stdio.h>
@@ -38,8 +39,12 @@ void Bottle::smartAdd(const String& str) {
   if (str.length()>0) {
     char ch = str[0];
     Storable *s = NULL;
-    if (ch>='0'&&ch<='9') {
-      s = new StoreInt(0);
+    if (ch>='0'&&ch<='9'||ch=='+'||ch=='-'||ch=='.') {
+      if (str.strstr(".")<0) {
+	s = new StoreInt(0);
+      } else {
+	s = new StoreDouble(0);
+      }
     } else {
       s = new StoreString("");
     }
@@ -110,34 +115,40 @@ int Bottle::size() {
 }
 
 void Bottle::fromBytes(const Bytes& data) {
+  String wrapper;
+  wrapper.set(data.get(),data.length(),0);
+  StringInputStream sis;
+  sis.add(wrapper);
+  StreamBlockReader reader;
+  reader.reset(sis,NULL,data.length(),false);
+
   clear();
   dirty = true; // for clarity
-  int index = 0;
-  int len = data.length();
-  while (index<len-4) {
-    int id = NetType::netInt(Bytes(data.get()+index,4));
-    index+=4;
-    //log.println("Id is " + id);
-    switch (id) {
-    case 1:
-      {
-	int v = NetType::netInt(Bytes(data.get()+index,4));
-	index+=4;
-	//log.println(" > num is " + v);
-	addInt(v);
+
+  try {
+    while (reader.getSize()>0) {
+      int id = reader.expectInt();
+      Storable *storable = NULL;
+      switch (id) {
+      case StoreInt::code:
+	storable = new StoreInt();
+	break;
+      case StoreDouble::code:
+	storable = new StoreDouble();
+	break;
+      case StoreString::code:
+	storable = new StoreString();
 	break;
       }
-    case 5:
-      {
-	int l = NetType::netInt(Bytes(data.get()+index,4));
-	index+=4;
-	String txt = (data.get()+index);
-	index+=l;
-	//log.println(" > string is " + txt);
-	addString(txt.c_str());
+      if (storable==NULL) {
+	YARP_ERROR(Logger::get(), "Bottle reader failed");
+	throw IOException("Bottle reader failed - unrecognized format?");
       }
-      break;
+      storable->readBlock(reader);
+      add(storable);
     }
+  } catch (IOException e) {
+    YARP_DEBUG(Logger::get(), e.toString() + " bottle reader stopped");
   }
 }
 
@@ -221,16 +232,38 @@ void Bottle::StoreInt::fromString(const String& src) {
   x = ACE_OS::atoi(src.c_str());
 }
 
-int Bottle::StoreInt::getCode() {
-  return 1;
-}
-
 void Bottle::StoreInt::readBlock(BlockReader& reader) {
   x = reader.expectInt();
 }
 
 void Bottle::StoreInt::writeBlock(BlockWriter& writer) {
   writer.appendInt(x);
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+// StoreDouble
+
+String Bottle::StoreDouble::toString() {
+  char buf[256];
+  ACE_OS::sprintf(buf,"%g",x);
+  String str(buf);
+  if (str.strstr(".")<0) {
+    str += ".0";
+  }
+  return str;
+}
+
+void Bottle::StoreDouble::fromString(const String& src) {
+  x = ACE_OS::strtod(src.c_str(),NULL);
+}
+
+void Bottle::StoreDouble::readBlock(BlockReader& reader) {
+  reader.expectBlock(Bytes((char*)&x,sizeof(x)));
+}
+
+void Bottle::StoreDouble::writeBlock(BlockWriter& writer) {
+  writer.appendBlockCopy(Bytes((char*)&x,sizeof(x)));
 }
 
 
@@ -286,10 +319,6 @@ void Bottle::StoreString::fromString(const String& src) {
 }
 
 
-int Bottle::StoreString::getCode() {
-  return 5;
-}
-
 void Bottle::StoreString::readBlock(BlockReader& reader) {
   int len = reader.expectInt();
   x = reader.expectString(len);
@@ -304,7 +333,7 @@ void Bottle::StoreString::writeBlock(BlockWriter& writer) {
 
 bool Bottle::isInt(int index) {
   if (index>=0 && index<size()) {
-    return content[index]->getCode() == StoreInt(0).getCode();
+    return content[index]->getCode() == StoreInt::code;
   }
   return false;
 }
@@ -312,10 +341,18 @@ bool Bottle::isInt(int index) {
 
 bool Bottle::isString(int index) {
   if (index>=0 && index<size()) {
-    return content[index]->getCode() == StoreString("").getCode();
+    return content[index]->getCode() == StoreString::code;
   }
   return false;
 }
+
+bool Bottle::isDouble(int index) {
+  if (index>=0 && index<size()) {
+    return content[index]->getCode() == StoreDouble::code;
+  }
+  return false;
+}
+
 
 int Bottle::getInt(int index) {
   if (!isInt(index)) { return 0; }
@@ -325,6 +362,11 @@ int Bottle::getInt(int index) {
 String Bottle::getString(int index) {
   if (!isString(index)) { return ""; }
   return content[index]->asString();
+}
+
+double Bottle::getDouble(int index) {
+  if (!isDouble(index)) { return 0; }
+  return content[index]->asDouble();
 }
 
 

@@ -27,16 +27,18 @@ public:
 
   bool isInt(int index);
   bool isString(int index);
+  bool isDouble(int index);
 
   int getInt(int index);
   String getString(int index);
+  double getDouble(int index);
 
   void addInt(int x) {
     add(new StoreInt(x));
   }
 
-  void addFloat(double x) {
-    //add(Store<double>(x));
+  void addDouble(double x) {
+    add(new StoreDouble(x));
   }
 
   void addInts(int *x, int ct) {
@@ -77,6 +79,7 @@ private:
     virtual Storable *create() = 0;
 
     virtual int asInt() { return 0; }
+    virtual double asDouble() { return 0; }
     virtual String asString() { return ""; }
   };
 
@@ -84,30 +87,51 @@ private:
   private:
     int x;
   public:
+    StoreInt() { x = 0; }
     StoreInt(int x) { this->x = x; }
     virtual String toString();
     virtual void fromString(const String& src);
-    virtual int getCode();
+    virtual int getCode() { return code; }
     virtual void readBlock(BlockReader& reader);
     virtual void writeBlock(BlockWriter& writer);
     virtual Storable *create() { return new StoreInt(0); }
     virtual int asInt() { return x; }
+    virtual double asDouble() { return x; }
+    static const int code = 1;
   };
 
   class StoreString : public Storable {
   private:
     String x;
   public:
+    StoreString() { x = ""; }
     StoreString(const String& x) { this->x = x; }
     virtual String toString();
     virtual void fromString(const String& src);
-    virtual int getCode();
+    virtual int getCode() { return code; }
     virtual void readBlock(BlockReader& reader);
     virtual void writeBlock(BlockWriter& writer);
     virtual Storable *create() { return new StoreString(String("")); }
     virtual String asString() { return x; }
+    static const int code = 5;
   };
 
+  class StoreDouble : public Storable {
+  private:
+    double x;
+  public:
+    StoreDouble() { x = 0; }
+    StoreDouble(double x) { this->x = x; }
+    virtual String toString();
+    virtual void fromString(const String& src);
+    virtual int getCode() { return code; }
+    virtual void readBlock(BlockReader& reader);
+    virtual void writeBlock(BlockWriter& writer);
+    virtual Storable *create() { return new StoreDouble(0); }
+    virtual int asInt() { return (int)x; }
+    virtual double asDouble() { return x; }
+    static const int code = 2;
+  };
 
   ACE_Vector<Storable*> content;
   ACE_Vector<char> data;

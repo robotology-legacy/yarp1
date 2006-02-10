@@ -12,6 +12,11 @@
 using namespace yarp;
 
 
+static double myfabs(double x) {
+  if (x>=0) return x;
+  return -x;
+}
+
 class BottleTest : public UnitTest {
 public:
   void testSize() {
@@ -34,7 +39,7 @@ public:
     bot.addInt(5);
     bot.addString("hello \"my\" \\friend");
     String txt = bot.toString();
-	const char *expect = "5 \"hello \\\"my\\\" \\\\friend\"";
+    const char *expect = "5 \"hello \\\"my\\\" \\\\friend\"";
     checkEqual(txt,expect,"string rep");
     Bottle bot2;
     bot2.fromString(txt);
@@ -84,11 +89,41 @@ public:
     }
   }
 
+  void testTypes() {
+    report(0,"testing types...");
+    Bottle bot[3];
+    bot[0].fromString("5 10.2 \"hello\" -15 -15.0");
+    bot[1].addInt(5);
+    bot[1].addDouble(10.2);
+    bot[1].addString("hello");
+    bot[1].addInt(-15);
+    bot[1].addDouble(-15.0);
+    ManagedBytes store(bot[0].byteCount());
+    bot[0].toBytes(store.bytes());
+    bot[2].fromBytes(store.bytes());
+
+    for (int i=0; i<3; i++) {
+      Bottle& b = bot[i];
+      report(0,String("check for bottle number ") +
+	     NetType::toString(i));
+      checkTrue(b.isInt(0)&&b.isInt(3),"ints");
+      checkTrue(b.isDouble(1)&&b.isDouble(4),"doubles");
+      checkTrue(b.isString(2),"strings");
+      checkEqual(b.getInt(0),5,"arg 0");
+      checkTrue(myfabs(b.getDouble(1)-10.2)<0.01,"arg 1");
+      checkEqual(b.getString(2),"hello","arg 2");
+      checkEqual(b.getInt(3),-15,"arg 3");
+      checkTrue(myfabs(b.getDouble(4)+15.0)<0.01,"arg 4");
+    }
+
+  }
+
   virtual void runTests() {
     testSize();
     testString();
     testBinary();
     testStreaming();
+    testTypes();
   }
 
   virtual String getName() {

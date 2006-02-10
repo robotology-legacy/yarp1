@@ -54,6 +54,7 @@ public:
     Bytes b((char*)(&x),sizeof(x));
     YARP_ASSERT(in!=NULL);
     in->read(b);
+    messageLen -= b.length();
     return x;
   }
 
@@ -62,6 +63,7 @@ public:
     Bytes b(buf,len);
     YARP_ASSERT(in!=NULL);
     in->read(b);
+    messageLen -= b.length();
     String s = buf;
     delete[] buf;
     return s;
@@ -69,7 +71,9 @@ public:
 
   virtual String expectLine() {
     YARP_ASSERT(in!=NULL);
-    return NetType::readLine(*in);
+    String result = NetType::readLine(*in);
+    messageLen -= result.length()+1;
+    return result;
   }
 
   virtual bool isTextMode() {
