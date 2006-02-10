@@ -175,6 +175,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CAboutDlg)
     enum { IDD = IDD_ABOUTBOX };
+
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -277,6 +278,7 @@ void CTestControlDlg::DoDataExchange(CDataExchange* pDX)
 	}
 
 	//{{AFX_DATA_MAP(CTestControlDlg)
+	DDX_Control(pDX, IDC_EDIT_FAULT, m_edit_fault);
 	DDX_Control(pDX, IDC_COMBO_ENTRY_ALL, m_entry_all_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_ALL, m_goall_ctrl);
 	DDX_Control(pDX, IDC_COMBO_ENTRY_ARM, m_entry_ctrl_arm);
@@ -555,6 +557,7 @@ void CTestControlDlg::EnableGUI ()
 
 		m_calibratehead_ctrl.EnableWindow();
 		m_0encoders_ctrl.EnableWindow();
+		m_edit_fault.EnableWindow();
 	}
 
 	if (_arminitialized)
@@ -603,6 +606,7 @@ void CTestControlDlg::DisableGUI ()
 
 	m_calibratehead_ctrl.EnableWindow(FALSE);
 	m_0encoders_ctrl.EnableWindow(FALSE);
+	m_edit_fault.EnableWindow(FALSE);
 
 	// arm controls.
 	m_entry_ctrl_arm.EnableWindow(FALSE);
@@ -646,9 +650,13 @@ void CTestControlDlg::AllocHeadArrays(int nj)
 	ACE_ASSERT (_headlastreached != NULL);
 	ACE_OS::memset (_headlastreached, 0, sizeof(double) * nj);
 
+
 	_headfaults = new short[nj];
+
 	ACE_ASSERT (_headfaults != NULL);
+
 	ACE_OS::memset (_headfaults, 0, sizeof(short) * nj);
+
 
 	int i;
 	for (i = 0; i < N_POSTURES; i++)
@@ -690,7 +698,10 @@ void CTestControlDlg::AllocArmArrays(int nj)
 void CTestControlDlg::FreeHeadArrays(void)
 {
 	if (_headfaults != NULL) delete[] _headfaults;
+
 	_headfaults = NULL;
+
+
 
 	if (_headjointstore != NULL) delete[] _headjointstore;
 	_headjointstore = NULL;
@@ -944,9 +955,10 @@ void CTestControlDlg::OnTimer(UINT nIDEvent)
 		head.getFaults (_headfaults);
 		for (i = 0; i < MAX_HEAD_JNTS; i++)
 		{
-			xprintf_head ("%x ", _headfaults[i]);
+			ACE_OS::sprintf (_buffer, "%x ", _headfaults[i]);
 		}
-		xprintf_head("\n");
+		ACE_OS::sprintf (_buffer, "\n");
+		m_edit_fault.SetWindowText (_buffer);
 	}
 	
 	if (_arminitialized)
