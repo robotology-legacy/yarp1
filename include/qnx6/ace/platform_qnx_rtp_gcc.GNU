@@ -26,7 +26,7 @@ else
 endif # inline
 
 ifeq ($(debug),1)
-	DCFLAGS += -gdwarf-2
+	DCFLAGS += -g
 else # debug excludes optimize due to g++ internal compiler error
   ifeq ($(optimize),1)
 	OCFLAGS += -O3
