@@ -10,7 +10,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.3 2006-02-09 15:33:34 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.4 2006-02-10 16:48:41 eshuy Exp $
 //
 /// Based on: Id: YARPPort.cpp,v 2.0 2005/11/06 22:21:26 gmetta Exp
 //
@@ -33,6 +33,7 @@
 #include <yarp/Time.h>
 #include <yarp/Semaphore.h>
 using namespace yarp;
+using namespace yarp::os;
 
 
 #define DEBUG_H_INC

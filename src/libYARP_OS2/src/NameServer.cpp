@@ -10,6 +10,7 @@
 #include <yarp/FallbackNameServer.h>
 
 using namespace yarp;
+using namespace yarp::os;
 
 
 

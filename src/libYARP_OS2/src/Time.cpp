@@ -3,7 +3,7 @@
 
 #include <ace/OS.h>
 
-using namespace yarp;
+using namespace yarp::os;
 
 /// WARNING: actual precision under WIN32 depends on setting scheduler 
 /// by means of MM functions.

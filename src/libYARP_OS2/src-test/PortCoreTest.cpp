@@ -9,6 +9,7 @@
 #include "TestList.h"
 
 using namespace yarp;
+using namespace yarp::os;
 
 class PortCoreTest : public UnitTest, public Readable {
 public:

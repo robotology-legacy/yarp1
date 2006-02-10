@@ -21,21 +21,21 @@ void FallbackNameServer::run() {
   while (listen.isOk()&&send.isOk()&&!closed) {
     YARP_DEBUG(Logger::get(),"Fallback server waiting");
     String msg;
-	try {
-		msg = NetType::readLine(listen);
-    YARP_DEBUG(Logger::get(),"Fallback server got something");
-    if (listen.isOk()&&!closed) {
-      YARP_DEBUG(Logger::get(),String("Fallback server got ") + msg);
-      if (msg.strstr("NAME_SERVER ") == 0) {
-	String result = owner.apply(msg);
-	//Bytes b((char*)(result.c_str()),result.length());
-  	send.writeLine(result);
-	send.flush();
-      }
-    }
-	} catch (IOException e) {
-		YARP_DEBUG(Logger::get(),e.toString() + " <<< fallback exception");
+    try {
+      msg = NetType::readLine(listen);
+      YARP_DEBUG(Logger::get(),"Fallback server got something");
+      if (listen.isOk()&&!closed) {
+	YARP_DEBUG(Logger::get(),String("Fallback server got ") + msg);
+	if (msg.strstr("NAME_SERVER ") == 0) {
+	  String result = owner.apply(msg);
+	  //Bytes b((char*)(result.c_str()),result.length());
+	  send.writeLine(result);
+	  send.flush();
 	}
+      }
+    } catch (IOException e) {
+      YARP_DEBUG(Logger::get(),e.toString() + " <<< fallback exception");
+    }
   }
 }
 

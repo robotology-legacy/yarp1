@@ -63,7 +63,7 @@ private:
   OutputProtocol *op;
   bool closing, finished, running;
   String name;
-  Semaphore phase;
+  SemaphoreImpl phase;
 
   void closeMain();
 };

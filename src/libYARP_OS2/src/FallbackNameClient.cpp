@@ -7,6 +7,7 @@
 #include <yarp/FallbackNameServer.h>
 
 using namespace yarp;
+using namespace yarp::os;
 
 void FallbackNameClient::run() {
   try {

@@ -1,7 +1,7 @@
 #ifndef _YARP2_FALLBACKNAMESERVER_
 #define _YARP2_FALLBACKNAMESERVER_
 
-#include <yarp/Thread.h>
+#include <yarp/ThreadImpl.h>
 #include <yarp/Address.h>
 #include <yarp/DgramTwoWayStream.h>
 
@@ -14,7 +14,7 @@ namespace yarp {
  * Multi-cast server, for last resort information sharing about
  * name information -- when config files are missing or wrong
  */
-class yarp::FallbackNameServer : public Thread {
+class yarp::FallbackNameServer : public ThreadImpl {
 public:
   FallbackNameServer(NameServer& owner) : owner(owner) {
     closed = false;

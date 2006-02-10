@@ -163,7 +163,7 @@ bool PortCore::start() {
   YARP_ASSERT(finished==false);
   YARP_ASSERT(closing==false);
   starting = true;
-  bool started = Thread::start();
+  bool started = ThreadImpl::start();
   if (!started) {
     // run() won't be happening
     stateMutex.post();

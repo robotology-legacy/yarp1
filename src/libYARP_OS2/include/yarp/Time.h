@@ -2,13 +2,15 @@
 #define _YARP2_TIME_
 
 namespace yarp {
-  class Time;
+  namespace os {
+    class Time;
+  }
 }
 
 /**
  * Services related to time -- delay, current time.
  */
-class yarp::Time {
+class yarp::os::Time {
 public:
   static void delay(double seconds);
   static double now();

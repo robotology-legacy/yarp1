@@ -17,6 +17,7 @@ using namespace std;
 
 
 using namespace yarp;
+using namespace yarp::os;
 
 Companion Companion::instance;
 
@@ -225,6 +226,7 @@ int Companion::cmdServer(int argc, char *argv[]) {
   return NameServer::main(argc,argv);
 }
 
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 class CompanionCheckHelper : public Readable {
@@ -340,7 +342,7 @@ int Companion::disconnectInput(const char *src, const char *dest,
 class BottleReader : public Readable {
 private:
   PortCore core;
-  Semaphore done;
+  SemaphoreImpl done;
 public:
   BottleReader(const char *name) : done(0) {
     NameClient& nic = NameClient::getNameClient();
@@ -446,5 +448,6 @@ int Companion::write(const char *name, int ntargets, char *targets[]) {
   }
   return 1;
 }
+
 
 

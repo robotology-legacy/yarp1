@@ -1,8 +1,8 @@
 #ifndef _YARP2_PORTCORE_
 #define _YARP2_PORTCORE_
 
-#include <yarp/Thread.h>
-#include <yarp/Semaphore.h>
+#include <yarp/ThreadImpl.h>
+#include <yarp/SemaphoreImpl.h>
 #include <yarp/Carriers.h>
 #include <yarp/Address.h>
 #include <yarp/PortManager.h>
@@ -23,7 +23,7 @@ namespace yarp {
  * directed to the handler set with setReadHandler().  Calls to send()
  * result in data begin sent to all the outgoing connections.
  */
-class yarp::PortCore : public Thread, public PortManager {
+class yarp::PortCore : public ThreadImpl, public PortManager {
 public:
 
   PortCore() {
@@ -101,7 +101,7 @@ private:
 private:
 
   // main internal PortCore state and operations
-  Semaphore stateMutex;
+  SemaphoreImpl stateMutex;
   Face *face;
   String name;
   Address address;

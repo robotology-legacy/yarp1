@@ -1,39 +1,32 @@
 #ifndef _YARP2_SEMAPHORE_
 #define _YARP2_SEMAPHORE_
 
-#include <ace/Synch.h>
-
 namespace yarp {
-  class Semaphore;
+  namespace os {
+    class Semaphore;
+  }
 }
 
 /**
  * A semaphore abstraction for mutual exclusion and resource management.
  */
-class yarp::Semaphore {
+class yarp::os::Semaphore {
 public:
-  Semaphore(int initialCount = 1) : sema(initialCount) {
-  }
+  Semaphore(int initialCount = 1);
 
-  virtual ~Semaphore() {}
+  virtual ~Semaphore();
 
   // blocking wait
-  void wait() {
-    sema.acquire();
-  }
+  void wait();
 
   // polling wait
-  bool check() {
-    return (sema.tryacquire()<0)?0:1;
-  }
+  bool check();
 
   // increment
-  void post() {
-    sema.release();
-  }
+  void post();
 
 private:
-  ACE_Semaphore sema;
+  void *implementation;
 };
 
 #endif

@@ -122,6 +122,11 @@ Compatibility files:
 give a little bit of YARPPort support.  YARP1 headers need to be available
 for this to compile and run.
 
+Namespaces:
+  + currently being reorganized
+  + there is "yarp" catch-all, but this should be mostly user-interface
+  + making a yarp::sys namespace
+
 ===============================================================================
 
 IMPLEMENTATION OF PORTS AND CONNECTIONS

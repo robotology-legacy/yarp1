@@ -3,7 +3,7 @@
 
 #include <yarp/Time.h>
 
-using namespace yarp;
+using namespace yarp::os;
 
 double YARPTime::GetTimeAsSeconds() {
   return Time::now();

@@ -61,7 +61,7 @@ public:
 
 private:
   InputProtocol *ip;
-  Semaphore phase;
+  SemaphoreImpl phase;
   bool autoHandshake;
   bool closing, finished, running;
   String name;

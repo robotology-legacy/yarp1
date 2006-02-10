@@ -1,7 +1,7 @@
 #ifndef _YARP2_FALLBACKNAMECLIENT_
 #define _YARP2_FALLBACKNAMECLIENT_
 
-#include <yarp/Thread.h>
+#include <yarp/ThreadImpl.h>
 #include <yarp/Address.h>
 #include <yarp/DgramTwoWayStream.h>
 
@@ -13,7 +13,7 @@ namespace yarp {
  * A client for the FallbackNameServer class.  Provides a last-resort
  * means of searching for the name server.
  */
-class yarp::FallbackNameClient : public Thread {
+class yarp::FallbackNameClient : public ThreadImpl {
 public:
   FallbackNameClient() {
     closed = false;

@@ -59,6 +59,7 @@ void PortCoreOutputUnit::runSimulation() {
   running = false;
   return;
 
+  /*
   // simulation
   running = true;
   while (true) {
@@ -73,6 +74,7 @@ void PortCoreOutputUnit::runSimulation() {
 
   running = false;
   finished = true;
+  */
 }
 
 

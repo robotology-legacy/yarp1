@@ -170,6 +170,7 @@ void PortCoreInputUnit::run() {
 
 
 void PortCoreInputUnit::runSimulation() {
+  /*
   // simulation
   running = true;
   while (true) {
@@ -179,6 +180,7 @@ void PortCoreInputUnit::runSimulation() {
       break;
     }
   }
+  */
 
   ACE_OS::printf("stopping\n");
 

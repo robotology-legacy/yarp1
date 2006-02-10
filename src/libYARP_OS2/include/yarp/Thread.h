@@ -1,23 +1,19 @@
 #ifndef _YARP2_THREAD_
 #define _YARP2_THREAD_
 
-#include <yarp/Runnable.h>
-#include <yarp/Semaphore.h>
-
-#include <ace/Thread.h>
-
 
 namespace yarp {
-  class Thread;
+  namespace os {
+    class Thread;
+  }
 }
 
 /**
- * An abstraction for a thread of executation.
+ * An abstraction for a thread of execution.
  */
-class yarp::Thread : public Runnable {
+class yarp::os::Thread {
 public:
   Thread();
-  Thread(Runnable *target);
 
   virtual ~Thread();
 
@@ -27,9 +23,6 @@ public:
 
   // should throw if no success
   virtual bool start();
-
-  virtual void beforeStart();
-  virtual void afterStart(bool success);
 
   // call before start
   void setOptions(int stackSize = 0);
@@ -43,14 +36,7 @@ public:
   long int getKey();
 
 private:
-  int stackSize;
-  ACE_hthread_t hid;
-  ACE_thread_t id;
-  bool active;
-  Runnable *delegate;
-
-  static int threadCount;
-  static Semaphore threadMutex;
+  void *implementation;
 };
 
 #endif

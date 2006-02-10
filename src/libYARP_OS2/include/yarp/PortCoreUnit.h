@@ -2,7 +2,7 @@
 #define _YARP2_PORTCOREUNIT_
 
 #include <yarp/PortCore.h>
-#include <yarp/Thread.h>
+#include <yarp/ThreadImpl.h>
 
 namespace yarp {
   class PortCoreUnit;
@@ -14,7 +14,7 @@ namespace yarp {
  * connection.
  */
 
-class yarp::PortCoreUnit : public Thread {
+class yarp::PortCoreUnit : public ThreadImpl {
 public:
   PortCoreUnit(PortCore& owner) : owner(owner) {
     doomed = false;

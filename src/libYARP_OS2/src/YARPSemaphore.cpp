@@ -10,19 +10,21 @@
 ///
 /// based on Id: YARPSemaphore.cpp,v 2.0 2005/11/06 22:21:26 gmetta Exp
 
-/// $Id: YARPSemaphore.cpp,v 1.1 2006-02-03 16:06:19 eshuy Exp $
+/// $Id: YARPSemaphore.cpp,v 1.2 2006-02-10 16:48:41 eshuy Exp $
 ///
 ///
 
 
-#include <yarp/Semaphore.h>
+#include <yarp/SemaphoreImpl.h>
 #include <yarp/Logger.h>
 
 #define DEBUG_H_INC
 #include <yarp/YARPSemaphore.h>
 
-
 using namespace yarp;
+
+// skip a level of indirection
+#define Semaphore SemaphoreImpl
 
 YARPSemaphore::YARPSemaphore (int initial_count) {
   Semaphore *sema = new Semaphore(initial_count);

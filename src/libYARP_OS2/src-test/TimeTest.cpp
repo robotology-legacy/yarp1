@@ -2,11 +2,11 @@
 
 #include "TestList.h"
 
-using namespace yarp;
+using namespace yarp::os;
 
-class TimeTest : public UnitTest {
+class TimeTest : public yarp::UnitTest {
 public:
-  virtual String getName() { return "TimeTest"; }
+  virtual yarp::String getName() { return "TimeTest"; }
 
   void testDelay() {
     report(0,"testing delay (there will be a short pause)...");
@@ -27,7 +27,7 @@ public:
 
 static TimeTest theTimeTest;
 
-UnitTest& getTimeTest() {
+yarp::UnitTest& getTimeTest() {
   return theTimeTest;
 }
 

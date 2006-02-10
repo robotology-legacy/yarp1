@@ -1,10 +1,11 @@
-#include <yarp/Thread.h>
+#include <yarp/ThreadImpl.h>
 #include <yarp/Semaphore.h>
 #include <yarp/Time.h>
 
 #include "TestList.h"
 
 using namespace yarp;
+using namespace yarp::os;
 
 
 class ThreadTest : public UnitTest {
@@ -18,7 +19,7 @@ public:
 
 private:
 
-  class Thread0: public Thread {
+  class Thread0: public ThreadImpl {
   public:
     virtual void run() {
       Time::delay(0.01);
@@ -44,7 +45,7 @@ private:
   };
   
   
-  class Thread2 : public Thread {
+  class Thread2 : public ThreadImpl {
   public:
     ThreadTest& owner;
 
@@ -87,22 +88,22 @@ public:
     gotCount = 0;
   }
 
-  virtual String getName() { return "ThreadTest"; }
+  virtual yarp::String getName() { return "ThreadTest"; }
 
   void testSync() {
     report(0,"testing cross-thread synchronization...");
-    int tct = Thread::getCount();
+    int tct = ThreadImpl::getCount();
     Thread1 bozo(*this);
     Thread1 bozo2(*this);
     Thread2 burper(*this);
-    Thread t1(&bozo);
-    Thread t2(&bozo2);
+    ThreadImpl t1(&bozo);
+    ThreadImpl t2(&bozo2);
     report(0,"starting threads ...");
     burper.start();
     t1.start();
     Time::delay(0.05);
     t2.start();
-    checkEqual(Thread::getCount(),tct+3,"thread count");
+    checkEqual(ThreadImpl::getCount(),tct+3,"thread count");
     t1.join();
     t2.join();
     burper.close();

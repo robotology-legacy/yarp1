@@ -10,11 +10,11 @@
 ///
 /// based on Id: YARPThread.cpp,v 2.0 2005/11/06 22:21:26 gmetta Exp
 //
-/// $Id: YARPThread.cpp,v 1.2 2006-02-03 16:59:48 eshuy Exp $
+/// $Id: YARPThread.cpp,v 1.3 2006-02-10 16:48:41 eshuy Exp $
 ///
 ///
 
-#include <yarp/Thread.h>
+#include <yarp/ThreadImpl.h>
 #include <yarp/Logger.h>
 
 #define DEBUG_H_INC
@@ -27,7 +27,7 @@ const size_t DEFAULT_THREAD_STACK_SIZE = 8000;
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-class ThreadAdaptor : public Thread {
+class ThreadAdaptor : public ThreadImpl {
 private:
   YARPBareThread& owner;
 public:
@@ -81,7 +81,7 @@ void YARPBareThread::Begin (int stack_size) {
   ACE_ASSERT (system_resource == NULL);
 
   if (system_resource == NULL) {
-    Thread * thread = new ThreadAdaptor(*this);
+    ThreadAdaptor * thread = new ThreadAdaptor(*this);
     system_resource = thread;
     ACE_ASSERT (system_resource != NULL);
 
