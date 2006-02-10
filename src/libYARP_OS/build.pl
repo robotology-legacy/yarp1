@@ -66,17 +66,23 @@ if ($os ne $exp_os)
 
 if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 {
-	if (exists $options{"Compile_OS<-ACE_PATH"})
-	{
-		print "Looking for ACE...\n";
-		$options{"Compile_OS<-ACE_PATH"} =~ s/\$YARP_ROOT/$yarp_root/;
-		$options{"Compile_OS<-ACE_PATH"} =~ s#\\#/#g;
-		if (-e $options{"Compile_OS<-ACE_PATH"} &&
-			-e "$yarp_root/include/$os/ace" )
-		{
-			do_ext_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os");
-		}
-	}
+    if (exists $options{"Compile_OS<-ACE_PATH"})
+    {
+        print "Looking for ACE...\n";
+        $options{"Compile_OS<-ACE_PATH"} =~ s/\$YARP_ROOT/$yarp_root/;
+        $options{"Compile_OS<-ACE_PATH"} =~ s#\\#/#g;
+        if (-e $options{"Compile_OS<-ACE_PATH"} && -e "$yarp_root/include/$os/ace" )
+        {
+            if ($options{"Compile_OS<-ACE_Debug"} eq "YES") 
+            {
+                do_ext_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os");
+            }
+            else
+            {
+                do_ext_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os");
+            }
+        }
+    }
 	else
 	{
 		print "I'm assuming you've got ACE installed already!\n";

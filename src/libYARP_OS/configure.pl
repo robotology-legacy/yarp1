@@ -3,7 +3,7 @@
 #	--file <config_file>
 #		where <config_file> is the filename of the context config file.
 #
-# $Id: configure.pl,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+# $Id: configure.pl,v 2.1 2006-02-10 18:11:11 beltran Exp $
 # The libYARP_OS configure script.
 #
 
@@ -53,6 +53,9 @@ die "Cross-compile is not supported, the auto-detected OS must be also selected\
 
 get_option_hash ("Compile_OS<-ACE_PATH", "\$YARP_ROOT/src/ACE_wrappers", "Where has ACE been unpacked?", 0, \%options);
 get_option_hash ("Compile_OS<-ACE_Rebuild", "NO", "Do you want to rebuild ACE, i.e. clean before building?", 1, \%options);
+if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES"){
+    get_option_hash ("Compile_OS<-ACE_Debug","NO", "Do you want to compile ACE in debug (if NO it will be compiled in release mode)?",1,\%options); 
+}
 
 print "Would you like to set a default for library compilation?\n";
 get_option_hash ("Compile_OS<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?", 1, \%options);
