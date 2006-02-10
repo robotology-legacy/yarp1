@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.8 2006-02-09 22:48:07 babybot Exp $
+/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.9 2006-02-10 08:28:48 gmetta Exp $
 ///
 ///
 
@@ -498,7 +498,7 @@ public:
 
 		// before opening the device driver, I play a little trick here
 		// to replace the getPosition with the broadcast version.
-		m_cmds[CMDGetPositions] = &YARPEsdCanDeviceDriver::getBCastPositions;
+		///m_cmds[CMDGetPositions] = &YARPEsdCanDeviceDriver::getBCastPositions;
 
 		if (YARPEsdCanDeviceDriver::open ((void *)&op_par) < 0)
 		{

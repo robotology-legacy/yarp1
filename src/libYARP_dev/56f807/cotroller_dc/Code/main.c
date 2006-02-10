@@ -514,6 +514,7 @@ void can_send_request(void)
 void can_send_broadcast(void)
 {
 	int iretval; 
+	bool send;
 	
 	if (!_broadcast_mask)
 		return;
@@ -567,7 +568,8 @@ void can_send_broadcast(void)
 		_canmsg.CAN_data[1] = 0;
 		_canmsg.CAN_data[2] = 0;
 		_canmsg.CAN_data[3] = 0;
-		
+		send = false;
+			
 		iretval = getReg (PWMA_PMFSA);
 		
 		if (_fault[0] == 0 && iretval != 0)
@@ -576,12 +578,16 @@ void can_send_broadcast(void)
 			_fault[0] = iretval;
 			_canmsg.CAN_data[0] = BYTE_H(iretval);
 			_canmsg.CAN_data[1] = BYTE_L(iretval);
+			send = true;
 		}
 		else
 		if (_fault[0] != 0 && iretval == 0)
 		{
 			// reset fault.
 			_fault[0] = 0;
+			_canmsg.CAN_data[0] = BYTE_H(iretval);
+			_canmsg.CAN_data[1] = BYTE_L(iretval);
+			send = true;
 		}
 		
 		iretval = getReg (PWMB_PMFSA);
@@ -592,19 +598,20 @@ void can_send_broadcast(void)
 			_fault[1] = iretval;
 			_canmsg.CAN_data[2] = BYTE_H(iretval);
 			_canmsg.CAN_data[3] = BYTE_L(iretval);
+			send = true;
 		}
 		else
 		if (_fault[1] != 0 && iretval == 0)
 		{
 			// reset fault.
 			_fault[1] = 0;
+			_canmsg.CAN_data[2] = BYTE_H(iretval);
+			_canmsg.CAN_data[3] = BYTE_L(iretval);
+			send = true;
 		}
 
 		// if new fault, send message.		
-		if (_canmsg.CAN_data[0] != 0 || 
-			_canmsg.CAN_data[1] != 0 ||
-			_canmsg.CAN_data[2] != 0 ||
-			_canmsg.CAN_data[3] != 0)
+		if (send)
 		{
 			_canmsg.CAN_length = 4;
 			_canmsg.CAN_frameType = DATA_FRAME;
