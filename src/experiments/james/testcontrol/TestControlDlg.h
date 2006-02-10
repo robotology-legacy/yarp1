@@ -51,8 +51,11 @@ public:
 
 	double *_headjointstore;		// temporary arrays.
 	double *_headlastreached;
+	short *_headfaults;				// fault bits.
+
 	double *_armjointstore;
 	double *_armlastreached;
+
 	char _buffer[512];				// general purpose buffer.
 
 	CGainControlDlg _gaincontroldlg;
@@ -75,7 +78,7 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CTestControlDlg)
-	enum { IDD = IDD_TESTCONTROL_DIALOG };
+    enum { IDD = IDD_TESTCONTROL_DIALOG };
 	CComboBox	m_entry_all_ctrl;
 	CButton	m_goall_ctrl;
 	CComboBox	m_entry_ctrl_arm;

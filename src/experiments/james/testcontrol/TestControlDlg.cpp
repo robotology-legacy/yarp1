@@ -174,7 +174,7 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CAboutDlg)
-	enum { IDD = IDD_ABOUTBOX };
+    enum { IDD = IDD_ABOUTBOX };
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -646,6 +646,10 @@ void CTestControlDlg::AllocHeadArrays(int nj)
 	ACE_ASSERT (_headlastreached != NULL);
 	ACE_OS::memset (_headlastreached, 0, sizeof(double) * nj);
 
+	_headfaults = new short[nj];
+	ACE_ASSERT (_headfaults != NULL);
+	ACE_OS::memset (_headfaults, 0, sizeof(short) * nj);
+
 	int i;
 	for (i = 0; i < N_POSTURES; i++)
 	{
@@ -685,6 +689,9 @@ void CTestControlDlg::AllocArmArrays(int nj)
 
 void CTestControlDlg::FreeHeadArrays(void)
 {
+	if (_headfaults != NULL) delete[] _headfaults;
+	_headfaults = NULL;
+
 	if (_headjointstore != NULL) delete[] _headjointstore;
 	_headjointstore = NULL;
 
@@ -808,7 +815,6 @@ void CTestControlDlg::OnInterfaceStart()
 		_touchrunning = true;
 	}	
 
-
 	if (_headinitialized)
 		AllocHeadArrays (MAX_HEAD_JNTS);
 
@@ -928,12 +934,19 @@ void CTestControlDlg::OnTimer(UINT nIDEvent)
 	{
 		head.getPositions (_headjointstore);
 		ACE_OS::memcpy (_headlastreached, _headjointstore, sizeof(double) * MAX_HEAD_JNTS);
-		
-		for (int i = 0; i < MAX_HEAD_JNTS; i++)
+		int i;
+		for (i = 0; i < MAX_HEAD_JNTS; i++)
 		{
 			ACE_OS::sprintf (_buffer, "%.2f", _headjointstore[i]);
 			m_s_ctrl[i].SetWindowText (_buffer);
 		}
+
+		head.getFaults (_headfaults);
+		for (i = 0; i < MAX_HEAD_JNTS; i++)
+		{
+			xprintf_head ("%x ", _headfaults[i]);
+		}
+		xprintf_head("\n");
 	}
 	
 	if (_arminitialized)
