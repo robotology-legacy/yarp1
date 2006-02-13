@@ -106,6 +106,11 @@ Address NameClient::extractAddress(const String& txt) {
 
 String NameClient::send(const String& cmd, bool multi) {
   ACE_DEBUG((LM_DEBUG,">>> sending to nameserver: %s",cmd.c_str()));
+
+  if (isFakeMode()) {
+    return getServer().apply(cmd,Address("localhost",10000,"tcp")) + "\n";
+  }
+
   String result;
   TcpFace face;
   OutputProtocol *ip = face.write(getAddress());
@@ -160,9 +165,9 @@ String NameClient::send(const String& cmd, bool multi) {
 
 Address NameClient::queryName(const String& name) {
   String np = getNamePart(name);
-  if (isFakeMode()) {
-    return getServer().queryName(np);
-  }
+  //if (isFakeMode()) {
+  //return getServer().queryName(np);
+  //}
   String q("NAME_SERVER query ");
   q += np;
   return probe(q);
@@ -174,16 +179,16 @@ Address NameClient::registerName(const String& name) {
 
 Address NameClient::registerName(const String& name, const Address& suggest) {
   String np = getNamePart(name);
-  if (isFakeMode()) {
-    return getServer().registerName(np,suggest);
-  }
+  //if (isFakeMode()) {
+  //return getServer().registerName(np,suggest);
+  //}
   String q("NAME_SERVER register ");
-  q += np;
+  q += (np!="")?np:"...";
   if (suggest.isValid()) {
     q += " ";
-    q += suggest.getCarrierName();
+    q += (suggest.getCarrierName()!="")?suggest.getCarrierName():"...";
     q += " ";
-    q += suggest.getName();
+    q += (suggest.getName()!="")?suggest.getName():"...";
     q += " ";
     if (suggest.getPort()==0) {
       q += "...";
@@ -206,9 +211,9 @@ Address NameClient::registerName(const String& name, const Address& suggest) {
 
 Address NameClient::unregisterName(const String& name) {
   String np = getNamePart(name);
-  if (isFakeMode()) {
-    return getServer().unregisterName(np);
-  }
+  //if (isFakeMode()) {
+  //return getServer().unregisterName(np);
+  //}
   String q("NAME_SERVER unregister ");
   q += np;
   return probe(q);

@@ -32,6 +32,16 @@ int main(int argc, char *argv[]) {
   bool done = false;
 
   if (argc>1) {
+    int verbosity = 0;
+    while (String(argv[1])==String("verbose")) {
+      verbosity++;
+      argc--;
+      argv++;
+    }
+    if (verbosity>0) {
+      Logger::get().setVerbosity(verbosity);
+    }
+    
     if (String(argv[1])==String("regression")) {
       done = true;
       UnitTest::startTestSystem();

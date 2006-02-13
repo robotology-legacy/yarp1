@@ -65,6 +65,9 @@ public:
   // useful for stress-testing
   int getEventCount();
 
+  const Address& getAddress() const {
+    return address;
+  }
 
 public:
 

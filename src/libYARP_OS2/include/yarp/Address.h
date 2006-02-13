@@ -2,6 +2,7 @@
 #define _YARP2_ADDRESS_
 
 #include <yarp/String.h>
+#include <yarp/Contact.h>
 
 #include <ace/OS_NS_stdlib.h>
 
@@ -163,6 +164,15 @@ public:
     return Address(name,port,carrier,regName);
   }
 
+  Address addCarrier(const String& carrier) const {
+    return Address(name,port,carrier,regName);
+  }
+
+  Address addSocket(const String& carrier, const String& name,
+		    int port) const {
+    return Address(name,port,carrier,regName);
+  }
+
   bool hasRegName() const {
     return regName != "";
   }
@@ -170,6 +180,8 @@ public:
   bool hasCarrierName() const {
     return carrier != "";
   }
+
+  yarp::os::Contact toContact() const;
 };
 
 #endif

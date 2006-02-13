@@ -1,5 +1,6 @@
 #include <yarp/Port.h>
 #include <yarp/NameClient.h>
+#include <yarp/Companion.h>
 
 #include "TestList.h"
 
@@ -14,7 +15,16 @@ public:
     Port out, in;
 
     in.open("/in");
-    out.open("/out");
+    out.open(Contact::bySocket("tcp","",9900));
+
+    report(0,"running companion...");
+    char *argv[] = {"yarp","name","list"};
+    yarp::Companion::main(3,argv);
+
+    Contact conIn = in.where();
+    Contact conOut = out.where();
+
+    assertEqual(conIn.getName().c_str(),"/in","name is recorded");
 
     in.close();
     out.close();

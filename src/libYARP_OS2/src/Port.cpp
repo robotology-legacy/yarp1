@@ -3,7 +3,9 @@
 #include <yarp/PortCore.h>
 #include <yarp/Logger.h>
 #include <yarp/NameClient.h>
+#include <yarp/Contact.h>
 
+using namespace yarp;
 using namespace yarp::os;
 
 Port::Port() {
@@ -13,11 +15,23 @@ Port::Port() {
 
 
 bool Port::open(const char *name) {
+  return open(Contact::byName(name));
+}
+
+
+bool Port::open(const Contact& contact, bool registerName) {
   bool success = true;
+  Address caddress(contact.getHost().c_str(),
+		   contact.getPort(),
+		   contact.getCarrier().c_str(),
+		   contact.getName().c_str());
   try {
     PortCore& core = *((PortCore*)implementation);
     NameClient& nic = NameClient::getNameClient();
-    Address address = nic.registerName(name);
+    Address address = caddress;
+    if (registerName) {
+      address = nic.registerName(contact.getName().c_str(),caddress);
+    }
     success = address.isValid();
     if (success) {
       success = core.listen(address);
@@ -50,4 +64,12 @@ Port::~Port() {
     implementation = NULL;
   }
 }
+
+
+Contact Port::where() {
+  PortCore& core = *((PortCore*)implementation);
+  Address address = core.getAddress();
+  return address.toContact();
+}
+
 
