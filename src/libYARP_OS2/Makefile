@@ -11,6 +11,9 @@ SUBDIRS += src-test test
 dox:
 	doxygen
 
+user:
+	doxygen Doxyfile.part
+
 add:
 	cd include/yarp && ( cvs add *.h || echo -n )
 	cd src && ( cvs add *.cpp || echo -n )
