@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPMEIDeviceDriver.cpp,v 1.1 2004-07-13 13:21:08 babybot Exp $
+/// $Id: YARPMEIDeviceDriver.cpp,v 1.2 2006-02-14 14:42:13 babybot Exp $
 ///
 
 #include "YARPMEIDeviceDriver.h"
@@ -89,7 +89,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 	m_cmds[CMDGetTorqueLimit] = &YARPMEIDeviceDriver::getTorqueLimit;
 	m_cmds[CMDGetTorqueLimits] = &YARPMEIDeviceDriver::getTorqueLimits;
 	m_cmds[CMDSetStopRate] = &YARPMEIDeviceDriver::setStopRate;
-	m_cmds[CMDGetErrors] = &YARPMEIDeviceDriver::getErrors;
+	m_cmds[CMDGetPIDErrors] = &YARPMEIDeviceDriver::getErrors;
 
 	m_cmds[CMDReadInput] = &YARPMEIDeviceDriver::readInput;
 

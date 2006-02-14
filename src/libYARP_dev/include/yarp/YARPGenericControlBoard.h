@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.28 2006-02-10 22:41:16 natta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.29 2006-02-14 14:42:13 babybot Exp $
 ///
 ///
 
@@ -182,6 +182,7 @@ public:
 		_temp_double = NULL;
 		_currentLimits = NULL;
 		_newLimits = NULL;
+		_temp_short = NULL;
 	}
 
 	/**
@@ -192,6 +193,8 @@ public:
 	{
 		if (_temp_double != NULL)
 			delete [] _temp_double;
+		if (_temp_short != NULL)
+			delete[] _temp_short;
 		if (_newLimits != NULL)
 			delete [] _newLimits;
 		if (_currentLimits != NULL)
@@ -298,12 +301,15 @@ public:
 		_lock();
 		if (_temp_double != NULL)
 			delete [] _temp_double;
+		if (_temp_short != NULL)
+			delete[] _temp_short;
 		if (_newLimits != NULL)
 			delete [] _newLimits;
 		if (_currentLimits != NULL)
 			delete [] _currentLimits;
 
 		_temp_double = NULL;
+		_temp_short = NULL;
 		_currentLimits = NULL;
 		_newLimits = NULL;
 
@@ -1006,7 +1012,7 @@ public:
 	 * @values a vector which contains how much to move each axis for (deg).
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
-	int setPositionsRelative (double *pos)
+	int setPositionsRelative (double *values)
 	{                  
 	  _lock();
 	  for (int i = 0; i < _parameters._nj; i++)
@@ -1019,6 +1025,30 @@ public:
 	  _unlock();
 	  return YARP_OK;
 	}
+
+	/**
+	 * Gets the fault messages.
+	 * @data is a vector of 16bit values with fault bits. If 0 no faults are detected.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int getFaults (short *data)
+	{
+		_lock();
+		if (_adapter.IOCtl (CMDGetFaults, _temp_short) != YARP_OK)
+		{
+			_unlock();
+			return YARP_FAIL;
+		}
+
+		for (int i = 0; i < _parameters._nj; i++)
+		{
+			data[_parameters._inv_axis_map[i]] = _temp_short[i];	
+			
+		}
+		_unlock();
+		return YARP_OK;
+	}
+
 
 	/**
 	 * Set the PID error limit (the actual behavior of the PID when 
@@ -1121,6 +1151,8 @@ protected:
 	{
 		_temp_double = new double [_parameters._nj];
 		ACE_ASSERT (_temp_double != NULL);
+		_temp_short = new short [_parameters._nj];
+		ACE_ASSERT (_temp_short != NULL);
 		_currentLimits = new double [_parameters._nj];
 		ACE_ASSERT (_currentLimits != NULL);
 		_newLimits = new double [_parameters._nj];
@@ -1139,6 +1171,7 @@ protected:
 	YARPSemaphore _mutex;
 
 	double *_temp_double;
+	short *_temp_short;
 	double *_currentLimits;
 	double *_newLimits;
 

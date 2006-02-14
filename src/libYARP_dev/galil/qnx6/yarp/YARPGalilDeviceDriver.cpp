@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.1 2004-07-13 13:21:07 babybot Exp $
+//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.2 2006-02-14 14:42:13 babybot Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -72,7 +72,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetIntegratorLimits] = &YARPGalilDeviceDriver::set_int_limits;
 	m_cmds[CMDSetTorqueLimits] 	= &YARPGalilDeviceDriver::set_torque_limits;
 	m_cmds[CMDGetTorqueLimits] 	= &YARPGalilDeviceDriver::get_torque_limits;
-	m_cmds[CMDGetErrors] 		= &YARPGalilDeviceDriver::get_errors;
+	m_cmds[CMDGetPIDErrors] 	= &YARPGalilDeviceDriver::get_errors;
 
 	m_cmds[CMDReadInput] 		= &YARPGalilDeviceDriver::read_input;
 

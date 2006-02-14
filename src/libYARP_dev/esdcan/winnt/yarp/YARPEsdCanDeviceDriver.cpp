@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.17 2006-02-10 08:28:48 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.18 2006-02-14 14:42:12 babybot Exp $
 ///
 ///
 
@@ -416,7 +416,8 @@ YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void)
 	m_cmds[CMDGetRefPositions] = &YARPEsdCanDeviceDriver::getRefPositions;
 	m_cmds[CMDSetPosition] = &YARPEsdCanDeviceDriver::setPosition;
 	m_cmds[CMDSetPositions] = &YARPEsdCanDeviceDriver::setPositions;
-	m_cmds[CMDGetPIDError] = &YARPEsdCanDeviceDriver::getError;
+	m_cmds[CMDGetPIDError] = &YARPEsdCanDeviceDriver::getPidError;
+	m_cmds[CMDGetFaults] = &YARPEsdCanDeviceDriver::getBCastFaultsAndReset;
 
 	m_cmds[CMDSetSpeed] = &YARPEsdCanDeviceDriver::setSpeed;
 	m_cmds[CMDSetSpeeds] = &YARPEsdCanDeviceDriver::setSpeeds;
@@ -472,9 +473,7 @@ YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void)
 	m_cmds[CMDGetBCastAccelerations] = &YARPEsdCanDeviceDriver::getBCastAccelerations;
 	m_cmds[CMDGetBCastCurrents] = &YARPEsdCanDeviceDriver::getBCastCurrents;
 	m_cmds[CMDGetBCastFaultsAndReset] = &YARPEsdCanDeviceDriver::getBCastFaultsAndReset;
-
 	m_cmds[CMDGetBCastControlValues] = &YARPEsdCanDeviceDriver::getBCastControlValues;
-
 
 	m_cmds[CMDSetDebugMessageFilter] = &YARPEsdCanDeviceDriver::setDebugMessageFilter;
 	m_cmds[CMDSetDebugPrintFunction] = &YARPEsdCanDeviceDriver::setDebugPrintFunction;
@@ -632,34 +631,23 @@ void YARPEsdCanDeviceDriver::Body (void)
 						r._bcastRecvBuffer[j]._velocity = *((short *)(m.data+2));
 						r._bcastRecvBuffer[j]._update_v = before;
 						r._bcastRecvBuffer[j]._acceleration = *((short *)(m.data+6));
-
 					}
-
 					break;
 
 				case CAN_BCAST_FAULT:
-
 					// fault signals.
-
 					r._bcastRecvBuffer[j]._fault = *((short *)(m.data));
-
 					r._bcastRecvBuffer[j]._update_e = before;
-
 					j++;
 
 					if (j < r.getJoints())
-
 					{
-
 						r._bcastRecvBuffer[j]._fault = *((short *)(m.data+2));
-
 						r._bcastRecvBuffer[j]._update_e = before;
-
 					}
 					break;
 
 				case CAN_BCAST_CURRENT:
-
 					// also receives the control values.
 					r._bcastRecvBuffer[j]._current = *((short *)(m.data));
 
@@ -829,8 +817,6 @@ AckMessageLoop:
 
 	///
 }
-
-
 
 
 ///
@@ -1364,7 +1350,7 @@ int YARPEsdCanDeviceDriver::getTorque (void *cmd)
 
 
 /// cmd is a SingleAxisParameters struct with a double argument.
-int YARPEsdCanDeviceDriver::getError (void *cmd)
+int YARPEsdCanDeviceDriver::getPidError (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
@@ -1643,9 +1629,9 @@ int YARPEsdCanDeviceDriver::setBCastMessages (void *cmd)
 	}
 
 	if (value & 0x08)
-		m_cmds[CMDGetErrors] = &YARPEsdCanDeviceDriver::getBCastFaultsAndReset;
+		m_cmds[CMDGetFaults] = &YARPEsdCanDeviceDriver::getBCastFaultsAndReset;
 	else
-		m_cmds[CMDGetErrors] = &YARPEsdCanDeviceDriver::defaultCmd;
+		m_cmds[CMDGetFaults] = &YARPEsdCanDeviceDriver::defaultCmd;
 
 	if (value & 0x10)
 	{

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.15 2006-02-10 22:41:16 natta Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.16 2006-02-14 14:42:13 babybot Exp $
 ///
 ///
 
@@ -73,8 +73,8 @@ enum ControlBoardCmd
 
 	CMDGetRefPosition		= 84,	// get the reference (commanded) position for a single axis.
 	CMDGetRefPositions 		= 24,	// get reference position (commanded).
-	CMDGetPIDError			= 85,	// get the PID error.
-	CMDGetPIDErrors			= 102,	// get the PID error, vector version
+	CMDGetPIDError			= 85,	// get the position error (single joint).
+	CMDGetPIDErrors 		= 31,	// get the position error for all joints.
 
 	CMDGetRefSpeeds 		= 22,	// get reference speed.
 	CMDGetRefAccelerations 	= 23,	// get reference acceleration.
@@ -156,7 +156,6 @@ enum ControlBoardCmd
 	CMDInitPortAsOutput 	= 34,	// digital I/O
 	CMDGetOutputPort 		= 35,	// digital I/O
 
-	CMDGetErrors 			= 31,	// read current error.
 	CMDAbortAxes			= 62,	// abort motion.
 
 	CMDSetHomeIndexConfig 	= 52,
@@ -173,6 +172,8 @@ enum ControlBoardCmd
 	CMDEnableAmp 			= 39,	// enable amplifier.
 	CMDControllerIdle 		= 40,	// disables the PID computation and output.
 	CMDControllerRun 		= 41,	// starts the PID computation and output.
+	CMDGetFault				= 102,  // gets fault events for a single axis.
+	CMDGetFaults			= 103,  // gets fault events for all axes.
 
 	//
 	// Miscellaneous.
@@ -225,7 +226,7 @@ enum ControlBoardCmd
 	//
 	// Make sure the CBNCmds is always up to date.
 	//
-	CBNCmds 				= 103 	// required! tells the total number of commands
+	CBNCmds 				= 104 	// required! tells the total number of commands
 };
 
 

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.11 2006-02-10 08:28:48 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.12 2006-02-14 14:42:12 babybot Exp $
 ///
 ///
 
@@ -134,7 +134,7 @@ protected:
 	int getRefPositions(void *cmd);
 	int setPosition(void *cmd);
 	int setPositions(void *cmd);
-	int getError(void *cmd);
+	int getPidError(void *cmd);
 	int setSpeed(void *cmd);
 	int setSpeeds(void *cmd);
 	int getSpeeds(void *cmd);
