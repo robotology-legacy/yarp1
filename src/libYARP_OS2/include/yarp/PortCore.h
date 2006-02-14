@@ -23,7 +23,7 @@ namespace yarp {
  * directed to the handler set with setReadHandler().  Calls to send()
  * result in data begin sent to all the outgoing connections.
  */
-class yarp::PortCore : public ThreadImpl, public PortManager {
+class yarp::PortCore : public ThreadImpl, public PortManager, public Readable {
 public:
 
   PortCore() {
@@ -48,6 +48,10 @@ public:
 
   void setAutoHandshake(bool autoHandshake) {
     this->autoHandshake = autoHandshake;
+  }
+
+  virtual void readBlock(BlockReader& reader) {
+    // does nothing by default
   }
 
   // start up core

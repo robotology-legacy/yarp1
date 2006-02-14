@@ -101,3 +101,12 @@ int Contact::getPort() const {
 }
 
 
+ConstString Contact::toString() const {
+  Address& addr = HELPER(implementation);
+  String result = addr.getRegName();
+  if (addr.getCarrierName()!="") {
+    result = addr.getCarrierName() + ":/" + result;
+  }
+  return ConstString(result.c_str());
+}
+

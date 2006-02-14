@@ -1,146 +1,49 @@
 #ifndef _YARP2_BOTTLE_
 #define _YARP2_BOTTLE_
 
-#include <yarp/String.h>
-#include <yarp/ManagedBytes.h>
-#include <yarp/BlockReader.h>
-#include <yarp/BlockWriter.h>
-#include <yarp/Portable.h>
-
-#include <ace/Vector_T.h>
+#include <yarp/ConstString.h>
+#include <yarp/PortReader.h>
+#include <yarp/PortWriter.h>
 
 namespace yarp {
-  class Bottle;
+  namespace os {
+    class Bottle;
+  }
 }
 
 /**
- * A flexible data format for holding a bunch of numbers and strings.
- * Handy to use until you work out how to make your own more 
+ * A collection of simple objects that can be safely and
+ * simply transported across the network in a portable way.
+ * Handy to use until you feel the need to make your own more 
  * efficient formats for transmission.
  */
-class yarp::Bottle : public Portable {
+class yarp::os::Bottle : public PortReader, public PortWriter {
 public:
-
   Bottle();
   virtual ~Bottle();
 
-
-  bool isInt(int index);
-  bool isString(int index);
-  bool isDouble(int index);
-
-  int getInt(int index);
-  String getString(int index);
-  double getDouble(int index);
-
-  void addInt(int x) {
-    add(new StoreInt(x));
-  }
-
-  void addDouble(double x) {
-    add(new StoreDouble(x));
-  }
-
-  void addInts(int *x, int ct) {
-  }
-
-  void addFloats(double *x, int ct) {
-  }
-
-  void addString(const char *text) {
-    add(new StoreString(String(text)));
-  }
-
   void clear();
 
-  void fromString(const String& line);
-  String toString();
-  int size();
+  void addInt(int x);
+  void addDouble(double x);
+  void addString(const char *str);
 
-  void fromBytes(const Bytes& data);
-  void toBytes(const Bytes& data);
+  int getInt(int index);
+  ConstString getString(int index);
+  double getDouble(int index);
 
-  void writeBlock(BlockWriter& writer);
+  bool isInt(int index);
+  bool isDouble(int index);
+  bool isString(int index);
 
-  void readBlock(BlockReader& reader);
+  void fromString(const char *text);
+  ConstString toString();
 
-  const char *getBytes();
-  int byteCount();
+  bool write(ConnectionWriter& writer);
+  bool read(ConnectionReader& reader);
 
 private:
-  class Storable {
-  public:
-    virtual ~Storable() {}
-    virtual String toString() = 0;
-    virtual void fromString(const String& src) = 0;
-    virtual int getCode() = 0;
-    virtual void readBlock(BlockReader& reader) = 0;
-    virtual void writeBlock(BlockWriter& writer) = 0;
-    virtual Storable *create() = 0;
-
-    virtual int asInt() { return 0; }
-    virtual double asDouble() { return 0; }
-    virtual String asString() { return ""; }
-  };
-
-  class StoreInt : public Storable {
-  private:
-    int x;
-  public:
-    StoreInt() { x = 0; }
-    StoreInt(int x) { this->x = x; }
-    virtual String toString();
-    virtual void fromString(const String& src);
-    virtual int getCode() { return code; }
-    virtual void readBlock(BlockReader& reader);
-    virtual void writeBlock(BlockWriter& writer);
-    virtual Storable *create() { return new StoreInt(0); }
-    virtual int asInt() { return x; }
-    virtual double asDouble() { return x; }
-    static const int code = 1;
-  };
-
-  class StoreString : public Storable {
-  private:
-    String x;
-  public:
-    StoreString() { x = ""; }
-    StoreString(const String& x) { this->x = x; }
-    virtual String toString();
-    virtual void fromString(const String& src);
-    virtual int getCode() { return code; }
-    virtual void readBlock(BlockReader& reader);
-    virtual void writeBlock(BlockWriter& writer);
-    virtual Storable *create() { return new StoreString(String("")); }
-    virtual String asString() { return x; }
-    static const int code = 5;
-  };
-
-  class StoreDouble : public Storable {
-  private:
-    double x;
-  public:
-    StoreDouble() { x = 0; }
-    StoreDouble(double x) { this->x = x; }
-    virtual String toString();
-    virtual void fromString(const String& src);
-    virtual int getCode() { return code; }
-    virtual void readBlock(BlockReader& reader);
-    virtual void writeBlock(BlockWriter& writer);
-    virtual Storable *create() { return new StoreDouble(0); }
-    virtual int asInt() { return (int)x; }
-    virtual double asDouble() { return x; }
-    static const int code = 2;
-  };
-
-  ACE_Vector<Storable*> content;
-  ACE_Vector<char> data;
-  bool dirty;
-
-  void add(Storable *s);
-  void smartAdd(const String& str);
-
-  void synch();
+  void *implementation;
 };
 
 #endif

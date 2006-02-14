@@ -95,6 +95,18 @@ public:
     return str;
   }
 
+  virtual void expectBlock(const char *data, int len) {
+    expectBlock(Bytes((char*)data,len));
+  }
+
+  virtual ::yarp::os::ConstString expectText(int terminatingChar) {
+    YARP_ASSERT(in!=NULL);
+    String result = NetType::readLine(*in,terminatingChar);
+    messageLen -= result.length()+1;
+    return ::yarp::os::ConstString(result.c_str());
+  }
+
+
 private:
 
   InputStream *in;

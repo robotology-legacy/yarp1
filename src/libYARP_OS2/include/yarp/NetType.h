@@ -34,7 +34,7 @@ public:
     ACE_OS::memcpy(code.get(),b.get(),code.length());
   }
 
-  static String readLine(InputStream& is);
+  static String readLine(InputStream& is, int terminal = '\n');
 
   static int readFull(InputStream& is, const Bytes& b);
 

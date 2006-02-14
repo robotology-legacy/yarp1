@@ -7,7 +7,7 @@
 #include <yarp/Carriers.h>
 #include <yarp/BufferedBlockWriter.h>
 #include <yarp/PortCore.h>
-#include <yarp/Bottle.h>
+#include <yarp/BottleImpl.h>
 #include <yarp/Time.h>
 #include <yarp/NameServer.h>
 
@@ -231,13 +231,13 @@ int Companion::cmdServer(int argc, char *argv[]) {
 
 class CompanionCheckHelper : public Readable {
 public:
-  Bottle bot;
+  BottleImpl bot;
   bool got;
   virtual void readBlock(BlockReader& reader) {
     bot.readBlock(reader);
     got = true;
   }
-  Bottle *get() {
+  BottleImpl *get() {
     if (got) {
       return &bot;
     }
@@ -277,7 +277,7 @@ int Companion::cmdCheck(int argc, char *argv[]) {
   YARP_INFO(log,"==================================================================");
   YARP_INFO(log,"=== Trying to write some data");
 
-  Bottle bot;
+  BottleImpl bot;
   bot.addInt(42);
   out.send(bot);
 
@@ -360,7 +360,7 @@ public:
   }
 
   virtual void readBlock(BlockReader& reader) {
-    Bottle bot;
+    BottleImpl bot;
     bot.readBlock(reader);
     if (bot.size()==2 && bot.isInt(0) && bot.isString(1)) {
       int code = bot.getInt(0);
@@ -427,14 +427,14 @@ int Companion::write(const char *name, int ntargets, char *targets[]) {
 	if (buf[0]<32) {
 	  break;  // for example, horrible windows ^D
 	}
-	Bottle bot;
+	BottleImpl bot;
 	bot.addInt(0);
 	bot.addString(buf);
 	core.send(bot);
       }
     }
 
-    Bottle bot;
+    BottleImpl bot;
     bot.addInt(1);
     bot.addString("<EOF>");
     core.send(bot);

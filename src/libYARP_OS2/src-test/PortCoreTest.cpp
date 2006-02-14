@@ -3,7 +3,7 @@
 #include <yarp/Carriers.h>
 #include <yarp/Readable.h>
 #include <yarp/NameClient.h>
-#include <yarp/Bottle.h>
+#include <yarp/BottleImpl.h>
 #include <yarp/Companion.h>
 
 #include "TestList.h"
@@ -20,7 +20,7 @@ public:
 
   void readBlock(BlockReader& reader) {
     receives++;
-    Bottle bot;
+    BottleImpl bot;
     bot.readBlock(reader);
     if (expectation==String("")) {
       report(1,"got unexpected input");
@@ -91,7 +91,7 @@ public:
       sender.start();
       receiver.start();
       Time::delay(1);
-      Bottle bot;
+      BottleImpl bot;
       bot.addInt(0);
       bot.addString("Hello world");
       report(0,"sending bottle, should received nothing");

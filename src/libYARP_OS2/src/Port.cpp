@@ -4,12 +4,65 @@
 #include <yarp/Logger.h>
 #include <yarp/NameClient.h>
 #include <yarp/Contact.h>
+#include <yarp/Companion.h>
+#include <yarp/SemaphoreImpl.h>
+
+#include <yarp/Adapters.h>
 
 using namespace yarp;
 using namespace yarp::os;
 
+
+class PortCoreAdapter : public PortCore {
+private:
+  Port& owner;
+  SemaphoreImpl stateMutex;
+  PortReader *readDelegate;
+  bool readResult, readActive;
+  SemaphoreImpl produce, consume;
+public:
+  PortCoreAdapter(Port& owner) : 
+    owner(owner), stateMutex(1), readDelegate(NULL), readResult(false),
+    readActive(false),
+    produce(0), consume(0)
+  {}
+
+  virtual void readBlock(BlockReader& reader) {
+    // called by comms code
+
+    // wait for happy consumer - don't want to miss a packet
+    consume.wait();
+    
+    stateMutex.wait();
+    readResult = false;
+    if (readDelegate!=NULL) {
+      readResult = readDelegate->read(reader);
+    }
+    stateMutex.post();
+    produce.post();
+  }
+
+  bool read(PortReader& reader) {
+    // called by user
+
+    stateMutex.wait();
+    readActive = true;
+    readDelegate = &reader;
+    consume.post(); // happy consumer
+    stateMutex.post();
+
+    produce.wait();
+    bool result = readResult;
+    return result;
+  }
+};
+
+// implementation is a PortCoreAdapter
+#define HELPER(x) (*((PortCoreAdapter*)(x)))
+
+
 Port::Port() {
-  implementation = new PortCore();
+  implementation = new PortCoreAdapter(*this);
   YARP_ASSERT(implementation!=NULL);
 }
 
@@ -26,7 +79,8 @@ bool Port::open(const Contact& contact, bool registerName) {
 		   contact.getCarrier().c_str(),
 		   contact.getName().c_str());
   try {
-    PortCore& core = *((PortCore*)implementation);
+    PortCoreAdapter& core = HELPER(implementation);
+    core.setReadHandler(core);
     NameClient& nic = NameClient::getNameClient();
     Address address = caddress;
     if (registerName) {
@@ -51,7 +105,7 @@ bool Port::open(const Contact& contact, bool registerName) {
 
 
 void Port::close() {
-  PortCore& core = *((PortCore*)implementation);
+  PortCoreAdapter& core = HELPER(implementation);
   core.close();
   core.join();
 }
@@ -60,16 +114,66 @@ void Port::close() {
 Port::~Port() {
   if (implementation!=NULL) {
     close();
-    delete ((PortCore*)implementation);
+    delete ((PortCoreAdapter*)implementation);
     implementation = NULL;
   }
 }
 
 
 Contact Port::where() {
-  PortCore& core = *((PortCore*)implementation);
+  PortCoreAdapter& core = HELPER(implementation);
   Address address = core.getAddress();
   return address.toContact();
 }
 
+
+bool Port::addOutput(const Contact& contact) {
+  Contact me = where();
+  return Companion::connect(me.getName().c_str(),
+			    contact.toString().c_str());
+}
+
+
+  /**
+   * write something to the port
+   */
+bool Port::write(PortWriter& writer) {
+  PortCoreAdapter& core = HELPER(implementation);
+  bool result = false;
+  try {
+    WritableAdapter adapter(writer);
+    core.send(adapter);
+    writer.onCompletion();
+    result = true;
+  } catch (IOException e) {
+    YARP_DEBUG(Logger::get(), e.toString() + " <<<< Port::write saw this");
+    writer.onCompletion();
+    // leave result false
+  }
+  return false;
+}
+
+  /**
+   * read something from the port
+   */
+bool Port::read(PortReader& reader) {
+  PortCoreAdapter& core = HELPER(implementation);
+  return core.read(reader);
+}
+
+  /**
+   * set an external writer for port data
+   */
+void Port::setWriter(PortWriter& writer) {
+  //PortCoreAdapter& core = HELPER(implementation);
+  YARP_ERROR(Logger::get(),"Port::setWriter not implemented");
+}
+
+  /**
+   * set an external reader for port data
+   */
+void Port::setReader(PortReader& reader) {
+  //PortCoreAdapter& core = HELPER(implementation);
+  YARP_ERROR(Logger::get(),"Port::setReader not implemented");
+}
 

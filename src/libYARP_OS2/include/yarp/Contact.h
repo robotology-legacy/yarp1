@@ -58,6 +58,8 @@ public:
   ConstString getCarrier() const;
   int getPort() const;
 
+  ConstString toString() const;
+
 private:
 
   Contact();

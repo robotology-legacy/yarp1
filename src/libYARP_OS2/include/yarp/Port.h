@@ -2,6 +2,8 @@
 #define _YARP2_PORT_
 
 #include <yarp/Contact.h>
+#include <yarp/PortReader.h>
+#include <yarp/PortWriter.h>
 
 namespace yarp {
   namespace os {
@@ -29,12 +31,42 @@ public:
    */
   bool open(const Contact& contact, bool registerName = true);
 
+  bool addOutput(const char *name) {
+    return addOutput(Contact::byName(name));
+  }
+
+  bool addOutput(const char *name, const char *carrier) {
+    return addOutput(Contact::byName(name).addCarrier(carrier));
+  }
+
+  bool addOutput(const Contact& contact);
+
   void close();
 
   /**
    * returns contact information for the port.
    */
   Contact where();
+
+  /**
+   * write something to the port
+   */
+  bool write(PortWriter& writer);
+
+  /**
+   * read something from the port
+   */
+  bool read(PortReader& reader);
+
+  /**
+   * set an external writer for port data
+   */
+  void setWriter(PortWriter& writer);
+
+  /**
+   * set an external reader for port data
+   */
+  void setReader(PortReader& reader);
 
 private:
   void *implementation;

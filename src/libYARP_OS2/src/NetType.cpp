@@ -5,7 +5,7 @@ using namespace yarp;
 
 // slow implementation - only relevant for textmode operation
 
-String NetType::readLine(InputStream& is) {
+String NetType::readLine(InputStream& is, int terminal) {
   String buf("");
   bool done = false;
   while (!done) {
@@ -16,7 +16,7 @@ String NetType::readLine(InputStream& is) {
     if (v>=32) {
       buf += ch;
     }
-    if (ch=='\n') {
+    if (ch==terminal) {
       done = true;
     }
     if (ch<0) { 

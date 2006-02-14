@@ -6,6 +6,8 @@
 #include <yarp/OutputStream.h>
 #include <yarp/TwoWayStream.h>
 
+#include <yarp/ConnectionReader.h>
+
 namespace yarp {
   class BlockReader;
 }
@@ -17,7 +19,7 @@ namespace yarp {
  * except that the object may optionally interpret a more
  * human-friendly form during text-mode connections.
  */
-class yarp::BlockReader {
+class yarp::BlockReader : public yarp::os::ConnectionReader {
 public:
 
   virtual ~BlockReader() {
@@ -34,6 +36,10 @@ public:
 
   virtual OutputStream *getReplyStream() = 0;
   virtual TwoWayStream *getStreams() = 0;
+
+  // public interface
+  virtual void expectBlock(const char *data, int len) = 0;
+  virtual ::yarp::os::ConstString expectText(int terminatingChar) = 0;
 };
 
 #endif
