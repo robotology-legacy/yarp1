@@ -10,54 +10,123 @@ namespace yarp {
 }
 
 /**
- * Class for representing how to reach parts of a YARP network.
- * May contain complete or partial information.
+ * Represents how to reach a part of a YARP network.
+ * May contain complete or partial information about network parameters.
+ * Use the factory  methods (Contact::byName, Contact::bySocket etc.) 
+ * to create Contact objects.
  */
 class yarp::os::Contact {
 public:
 
   /**
    * Constructor.  Returns a new, blank, unnamed contact.
+   * @return a blank contact
    */
   static Contact empty();
 
   /**
    * Constructor.  Returns a named contact, with no information about
    * how to reach that contact.
+   * @param name the name for the contact
+   * @return a named contact
    */
   static Contact byName(const char *name);
   
   /**
    * Constructor.  Returns an unnamed contact, with information about
-   * which carrier/protocol to use to reach that contact (tcp, udp, ...)
+   * which carrier/protocol to use to reach that contact.
+   * @param carrier the carrier to add ("tcp", "udp", ...)
+   * @return the new contact
    */
   static Contact byCarrier(const char *carrier);
 
+
+  /**
+   * Add the specified carrier to this Contact, and return the result.
+   * @param carrier the carrier to add
+   * @return the new contact
+   */
   Contact addCarrier(const char *carrier);
 
   /**
-   * Constructor.  Returns an unnamed contact, with information about
-   * how to reach it using socket communication
+   * Constructor for a socket contact.  
+   * Creates an unnamed contact, with information about
+   * how to reach it using socket communication.
+   * @param carrier the carrier (network protocol) to use
+   * @param host the name of the host machine (usually expressed as an 
+   *             IP address)
+   * @param portNumber the number of the socket port to use
+   * @return an unnamed contact with socket communication parameters
    */
   static Contact bySocket(const char *carrier, 
 			  const char *host,
 			  int portNumber);
 
+
+  /**
+   * Add information to a contact about
+   * how to reach it using socket communication.
+   * @param carrier the carrier (network protocol) to use
+   * @param host the name of the host machine (usually expressed as an 
+   *             IP address)
+   * @param portNumber the number of the socket port to use
+   * @return the new contact with socket communication parameters
+   */
   Contact addSocket(const char *carrier, 
 		    const char *host,
 		    int portNumber);
 
+  /**
+   * Copy constructor.
+   * @param alt the contact to copy
+   */
   Contact(const Contact& alt);
 
+  /**
+   * Assignment.
+   * @param alt the contact to copy
+   * @return this object
+   */
   const Contact& operator = (const Contact& alt);
 
+  /**
+   * Destructor.
+   */
   virtual ~Contact();
 
+  /**
+   * Get the name associated with this contact.
+   * @return The name associated with this contact, or the empty string
+   *         if no name is set
+   */
   ConstString getName() const;
+
+  /**
+   * Get the host name associated with this contact for socket communication.
+   * @return The host name associated with this contact, or the empty string
+   *         if no host name is set
+   */
   ConstString getHost() const;
+
+  /**
+   * Get the carrier associated with this contact for socket communication.
+   * @return The carrier associated with this contact, or the empty string
+   *         if no carrier is set
+   */
   ConstString getCarrier() const;
+
+
+  /**
+   * Get the port number associated with this contact for socket communication.
+   * @return The port number associated with this contact, or <= 0
+   *         if no port number is set
+   */
   int getPort() const;
 
+  /**
+   * Get a textual representation of the contact.
+   * @return a textual representation of the contact.
+   */
   ConstString toString() const;
 
 private:

@@ -164,16 +164,14 @@ bool Port::read(PortReader& reader) {
   /**
    * set an external writer for port data
    */
-void Port::setWriter(PortWriter& writer) {
-  //PortCoreAdapter& core = HELPER(implementation);
-  YARP_ERROR(Logger::get(),"Port::setWriter not implemented");
-}
+//void Port::setWriter(PortWriter& writer) {
+//  YARP_ERROR(Logger::get(),"Port::setWriter not implemented");
+//}
 
   /**
    * set an external reader for port data
    */
-void Port::setReader(PortReader& reader) {
-  //PortCoreAdapter& core = HELPER(implementation);
-  YARP_ERROR(Logger::get(),"Port::setReader not implemented");
-}
+//void Port::setReader(PortReader& reader) {
+//  YARP_ERROR(Logger::get(),"Port::setReader not implemented");
+//}
 

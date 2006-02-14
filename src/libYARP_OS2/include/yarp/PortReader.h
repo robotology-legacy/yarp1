@@ -10,13 +10,24 @@ namespace yarp {
   }
 }
 
+/**
+ * Interface implemented by all objects that can read themselves from
+ * the network.
+ * @see Port, PortWriter
+ */
 class yarp::os::PortReader {
 public:
 
+  /**
+   * Destructor.
+   */
   virtual ~PortReader() {}
 
   /**
-   * Read data.
+   * Read this object from a network connection.
+   * Override this for your particular class.
+   * @param connection an interface to the network connection for reading
+   * @return true iff the object is successfully read
    */
   virtual bool read(ConnectionReader& connection) = 0;
 
