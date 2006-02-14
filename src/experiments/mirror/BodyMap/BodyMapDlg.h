@@ -12,7 +12,6 @@
 #include "LiveCameraDlg.h"
 #include "LiveGloveDlg.h"
 #include "LiveTrackerDlg.h"
-#include "SaverThread.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CBodyMapDlg dialog
@@ -78,11 +77,10 @@ private:
 	// program settings
 	BodyMapSettings _settings;
 
-	// learning module
+	// learning modules
 	BodyMapLearningBlock _learningBlock;
-
-	// data saving thread
-	CSaverThread _saverThread;
+	// true whilst we are gathering samples
+	bool _acquiringSamples;
 
 };
 

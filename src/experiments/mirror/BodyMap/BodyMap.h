@@ -17,20 +17,16 @@
 #include "libsvm.h"
 
 // ----------- general functions, used by all classes of the application
-void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*, int*);
+void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*);
 
 // ----------- program options, coming from the collector
 typedef struct BodyMapOptionsStruct {
 	BodyMapOptionsStruct() {
-		useCamera0 = useCamera1 = false;
 		sizeX = sizeY = 0;
-		useTracker0 = useTracker1 = useGazeTracker = useDataGlove = usePresSens = false;
 		refreshFrequency = 40;
 	};
-	bool useCamera0, useCamera1;
 	int	sizeX;
 	int sizeY;
-	bool useTracker0, useTracker1, useGazeTracker, useDataGlove, usePresSens;
 	int refreshFrequency;
 } BodyMapOptions;
 
@@ -78,28 +74,29 @@ const int numOfSamples = 50;
 typedef struct BodyMapLearningBlockStruct {
 
 	// constructor and destructor
-	BodyMapLearningBlockStruct( CWnd* );
+	BodyMapLearningBlockStruct();
 	~BodyMapLearningBlockStruct();
 
 	// svm-related structures
 	struct svm_parameter param;
-	struct svm_problem prob;
-	struct svm_model* model;
-	unsigned int sampleCount;
-	struct svm_node newSample[4];
+	struct svm_problem prob[4];
+	struct svm_model* model[4];
+	double mean[7], stdv[7];
 
-	// the data
-	// Cartesian coordinates in the workspace
-	double x, y, z;
+	// the samples
+	struct svm_node** sample;
 	// Cartesian coordinates in the image spaces
 	int x0, y0, x1, y1;
+	// sample to be predicted
+	struct svm_node newSample[4];
 	
-	// methods
-	void predict();
-	void train();
-	int addSample(double, double, double, double);
+	// current number of samples stored
+	unsigned int sampleCount;
 
-	CWnd* _myDlg;
+	// methods
+	void predict(double, double, double);
+	void train();
+	int addSample(double, double, double, double, double, double, double);
 
 } BodyMapLearningBlock;
 

@@ -124,10 +124,6 @@ SOURCE=.\LiveTrackerDlg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SaverThread.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\StdAfx.cpp
 # End Source File
 # End Group
@@ -165,10 +161,6 @@ SOURCE=.\LiveTrackerDlg.h
 # Begin Source File
 
 SOURCE=.\Resource.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SaverThread.h
 # End Source File
 # Begin Source File
 

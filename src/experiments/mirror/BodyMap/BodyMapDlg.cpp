@@ -5,7 +5,6 @@
 #include "BodyMap.h"
 #include "BodyMapDlg.h"
 
-#include <yarp/YARPTime.h>
 #include <yarp/YARPImages.h>
 
 #ifdef _DEBUG
@@ -17,10 +16,8 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CBodyMapDlg dialog
 
-CBodyMapDlg::CBodyMapDlg(CWnd* pParent /*=NULL*/)
-	: CDialog( CBodyMapDlg::IDD, pParent ),
-	  _learningBlock( this ),
-	  _saverThread( _options, _settings, _learningBlock )
+CBodyMapDlg::CBodyMapDlg(CWnd* pParent /*=NULL*/) :
+   CDialog( CBodyMapDlg::IDD, pParent ), _acquiringSamples( false )
 {
 
 	//{{AFX_DATA_INIT(CBodyMapDlg)
@@ -54,7 +51,6 @@ BEGIN_MESSAGE_MAP(CBodyMapDlg, CDialog)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_ACQ_START, OnAcqStart)
 	ON_BN_CLICKED(IDC_ACQ_STOP, OnAcqStop)
-	ON_MESSAGE(USER_STOP_ACQUIRE, OnAcqStop)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -104,13 +100,17 @@ BOOL CBodyMapDlg::OnInitDialog()
 	GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
 	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
 	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
-
+	// register and connect ports
 	if ( RegisterAndConnectPorts() == YARP_FAIL ) {
 		MessageBox("Could not register or connect ports.", "Fatal error.", MB_ICONERROR);
 		exit(YARP_FAIL);
 	}
+	// show windows
+	_Camera0Dialog.ShowWindow(TRUE);
+	_Camera1Dialog.ShowWindow(TRUE);
+	_Tracker0Dialog.ShowWindow(TRUE);
 
-	return TRUE;  // return TRUE  unless you set the focus to a control
+	return TRUE;
 
 }
 
@@ -159,12 +159,8 @@ void CBodyMapDlg::OnLiveCamera()
 {
 
 	// toggle dialogs
-	if ( _options.useCamera0 ) {
-		_Camera0Dialog.ShowWindow(!_Camera0Dialog.ShowWindow(SW_SHOWNA));
-	}
-	if ( _options.useCamera1 ) {
-		_Camera1Dialog.ShowWindow(!_Camera1Dialog.ShowWindow(SW_SHOWNA));
-	}
+	_Camera0Dialog.ShowWindow(!_Camera0Dialog.ShowWindow(SW_SHOWNA));
+	_Camera1Dialog.ShowWindow(!_Camera1Dialog.ShowWindow(SW_SHOWNA));
 
 }
 
@@ -180,12 +176,7 @@ void CBodyMapDlg::OnLiveTracker()
 {
 
 	// toggle dialogs
-	if ( _options.useTracker0 ) {
-		_Tracker0Dialog.ShowWindow(!_Tracker0Dialog.ShowWindow(SW_SHOWNA));
-	}
-	if ( _options.useTracker1 ) {
-		_Tracker1Dialog.ShowWindow(!_Tracker1Dialog.ShowWindow(SW_SHOWNA));
-	}
+	_Tracker0Dialog.ShowWindow(!_Tracker0Dialog.ShowWindow(SW_SHOWNA));
 	
 }
 
@@ -199,45 +190,30 @@ void CBodyMapDlg::OnConnect()
 	if ( _settings._cmd_inport.Content() == CCmdSucceeded ) {
 		_settings._cmd_inport.Read();
 		int tmpOptions = _settings._cmd_inport.Content();
-		// set options accordingly - resize images
-		_options.useDataGlove = ((tmpOptions & HardwareUseDataGlove) ? true : false);
-		_options.useGazeTracker = ((tmpOptions & HardwareUseGT) ? true : false);
-		_options.useTracker0 = ((tmpOptions & HardwareUseTracker0) ? true : false);
-		_options.useTracker1 = ((tmpOptions & HardwareUseTracker1) ? true : false);
-		_options.usePresSens = ((tmpOptions & HardwareUsePresSens) ? true : false);
-		_options.useCamera0 = ((tmpOptions & HardwareUseCamera0) ? true : false);
-		_options.useCamera1 = ((tmpOptions & HardwareUseCamera1) ? true : false);
-		if ( _options.useCamera0 || _options.useCamera1 ) {
-			_settings._cmd_inport.Read();
-			_options.sizeX = _settings._cmd_inport.Content();
-			_settings._cmd_inport.Read();
-			_options.sizeY = _settings._cmd_inport.Content();
-			_settings._img0.Resize (_options.sizeX, _options.sizeY);
-			_settings._img1.Resize (_options.sizeX, _options.sizeY);
+		// must be using both cameras and tracker 0
+		if ( tmpOptions != (HardwareUseTracker0|HardwareUseCamera0|HardwareUseCamera1) ) {
+			MessageBox("Must use both cameras and tracker 0 only.", "Error.",MB_ICONERROR);
+			return;
 		}
-		// configure camera dialogs
-		if ( _options.useCamera0 ) {
-			_Camera0Dialog.pImage = &_settings._img0;
-			_Camera0Dialog.sizeX = _options.sizeX;
-			_Camera0Dialog.sizeY = _options.sizeY;
-		}
-		if ( _options.useCamera1 ) {
-			_Camera1Dialog.pImage = &_settings._img1;
-			_Camera1Dialog.sizeX = _options.sizeX;
-			_Camera1Dialog.sizeY = _options.sizeY;
-		}
+		// read images dimensions
+		_settings._cmd_inport.Read();
+		_options.sizeX = _settings._cmd_inport.Content();
+		_settings._cmd_inport.Read();
+		_options.sizeY = _settings._cmd_inport.Content();
+		_settings._img0.Resize (_options.sizeX, _options.sizeY);
+		_settings._img1.Resize (_options.sizeX, _options.sizeY);
+		_Camera0Dialog.pImage = &_settings._img0;
+		_Camera0Dialog.sizeX = _options.sizeX;
+		_Camera0Dialog.sizeY = _options.sizeY;
+		_Camera1Dialog.pImage = &_settings._img1;
+		_Camera1Dialog.sizeX = _options.sizeX;
+		_Camera1Dialog.sizeY = _options.sizeY;
 		// enable the required windows
 		GetDlgItem(IDC_CONNECT)->EnableWindow(FALSE);
 		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-		if( _options.useCamera0 || _options.useCamera1 ) {
-			GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
-		}
-		if(_options.useDataGlove || _options.useGazeTracker || _options.usePresSens) {
-			GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
-		}
-		if(_options.useTracker0 || _options.useTracker1) {
-			GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
-		}
+		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
+		GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
+		GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
 		GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
 		// start live timer
 		_settings._timerID = SetTimer(1, _options.refreshFrequency, NULL);
@@ -251,9 +227,6 @@ void CBodyMapDlg::OnConnect()
 void CBodyMapDlg::OnDisconnect() 
 {
 
-	// kill live timer
-	KillTimer (_settings._timerID);
-
 	// disconnect collector
 	_settings._cmd_outport.Content() = CCmdDisconnect;
 	_settings._cmd_outport.Write(true);
@@ -261,6 +234,9 @@ void CBodyMapDlg::OnDisconnect()
 	if ( _settings._cmd_inport.Content() == CCmdFailed) {
 		MessageBox("Could not disconnect from mirrorCollector.", "Error.",MB_ICONERROR);
 	}
+
+	// kill timer
+	KillTimer(_settings._timerID);
 
 	// enable/disable required windows
 	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
@@ -288,40 +264,44 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 {
 
 	// this is the timer event. each time the timer ticks, we gather data
-	// off the collector and update the enabled windows.
+	// off the collector and update the live show. Moreover, if acquiringSamples
+	// is true we store one more sample in the learning block.
 
 	// get data
 	_settings._cmd_outport.Content() = CCmdGetData;
 	_settings._cmd_outport.Write(true);
 	_settings._cmd_inport.Read();
 	if ( _settings._cmd_inport.Content() == CCmdSucceeded ) {
-		// update data structures, when needed
-		if ( _options.useDataGlove || _options.useGazeTracker ||
-		     _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
-			if ( _settings._data_inport.Read(false) ) {
-				_settings._data = _settings._data_inport.Content();
-				_learningBlock.x = _settings._data.tracker0Data.x;
-				_learningBlock.y = _settings._data.tracker0Data.y;
-				_learningBlock.z = _settings._data.tracker0Data.z;
-//				_learningBlock.predict();
-			}
-		}
-		if ( _options.useCamera0 ) {
-			if ( _settings._img0_inport.Read(false) ) {
-				_settings._img0.Refer(_settings._img0_inport.Content());
-				int x, y, w;
-				FindTrackerXY(_settings._img0, &x, &y, &w);
-				ShowTrackerXY(_settings._img0, x, y);
-				ShowExpectedTrackerXY(_settings._img0, _learningBlock.x0, _learningBlock.y0);
-			}
-		}
-		if ( _options.useCamera1 ) {
-			if ( _settings._img1_inport.Read(false) ) {
-				_settings._img1.Refer(_settings._img1_inport.Content());
-				int x, y, w;
-				FindTrackerXY(_settings._img1, &x, &y, &w);
-				ShowTrackerXY(_settings._img1, x, y);
-				ShowExpectedTrackerXY(_settings._img1, _learningBlock.x1, _learningBlock.y1);
+		// read data (tracker and images)
+		_settings._data_inport.Read();
+		_settings._data = _settings._data_inport.Content();
+		_settings._img0_inport.Read();
+		_settings._img0.Refer(_settings._img0_inport.Content());
+		_settings._img1_inport.Read();
+		_settings._img1.Refer(_settings._img1_inport.Content());
+		// predict and show expected position
+		_learningBlock.predict(_settings._data.tracker0Data.x, _settings._data.tracker0Data.y, _settings._data.tracker0Data.z);
+		ShowExpectedTrackerXY(_settings._img0, _learningBlock.x0, _learningBlock.y0);
+		ShowExpectedTrackerXY(_settings._img1, _learningBlock.x1, _learningBlock.y1);
+		// find real tracker position and show it
+		int x0, y0, x1, y1;
+		FindTrackerXY(_settings._img0, &x0, &y0);
+		ShowTrackerXY(_settings._img0, x0, y0);
+		FindTrackerXY(_settings._img1, &x1, &y1);
+		ShowTrackerXY(_settings._img1, x1, y1);
+		// if we are gathering samples, store this one
+		if ( _acquiringSamples ) {
+			int addedOk = _learningBlock.addSample(_settings._data.tracker0Data.x, _settings._data.tracker0Data.y, _settings._data.tracker0Data.z, (double)x0, (double)y0, (double)x1, (double)y1);
+			if ( addedOk == YARP_OK ) {
+				char title[50];
+				ACE_OS::sprintf(title, "Acquiring sample %d...", _learningBlock.sampleCount);
+				AfxGetMainWnd()->SetWindowText(title);
+			} else {
+				_acquiringSamples = false;
+				AfxGetMainWnd()->SetWindowText("Training...");
+				_learningBlock.train();
+				AfxGetMainWnd()->SetWindowText("BodyMap");
+				GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
 			}
 		}
 	} else {
@@ -342,62 +322,12 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 void CBodyMapDlg::OnAcqStart()
 {
 
-	// disable windows
-	GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(FALSE);
-	GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
-	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
-	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
-
-	// activate collector's streaming mode
-	_settings._cmd_outport.Content() = CCmdStartStreaming;
-	_settings._cmd_outport.Write(true);
-	_settings._cmd_inport.Read();
-	if ( _settings._cmd_inport.Content() == CCmdSucceeded) {
-		GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
-//		GetDlgItem(IDC_ACQ_STOP)->EnableWindow(TRUE);
-		// during streaming, kill timer
-		KillTimer (_settings._timerID);
-		// start acquisition thread
-		_saverThread.Begin();
-	} else {
-		MessageBox("Could not start saving thread.", "Error.", MB_ICONERROR);
-		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
-		GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
-		GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
-		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-	}
-
-	return;
+	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
+	_acquiringSamples = true;
 
 }
 
-void CBodyMapDlg::OnAcqStop()
-{
-
-	// stop collector's streaming mode
-	_settings._cmd_outport.Content() = CCmdStopStreaming;
-	_settings._cmd_outport.Write(true);
-	_settings._cmd_inport.Read();
-	if ( _settings._cmd_inport.Content() == CCmdFailed ) {
-		MessageBox("Could not stop saving thread.", "Error.", MB_ICONERROR);
-	}
-
-	// restart timer
-	_settings._timerID = SetTimer(1, _options.refreshFrequency, NULL);
-	_ASSERT (_settings._timerID != 0);	
-
-	// enable windows
-	GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
-	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
-	GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-	if ( _options.useCamera0 || _options.useCamera1 )
-		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
-	if (_options.useDataGlove || _options.useGazeTracker || _options.usePresSens)
-		GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
-	if (_options.useTracker0 || _options.useTracker1)
-		GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
-
-}
+void CBodyMapDlg::OnAcqStop() {}
 
 // ---------------- procedures which are not associated with MFC objects
 

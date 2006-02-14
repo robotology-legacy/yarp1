@@ -23,7 +23,6 @@
 #include <afxcmn.h>			// MFC support for Windows Common Controls
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
-
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
@@ -36,8 +35,6 @@
 #include <yarp/YARPImageFile.h>
 
 #include "CollectorCommands.h"
-#include "SaverThread.h"
-//#include <yarp/YARPDIBConverter.h>
 
 #include <Vfw.h>
 

@@ -69,7 +69,6 @@
 #define IDC_PUP_DIA                     1040
 #define IDC_PUP_X                       1041
 #define IDC_PUP_Y                       1042
-#define USER_STOP_ACQUIRE				1050
 
 // Next default values for new objects
 // 
