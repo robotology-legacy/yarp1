@@ -955,9 +955,12 @@ void CTestControlDlg::OnTimer(UINT nIDEvent)
 		head.getFaults (_headfaults);
 		for (i = 0; i < MAX_HEAD_JNTS; i++)
 		{
-			ACE_OS::sprintf (_buffer, "%x ", _headfaults[i]);
+            if (_headfaults[i] != 0)
+                _buffer[i] = '1';
+            else
+                _buffer[i] = '0';
 		}
-		ACE_OS::sprintf (_buffer, "\n");
+        _buffer[i] = 0;
 		m_edit_fault.SetWindowText (_buffer);
 	}
 	
