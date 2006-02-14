@@ -3,6 +3,8 @@
 
 + make yarp2 deal with thread priorities, windows multimedia timer stuff
 
++ synchronize namespaces and header file directories?
+
 + testing of yarp2 library against large sets of code using yarp1 header 
 files
 
