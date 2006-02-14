@@ -1,0 +1,20 @@
+
++ more yarp2 unit tests
+
++ make yarp2 deal with thread priorities, windows multimedia timer stuff
+
++ testing of yarp2 library against large sets of code using yarp1 header 
+files
+
++ yarp2 implementation of yarp1-style buffering
+
++ yarp2 implementation of shmem (maybe with real 0 copy in cases where
+  that is possible?)
+
++ yarp2 implementation rate threads
+
++ easy packaging, and installation instructions
+
++ move documentation to $YARP_ROOT/docs
+
+

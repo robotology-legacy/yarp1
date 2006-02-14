@@ -14,6 +14,11 @@ dox:
 user:
 	doxygen Doxyfile.part
 
+alldoc:
+	make dox
+	make user
+	cd doc/spec; make pdf
+
 add:
 	cd include/yarp && ( cvs add *.h || echo -n )
 	cd src && ( cvs add *.cpp || echo -n )

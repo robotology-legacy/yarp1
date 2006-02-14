@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 PROJECT_NAME           = YARP
 PROJECT_NUMBER         = 
-OUTPUT_DIRECTORY       = doc
+OUTPUT_DIRECTORY       = doc/dev
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
 USE_WINDOWS_ENCODING   = NO
@@ -25,7 +25,7 @@ INHERIT_DOCS           = YES
 DISTRIBUTE_GROUP_DOC   = NO
 TAB_SIZE               = 8
 ALIASES                = 
-OPTIMIZE_OUTPUT_FOR_C  = NO
+OPTIMIZE_OUTPUT_FOR_C  = YES
 OPTIMIZE_OUTPUT_JAVA   = NO
 SUBGROUPING            = YES
 #---------------------------------------------------------------------------
@@ -70,7 +70,7 @@ WARN_LOGFILE           =
 INPUT                  = src include/yarp
 FILE_PATTERNS          = *.h *.cpp
 RECURSIVE              = NO
-EXCLUDE                = 
+EXCLUDE                = include/yarp/Adapters.h src/Thread.cpp src/Port.cpp
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXAMPLE_PATH           = 
