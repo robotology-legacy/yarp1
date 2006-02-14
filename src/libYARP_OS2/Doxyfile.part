@@ -77,7 +77,8 @@ INPUT                  = include/yarp/Bottle.h \
 			 include/yarp/PortWriter.h \
 			 include/yarp/Semaphore.h \
 			 include/yarp/Thread.h \
-			 include/yarp/Time.h
+			 include/yarp/Time.h \
+			 include/yarp/UserDoc.h
 FILE_PATTERNS          = 
 RECURSIVE              = YES
 EXCLUDE                = 
