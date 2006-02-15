@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHand.h,v 1.2 2004-09-03 13:16:09 babybot Exp $
+///  $Id: YARPBabybotHand.h,v 1.3 2006-02-15 09:44:22 gmetta Exp $
 ///
 ///
 
@@ -84,7 +84,8 @@
 
 #ifdef YARP_BABYBOT_HAND_VERBOSE
 #define YARP_BABYBOT_HAND_DEBUG(string) YARP_DEBUG("YARP_BABYBOT_HAND_DEBUG:", string)
-#else  YARP_BABYBOT_HAND_DEBUG(string) YARP_NULL_DEBUG
+#else  
+#define YARP_BABYBOT_HAND_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 #include <math.h>
@@ -257,7 +258,7 @@ public:
 		_convert_output_raw(_tmp_command_double, _motor_torques);
 
 		// errors
-		rc = _control_board.IOCtl(CMDGetErrors, _tmp_command_double);
+		rc = _control_board.IOCtl(CMDGetPIDErrors, _tmp_command_double);
 		_convert_output_raw(_tmp_command_double, _motor_errors);
 
 		// reference positions

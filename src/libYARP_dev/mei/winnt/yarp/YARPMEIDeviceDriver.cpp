@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPMEIDeviceDriver.cpp,v 1.2 2006-02-14 14:42:13 babybot Exp $
+/// $Id: YARPMEIDeviceDriver.cpp,v 1.3 2006-02-15 09:44:22 gmetta Exp $
 ///
 
 #include "YARPMEIDeviceDriver.h"
@@ -41,7 +41,7 @@
 //////
 
 YARPMEIDeviceDriver::YARPMEIDeviceDriver() :
-YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
+YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds), implemented(false)
 {
 	// fill function pointer table
 	m_cmds[CMDSetSpeed] = &YARPMEIDeviceDriver::setSpeed;
@@ -49,86 +49,55 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetPosition] = &YARPMEIDeviceDriver::setPosition;
 	m_cmds[CMDSetPID] = &YARPMEIDeviceDriver::setPid;
 	m_cmds[CMDGetPosition] = &YARPMEIDeviceDriver::getPosition;
-
 	m_cmds[CMDSetOutputPort] = &YARPMEIDeviceDriver::setOutputPort;
 	m_cmds[CMDGetOutputPort] = &YARPMEIDeviceDriver::getOutputPort;
 	m_cmds[CMDSetOutputBit] = &YARPMEIDeviceDriver::setOutputBit;
 	m_cmds[CMDClearOutputBit] = &YARPMEIDeviceDriver::clearOutputBit;
-
 	m_cmds[CMDSetOffset] = &YARPMEIDeviceDriver::setOffset;
 	m_cmds[CMDSetOffsets] = &YARPMEIDeviceDriver::setOffsets;
-		
 	m_cmds[CMDSetSpeeds] = &YARPMEIDeviceDriver::setSpeeds;
 	m_cmds[CMDSetAccelerations] = &YARPMEIDeviceDriver::setAccelerations;
 	m_cmds[CMDSetPositions] = &YARPMEIDeviceDriver::setPositions;
 	m_cmds[CMDGetPositions] = &YARPMEIDeviceDriver::getPositions;
-
-	m_cmds[CMDBeginMotion] = &YARPMEIDeviceDriver::beginMotion;
-	m_cmds[CMDBeginMotions] = &YARPMEIDeviceDriver::beginMotions;
-
 	m_cmds[CMDDefinePositions] = &YARPMEIDeviceDriver::definePositions;
 	m_cmds[CMDDefinePosition] = &YARPMEIDeviceDriver::definePosition;
-
 	m_cmds[CMDStopAxes] = &YARPMEIDeviceDriver::stopAxes;
 	m_cmds[CMDReadSwitches] = &YARPMEIDeviceDriver::readSwitches;
-
-	m_cmds[CMDServoHere] = &YARPMEIDeviceDriver::dummy;
-
 	m_cmds[CMDGetSpeeds] = &YARPMEIDeviceDriver::getSpeeds;
-
 	m_cmds[CMDGetRefSpeeds] = &YARPMEIDeviceDriver::getRefSpeeds;
 	m_cmds[CMDGetRefAccelerations] = &YARPMEIDeviceDriver::getRefAccelerations;
 	m_cmds[CMDGetRefPositions] = &YARPMEIDeviceDriver::getRefPositions;
 	m_cmds[CMDGetPID] = &YARPMEIDeviceDriver::getPid;
 	m_cmds[CMDGetTorques] = &YARPMEIDeviceDriver::getTorques;
-
 	m_cmds[CMDSetIntegratorLimits] = &YARPMEIDeviceDriver::setIntLimits;
 	m_cmds[CMDSetTorqueLimits] = &YARPMEIDeviceDriver::setTorqueLimits;
 	m_cmds[CMDSetTorqueLimit] = &YARPMEIDeviceDriver::setTorqueLimit;
 	m_cmds[CMDSetIntegratorLimit] = &YARPMEIDeviceDriver::setIntLimit;
 	m_cmds[CMDGetTorqueLimit] = &YARPMEIDeviceDriver::getTorqueLimit;
 	m_cmds[CMDGetTorqueLimits] = &YARPMEIDeviceDriver::getTorqueLimits;
-	m_cmds[CMDSetStopRate] = &YARPMEIDeviceDriver::setStopRate;
 	m_cmds[CMDGetPIDErrors] = &YARPMEIDeviceDriver::getErrors;
-
 	m_cmds[CMDReadInput] = &YARPMEIDeviceDriver::readInput;
-
 	m_cmds[CMDInitPortAsInput] = &YARPMEIDeviceDriver::initPortAsInput;
 	m_cmds[CMDInitPortAsOutput] = &YARPMEIDeviceDriver::initPortAsOutput;
 	m_cmds[CMDSetAmpEnableLevel] = &YARPMEIDeviceDriver::setAmpEnableLevel;
 	m_cmds[CMDSetAmpEnable] = &YARPMEIDeviceDriver::setAmpEnable;
-
 	m_cmds[CMDDisableAmp] = &YARPMEIDeviceDriver::disableAmp; 
 	m_cmds[CMDEnableAmp] = &YARPMEIDeviceDriver::enableAmp;
-
 	m_cmds[CMDControllerIdle] = &YARPMEIDeviceDriver::controllerIdle;
 	m_cmds[CMDControllerRun] = &YARPMEIDeviceDriver::controllerRun;
 	m_cmds[CMDClearStop] = &YARPMEIDeviceDriver::clearStop;
-
 	m_cmds[CMDSetPositiveLevel] = &YARPMEIDeviceDriver::setPositiveLevel;
 	m_cmds[CMDSetNegativeLevel] = &YARPMEIDeviceDriver::setNegativeLevel;
 	m_cmds[CMDSetPositiveLimit] = &YARPMEIDeviceDriver::setPositiveLimit;
 	m_cmds[CMDSetNegativeLimit] = &YARPMEIDeviceDriver::setNegativeLimit;
-	m_cmds[CMDVMove] = &YARPMEIDeviceDriver::vMove;
-	m_cmds[CMDSafeVMove] = &YARPMEIDeviceDriver::safeVMove;
+	m_cmds[CMDVMove] = &YARPMEIDeviceDriver::safeVMove;
 	m_cmds[CMDSetCommands] = &YARPMEIDeviceDriver::setCommands;
 	m_cmds[CMDSetCommand] = &YARPMEIDeviceDriver::setCommand;
 	m_cmds[CMDCheckMotionDone] = &YARPMEIDeviceDriver::checkMotionDone;
 	m_cmds[CMDWaitForMotionDone] = &YARPMEIDeviceDriver::waitForMotionDone;
-
-	m_cmds[CMDSetHomeIndexConfig] = &YARPMEIDeviceDriver::setHomeIndexConfig;
-	m_cmds[CMDSetHomeLevel] = &YARPMEIDeviceDriver::setHomeLevel;
-	m_cmds[CMDSetHome] = &YARPMEIDeviceDriver::setHome;
-	m_cmds[CMDSetStopRate] = &YARPMEIDeviceDriver::setStopRate;
-	
-	// analog input
-	m_cmds[CMDReadAnalog] = &YARPMEIDeviceDriver::readAnalog;
+	m_cmds[CMDSetHomingBehavior] = &YARPMEIDeviceDriver::setHomeProcedure;
+	m_cmds[CMDGetAnalogChannel] = &YARPMEIDeviceDriver::readAnalog;
 	m_cmds[CMDSetAxisAnalog] = &YARPMEIDeviceDriver::setAxisAnalog;
-
-	m_cmds[CMDCheckFramesLeft] = &YARPMEIDeviceDriver::checkFramesLeft;
-	m_cmds[CMDWaitForFramesLeft] = &YARPMEIDeviceDriver::waitForFramesLeft;
-
-	m_cmds[CMDDummy] = &YARPMEIDeviceDriver::dummy;
 
 	_events = new int[CBNEvents];
 	 for(int i = 0; i<CBNEvents; i++)
@@ -183,6 +152,17 @@ int YARPMEIDeviceDriver::open(void *d)
 	_position_zero = new double[_njoints];
 	ACE_ASSERT (_position_zero != NULL);
 	memset (_position_zero, 0, sizeof(double) * _njoints);
+
+	int mask = p->ioPorts;
+	for (i = 0; i < MAX_PORTS; i++)
+	{
+		if (mask & 0x1)
+			init_io (i, IO_OUTPUT);
+		else
+			init_io (i, IO_INPUT);
+
+		mask >>= 1;
+	}
 
 	return rc;
 }
@@ -322,6 +302,7 @@ int YARPMEIDeviceDriver::getRefPositions(void *j)
 	return rc;
 }
 
+// returns the position error.
 int YARPMEIDeviceDriver::getErrors(void *errs)
 {
 	long rc = 0;
@@ -638,13 +619,13 @@ int YARPMEIDeviceDriver::controllerIdle(void *axis)
 
 int YARPMEIDeviceDriver::setOutputBit(void *n)
 {
-	// LATER
+	ACE_ASSERT (!implemented);
 	return 0;
 }
 
 int YARPMEIDeviceDriver::clearOutputBit(void *n)
 {
-	// LATER
+	ACE_ASSERT (!implemented);
 	return 0;
 }
 
@@ -762,7 +743,7 @@ int YARPMEIDeviceDriver::setIntLimit(void *cmd)
 YARPMEIDeviceDriver::readInput(void *input)
 {
 	int16 rc = 0;	
-	// LATER
+	ACE_ASSERT (!implemented);
 	return rc;
 }
 
@@ -772,31 +753,17 @@ int YARPMEIDeviceDriver::dummy(void *d)
 	return rc;
 }
 
-int YARPMEIDeviceDriver::beginMotion(void *cmd)
-{
-	int16 rc = 0;
-	// OBSOLETE
-	return rc;
-}
-
-int YARPMEIDeviceDriver::beginMotions(void *cmd)
-{
-	int16 rc = 0;
-	// OBSOLETE
-	return rc;
-}
-
 int YARPMEIDeviceDriver::stopAxes(void *par)
 {
 	int16 rc = 0;
-	// LATER
+	ACE_ASSERT (!implemented);
 	return rc;
 }
 
 int YARPMEIDeviceDriver::readSwitches(void *switches)
 {
 	int16 rc = 0;
-	// LATER
+	ACE_ASSERT (!implemented);
 	return rc;
 }
 
@@ -984,6 +951,32 @@ int YARPMEIDeviceDriver::setHome(void *cmd)
 	ControlBoardEvents *event = (ControlBoardEvents *) tmp->parameters;
 	int16 ev = _events[*event];
 	rc = set_home(axis, ev);
+	return rc;
+}
+
+int YARPMEIDeviceDriver::setHomeProcedure(void *cmd)
+{
+	int16 rc = 0;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	int16 ev = _events[*(ControlBoardEvents *)tmp->parameters];
+
+	SingleAxisParameters x;
+	int ipar;
+	double dpar;
+
+	x.axis = tmp->axis;
+	x.parameters = &ipar;
+	ipar = CBIndexOnly;			// index_only
+	setHomeIndexConfig(&cmd);
+	ipar = 0;					// (active low)
+	setHomeLevel(&cmd);
+
+	rc = set_home(tmp->axis, ev);
+
+	x.parameters = &dpar;
+	dpar = 50000.0;				// stop rate (acc)
+	setStopRate(&cmd);
+
 	return rc;
 }
 

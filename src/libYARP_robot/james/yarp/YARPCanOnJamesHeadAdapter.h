@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.9 2006-02-10 08:28:48 gmetta Exp $
+/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.10 2006-02-15 09:44:22 gmetta Exp $
 ///
 ///
 
@@ -584,12 +584,12 @@ public:
 			IOCtl(CMDSetCurrentLimit, &cmd);
 
 			// sets the broadcast messages for each card.
-			if (!(actual_axis % 2))
-			{
-				double tmp = double(0x1A);	/// 0x1A activates position and current consumption broadcast + fault events.
-				cmd.parameters = &tmp;
-				IOCtl (CMDSetBCastMsgs, &cmd);
-			}
+			//if (!(actual_axis % 2))
+			//{
+			//	double tmp = double(0x1A);	/// 0x1A activates position and current consumption broadcast + fault events.
+			//	cmd.parameters = &tmp;
+			//	IOCtl (CMDSetBCastMsgs, &cmd);
+			//}
 		}
 
 		_initialized = true;
@@ -602,6 +602,7 @@ public:
 	 */
 	int uninitialize()
 	{
+		/*
 		int i;
 		for (i = 0; i < _parameters->_nj; i++)
 		{
@@ -618,6 +619,7 @@ public:
 				IOCtl (CMDSetBCastMsgs, &cmd);
 			}			
 		}
+		*/
 
 		if (YARPEsdCanDeviceDriver::close() != 0)
 			return YARP_FAIL;

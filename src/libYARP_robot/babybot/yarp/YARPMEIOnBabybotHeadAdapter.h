@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.9 2005-06-21 15:02:26 gmetta Exp $
+///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.10 2006-02-15 09:44:22 gmetta Exp $
 ///
 ///
 
@@ -55,7 +55,8 @@
 
 #ifdef YARP_BABYBOT_HEAD_ADAPTER_VERBOSE
 #define YARP_BABYBOT_HEAD_ADAPTER_DEBUG(string) YARP_DEBUG("BABYBOT_HEAD_ADAPTER_DEBUG:", string)
-#else  YARP_BABYBOT_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#else  
+#define YARP_BABYBOT_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 /**
@@ -552,7 +553,7 @@ public:
 			{
 				cmd.axis = int(_inertial->_parameters[i][SP_MeiChannel]);
 				cmd.parameters = &_tmpShort[i];
-				ret = IOCtl(CMDReadAnalog, &cmd);
+				ret = IOCtl(CMDGetAnalogChannel, &cmd);
 			}
 
 			cal = _inertial->calibrate(_tmpShort, &p);
@@ -621,7 +622,7 @@ public:
 		{
 			cmd.axis = int(_inertial->_parameters[i][SP_MeiChannel]);
 			cmd.parameters = &_tmpShort[i];;
-			ret = IOCtl(CMDReadAnalog, &cmd);
+			ret = IOCtl(CMDGetAnalogChannel, &cmd);
 		}
 		_inertial->convert(_tmpShort, val);
 		return ret;
@@ -640,7 +641,7 @@ public:
 		ACE_ASSERT (index >= 0 && index < _inertial->_ns);
 		cmd.axis = int(_inertial->_parameters[index][SP_MeiChannel]);
 		cmd.parameters = &_tmpShort[index];;
-		ret = IOCtl(CMDReadAnalog, &cmd);
+		ret = IOCtl(CMDGetAnalogChannel, &cmd);
 		_inertial->convert(_tmpShort, val);
 		return ret;
 	}

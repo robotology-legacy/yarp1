@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.16 2006-02-14 14:42:13 babybot Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.17 2006-02-15 09:44:22 gmetta Exp $
 ///
 ///
 
@@ -53,66 +53,50 @@
 enum ControlBoardCmd
 {
 	//
-	// set/get state information about a specific axis or about
-	// many axes including position limit values.
+	// set/get state information about a specific axis or about many axes.
 	//
 	CMDDefinePosition 		= 16,	// set encoder value, single axis.
 	CMDDefinePositions 		= 17,	// set encoder values, all axes simultaneously.
-
 	CMDGetPosition 			= 4,	// read actual encoder position.
 	CMDGetPositions 		= 8,	// see above, all axes.
-	
 	CMDSetSpeed				= 0,	// set the reference speed for position control.
 	CMDSetSpeeds 			= 5,	// see above, all axes.
 	CMDGetSpeed				= 87,	// istantaneous speed, read from encoder (single joint)
 	CMDGetSpeeds			= 21,	// istantaneous speed, read from encoders.
-
-	CMDGetAccelerations		= 90,   // istantaneous acc, from encoders
+	// CMDGetAcceleration	=	,	// istantaneous acceleration of a single axis.
+	CMDGetAccelerations		= 90,   // istantaneous acceleration for all axes.
 	CMDSetAcceleration 		= 2,	// reference acceleration for position and velocity control.
 	CMDSetAccelerations 	= 7,	// see above, all axes.
-
 	CMDGetRefPosition		= 84,	// get the reference (commanded) position for a single axis.
 	CMDGetRefPositions 		= 24,	// get reference position (commanded).
-	CMDGetPIDError			= 85,	// get the position error (single joint).
-	CMDGetPIDErrors 		= 31,	// get the position error for all joints.
-
+	CMDGetPIDError			= 85,	// get the PID error.
+	CMDGetPIDErrors			= 102,	// get the PID error, vector version
 	CMDGetRefSpeeds 		= 22,	// get reference speed.
 	CMDGetRefAccelerations 	= 23,	// get reference acceleration.
-
 	CMDSetCommands 			= 50,	// set current commands (watch out! dangerous)
 	CMDSetCommand 			= 51,	// set current commands (watch out! dangerous)
-
 	CMDGetSWPositiveLimit 	= 79,	// gets positive limit value.
 	CMDGetSWNegativeLimit 	= 80,	// gets negative limit value.
 	CMDSetSWPositiveLimit 	= 81,	// sets positive limit value.
 	CMDSetSWNegativeLimit 	= 82,	// sets negative limit value.
 
-	CMDSetPositiveLimit 	= 43,	// sets positive limit event (what to do in case a limit is reached).
-	CMDSetNegativeLimit 	= 44,	// sets negative limit event.
-	CMDSetPositiveLevel 	= 45,	// sets level signal for limit switch.
-	CMDSetNegativeLevel 	= 46,	// sets level signal for limit switch.
-
-	//
 	//
 	// set/get the PID gain values including limits.
+	//
 	CMDSetPID 				= 3,	// set the PID for a given axis.
 	CMDGetPID 				= 25,	// read current PID gain values.
-
 	CMDSetOffset 			= 12,	// set the output offset.
 	CMDSetOffsets 			= 13,	// same as above, all axes.
 	CMDSetIntegratorLimit   = 29,	// integrator limit, single joint.
 	CMDSetIntegratorLimits 	= 27,	// integrator limit, all axes.
-	
 	CMDGetTorque			= 83,	// read the output from a single axis.
 	CMDGetTorques 			= 26,	// read the output voltage for all axes.
 	CMDSetTorqueLimit		= 30,   // torque limit, single joint (PWM maximum value).
 	CMDSetTorqueLimits 		= 28,	// torque limit, all axes.
 	CMDGetTorqueLimit		= 60,   // get torque limit, single joint
 	CMDGetTorqueLimits		= 61,   // get torque limit, multiple joints
-
 	CMDGetPWM				= 88,	// get pwm output
 	CMDGetPWMs				= 89,	// get pwm output multiple joints
-
 	CMDSetCurrentLimit		= 93,	// set the maximum current threshold (the exact numeric value depends on the card)
 									// this is typically measured internally by the control card.
 	CMDSetCurrentLimits		= 94,	// set the maximum current threshold for all joints.
@@ -121,47 +105,35 @@ enum ControlBoardCmd
 	// actual motion commands.
 	//
 	CMDSetPosition			= 1,	// position control (start a movement).
-	CMDSetPositions			= 6,	// see above, all axes.
-	CMDBeginMotion 			= 14,	// start motion (certain cards require explicit start command).
-	CMDBeginMotions 		= 15,	// same as above but all axes.
-
-	CMDStopAxes				= 18,	// issue a stop command to all axes.
-	CMDSetStopRate 			= 55,	// stop rate, at what rate to stop motion (deceleration).
-	CMDServoHere 			= 20,	// set current position as current.
-	CMDClearStop 			= 42,	// clear the error status (depends on the card).
-
+	CMDSetPositions			= 6,	// sets reference position for movement, all axes.
+	CMDSetPositionRelative	= 91,   // peform relative motion on a single axis.
+	CMDSetPositionsRelative = 92,   // perform relative motion on multiple axis (LATER: name to be standardized!).
+	CMDCheckMotionDone 		= 48,	// check for motion done - if the previous command required trajectory generation.
+	CMDWaitForMotionDone 	= 49,	// wait (loop with sleep) - polling at a certain rate.
+	// CMDStopAxis			=   ,	// issues a stop command to a single axis.
+	CMDStopAxes				= 18,	// issues a stop command to all axes.
+	CMDClearStop 			= 42,	// clear the error status (depending on the card, a sw stop generates a fault situation).
 	CMDVMove 				= 47,	// set move using the velocity mode (begin motion).
-	CMDSafeVMove			= 71,	// velocity move, check frames left before submitting command.
-
-	CMDRelativeMotion		= 91,   // peform relative motion on a single axis.
-	CMDRelativeMotionMultiple       = 92,   // perform relative motion on multiple axis (LATER: name to be standardized!).
-
-	CMDCheckMotionDone 		= 48,	// check for motion done.
-	CMDWaitForMotionDone 	= 49,	// wait (loop with sleep).
 
 	//
-	// I/O commands.
+	// Analog I/O commands.
+	//
+	CMDGetAnalogChannel		= 66,	// read analog input from one axis.
+	CMDGetAnalogChannels	= 31,	// read analog input from all axes.
+	CMDSetAxisAnalog		= 67,	// configure axis analog.
+
+	//
+	// Digital I/O commands.
 	//
 	CMDSetOutputPort 		= 9,	// set output port to a specific value.
 	CMDSetOutputBit 		= 10,	// set single bit to 1.
 	CMDClearOutputBit 		= 11,	// set single bit to 0.
-	
-	CMDReadSwitches 		= 19,	// read switches (limit or other).
-	
-	CMDReadAnalog			= 66,	// read analog input.
-	CMDSetAxisAnalog		= 67,	// configure axis analog.
-
-	CMDReadInput 			= 32,	// read all ? (not yet impl)
+	CMDReadSwitches 		= 19,	// read switches (limit or other, digital input).
+	CMDReadInput 			= 32,	// ???
 	CMDInitPortAsInput 		= 33,	// digital I/O 
 	CMDInitPortAsOutput 	= 34,	// digital I/O
 	CMDGetOutputPort 		= 35,	// digital I/O
-
-	CMDAbortAxes			= 62,	// abort motion.
-
-	CMDSetHomeIndexConfig 	= 52,
-	CMDSetHomeLevel 		= 53,
-	CMDSetHome 				= 54,
-	CMDIndexSearch		    = 56,	// Index Search (Index search + jog move = search for indexes)
+	CMDSetHomingBehavior	= 52,	// sets the homing behavior during calibration (search what, index, etc.).
 
 	//
 	// Amplifier/PWM control.
@@ -172,56 +144,37 @@ enum ControlBoardCmd
 	CMDEnableAmp 			= 39,	// enable amplifier.
 	CMDControllerIdle 		= 40,	// disables the PID computation and output.
 	CMDControllerRun 		= 41,	// starts the PID computation and output.
-	CMDGetFault				= 102,  // gets fault events for a single axis.
-	CMDGetFaults			= 103,  // gets fault events for all axes.
+
+	//
+	// Internal event handling.
+	//
+	CMDSetPositiveLimit 	= 43,	// sets positive limit event (what to do in case a limit is reached).
+	CMDSetNegativeLimit 	= 44,	// sets negative limit event.
+	CMDSetPositiveLevel 	= 45,	// sets level signal for limit switch.
+	CMDSetNegativeLevel 	= 46,	// sets level signal for limit switch.
 
 	//
 	// Miscellaneous.
 	//
 	CMDSetPositionControlMode = 86,   // set position mode.
 	CMDSetForceControlMode	  = 87,	  // set force control mode.
-
+	// CMDSetVelocityControlMode = ,
 	CMDResetController 		= 57,	// reset the controller.
 	CMDErrorLimit			= 58,	// PID error limit (position error threshold).
 	CMDOffOnError			= 59,	// this command causes the controller to shut off
 									// the  motor command if a position error exceeds
 									// the limit specified by the CMDErrorLimit command
-
-	CMDMotorType			= 64,	// used to set the motor type (e.g. DC, stepper) - depends on the card.
-	CMDGetMotorType			= 65,
-
-	CMDSetDR				= 68,	// it configures the second communication channel and the data update (WARNING: specific to Galil).
-	CMDCheckFramesLeft		= 69,	// return true if frames are left to be executed for one or more axes (for buffered communication).
-	CMDWaitForFramesLeft	= 70,	// wait, loop with sleep(time), see .h for details
-
+	CMDGetErrorStatus		= 74,	// gets the error status of the control card.
+	CMDGetFault				= 102,  // gets fault events for a single axis.
+	CMDGetFaults			= 103,  // gets fault events for all axes.
 	CMDLoadBootMemory		= 72,	// loads control values from permanent storage.
 	CMDSaveBootMemory		= 73,	// saves important parameters to permanent storage.
-	CMDGetErrorStatus		= 74,	// gets the error status of the control card.
-	CMDSetBoardID			= 75,	// broadcasts a set board ID command.
-	CMDGetBoardID			= 76,	// broadcasts a get board ID command.
-
-
-	//
-
-	// Broadcast management of messages (on interrupt/event based).
-
-	//
-	CMDSetBCastMsgs			= 95,	// prepares the remote to broadcast certain info back automatically.
-	CMDGetBCastPositions	= 96,	// reads the values of the positions.
-	CMDGetBCastVelocities	= 97,	// ditto for velocities.
-	CMDGetBCastAccelerations= 98,	// accelerations.
-	CMDGetBCastCurrents		= 99,	// reads the values of the current consumption.
-	CMDGetBCastFaultsAndReset = 100, // reads the faults and reset them (until next fault is generated - one shot event).
-
-	CMDGetBCastControlValues = 101,	 // reads the control values from the internal (PID?) controller.
-
 
 	//
 	// Specific to the device driver behavior (nothing is sent to the card) - used for debugging.
 	//
-	CMDSetDebugMessageFilter = 77,	// sets the debug message filter.
-	CMDSetDebugPrintFunction = 78,	// sets the debug print function.
-	CMDDummy 				 = 63,	// dummy command for debug purposes.
+	CMDSetDebugMessageFilter	= 77,	// sets the debug message filter.
+	CMDSetDebugPrintFunction	= 78,	// sets the debug print function.
 	
 	//
 	// Make sure the CBNCmds is always up to date.

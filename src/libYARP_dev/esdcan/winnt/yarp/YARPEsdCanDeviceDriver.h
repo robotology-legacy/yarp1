@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.12 2006-02-14 14:42:12 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.13 2006-02-15 09:44:22 gmetta Exp $
 ///
 ///
 
@@ -176,10 +176,12 @@ protected:
 	
 	int setBCastMessages (void *cmd);
 	int getBCastPositions (void *cmd);
+	int getBCastPosition (void *cmd);
 	int getBCastVelocities (void *cmd);
 	int getBCastAccelerations (void *cmd);
+	int getBCastCurrent (void *cmd);
 	int getBCastCurrents (void *cmd);
-	int getBCastFaultsAndReset (void *cmd);
+	int getBCastFaults (void *cmd);
 	int getBCastControlValues (void *cmd);
 
 	int setDebugMessageFilter (void *cmd);

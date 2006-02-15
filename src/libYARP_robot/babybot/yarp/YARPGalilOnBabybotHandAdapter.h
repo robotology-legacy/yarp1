@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPGalilOnBabybotHandAdapter.h,v 1.4 2004-09-04 22:01:30 babybot Exp $
+///  $Id: YARPGalilOnBabybotHandAdapter.h,v 1.5 2006-02-15 09:44:22 gmetta Exp $
 ///
 ///
 
@@ -82,13 +82,19 @@
 
 #ifdef YARP_GALIL_ON_BABYBOT_HAND_ADAPTER_VERBOSE
 #define YARP_GALIL_ON_BABYBOT_HAND_ADAPTER_DEBUG(string) YARP_DEBUG("YARP_GALIL_ON_BABYBOT_HAND_ADAPTER_DEBUG:", string)
-#else  YARP_GALIL_ON_BABYBOT_HAND_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#else  
+#define YARP_GALIL_ON_BABYBOT_HAND_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 #include <yarp/YARPConfigFile.h>
-
 #include <yarp/YARPBabybotHandParameters.h>
 
+/**
+ *
+ *
+ *
+ *
+ */
 class YARPGalilOnBabybotHandAdapter : public YARPGalilDeviceDriver
 {
 public:
@@ -128,8 +134,9 @@ public:
 	int stop()
 	{
 		int ret;
-		ret = IOCtl(CMDAbortAxes, NULL);
-		ret = IOCtl(CMDServoHere, NULL);
+		ret = IOCtl(CMDStopAxes, NULL);
+		//ret = IOCtl(CMDAbortAxes, NULL);
+		//ret = IOCtl(CMDServoHere, NULL);
 		return ret;
 	}
 
@@ -163,8 +170,8 @@ public:
 			IOCtl(CMDSetPID, &cmd);
 			double pos = 0.0;
 			cmd.parameters = &pos;
-			IOCtl(CMDDefinePosition, &cmd);
-			IOCtl(CMDServoHere, &cmd);	//enable PID
+			IOCtl(CMDDefinePosition, &cmd);	// servo here added to the define position.
+			//IOCtl(CMDServoHere, &cmd);	//enable PID
 		}
 
 		// set output port to 0 (enable motors)

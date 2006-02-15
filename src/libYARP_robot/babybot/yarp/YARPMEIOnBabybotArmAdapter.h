@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.6 2005-06-21 15:02:26 gmetta Exp $
+///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.7 2006-02-15 09:44:22 gmetta Exp $
 ///
 ///
 
@@ -52,7 +52,8 @@
 
 #ifdef YARP_BABYBOT_ARM_ADAPTER_VERBOSE
 #define YARP_BABYBOT_ARM_ADAPTER_DEBUG(string) YARP_DEBUG("BABYBOT_ARM_ADAPTER_DEBUG:", string)
-#else  YARP_BABYBOT_ARM_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#else  
+#define YARP_BABYBOT_ARM_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 #include <yarp/YARPConfigFile.h>
@@ -484,6 +485,8 @@ public:
 		_parameters = par;
 		MEIOpenParameters op_par;
 		op_par.nj= _parameters->_nj; 
+		op_par.ioPorts = 0x2;	// port 0 = in(0), port 1 = out(1)
+
 		if (YARPMEIDeviceDriver::open(&op_par) != 0)
 			return YARP_FAIL;
 
@@ -508,17 +511,17 @@ public:
 		}
 
 		/////////////// set ports
-		int port;
-		port = 0;
-		IOCtl(CMDInitPortAsInput, &port);	// port 0 is INPUT
-		port = 1;
-		IOCtl(CMDInitPortAsOutput, &port);	// port 1 is OUTPUT
+		//int port;
+		//port = 0;
+		//IOCtl(CMDInitPortAsInput, &port);	// port 0 is INPUT
+		//port = 1;
+		//IOCtl(CMDInitPortAsOutput, &port);	// port 1 is OUTPUT
 		//////////////////
 
-		// amp enable off
-		IOParameters cmd;
-		cmd.port = 1;
-		cmd.value = (short) 0x01;
+		// amp enable off (?????)
+		//IOParameters cmd;
+		//cmd.port = 1;
+		//cmd.value = (short) 0x01;
 		_amplifiers = false;
 		/////////////////////////
 
@@ -777,19 +780,20 @@ protected:
 		{
 			SingleAxisParameters cmd;
 			int ipar;
-			double dpar;
+//			double dpar;
 			cmd.axis = _parameters->_axis_map[i];
 			cmd.parameters = &ipar;
-			
-			ipar = CBIndexOnly;			// index_only
-			IOCtl(CMDSetHomeIndexConfig, &cmd);
-			ipar = 0;					// (active low)
-			IOCtl(CMDSetHomeLevel, &cmd);
+
+			// new ver, SetHome subsumes the rest.
+			//ipar = CBIndexOnly;			// index_only
+			//IOCtl(CMDSetHomeIndexConfig, &cmd);
+			//ipar = 0;					// (active low)
+			//IOCtl(CMDSetHomeLevel, &cmd);
 			ipar = event;
-			IOCtl(CMDSetHome, &cmd);
-			cmd.parameters = &dpar;
-			dpar = 50000.0;				// stop rate (acc)
-			IOCtl(CMDSetStopRate, &cmd);
+			IOCtl(CMDSetHomingBehavior, &cmd);
+			//cmd.parameters = &dpar;
+			//dpar = 50000.0;				// stop rate (acc)
+			//IOCtl(CMDSetStopRate, &cmd);
 		}
 	}
 

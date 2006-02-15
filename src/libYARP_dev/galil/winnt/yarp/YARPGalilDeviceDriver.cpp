@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.2 2006-02-14 14:42:13 babybot Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.3 2006-02-15 09:44:22 gmetta Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -37,17 +37,17 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetPositions] 	= &YARPGalilDeviceDriver::set_positions;
 	m_cmds[CMDGetPositions] 	= &YARPGalilDeviceDriver::get_positions;
 
-	m_cmds[CMDBeginMotion] 		= &YARPGalilDeviceDriver::begin_motion;
-	m_cmds[CMDBeginMotions] 	= &YARPGalilDeviceDriver::begin_motions;
+//	m_cmds[CMDBeginMotion] 		= &YARPGalilDeviceDriver::begin_motion;
+//	m_cmds[CMDBeginMotions] 	= &YARPGalilDeviceDriver::begin_motions;
 
 	m_cmds[CMDDefinePositions] 	= &YARPGalilDeviceDriver::define_positions;
 	m_cmds[CMDDefinePosition] 	= &YARPGalilDeviceDriver::define_position;
 
 	m_cmds[CMDStopAxes] 		= &YARPGalilDeviceDriver::stop_axes;
-	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
+//	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
 	m_cmds[CMDReadSwitches] 	= &YARPGalilDeviceDriver::read_switches;
 
-	m_cmds[CMDServoHere] 		= &YARPGalilDeviceDriver::servo_here;
+	//m_cmds[CMDServoHere] 		= &YARPGalilDeviceDriver::servo_here;
 
 	m_cmds[CMDGetSpeeds] 		= &YARPGalilDeviceDriver::get_speeds;
 
@@ -68,8 +68,8 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDErrorLimit]		= &YARPGalilDeviceDriver::error_limit;
 	m_cmds[CMDOffOnError]		= &YARPGalilDeviceDriver::off_on_error; 
 	
-	m_cmds[CMDVMove] 			= &YARPGalilDeviceDriver::set_jogs;
-	m_cmds[CMDSafeVMove]		= &YARPGalilDeviceDriver::set_safe_jogs;
+	m_cmds[CMDVMove] 			= &YARPGalilDeviceDriver::set_safe_jogs;
+//	m_cmds[CMDSafeVMove]		= &YARPGalilDeviceDriver::set_safe_jogs;
 
 	m_cmds[CMDCheckMotionDone]	= &YARPGalilDeviceDriver::check_motion_done;
 	
@@ -77,20 +77,20 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	
 	m_cmds[CMDSetPositiveLimit] = &YARPGalilDeviceDriver::set_positive_limit;
 	m_cmds[CMDSetNegativeLimit]	= &YARPGalilDeviceDriver::set_negative_limit;
-	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
+//	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
 
-	m_cmds[CMDMotorType]		= &YARPGalilDeviceDriver::motor_type;
+//	m_cmds[CMDMotorType]		= &YARPGalilDeviceDriver::motor_type;
 
-	m_cmds[CMDGetMotorType]		= &YARPGalilDeviceDriver::get_motor_type;
+//	m_cmds[CMDGetMotorType]		= &YARPGalilDeviceDriver::get_motor_type;
 
 	m_cmds[CMDSetCommands]		= &YARPGalilDeviceDriver::set_commands;
 
 	m_cmds[CMDSetCommand]		= &YARPGalilDeviceDriver::set_command;
 
-	m_cmds[CMDCheckFramesLeft]  = &YARPGalilDeviceDriver::check_frames_left;
-	m_cmds[CMDWaitForFramesLeft] = &YARPGalilDeviceDriver::wait_for_frames_left;
+//	m_cmds[CMDCheckFramesLeft]  = &YARPGalilDeviceDriver::check_frames_left;
+//	m_cmds[CMDWaitForFramesLeft] = &YARPGalilDeviceDriver::wait_for_frames_left;
 
-	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
+//	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
 	
 	m_question_marks = NULL;
 	m_temp_int_array = NULL;
@@ -807,6 +807,14 @@ int YARPGalilDeviceDriver::define_positions (void *param)
 
 	cmd_length = 4 + 4*n;
 
+	// setting the encoders requires a servo_here command (set the ref position).
+	buff = _append_cmd((char) 0xAA, buff);		//SH
+	buff = _append_cmd((char) 0x00, buff);
+	buff = _append_cmd((char) 0x00, buff);
+	buff = _append_cmd((char) 0x00, buff);
+
+	cmd_length += 4;
+
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, cmd_length ,
 							m_buffer_in, buff_length);
@@ -836,8 +844,14 @@ int YARPGalilDeviceDriver::define_position (void *cmd)
 	// PID value
 	buff = _append_cmd_as_int(*position, buff);
 
+	// setting the encoders requires a servo_here command (set the ref position).
+	buff = _append_cmd((char) 0xAA, buff);		//SH
+	buff = _append_cmd((char) 0x00, buff);
+	buff = _append_cmd((char) 0x00, buff);
+	buff = _append_cmd((char) 0x00, buff);
+
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
+							(unsigned char *) m_buffer_out, 8+4,
 							m_buffer_in, buff_length);
 	
 	return rc;
@@ -1189,6 +1203,12 @@ int YARPGalilDeviceDriver::begin_motions(void *cmd)
 // decelerate to a stop
 int YARPGalilDeviceDriver::stop_axes(void *par)
 {
+	if (abort_axes (NULL) == YARP_OK)
+		return servo_here (NULL);
+	else
+		return YARP_FAIL;
+
+#if 0
 	long rc = 0;
 	
 	int cmd_length = 0;
@@ -1209,6 +1229,7 @@ int YARPGalilDeviceDriver::stop_axes(void *par)
 							m_buffer_in, buff_length);
 	
 	return rc;
+#endif
 }
 
 // instantaneous stop (no deceleration)

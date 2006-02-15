@@ -32,9 +32,9 @@
 //
 // April 2003 -- by nat
 //
-// win32: link Medvc50f.lib 
+// win32: link Medvc60f.lib or later versions.
 //
-// $Id: YARPMEIDeviceDriver.h,v 1.1 2004-07-13 13:21:08 babybot Exp $
+// $Id: YARPMEIDeviceDriver.h,v 1.2 2006-02-15 09:44:22 gmetta Exp $
 
 #ifndef __YARP_MEI_DEVICE_DRIVER__
 #define __YARP_MEI_DEVICE_DRIVER__
@@ -47,11 +47,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-// abstract, SYNC is the semaphore type.
 //
-
+//
 typedef short int16;
+
+//
+// constants - depend on the card type.
+const int MAX_PORTS = 2;
 
 struct MEIOpenParameters
 {
@@ -60,11 +62,13 @@ struct MEIOpenParameters
 		hwnd = 0;
 		nj = 8;
 		meiPortAddr = 0x300;
+		ioPorts = 0x00;
 	}
 
 	void *hwnd;
 	int nj;
 	int meiPortAddr;
+	int ioPorts;		// bit 0 = 1 means port 0 -> output, and so on.
 };
 
 ///
@@ -104,9 +108,6 @@ private:
 
 	int definePositions(void *pos);
 	int definePosition(void *cmd);
-
-	int beginMotion(void *cmd);
-	int beginMotions(void *d);
 
 	int stopAxes(void *p);
 	int readSwitches(void *p);
@@ -155,10 +156,12 @@ private:
 	int setHomeIndexConfig(void *cmd);
 	int setHomeLevel(void *cmd);
 	int setHome(void *cmd);
+	int setHomeProcedure(void *cmd);
 
 	// MOTION STATUS
 	// non blocking call, check motion done and return
 	int checkMotionDone(void *cmd);
+
 	// blocking call, poll with sleep(time)
 	// time is ms, 0: busy waiting
 	int waitForMotionDone(void *cmd);
@@ -172,6 +175,7 @@ private:
 	int dummy(void *d);	// dummy function, for debug purpose
 
 private:
+	bool implemented;
 	int _njoints;   
 	int _dsp_rate;
 

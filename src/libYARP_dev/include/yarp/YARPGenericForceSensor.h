@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPGenericForceSensor.h,v 1.4 2004-10-14 17:09:52 babybot Exp $
+/// $Id: YARPGenericForceSensor.h,v 1.5 2006-02-15 09:44:22 gmetta Exp $
 ///
 ///
 
@@ -134,7 +134,7 @@ class YARPGenericForceSensor
 
 		int reset()
 		{
-			_adapter.IOCtl(CMDJR3ResetOffsets, NULL);
+			return _adapter.IOCtl(CMDJR3ResetOffsets, NULL);
 		}
 
 		///int read(YVector &f) { return read(f.data()); }

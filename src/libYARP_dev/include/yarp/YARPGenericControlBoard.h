@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.29 2006-02-14 14:42:13 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.30 2006-02-15 09:44:22 gmetta Exp $
 ///
 ///
 
@@ -182,6 +182,7 @@ public:
 		_temp_double = NULL;
 		_currentLimits = NULL;
 		_newLimits = NULL;
+
 		_temp_short = NULL;
 	}
 
@@ -193,7 +194,9 @@ public:
 	{
 		if (_temp_double != NULL)
 			delete [] _temp_double;
+
 		if (_temp_short != NULL)
+
 			delete[] _temp_short;
 		if (_newLimits != NULL)
 			delete [] _newLimits;
@@ -301,7 +304,9 @@ public:
 		_lock();
 		if (_temp_double != NULL)
 			delete [] _temp_double;
+
 		if (_temp_short != NULL)
+
 			delete[] _temp_short;
 		if (_newLimits != NULL)
 			delete [] _newLimits;
@@ -309,6 +314,7 @@ public:
 			delete [] _currentLimits;
 
 		_temp_double = NULL;
+
 		_temp_short = NULL;
 		_currentLimits = NULL;
 		_newLimits = NULL;
@@ -681,7 +687,7 @@ public:
 											(int) _parameters._signs[i]);
 		}
 
-		ret = _adapter.IOCtl(CMDSafeVMove, _temp_double);
+		ret = _adapter.IOCtl(CMDVMove, _temp_double);
 		_unlock();
 		return ret;
 	}
@@ -719,7 +725,7 @@ public:
 	{
 		int ret;
 		_lock();
-		ret = _adapter.IOCtl(CMDServoHere, NULL);
+		ret = _adapter.IOCtl(CMDStopAxes, NULL);
 		_unlock();
 		return ret;
 	}
@@ -732,7 +738,7 @@ public:
 	 * @return YARP_OK on success.
 	 */
 	int setOffset(int i, double off)
-	  {
+	{
 	    int ret;
 	    _lock();
 	    SingleAxisParameters cmd;
@@ -741,7 +747,7 @@ public:
 	    ret=_adapter.IOCtl(CMDSetOffset, &cmd);
 	    _unlock();
 	    return ret;
-	  }
+	}
 
 	/** 
 	 * Changes the offset of the all joints. This method can
@@ -750,20 +756,20 @@ public:
 	 * @return YARP_OK always.
 	 */
 	int setOffsets(const double *off)
-	  {
+	{
 	    _lock();
 	    
 	    int i, j;
 	    for(i = 0; i<_parameters._nj; i++)
-	      {
-		j = _parameters._axis_map[i];
-		_temp_double[j] = off[i];
-	      }
+		{
+			j = _parameters._axis_map[i];
+			_temp_double[j] = off[i];
+		}
 			
 	    _adapter.IOCtl(CMDSetOffsets, _temp_double);
 	    _unlock();
 	    return YARP_OK;
-	  }
+	}
 
 
 	/**
@@ -1026,28 +1032,52 @@ public:
 	  return YARP_OK;
 	}
 
+
 	/**
+
 	 * Gets the fault messages.
+
 	 * @data is a vector of 16bit values with fault bits. If 0 no faults are detected.
+
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
+
 	 */
+
 	int getFaults (short *data)
+
 	{
+
 		_lock();
+
 		if (_adapter.IOCtl (CMDGetFaults, _temp_short) != YARP_OK)
+
 		{
+
 			_unlock();
+
 			return YARP_FAIL;
+
 		}
 
+
+
 		for (int i = 0; i < _parameters._nj; i++)
+
 		{
+
 			data[_parameters._inv_axis_map[i]] = _temp_short[i];	
+
 			
+
 		}
+
 		_unlock();
+
 		return YARP_OK;
+
 	}
+
+
 
 
 	/**
@@ -1151,7 +1181,9 @@ protected:
 	{
 		_temp_double = new double [_parameters._nj];
 		ACE_ASSERT (_temp_double != NULL);
+
 		_temp_short = new short [_parameters._nj];
+
 		ACE_ASSERT (_temp_short != NULL);
 		_currentLimits = new double [_parameters._nj];
 		ACE_ASSERT (_currentLimits != NULL);
@@ -1171,6 +1203,7 @@ protected:
 	YARPSemaphore _mutex;
 
 	double *_temp_double;
+
 	short *_temp_short;
 	double *_currentLimits;
 	double *_newLimits;
