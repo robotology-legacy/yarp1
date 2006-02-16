@@ -13,6 +13,8 @@
 #include "LiveGloveDlg.h"
 #include "LiveTrackerDlg.h"
 
+#include "learning.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // CBodyMapDlg dialog
 

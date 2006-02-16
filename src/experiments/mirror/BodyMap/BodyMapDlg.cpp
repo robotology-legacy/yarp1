@@ -280,9 +280,13 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 		_settings._img1_inport.Read();
 		_settings._img1.Refer(_settings._img1_inport.Content());
 		// predict and show expected position
-		_learningBlock.predict(_settings._data.tracker0Data.x, _settings._data.tracker0Data.y, _settings._data.tracker0Data.z);
-		ShowExpectedTrackerXY(_settings._img0, _learningBlock.x0, _learningBlock.y0);
-		ShowExpectedTrackerXY(_settings._img1, _learningBlock.x1, _learningBlock.y1);
+		double _x0, _y0, _x1, _y1;
+		_learningBlock.predict(_settings._data.tracker0Data.x,
+                               _settings._data.tracker0Data.y,
+							   _settings._data.tracker0Data.z,
+							   &_x0, &_y0, &_x1, &_y1);
+		ShowExpectedTrackerXY(_settings._img0, (int)_x0, (int)_y0);
+		ShowExpectedTrackerXY(_settings._img1, (int)_x1, (int)_y1);
 		// find real tracker position and show it
 		int x0, y0, x1, y1;
 		FindTrackerXY(_settings._img0, &x0, &y0);
@@ -292,7 +296,7 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 		// if we are gathering samples, store this one
 		if ( _acquiringSamples ) {
 			int addedOk = _learningBlock.addSample(_settings._data.tracker0Data.x, _settings._data.tracker0Data.y, _settings._data.tracker0Data.z, (double)x0, (double)y0, (double)x1, (double)y1);
-			if ( addedOk == YARP_OK ) {
+			if ( addedOk ) {
 				char title[50];
 				ACE_OS::sprintf(title, "Acquiring sample %d...", _learningBlock.sampleCount);
 				AfxGetMainWnd()->SetWindowText(title);

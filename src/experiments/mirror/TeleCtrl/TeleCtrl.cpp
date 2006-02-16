@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.1 2006-02-10 17:02:35 claudio72 Exp $
+/// $Id: TeleCtrl.cpp,v 1.2 2006-02-16 15:08:05 claudio72 Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -263,7 +263,7 @@ void streamingThread::Body (void)
       cout.precision(3);
       cout << "Arm:\t"
            << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
-           << "Q\t" << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "   \r";
+           << "Q\t" << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "    \r";
       cout.flush();
 
       // send IK commands to the arm.

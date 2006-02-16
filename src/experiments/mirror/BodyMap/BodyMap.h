@@ -14,8 +14,6 @@
 
 #include "resource.h"		// main symbols
 
-#include "libsvm.h"
-
 // ----------- program options, coming from the collector
 typedef struct BodyMapOptionsStruct {
 	BodyMapOptionsStruct() {
@@ -63,39 +61,6 @@ typedef struct BodyMapSettingsStruct {
 	// ID of live acquisition timer
 	UINT _timerID;
 } BodyMapSettings;
-
-// how many samples do we ever consider at a time?
-const int numOfSamples = 150;
-
-// ----------- learning stuff
-typedef struct BodyMapLearningBlockStruct {
-
-	// constructor and destructor
-	BodyMapLearningBlockStruct();
-	~BodyMapLearningBlockStruct();
-
-	// svm-related structures
-	struct svm_parameter param;
-	struct svm_problem prob[4];
-	struct svm_model* model[4];
-	double mean[7], stdv[7];
-
-	// the samples
-	struct svm_node** sample;
-	// Cartesian coordinates in the image spaces
-	int x0, y0, x1, y1;
-	// sample to be predicted
-	struct svm_node newSample[4];
-	
-	// current number of samples stored
-	unsigned int sampleCount;
-
-	// methods
-	void predict(double, double, double);
-	void train();
-	int addSample(double, double, double, double, double, double, double);
-
-} BodyMapLearningBlock;
 
 /////////////////////////////////////////////////////////////////////////////
 // CBodyMapApp:

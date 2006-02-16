@@ -108,6 +108,10 @@ SOURCE=.\DIBConverter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\learning.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\libsvm.cpp
 # End Source File
 # Begin Source File
@@ -141,6 +145,10 @@ SOURCE=.\BodyMapDlg.h
 # Begin Source File
 
 SOURCE=.\DIBConverter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\learning.h
 # End Source File
 # Begin Source File
 
