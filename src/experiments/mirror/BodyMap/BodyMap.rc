@@ -30,7 +30,7 @@ IDD_BODYMAP_DIALOG DIALOGEX 0, 0, 241, 102
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "BodyMap"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     PUSHBUTTON      "Connect",IDC_CONNECT,16,65,52,21
     PUSHBUTTON      "Disconnect",IDC_DISCONNECT,74,65,53,21
@@ -44,9 +44,8 @@ BEGIN
     GROUPBOX        "View Live Data",IDC_STATIC,137,7,97,87
 END
 
-IDD_CAMERA DIALOG DISCARDABLE  0, 0, 305, 230
-STYLE WS_POPUP | WS_CAPTION | WS_THICKFRAME
-CAPTION "LIVE: Video Camera"
+IDD_CAMERA DIALOG DISCARDABLE  0, 0, 306, 230
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif"
 BEGIN
 END
@@ -223,7 +222,7 @@ BEGIN
     IDD_CAMERA, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 298
+        RIGHTMARGIN, 299
         TOPMARGIN, 7
         BOTTOMMARGIN, 223
     END
@@ -307,6 +306,14 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
 #endif    // Italian (Italy) resources
 /////////////////////////////////////////////////////////////////////////////
 

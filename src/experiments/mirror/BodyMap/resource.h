@@ -15,6 +15,7 @@
 #define IDB_GLOVE                       136
 #define IDD_MESSAGES                    137
 #define IDD_OPTIONS                     138
+#define IDI_ICON1                       139
 #define IDC_CONNECT                     1000
 #define IDC_DISCONNECT                  1001
 #define IDC_ACQ_START                   1002
@@ -74,7 +75,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        139
+#define _APS_NEXT_RESOURCE_VALUE        140
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           101

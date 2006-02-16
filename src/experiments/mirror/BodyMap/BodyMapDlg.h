@@ -24,6 +24,7 @@ public:
 	void DisconnectAndUnregisterPorts(void);
 	void ShowTrackerXY(YARPImageOf<YarpPixelBGR>&, int, int);
 	void ShowExpectedTrackerXY(YARPImageOf<YarpPixelBGR>&, int, int);
+	void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*);
 
 	CBodyMapDlg(CWnd* pParent = NULL);	// standard constructor
 

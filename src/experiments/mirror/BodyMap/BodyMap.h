@@ -16,9 +16,6 @@
 
 #include "libsvm.h"
 
-// ----------- general functions, used by all classes of the application
-void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*);
-
 // ----------- program options, coming from the collector
 typedef struct BodyMapOptionsStruct {
 	BodyMapOptionsStruct() {
@@ -68,7 +65,7 @@ typedef struct BodyMapSettingsStruct {
 } BodyMapSettings;
 
 // how many samples do we ever consider at a time?
-const int numOfSamples = 50;
+const int numOfSamples = 150;
 
 // ----------- learning stuff
 typedef struct BodyMapLearningBlockStruct {
