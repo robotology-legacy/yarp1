@@ -5,218 +5,192 @@
 #include <cmath>
 #include "learning.h"
 
-BodyMapLearningBlockType::BodyMapLearningBlockType()
+BodyMapLearningBlock::BodyMapLearningBlock(unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples) :
+	_domainSize(DomainSize), _codomainSize(CodomainSize), _numOfSamples(NumOfSamples), _sampleCount(0)
 {
 
-	// initialise basic data types
-	sampleCount = 0;
-	model[0] = model[1] = model[2] = model[3] = NULL;
+	// initialise SVM parameters
+	_param.svm_type = EPSILON_SVR;
+	_param.kernel_type = RBF;
+	_param.degree = 3;
+	_param.gamma = 1/(double)_domainSize;
+	_param.coef0 = 0;
+	_param.nu = 0.5;
+	_param.cache_size = 10;
+	_param.C = 1;
+	_param.eps = 1e-3;
+	_param.p = 0.1;
+	_param.shrinking = 1;
+	_param.probability = 0;
+	_param.nr_weight = 0;
+	_param.weight_label = NULL;
+	_param.weight = NULL;
 
-	// initialise SVM paramters
-	param.svm_type = EPSILON_SVR;
-	param.kernel_type = RBF;
-	param.degree = 3;
-	param.gamma = 1/3.0;      // 1/k
-	param.coef0 = 0;
-	param.nu = 0.5;
-	param.cache_size = 10;
-	param.C = 1;
-	param.eps = 1e-3;
-	param.p = 0.1;
-	param.shrinking = 1;
-	param.probability = 0;
-	param.nr_weight = 0;
-	param.weight_label = NULL;
-	param.weight = NULL;
-
-	// initialise problems. sample buffer is unique,
-	// and so is the number and dimension of the samples.
-	prob[0].l = prob[1].l = prob[2].l = prob[3].l = numOfSamples;
-	// allocate space for the values
-	prob[0].y = (double*) calloc( 1, sizeof(double)*numOfSamples );
-	prob[1].y = (double*) calloc( 1, sizeof(double)*numOfSamples );
-	prob[2].y = (double*) calloc( 1, sizeof(double)*numOfSamples );
-	prob[3].y = (double*) calloc( 1, sizeof(double)*numOfSamples );
-	// allocate space for the samples and link pointers to the problems
-	sample = (struct svm_node**) calloc ( 1, sizeof(struct svm_node*)*numOfSamples );
-	prob[0].x = prob[1].x = prob[2].x = prob[3].x = sample;
-	for ( int i=0; i<numOfSamples; ++i ) {
-		sample[i] = (struct svm_node*) calloc ( 1, sizeof(struct svm_node)*4 );
-		prob[0].x[i] = prob[1].x[i] = prob[2].x[i] = prob[3].x[i] = sample[i];
-		for ( int j=0; j<4; ++j ) {
-			sample[i][j].index = j+1;
-			sample[i][j].value = 0;
-		}
-		sample[i][3].index = -1;
-	}
-
-	// check paramters. problem is not required unless we use NU-SVC,
-	// which is never the case for us.
+	// check them. the problem is not required unless we use NU-SVC,
+	// which is never the case for us, so a NULL thing will be OK.
 	const char* error_msg;
-	error_msg = svm_check_parameter( NULL, &param );
+	error_msg = svm_check_parameter( NULL, &_param );
 	if ( error_msg != NULL ) {
 		exit(0);
 	}
 
-	// train for the first time. all data are zero. necessary for
-	// prediction before the first real data acquisition.
+	// allocate clean memory for private objects
+	_sample = new svm_node*[_numOfSamples];
+	{ foreach(_numOfSamples,i) _sample[i] = new svm_node[_domainSize+1]; }
+	_value = new double*[_codomainSize];
+	{
+		foreach(_codomainSize,i) {
+			_value[i] = new double[_numOfSamples];
+			foreach(_numOfSamples,j) _value[i][j] = 0.0;
+		}
+	}
+	_domainMean = new double[_domainSize];
+	_codomainMean = new double[_codomainSize];
+	_domainStdv = new double[_domainSize];
+	_codomainStdv = new double[_codomainSize];
+
+	_problem = new svm_problem[_codomainSize];
+	_model = new svm_model*[_codomainSize];
+	_newSample = new svm_node[_codomainSize];
+
+	{ foreach(_codomainSize,i) _model[i] = NULL; }
+
+	// initialise _problems:
+	// (1) tell them how many _samples we use
+	{ foreach(_codomainSize,i) _problem[i].l = _numOfSamples; }
+	// (2) link their "y" field to values
+	{ foreach(_codomainSize,i) _problem[i].y = &_value[i][0]; }
+	// (3) create their "x"'s and link the "x" field to _samples
+	{ 
+		foreach(_codomainSize,i) {
+			_problem[i].x = new svm_node*[_numOfSamples+1];
+			foreach(_numOfSamples,j) {
+				_problem[i].x[j] = &_sample[j][0];
+				foreach(_domainSize,k) {
+					_sample[j][k].index = k+1;
+					_sample[j][k].value = 0;
+				}
+				_sample[j][_domainSize].index = -1;
+			}
+		}
+	}
+
 	train();
 
 	return;
 
 }
 
-BodyMapLearningBlockType::~BodyMapLearningBlockType()
+BodyMapLearningBlock::~BodyMapLearningBlock()
 {
 
-	// learning block destructor
+	{ foreach(_codomainSize,i) svm_destroy_model( _model[i] ); }
+	delete[] _model;
+	{ foreach(_codomainSize,i) delete[] _problem[i].x; }
+	delete[] _problem;
+	delete[] _newSample;
+	delete[] _codomainStdv;
+	delete[] _domainStdv;
+	delete[] _codomainMean;
+	delete[] _domainMean;
+	{ foreach(_codomainSize,i) delete[] _value[i]; }
+	delete [] _value;
+	{ foreach(_numOfSamples,i) delete[] _sample[i]; }
+	delete[] _sample;
 
-    if ( model[0] != NULL ) {
-		svm_destroy_model( model[0] );
-	}
-	if ( model[1] != NULL ) {
-		svm_destroy_model( model[1] );
-	}
-	if ( model[2] != NULL ) {
-		svm_destroy_model( model[2] );
-	}
-	if ( model[3] != NULL ) {
-		svm_destroy_model( model[3] );
-	}
-
-	free( prob[0].y );
-    free( prob[1].y );
-    free( prob[2].y );
-    free( prob[3].y );
-
-    svm_destroy_param( &param );
+    svm_destroy_param( &_param );
 
 }
 
-bool BodyMapLearningBlockType::addSample(double x, double y, double z, double x0, double y0, double x1, double y1)
+bool BodyMapLearningBlock::addSample(double x[], double y[])
 {
 
-	// add a new sample to our training set.
+	// add a new _sample to our training set.
 
 	// if the buffer is full, stop and return failure, but reset
-	// counter, so that next time it will be ok
-	if ( sampleCount == numOfSamples ) {
-		sampleCount = 0;
+	// counter, so that next time it will be ok.
+	if ( _sampleCount == _numOfSamples ) {
+		_sampleCount = 0;
 		return false;
 	} else {
 		// otherwise, store a new sample and go on
-		sample[sampleCount][0].index = 1;  sample[sampleCount][0].value = x;
-		sample[sampleCount][1].index = 2;  sample[sampleCount][1].value = y;
-		sample[sampleCount][2].index = 3;  sample[sampleCount][2].value = z;
-		sample[sampleCount][3].index = -1; sample[sampleCount][3].value = 0;
-
-		prob[0].y[sampleCount] = x0;
-		prob[1].y[sampleCount] = y0;
-		prob[2].y[sampleCount] = x1;
-		prob[3].y[sampleCount] = y1;
-		
-		sampleCount++;
-
+		{
+			foreach(_domainSize,i) {
+				_sample[_sampleCount][i].index = i+1;
+				_sample[_sampleCount][i].value = x[i];
+			}
+			_sample[_sampleCount][_domainSize].index = -1;
+		}
+		{ foreach(_codomainSize,i) _problem[i].y[_sampleCount] = y[i]; }
+		_sampleCount++;
 		return true;
 	}
 
 }
 
-void BodyMapLearningBlockType::train()
+void BodyMapLearningBlock::train()
 {
 
-	if ( model[0] != NULL ) {
-		svm_destroy_model( model[0] );
-	}
-	if ( model[1] != NULL ) {
-		svm_destroy_model( model[1] );
-	}
-	if ( model[2] != NULL ) {
-		svm_destroy_model( model[2] );
-	}
-	if ( model[3] != NULL ) {
-		svm_destroy_model( model[3] );
-	}
+	// first normalise samples and values
 
-	// normalise samples and values
-	int i, j;
-	mean[0] = 0; mean[1] = 0; mean[2] = 0; mean[3] = 0; mean[4] = 0; mean[5] = 0; mean[6] = 0;
-	stdv[0] = 0; stdv[1] = 0; stdv[2] = 0; stdv[3] = 0; stdv[4] = 0; stdv[5] = 0; stdv[6] = 0;
-	for ( i=0; i<numOfSamples; ++i ) {
-		mean[0] += sample[i][0].value;
-		mean[1] += sample[i][1].value;
-		mean[2] += sample[i][2].value;
-		mean[3] += prob[0].y[i];
-		mean[4] += prob[1].y[i];
-		mean[5] += prob[2].y[i];
-		mean[6] += prob[3].y[i];
-	}
-	mean[0] /= numOfSamples;
-	mean[1] /= numOfSamples;
-	mean[2] /= numOfSamples;
-	mean[3] /= numOfSamples;
-	mean[4] /= numOfSamples;
-	mean[5] /= numOfSamples;
-	mean[6] /= numOfSamples;
+	// destroy old models
+	{ foreach(_codomainSize,i) if ( _model[i] != NULL ) svm_destroy_model( _model[i] ); }
 
-	for ( i=0; i<numOfSamples; ++i ) {
-		stdv[0] += (sample[i][0].value - mean[0])*(sample[i][0].value - mean[0]);
-		stdv[1] += (sample[i][1].value - mean[1])*(sample[i][1].value - mean[1]);
-		stdv[2] += (sample[i][2].value - mean[2])*(sample[i][2].value - mean[2]);
-		stdv[3] += (prob[0].y[i] - mean[3])*(prob[0].y[i] - mean[3]);
-		stdv[4] += (prob[1].y[i] - mean[4])*(prob[1].y[i] - mean[4]);
-		stdv[5] += (prob[2].y[i] - mean[5])*(prob[2].y[i] - mean[5]);
-		stdv[6] += (prob[3].y[i] - mean[6])*(prob[3].y[i] - mean[6]);
-	}
-	stdv[0] = sqrt(stdv[0]/(numOfSamples-1));
-	stdv[1] = sqrt(stdv[1]/(numOfSamples-1));
-	stdv[2] = sqrt(stdv[2]/(numOfSamples-1));
-	stdv[3] = sqrt(stdv[3]/(numOfSamples-1));
-	stdv[4] = sqrt(stdv[4]/(numOfSamples-1));
-	stdv[5] = sqrt(stdv[5]/(numOfSamples-1));
-	stdv[6] = sqrt(stdv[6]/(numOfSamples-1));
+	// clean means and standard deviations
+	{ foreach(_domainSize,i) _domainMean[i] = 0.0; }
+	{ foreach(_domainSize,i) _domainStdv[i] = 0.0; }
+	{ foreach(_codomainSize,i) _codomainMean[i] = 0.0; }
+	{ foreach(_codomainSize,i) _codomainStdv[i] = 0.0; }
 
-	for ( i=0; i<numOfSamples; ++i ) {
-		sample[i][0].value -= mean[0]; sample[i][0].value /= stdv[0];
-		sample[i][1].value -= mean[1]; sample[i][1].value /= stdv[1];
-		sample[i][2].value -= mean[2]; sample[i][2].value /= stdv[2];
-		prob[0].y[i] -= mean[3]; prob[0].y[i] /= stdv[3];
-		prob[1].y[i] -= mean[4]; prob[1].y[i] /= stdv[4];
-		prob[2].y[i] -= mean[5]; prob[2].y[i] /= stdv[5];
-		prob[3].y[i] -= mean[6]; prob[3].y[i] /= stdv[6];
-	}
+	// evaluate means
+	{  	foreach(_numOfSamples,i) {
+			{ foreach(_domainSize,j) _domainMean[j] += _sample[i][j].value; }
+			{ foreach(_codomainSize,j) _codomainMean[j] += _problem[j].y[i]; }
+	} }
+	{ foreach(_domainSize,j) _domainMean[j] /= _numOfSamples; }
+	{ foreach(_codomainSize,j) _codomainMean[j] /= _numOfSamples; }
 
-	model[0] = svm_train( &prob[0], &param );
-	model[1] = svm_train( &prob[1], &param );
-	model[2] = svm_train( &prob[2], &param );
-	model[3] = svm_train( &prob[3], &param );
+	// evaluate standard deviations
+	{ foreach(_numOfSamples,i) {
+			{ foreach(_domainSize,j) _domainStdv[j] += (_sample[i][j].value-_domainMean[j])*(_sample[i][j].value-_domainMean[j]); }
+			{ foreach(_codomainSize,j) _codomainStdv[j] += (_problem[j].y[i]-_codomainMean[j])*(_problem[j].y[i]-_codomainMean[j]); }
+	} }
+	{ foreach(_domainSize,j) _domainStdv[j] = sqrt(_domainStdv[j]/(_numOfSamples-1)); }
+	{ foreach(_codomainSize,j) _codomainStdv[j] = sqrt(_codomainStdv[j]/(_numOfSamples-1)); }
 
-	FILE* out = fopen("x0_data.txt", "w");
-	for ( i=0; i<numOfSamples; ++i ) {
-		fprintf( out, "%lf ", prob[0].y[i]);
-		for ( j=0; j<3; ++j ) {
-			fprintf( out, "%d:%lf ", prob[0].x[i][j].index, prob[0].x[i][j].value);
+	{ foreach(_numOfSamples,i) {
+		{ foreach(_domainSize,j) { _sample[i][j].value -= _domainMean[j]; _sample[i][j].value /= _domainStdv[j]; } }
+		{ foreach(_codomainSize,j) { _problem[j].y[i] -= _codomainMean[j]; _problem[j].y[i] /= _codomainStdv[j]; } }
+	} }
+
+	{ foreach(_codomainSize,i) _model[i] = svm_train( &_problem[i], &_param ); }
+
+/*	FILE* out = fopen("x0_data.txt", "w");
+	for ( int i=0; i<_numOfSamples; ++i ) {
+		fprintf( out, "%lf ", _problem[3].y[i]);
+		for ( int j=0; j<3; ++j ) {
+			fprintf( out, "%d:%lf ", _problem[3].x[i][j].index, _problem[3].x[i][j].value);
 		}
 		fprintf( out, "\n");
 	}
 	fclose(out);
-	svm_save_model( "x0_model.txt", model[0] );
+	svm_save_model( "x0_model.txt", _model[3] ); */
 
 }
 	
-void BodyMapLearningBlockType::predict( double x, double y, double z, double* x0, double* y0, double* x1, double* y1 )
+void BodyMapLearningBlock::predict(double x[], double y[])
 {
 
-	// fill new sample whose value to predict
-	newSample[0].index = 1; newSample[0].value = (x-mean[0])/stdv[0];
-	newSample[1].index = 2; newSample[1].value = (y-mean[1])/stdv[1];
-	newSample[2].index = 3; newSample[2].value = (z-mean[2])/stdv[2];
-	newSample[3].index = -1; newSample[3].value = 0;
+	// fill new _sample whose value to predict
+	{ 
+		foreach(_domainSize,i) {
+			_newSample[i].index = i+1;
+			_newSample[i].value = (x[i]-_domainMean[i])/_domainStdv[i];
+		}
+		_newSample[_domainSize].index = -1;
+	}
 
 	// predict !!
-	*x0 = svm_predict(model[0], newSample)*stdv[3]+mean[3];
-	*y0 = svm_predict(model[1], newSample)*stdv[4]+mean[4];
-	*x1 = svm_predict(model[2], newSample)*stdv[5]+mean[5];
-	*y1 = svm_predict(model[3], newSample)*stdv[6]+mean[6];
+	{ foreach(_codomainSize,i) y[i] = svm_predict(_model[i], _newSample)*_codomainStdv[i]+_codomainMean[i]; }
 
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.2 2006-02-16 15:08:05 claudio72 Exp $
+/// $Id: TeleCtrl.cpp,v 1.3 2006-02-17 21:41:22 claudio72 Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -261,14 +261,15 @@ void streamingThread::Body (void)
       current_X = actual_X;
       // all Qs are in DEGREES
       cout.precision(3);
-      cout << "Arm:\t"
-           << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
-           << "Q\t" << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "    \r";
+      cout 
+//           << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
+           << "Q: " << required_Q[0] << " " << required_Q[1] << " " << required_Q[2] << " "
+		   << "roll angle: " << frRo / myDegToRad << "       \r";
       cout.flush();
 
       // send IK commands to the arm.
       // WARNING: the PUMA arm has all the axes swapped around, therefore the minus signs
-      //     SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, 0.0, 0.0, 0.0 );
+      SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, -frRo, 0.0, 0.0 );
 
       // send glove commands to the gripper - not so far
       //       dThumbMiddle  = 1.52 - (double)abs(_data.glove.thumb[0]-iThumbMiddleClosed) * (double)dThumbMiddleFactor;
@@ -635,7 +636,7 @@ int SendArmPositions(double dof1, double dof2, double dof3, double dof4, double 
   armCmd(5) = dof5;
   armCmd(6) = dof6;
   tmpBottle.reset();
-  tmpBottle.writeVocab(YBVocab(YBVArmNewCmd));
+  tmpBottle.writeVocab(YBVocab(YBVArmForceNewCmd));
   tmpBottle.writeYVector(armCmd);
   _slave_outport.Content() = tmpBottle;
   _slave_outport.Write();

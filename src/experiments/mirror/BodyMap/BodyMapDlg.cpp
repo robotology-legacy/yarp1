@@ -110,6 +110,8 @@ BOOL CBodyMapDlg::OnInitDialog()
 	_Camera1Dialog.ShowWindow(SW_SHOW);
 	_Tracker0Dialog.ShowWindow(SW_SHOW);
 
+	_learningBlock = new BodyMapLearningBlock(3,4,50);
+
 	return TRUE;
 
 }
@@ -256,6 +258,7 @@ void CBodyMapDlg::OnClose()
 		OnDisconnect();
 	}
 	DisconnectAndUnregisterPorts();
+	delete _learningBlock;
 	CDialog::OnClose();
 
 }
@@ -266,6 +269,8 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 	// this is the timer event. each time the timer ticks, we gather data
 	// off the collector and update the live show. Moreover, if acquiringSamples
 	// is true we store one more sample in the learning block.
+
+	double x[3], y[4];
 
 	// get data
 	_settings._cmd_outport.Content() = CCmdGetData;
@@ -280,13 +285,12 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 		_settings._img1_inport.Read();
 		_settings._img1.Refer(_settings._img1_inport.Content());
 		// predict and show expected position
-		double _x0, _y0, _x1, _y1;
-		_learningBlock.predict(_settings._data.tracker0Data.x,
-                               _settings._data.tracker0Data.y,
-							   _settings._data.tracker0Data.z,
-							   &_x0, &_y0, &_x1, &_y1);
-		ShowExpectedTrackerXY(_settings._img0, (int)_x0, (int)_y0);
-		ShowExpectedTrackerXY(_settings._img1, (int)_x1, (int)_y1);
+		x[0] = _settings._data.tracker0Data.x;
+		x[1] = _settings._data.tracker0Data.y;
+		x[2] = _settings._data.tracker0Data.z;
+		_learningBlock->predict(x,y);
+		ShowExpectedTrackerXY(_settings._img0, (int)y[0], (int)y[1]);
+		ShowExpectedTrackerXY(_settings._img1, (int)y[2], (int)y[3]);
 		// find real tracker position and show it
 		int x0, y0, x1, y1;
 		FindTrackerXY(_settings._img0, &x0, &y0);
@@ -295,15 +299,19 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 		ShowTrackerXY(_settings._img1, x1, y1);
 		// if we are gathering samples, store this one
 		if ( _acquiringSamples ) {
-			int addedOk = _learningBlock.addSample(_settings._data.tracker0Data.x, _settings._data.tracker0Data.y, _settings._data.tracker0Data.z, (double)x0, (double)y0, (double)x1, (double)y1);
+			y[0] = x0;
+			y[1] = y0;
+			y[2] = x1;
+			y[3] = y1;
+			int addedOk = _learningBlock->addSample(x, y);
 			if ( addedOk ) {
 				char title[50];
-				ACE_OS::sprintf(title, "Acquiring sample %d...", _learningBlock.sampleCount);
+				ACE_OS::sprintf(title, "Acquiring sample %d...", _learningBlock->getSampleCount());
 				AfxGetMainWnd()->SetWindowText(title);
 			} else {
 				_acquiringSamples = false;
 				AfxGetMainWnd()->SetWindowText("Training...");
-				_learningBlock.train();
+				_learningBlock->train();
 				AfxGetMainWnd()->SetWindowText("BodyMap");
 				GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
 			}

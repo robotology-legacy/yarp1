@@ -80,8 +80,8 @@ private:
 	// program settings
 	BodyMapSettings _settings;
 
-	// learning modules
-	BodyMapLearningBlock _learningBlock;
+	BodyMapLearningBlock* _learningBlock;
+
 	// true whilst we are gathering samples
 	bool _acquiringSamples;
 
