@@ -95,7 +95,6 @@ BOOL CBodyMapDlg::OnInitDialog()
 	_Camera1Dialog.SetWindowText("LIVE: Camera #1");
 	// enable windows
 	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
-	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
 	GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(FALSE);
 	GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
 	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
@@ -242,7 +241,6 @@ void CBodyMapDlg::OnDisconnect()
 
 	// enable/disable required windows
 	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
-	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
 	GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(FALSE);
 	GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
 	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
@@ -306,7 +304,8 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 			int addedOk = _learningBlock->addSample(x, y);
 			if ( addedOk ) {
 				char title[50];
-				ACE_OS::sprintf(title, "Acquiring sample %d...", _learningBlock->getSampleCount());
+				ACE_OS::sprintf(title, "Acquired sample %d (%.2lf%%)", _learningBlock->getSampleCount(),
+					(double)_learningBlock->getSampleCount()*100.0/(double)_learningBlock->getNumOfSamples());
 				AfxGetMainWnd()->SetWindowText(title);
 			} else {
 				_acquiringSamples = false;

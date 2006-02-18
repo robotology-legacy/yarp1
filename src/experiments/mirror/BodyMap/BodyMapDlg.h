@@ -80,6 +80,7 @@ private:
 	// program settings
 	BodyMapSettings _settings;
 
+	// the learning machine
 	BodyMapLearningBlock* _learningBlock;
 
 	// true whilst we are gathering samples

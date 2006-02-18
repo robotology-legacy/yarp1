@@ -30,13 +30,13 @@ IDD_BODYMAP_DIALOG DIALOGEX 0, 0, 241, 102
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "BodyMap"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     PUSHBUTTON      "Connect",IDC_CONNECT,16,65,52,21
     PUSHBUTTON      "Disconnect",IDC_DISCONNECT,74,65,53,21
     GROUPBOX        "Data Server",IDC_STATIC,7,55,127,39
     PUSHBUTTON      "Start",IDC_ACQ_START,14,19,54,29
-    PUSHBUTTON      "Stop",IDC_ACQ_STOP,74,19,54,29
+    PUSHBUTTON      "Stop",IDC_ACQ_STOP,74,19,54,29,WS_DISABLED
     GROUPBOX        "Acquisition",IDC_STATIC,7,7,128,49
     PUSHBUTTON      "Camera(s)",IDC_LIVE_CAMERA,147,19,75,17
     PUSHBUTTON      "Glove, Press, GT",IDC_LIVE_GLOVE,147,44,75,17
@@ -306,14 +306,6 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
 #endif    // Italian (Italy) resources
 /////////////////////////////////////////////////////////////////////////////
 

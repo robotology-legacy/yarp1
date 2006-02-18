@@ -17,10 +17,12 @@ public:
 	~BodyMapLearningBlock();
 
 	// methods
-	unsigned int getSampleCount() { return _sampleCount; }
-	bool addSample( double[], double[] );
+	const unsigned int getSampleCount() const { return _sampleCount; }
+	const unsigned int getNumOfSamples() const { return _numOfSamples; }
+	const bool addSample( const double[], const double[] );
+	const bool isSampleWorthAdding ( const double[] ) const;
 	void train();
-	void predict( double[], double[] );
+	void predict ( const double[], double[] ) const;
 
 private:
 
@@ -33,19 +35,19 @@ private:
 
 	// the samples, their values, and the means and stdvs for each dimension.
 	// NOTICE: this stuff is dynamically allocated...
-	struct svm_node** _sample;
+	svm_node** _sample;
 	double** _value;
 	double* _domainMean, * _codomainMean;
 	double* _domainStdv, * _codomainStdv;
 
 	// svm parameters: for now, common to all problems
-	struct svm_parameter _param;
+	svm_parameter _param;
 	// one SVM problem for each dimension of the codomain
-	struct svm_problem* _problem;
+	svm_problem* _problem;
 	// one model pointer for each problem (each model is then
 	// created by svm_train()
-	struct svm_model** _model;
+	svm_model** _model;
 	// the sample to be predicted
-	struct svm_node* _newSample;
+	svm_node* _newSample;
 
 };

@@ -102,7 +102,7 @@ BodyMapLearningBlock::~BodyMapLearningBlock()
 
 }
 
-bool BodyMapLearningBlock::addSample(double x[], double y[])
+const bool BodyMapLearningBlock::addSample( const double x[], const double y[] )
 {
 
 	// add a new _sample to our training set.
@@ -113,18 +113,26 @@ bool BodyMapLearningBlock::addSample(double x[], double y[])
 		_sampleCount = 0;
 		return false;
 	} else {
-		// otherwise, store a new sample and go on
-		{
+		// otherwise, is this sample worth adding to the current pool?
+		if ( isSampleWorthAdding( x ) ) {
+			// yes: then add it and then bail out.
 			foreach(_domainSize,i) {
 				_sample[_sampleCount][i].index = i+1;
 				_sample[_sampleCount][i].value = x[i];
 			}
 			_sample[_sampleCount][_domainSize].index = -1;
+			{ foreach(_codomainSize,i) _problem[i].y[_sampleCount] = y[i]; }
+			_sampleCount++;
 		}
-		{ foreach(_codomainSize,i) _problem[i].y[_sampleCount] = y[i]; }
-		_sampleCount++;
 		return true;
 	}
+
+}
+
+const bool BodyMapLearningBlock::isSampleWorthAdding ( const double x[] ) const
+{
+
+	return true;
 
 }
 
@@ -178,7 +186,7 @@ void BodyMapLearningBlock::train()
 
 }
 	
-void BodyMapLearningBlock::predict(double x[], double y[])
+void BodyMapLearningBlock::predict ( const double x[], double y[] ) const
 {
 
 	// fill new _sample whose value to predict

@@ -15,19 +15,19 @@
 #include "resource.h"		// main symbols
 
 // ----------- program options, coming from the collector
-typedef struct BodyMapOptionsStruct {
-	BodyMapOptionsStruct() {
+struct BodyMapOptions {
+	BodyMapOptions() {
 		sizeX = sizeY = 0;
 		refreshFrequency = 40;
 	};
 	int	sizeX;
 	int sizeY;
 	int refreshFrequency;
-} BodyMapOptions;
+};
 
 // ----------- program settings
-typedef struct BodyMapSettingsStruct {
-	BodyMapSettingsStruct() :
+struct BodyMapSettings {
+	BodyMapSettings() :
 	  _data_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
 	  _img0_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
 	  _img1_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
@@ -60,7 +60,7 @@ typedef struct BodyMapSettingsStruct {
 	YARPOutputPortOf<int> _cmd_outport;
 	// ID of live acquisition timer
 	UINT _timerID;
-} BodyMapSettings;
+};
 
 /////////////////////////////////////////////////////////////////////////////
 // CBodyMapApp:
