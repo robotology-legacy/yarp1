@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.19 2006-02-15 09:44:22 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.20 2006-02-20 17:38:36 babybot Exp $
 ///
 ///
 
@@ -491,6 +491,8 @@ int YARPEsdCanDeviceDriver::open (void *p)
 	_ref_accs = new double [r.getJoints()];
 	ACE_ASSERT (_ref_positions != NULL && _ref_speeds != NULL && _ref_accs != NULL);
 
+	_mutex.Post ();
+
 	/// default initialization for this device driver.
 	int i;
 	for(i = 0; i < r.getJoints(); i++)
@@ -501,8 +503,6 @@ int YARPEsdCanDeviceDriver::open (void *p)
 		cmd.parameters = &tmp;
 		setBCastMessages(&cmd);	
 	}
-
-	_mutex.Post ();
 
 	return YARP_OK;
 }

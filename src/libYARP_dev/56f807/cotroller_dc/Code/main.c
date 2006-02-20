@@ -106,16 +106,18 @@ Int16 _version = 0x0112;
 Int16 _version = 0x0113;
 #elif VERSION == 0x0114
 Int16 _version = 0x0114;
+#elif VERSION == 0x0115
+Int16 _version = 0x0115;
 #endif
 
 #if VERSION == 0x0113
 Int32  _other_position[JN] = { 0, 0 };	/* the position of the synchronized card */
 Int32  _adjustment[JN] = { 0, 0 };		/* the actual adjustment (compensation) */
 Int32  _delta_adj[JN] = { 0, 0 };		/* velocity over the adjustment */
+#endif
 
 bool _pending_request = false;			/* whether a request to another card is pending */
 Int16  _timeout = 0;					/* used to timeout requests */
-#endif
 
 /* CAN bus communication global vars */
 canmsg_t can_fifo[CAN_FIFO_LEN];
@@ -132,7 +134,8 @@ extern bool _ended[];					/* trajectory completed flag */
 #define IS_DONE(jj) (_ended[jj])
 
 /* Local prototypes */
-Int16 compute_pid2(byte j);
+Int32 compute_pid2(byte j);
+void compute_desired(byte j);
 void print_version(void);
 void compute_filtcurr(byte j);
 
@@ -143,7 +146,7 @@ void can_send_request(void);
 /*
  * compute PID control (integral is not yet implemented).
  */
-Int16 compute_pid2(byte j)
+Int32 compute_pid2(byte j)
 {
 	Int32 ProportionalPortion, DerivativePortion, IntegralPortion;
 	Int32 SumDerivativeProportional;
@@ -190,7 +193,6 @@ Int16 compute_pid2(byte j)
 	/* Anti reset wind up scheme */
 	if (PIDoutput > _pid_limit[j])
     {
-    	_pid[j] = _pid_limit[j];
     	if ( _ki[j] != 0)
     	{
     		_integral[j] =  ((Int32) _pid_limit[j]) - SumDerivativeProportional;
@@ -198,18 +200,13 @@ Int16 compute_pid2(byte j)
 	}
 	else 
 	{
-	if (PIDoutput < -_pid_limit[j])
-    {
-		_pid[j] =  -_pid_limit[j];
-		if ( _ki[j] != 0)
-		{
-    		_integral[j] =  ((Int32) (-_pid_limit[j])) - SumDerivativeProportional;
+		if (PIDoutput < -_pid_limit[j])
+	    {
+			if ( _ki[j] != 0)
+			{
+	    		_integral[j] =  ((Int32) (-_pid_limit[j])) - SumDerivativeProportional;
+			}
 		}
-	}
-	else
-	{
-		_pid[j] = (Int16)(PIDoutput);
-	}
 	}
 							
 	/* Accumulator saturation */
@@ -224,9 +221,22 @@ Int16 compute_pid2(byte j)
 			_integral[j] = (Int32) -_integral_limit[j];
 		}
 	}		
-	return 0;
+	return PIDoutput;
 }
 
+//void enforce_PIDlimits(byte j, Int32 PIDoutput)
+#define ENFORCE_LIMITS(j, PIDoutput) \
+{ \
+	if (PIDoutput > _pid_limit[j]) \
+    	_pid[j] = _pid_limit[j]; \
+	else \
+	{\
+	if (PIDoutput < -_pid_limit[j]) \
+		_pid[j] =  -_pid_limit[j]; \
+	else \
+		_pid[j] = (Int16)(PIDoutput); \
+	}\
+}
 
 /*
  * 
@@ -383,13 +393,15 @@ dword BYTE_C(byte x4, byte x3, byte x2, byte x1)
 	PWMC0_load(); \
  else \
 	PWMC1_load();
-
+ 
 /*
- * helper function to generate PWM values according to controller status.
+ * helper function to generate desired position.
  */
-void generatePwm (byte i)
-{
-	Int32 cd;
+
+ 
+void compute_desired(byte i)
+{		
+ 	Int32 cd;
 	
 	if (_control_mode[i] != MODE_IDLE)
 	{
@@ -417,17 +429,22 @@ void generatePwm (byte i)
 			}
 			break;
 		}
-			
-		/* computes PID control */
-		compute_pid2 (i);
-		
+	
+	}
+}
+/*
+ * helper function to generate PWM values according to controller status.
+ */
+void generatePwm (byte i)
+{
+	if (_control_mode[i] != MODE_IDLE)
+	{
+				
 		/* set PWM, _pid becomes the PWM value */
 		if (_calibrated[i])
 		{
 			if (_pid[i] >= 0)
 			{
-				if (_pid[i] > MAX_16) 
-					_pid[i] = MAX_16;
 				DUTYCYCLE (i, 0, (unsigned char)(_pid[i] & 0x7fff));
 				DUTYCYCLE (i, 2, 0);
 				DUTYCYCLE (i, 4, 0);
@@ -435,8 +452,6 @@ void generatePwm (byte i)
 			else
 			{
 				_pid[i] = -_pid[i];
-				if (_pid[i] > MAX_16) 
-					_pid[i] = MAX_16;
 				DUTYCYCLE (i, 0, 0);
 				DUTYCYCLE (i, 2, (unsigned char)(_pid[i] & 0x7fff));
 				DUTYCYCLE (i, 4, 0);
@@ -467,6 +482,8 @@ void print_version(void)
 	AS1_printStringEx ("1.13");
 #elif VERSION == 0x0114
 	AS1_printStringEx ("1.14");
+#elif VERSION == 0x0115
+	AS1_printStringEx ("1.15");
 #else
 #	error "No valid version specified"
 #endif
@@ -663,6 +680,7 @@ byte channel = 0;
 void main(void)
 {
 	Int32 acceptance_code = 0x0;
+	Int32 PIDoutput1, PIDoutput0;
 	word temporary;
 	
 	/* gets the address of flash memory from the linker */
@@ -799,6 +817,10 @@ void main(void)
 				
 		_adjustment[0] = L_add(_adjustment[0], _delta_adj[0]);
 		_adjustment[1] = L_add(_adjustment[1], _delta_adj[1]);
+		
+#elif VERSION == 0x0115
+		_position[0] = L_add(_position[0], -_position[1]);
+		_position[1] = L_add(_position[0], 2*_position[1]);	
 #endif
 
 		/* this can be useful to estimate speed later on */
@@ -816,9 +838,24 @@ void main(void)
 		else
 			_in_position[1] = false;
 		
-		/*
-		 * 
-		 */		  
+		/* computes PID control */
+		compute_desired(0);
+		compute_desired(1);
+		 
+		PIDoutput0 = compute_pid2(0);
+		PIDoutput1 = compute_pid2(1);
+		
+#if VERSION == 0x0115
+
+		PIDoutput0 = (L_add(PIDoutput0, PIDoutput1) >> 2);
+		PIDoutput1 = L_sub(PIDoutput0, PIDoutput1);	
+		PIDoutput1 = -PIDoutput1;
+		
+#endif
+
+		ENFORCE_LIMITS(0,PIDoutput0);
+		ENFORCE_LIMITS(1,PIDoutput1);
+		
 		generatePwm (0);
 		generatePwm (1);
 		
