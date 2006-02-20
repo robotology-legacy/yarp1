@@ -1,3 +1,5 @@
++ priority on messages, like subsumption - input-port overriding of control 
+messages (suggestion from Lorenzo)
 
 + more yarp2 unit tests
 
