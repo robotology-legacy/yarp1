@@ -7,7 +7,7 @@
 #include "TestList.h"
 
 using namespace yarp::os;
-using typename yarp::String;
+using yarp::String;
 
 
 /*

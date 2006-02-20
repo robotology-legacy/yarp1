@@ -123,6 +123,10 @@ SOURCE=.\PortCoreTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PortTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ProtocolTest.cpp
 # End Source File
 # Begin Source File

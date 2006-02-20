@@ -167,6 +167,10 @@ SOURCE=.\NetType.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Network.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Port.cpp
 # End Source File
 # Begin Source File
@@ -192,6 +196,10 @@ SOURCE=.\Protocol.cpp
 # Begin Source File
 
 SOURCE=.\Semaphore.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ShmemTwoWayStream.cpp
 # End Source File
 # Begin Source File
 
