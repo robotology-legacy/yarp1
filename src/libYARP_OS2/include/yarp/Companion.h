@@ -33,22 +33,22 @@ public:
 
   /**
    * Request that an output port connect to an input port.
-   * @param source the name of an output port
-   * @param target the name of an input port
+   * @param src the name of an output port
+   * @param dest the name of an input port
    * @param silent whether to print comments on the result
    * @return 0 on success, non-zero on failure
    */
-  static int connect(const char *target, const char *src,
+  static int connect(const char *src, const char *dest,
 		     bool silent = false);
 
   /**
    * Request that an output port disconnect from an input port.
-   * @source the name of an output port
-   * @target the name of an input port
+   * @param src the name of an output port
+   * @param dest the name of an input port
    * @param silent whether to print comments on the result
    * @return 0 on success, non-zero on failure
    */
-  static int disconnect(const char *target, const char *src,
+  static int disconnect(const char *src, const char *dest,
 			bool silent = false);
 
   static int disconnectInput(const char *target, const char *src,

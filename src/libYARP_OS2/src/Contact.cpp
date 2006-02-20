@@ -41,6 +41,11 @@ Contact Contact::empty() {
 }
 
 
+Contact Contact::invalid() {
+  return Contact().addSocket("","",-1);;
+}
+
+
 Contact Contact::byName(const char *name) {
   Contact result;
   HELPER(result.implementation) = Address().addRegName(name);
@@ -110,3 +115,8 @@ ConstString Contact::toString() const {
   return ConstString(result.c_str());
 }
 
+
+bool Contact::isValid() const {
+  Address& addr = HELPER(implementation);
+  return addr.getPort()<0;
+}

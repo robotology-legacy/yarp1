@@ -16,7 +16,7 @@ namespace yarp {
  * It maintains a dynamic collection of incoming and
  * outgoing connections.  Data coming from any incoming connection can
  * be received by calling Port::read.  Calls to Port::write
- * result in data begin sent to all the outgoing connections.
+ * result in data being sent to all the outgoing connections.
  */
 class yarp::os::Port {
 

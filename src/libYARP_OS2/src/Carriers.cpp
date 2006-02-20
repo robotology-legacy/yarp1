@@ -7,6 +7,7 @@
 #include <yarp/TextCarrier.h>
 #include <yarp/UdpCarrier.h>
 #include <yarp/McastCarrier.h>
+#include <yarp/ShmemCarrier.h>
 
 using namespace yarp;
 
@@ -20,6 +21,7 @@ Carriers::Carriers() {
   delegates.push_back(new TextCarrier());
   delegates.push_back(new UdpCarrier());
   delegates.push_back(new McastCarrier());
+  delegates.push_back(new ShmemCarrier());
 }
 
 Carriers::~Carriers() {

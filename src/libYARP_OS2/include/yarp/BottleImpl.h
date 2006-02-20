@@ -97,7 +97,7 @@ private:
     virtual Storable *create() { return new StoreInt(0); }
     virtual int asInt() { return x; }
     virtual double asDouble() { return x; }
-    static const int code = 1;
+    static const int code;
   };
 
   class StoreString : public Storable {
@@ -113,7 +113,7 @@ private:
     virtual void writeBlock(BlockWriter& writer);
     virtual Storable *create() { return new StoreString(String("")); }
     virtual String asString() { return x; }
-    static const int code = 5;
+    static const int code;
   };
 
   class StoreDouble : public Storable {
@@ -130,7 +130,7 @@ private:
     virtual Storable *create() { return new StoreDouble(0); }
     virtual int asInt() { return (int)x; }
     virtual double asDouble() { return x; }
-    static const int code = 2;
+    static const int code;
   };
 
   ACE_Vector<Storable*> content;

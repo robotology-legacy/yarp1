@@ -33,6 +33,15 @@ public:
   Bottle();
 
   /**
+   * Creates a bottle from a string. The string which should contain a textual
+   * form of the bottle, e.g. text = "10 -5.3 1.0 \"hello there\"" 
+   * would give a bottle with 4 elements: an integer, two floating
+   * point numbers, and a string.
+   * @param text the textual form of the bottle to be interpreted
+   */
+  Bottle(const char *text);
+
+  /**
    * Destructor.
    */
   virtual ~Bottle();

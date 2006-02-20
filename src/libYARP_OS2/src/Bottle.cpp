@@ -17,6 +17,12 @@ Bottle::Bottle() {
   YARP_ASSERT(implementation!=NULL);
 }
 
+Bottle::Bottle(const char *text) {
+  implementation = new BottleImpl;
+  YARP_ASSERT(implementation!=NULL);
+  fromString(text);
+}
+
 Bottle::~Bottle() {
   if (implementation!=NULL) {
     delete &HELPER(implementation);

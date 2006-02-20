@@ -72,7 +72,9 @@ int Companion::main(int argc, char *argv[]) {
       more = true;
     }
   }
-  Logger::get().setVerbosity(verbose);
+  if (verbose>0) {
+    Logger::get().setVerbosity(verbose);
+  }
 
   if (argc<=0) {
     ACE_OS::fprintf(stderr,"Please supply a command\n");

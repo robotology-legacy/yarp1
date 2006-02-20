@@ -77,27 +77,27 @@ public:
   BlockWriterAdapter(yarp::os::ConnectionWriter& owner) : owner(owner) {}
 
   virtual void appendBlock(const Bytes& data) {
-    return owner.appendExternalBlock(data.get(),data.length());
+    owner.appendExternalBlock(data.get(),data.length());
   }
 
   virtual void appendBlock(const String& data) {
-    return owner.appendExternalBlock(data.c_str(),data.length());
+    owner.appendExternalBlock(data.c_str(),data.length());
   }
 
   virtual void appendBlockCopy(const Bytes& data) {
-    return owner.appendBlock(data.get(),data.length());
+    owner.appendBlock(data.get(),data.length());
   }
 
   virtual void appendInt(int data) {
-    return owner.appendInt(data);
+    owner.appendInt(data);
   }
 
   virtual void appendString(const String& data) {
-    return owner.appendString(data.c_str(),'\0');
+    owner.appendString(data.c_str(),'\0');
   }
 
   virtual void appendLine(const String& data) {
-    return owner.appendString(data.c_str(),'\n');
+    owner.appendString(data.c_str(),'\n');
   }
 
   virtual bool isTextMode() {
@@ -147,7 +147,7 @@ public:
   }
 
   virtual void expectBlock(const char *data, int len) {
-    return owner.expectBlock(data,len);
+    owner.expectBlock(data,len);
   }
 
   virtual ::yarp::os::ConstString expectText(int terminatingChar) {

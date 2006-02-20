@@ -8,8 +8,12 @@
 #include <ace/OS_NS_stdlib.h>
 #include <ace/OS_NS_stdio.h>
 
-
 using namespace yarp;
+
+const int BottleImpl::StoreInt::code = 1;
+const int BottleImpl::StoreString::code = 5;
+const int BottleImpl::StoreDouble::code = 2;
+
 
 BottleImpl::BottleImpl() {
   dirty = true;

@@ -9,6 +9,47 @@
 using namespace yarp::os;
 using typename yarp::String;
 
+
+/*
+  Just making sure these examples from the documentation remain
+  at least compilable
+ */
+#include <yarp/Port.h>
+#include <yarp/Bottle.h>
+using namespace yarp::os;
+int doc_sender_main() {
+  Bottle bot1; 
+  bot1.addString("testing"); // a simple message
+  Port output;
+  output.open("/out");
+  for (int i=0; i<10; i++) {
+    output.write(bot1);
+    printf("Sent message: %s\n", bot1.toString().c_str());
+    bot1.addInt(i); // change the message for next time
+    Time::delay(1);
+  }
+  output.close();
+  return 0;
+}
+
+/*
+  Just making sure these examples from the documentation remain
+  at least compilable
+ */
+#include <yarp/Port.h>
+#include <yarp/Bottle.h>
+using namespace yarp::os;
+int doc_receiver_main() {
+  Bottle bot2;
+  Port input;
+  input.open("/in");
+  input.read(bot2);
+  printf("Got message: %s\n", bot2.toString().c_str());
+  input.close();
+  return 0;
+}
+
+
 class PortTest : public yarp::UnitTest {
 public:
   virtual yarp::String getName() { return "PortTest"; }

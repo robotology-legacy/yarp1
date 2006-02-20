@@ -182,6 +182,7 @@ public:
   }
 
   yarp::os::Contact toContact() const;
+  static Address fromContact(const yarp::os::Contact& contact);
 };
 
 #endif

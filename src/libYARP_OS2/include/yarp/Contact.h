@@ -25,6 +25,12 @@ public:
   static Contact empty();
 
   /**
+   * Constructor.  Returns a new, invalid contact.
+   * @return an invalid contact
+   */
+  static Contact invalid();
+
+  /**
    * Constructor.  Returns a named contact, with no information about
    * how to reach that contact.
    * @param name the name for the contact
@@ -128,6 +134,13 @@ public:
    * @return a textual representation of the contact.
    */
   ConstString toString() const;
+
+  /**
+   * Checks if a contact is tagged as valid.
+   * @return true iff contact is tagged as valid.  All contact objects 
+   * are valid except the one created by Contact::invalid.
+   */
+  bool isValid() const;
 
 private:
 

@@ -19,4 +19,7 @@ files
 
 + move documentation to $YARP_ROOT/docs
 
++ deal with remote process invocation - starting + stopping
+
+  - ideally in an OS-neutral way
 

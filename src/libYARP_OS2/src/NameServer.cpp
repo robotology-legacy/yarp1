@@ -446,82 +446,81 @@ public:
 int NameServer::main(int argc, char *argv[]) {
   try {
 
-  // pick an address
-  Address suggest("...",0); // suggestion is initially empty
-  if (argc>=1) {
-    if (argc>=2) {
-      suggest = Address(argv[0],NetType::toInt(argv[1]));
-    } else {
-      suggest = Address("...",NetType::toInt(argv[0]));
+    // pick an address
+    Address suggest("...",0); // suggestion is initially empty
+    if (argc>=1) {
+      if (argc>=2) {
+	suggest = Address(argv[0],NetType::toInt(argv[1]));
+      } else {
+	suggest = Address("...",NetType::toInt(argv[0]));
+      }
     }
-  }
-
-  // see what address is lying around
-  Address prev;
-  NameConfig conf;
-  if (conf.fromFile()) {
-    prev = conf.getAddress();
-  }
-
-  // merge
-  if (prev.isValid()) {
-    if (suggest.getName()=="...") {
-      suggest = Address(prev.getName(),suggest.getPort());
+    
+    // see what address is lying around
+    Address prev;
+    NameConfig conf;
+    if (conf.fromFile()) {
+      prev = conf.getAddress();
     }
+    
+    // merge
+    if (prev.isValid()) {
+      if (suggest.getName()=="...") {
+	suggest = Address(prev.getName(),suggest.getPort());
+      }
+      if (suggest.getPort()==0) {
+	suggest = Address(suggest.getName(),prev.getPort());
+      }
+    }
+    
+    // still something not set?
     if (suggest.getPort()==0) {
-      suggest = Address(suggest.getName(),prev.getPort());
+      suggest = Address(suggest.getName(),10000);
     }
-  }
-
-  // still something not set?
-  if (suggest.getPort()==0) {
-    suggest = Address(suggest.getName(),10000);
-  }
-  if (suggest.getName()=="...") {
-    // should get my IP
-    suggest = Address(conf.getHostName(),suggest.getPort());
-  }
-
-  // finally, should make sure IP is local, and if not, correct it
-  if (!conf.isLocalName(suggest.getName())) {
-    YARP_INFO(Logger::get(),"Overriding non-local address for name server");
-    suggest = Address(conf.getHostName(),suggest.getPort());
-  }
-  
-  // and save
-  conf.setAddress(suggest);
-  if (!conf.toFile()) {
-    YARP_ERROR(Logger::get(), String("Could not save configuration file ") +
-	       conf.getConfigFileName());
-  }
-
-  PortCore server;  // we use a subset of the PortCore functions
-  MainNameServer name;
-  name.registerName("root",suggest);
-  server.setReadHandler(name);
-  server.setAutoHandshake(false);
-  server.listen(Address(suggest.addRegName("root")));
-  YARP_INFO(Logger::get(), String("Name server listening at ") + 
-	    suggest.toString());
-  server.start();
-
-  FallbackNameServer fallback(name);
-  fallback.start();
-
-  while (true) {
-    YARP_DEBUG(Logger::get(),"name server running happily");
-    Time::delay(60);
-  }
-  server.close();
-  fallback.close();
-  fallback.join();
-
+    if (suggest.getName()=="...") {
+      // should get my IP
+      suggest = Address(conf.getHostName(),suggest.getPort());
+    }
+    
+    // finally, should make sure IP is local, and if not, correct it
+    if (!conf.isLocalName(suggest.getName())) {
+      YARP_INFO(Logger::get(),"Overriding non-local address for name server");
+      suggest = Address(conf.getHostName(),suggest.getPort());
+    }
+    
+    // and save
+    conf.setAddress(suggest);
+    if (!conf.toFile()) {
+      YARP_ERROR(Logger::get(), String("Could not save configuration file ") +
+		 conf.getConfigFileName());
+    }
+    
+    PortCore server;  // we use a subset of the PortCore functions
+    MainNameServer name;
+    name.registerName("root",suggest);
+    server.setReadHandler(name);
+    server.setAutoHandshake(false);
+    server.listen(Address(suggest.addRegName("root")));
+    YARP_INFO(Logger::get(), String("Name server listening at ") + 
+	      suggest.toString());
+    server.start();
+    
+    FallbackNameServer fallback(name);
+    fallback.start();
+    
+    while (true) {
+      YARP_DEBUG(Logger::get(),"name server running happily");
+      Time::delay(60);
+    }
+    server.close();
+    fallback.close();
+    fallback.join();
+    
   } catch (IOException e) {
     YARP_DEBUG(Logger::get(),e.toString() + " <<< name server exception");
     YARP_ERROR(Logger::get(), "name server failed");
     return 1;
   }
-
 
   return 0;
 }

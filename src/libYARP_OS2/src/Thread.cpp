@@ -80,7 +80,7 @@ void Thread::afterStart(bool success) {
 
 
 void Thread::setOptions(int stackSize) {
-  return ((ThreadImpl*)implementation)->setOptions(stackSize);
+  ((ThreadImpl*)implementation)->setOptions(stackSize);
 }
 
 int Thread::getCount() {
