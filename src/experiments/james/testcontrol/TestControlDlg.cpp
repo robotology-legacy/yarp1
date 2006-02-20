@@ -979,7 +979,7 @@ void CTestControlDlg::OnTimer(UINT nIDEvent)
 		}
 
         arm.getFaults (_armfaults);
-		for (i = 0; i < MAX_HEAD_JNTS; i++)
+		for (i = 0; i < MAX_ARM_JNTS; i++)
 		{
             if (_armfaults[i] != 0)
                 _buffer[i] = '1';
