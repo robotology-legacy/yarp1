@@ -54,11 +54,9 @@ public:
 	double *_headlastreached;
 	short *_headfaults;				// fault bits.
 
-
-
 	double *_armjointstore;
 	double *_armlastreached;
-
+    short *_armfaults;              // fault bits.
 
 	char _buffer[512];				// general purpose buffer.
 
@@ -84,6 +82,7 @@ public:
 	//{{AFX_DATA(CTestControlDlg)
 	enum { IDD = IDD_TESTCONTROL_DIALOG };
 	CEdit	m_edit_fault;
+	CEdit	m_edit_faultarm;
 	CComboBox	m_entry_all_ctrl;
 	CButton	m_goall_ctrl;
 	CComboBox	m_entry_ctrl_arm;

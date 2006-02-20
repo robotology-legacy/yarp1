@@ -279,6 +279,7 @@ void CTestControlDlg::DoDataExchange(CDataExchange* pDX)
 
 	//{{AFX_DATA_MAP(CTestControlDlg)
 	DDX_Control(pDX, IDC_EDIT_FAULT, m_edit_fault);
+	DDX_Control(pDX, IDC_EDIT_FAULTARM, m_edit_faultarm);
 	DDX_Control(pDX, IDC_COMBO_ENTRY_ALL, m_entry_all_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_ALL, m_goall_ctrl);
 	DDX_Control(pDX, IDC_COMBO_ENTRY_ARM, m_entry_ctrl_arm);
@@ -577,6 +578,7 @@ void CTestControlDlg::EnableGUI ()
 		}
 
 		m_0encoders_ctrl_arm.EnableWindow();
+		m_edit_faultarm.EnableWindow();
 	}
 
 	if (_headinitialized && _arminitialized)
@@ -607,6 +609,7 @@ void CTestControlDlg::DisableGUI ()
 	m_calibratehead_ctrl.EnableWindow(FALSE);
 	m_0encoders_ctrl.EnableWindow(FALSE);
 	m_edit_fault.EnableWindow(FALSE);
+	m_edit_faultarm.EnableWindow(FALSE);
 
 	// arm controls.
 	m_entry_ctrl_arm.EnableWindow(FALSE);
@@ -650,13 +653,9 @@ void CTestControlDlg::AllocHeadArrays(int nj)
 	ACE_ASSERT (_headlastreached != NULL);
 	ACE_OS::memset (_headlastreached, 0, sizeof(double) * nj);
 
-
 	_headfaults = new short[nj];
-
-	ACE_ASSERT (_headfaults != NULL);
-
+    ACE_ASSERT (_headfaults != NULL);
 	ACE_OS::memset (_headfaults, 0, sizeof(short) * nj);
-
 
 	int i;
 	for (i = 0; i < N_POSTURES; i++)
@@ -683,6 +682,10 @@ void CTestControlDlg::AllocArmArrays(int nj)
 	ACE_ASSERT (_armlastreached != NULL);
 	ACE_OS::memset (_armlastreached, 0, sizeof(double) * nj);
 
+	_armfaults = new short[nj];
+    ACE_ASSERT (_armfaults != NULL);
+	ACE_OS::memset (_armfaults, 0, sizeof(short) * nj);
+
 	int i;
 	for (i = 0; i < N_POSTURES; i++)
 	{
@@ -698,10 +701,7 @@ void CTestControlDlg::AllocArmArrays(int nj)
 void CTestControlDlg::FreeHeadArrays(void)
 {
 	if (_headfaults != NULL) delete[] _headfaults;
-
 	_headfaults = NULL;
-
-
 
 	if (_headjointstore != NULL) delete[] _headjointstore;
 	_headjointstore = NULL;
@@ -721,7 +721,10 @@ void CTestControlDlg::FreeHeadArrays(void)
 
 void CTestControlDlg::FreeArmArrays(void)
 {
-	if (_armjointstore != NULL) delete[] _armjointstore;
+	if (_armfaults != NULL) delete[] _armfaults;
+	_armfaults = NULL;
+
+    if (_armjointstore != NULL) delete[] _armjointstore;
 	_armjointstore = NULL;
 
 	if (_armlastreached != NULL) delete[] _armlastreached;
@@ -974,6 +977,17 @@ void CTestControlDlg::OnTimer(UINT nIDEvent)
 			ACE_OS::sprintf (_buffer, "%.2f", _armjointstore[i]);
 			m_sa_ctrl[i].SetWindowText (_buffer);
 		}
+
+        arm.getFaults (_armfaults);
+		for (i = 0; i < MAX_HEAD_JNTS; i++)
+		{
+            if (_armfaults[i] != 0)
+                _buffer[i] = '1';
+            else
+                _buffer[i] = '0';
+		}
+        _buffer[i] = 0;
+		m_edit_faultarm.SetWindowText (_buffer);
 	}
 
 	if (_touchinitialized)

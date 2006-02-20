@@ -172,6 +172,7 @@
 #define IDC_EDIT_C3                     1248
 #define IDC_EDIT_FAULT                  1248
 #define IDC_EDIT_C4                     1249
+#define IDC_EDIT_FAULTARM               1249
 #define IDC_EDIT_C5                     1250
 #define IDC_EDIT_C6                     1251
 #define IDC_EDIT_C7                     1252
