@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.20 2006-02-20 17:38:36 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.21 2006-02-20 18:00:04 babybot Exp $
 ///
 ///
 
@@ -511,16 +511,19 @@ int YARPEsdCanDeviceDriver::close (void)
 {
 	EsdCanResources& d = RES(system_resources);
 
-	/// default initialization for this device driver.
-	int i;
-	for(i = 0; i < d.getJoints(); i++)
-	{
-		SingleAxisParameters cmd;
-		cmd.axis = i;
-		double tmp = double(0x00);
-		cmd.parameters = &tmp;
-		setBCastMessages(&cmd);	
-	}
+    if (YARPThread::running)
+    {
+	    /// default initialization for this device driver.
+	    int i;
+	    for(i = 0; i < d.getJoints(); i++)
+	    {
+		    SingleAxisParameters cmd;
+		    cmd.axis = i;
+		    double tmp = double(0x00);
+		    cmd.parameters = &tmp;
+		    setBCastMessages(&cmd);	
+	    }
+    }
 
 	End ();	/// stops the thread first (joins too).
 

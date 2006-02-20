@@ -225,16 +225,16 @@ Int32 compute_pid2(byte j)
 }
 
 //void enforce_PIDlimits(byte j, Int32 PIDoutput)
-#define ENFORCE_LIMITS(j, PIDoutput) \
+#define ENFORCE_LIMITS(j, PID) \
 { \
-	if (PIDoutput > _pid_limit[j]) \
+	if (PID > _pid_limit[j]) \
     	_pid[j] = _pid_limit[j]; \
 	else \
 	{\
-	if (PIDoutput < -_pid_limit[j]) \
+	if (PID < -_pid_limit[j]) \
 		_pid[j] =  -_pid_limit[j]; \
 	else \
-		_pid[j] = (Int16)(PIDoutput); \
+		_pid[j] = (Int16)(PID); \
 	}\
 }
 
