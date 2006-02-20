@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPMEIDeviceDriver.cpp,v 1.3 2006-02-15 09:44:22 gmetta Exp $
+/// $Id: YARPMEIDeviceDriver.cpp,v 1.4 2006-02-20 12:45:09 gmetta Exp $
 ///
 
 #include "YARPMEIDeviceDriver.h"
@@ -49,8 +49,8 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds), implemented(f
 	m_cmds[CMDSetPosition] = &YARPMEIDeviceDriver::setPosition;
 	m_cmds[CMDSetPID] = &YARPMEIDeviceDriver::setPid;
 	m_cmds[CMDGetPosition] = &YARPMEIDeviceDriver::getPosition;
-	m_cmds[CMDSetOutputPort] = &YARPMEIDeviceDriver::setOutputPort;
-	m_cmds[CMDGetOutputPort] = &YARPMEIDeviceDriver::getOutputPort;
+	m_cmds[CMDSetPortValue] = &YARPMEIDeviceDriver::setOutputPort;
+	m_cmds[CMDGetPortValue] = &YARPMEIDeviceDriver::getOutputPort;
 	m_cmds[CMDSetOutputBit] = &YARPMEIDeviceDriver::setOutputBit;
 	m_cmds[CMDClearOutputBit] = &YARPMEIDeviceDriver::clearOutputBit;
 	m_cmds[CMDSetOffset] = &YARPMEIDeviceDriver::setOffset;
@@ -62,7 +62,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds), implemented(f
 	m_cmds[CMDDefinePositions] = &YARPMEIDeviceDriver::definePositions;
 	m_cmds[CMDDefinePosition] = &YARPMEIDeviceDriver::definePosition;
 	m_cmds[CMDStopAxes] = &YARPMEIDeviceDriver::stopAxes;
-	m_cmds[CMDReadSwitches] = &YARPMEIDeviceDriver::readSwitches;
+	//m_cmds[CMDReadSwitches] = &YARPMEIDeviceDriver::readSwitches;
 	m_cmds[CMDGetSpeeds] = &YARPMEIDeviceDriver::getSpeeds;
 	m_cmds[CMDGetRefSpeeds] = &YARPMEIDeviceDriver::getRefSpeeds;
 	m_cmds[CMDGetRefAccelerations] = &YARPMEIDeviceDriver::getRefAccelerations;
@@ -76,7 +76,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds), implemented(f
 	m_cmds[CMDGetTorqueLimit] = &YARPMEIDeviceDriver::getTorqueLimit;
 	m_cmds[CMDGetTorqueLimits] = &YARPMEIDeviceDriver::getTorqueLimits;
 	m_cmds[CMDGetPIDErrors] = &YARPMEIDeviceDriver::getErrors;
-	m_cmds[CMDReadInput] = &YARPMEIDeviceDriver::readInput;
+	//m_cmds[CMDReadInput] = &YARPMEIDeviceDriver::readInput;
 	m_cmds[CMDInitPortAsInput] = &YARPMEIDeviceDriver::initPortAsInput;
 	m_cmds[CMDInitPortAsOutput] = &YARPMEIDeviceDriver::initPortAsOutput;
 	m_cmds[CMDSetAmpEnableLevel] = &YARPMEIDeviceDriver::setAmpEnableLevel;
@@ -127,17 +127,25 @@ int YARPMEIDeviceDriver::open(void *d)
 	rc = dsp_reset();				// reset
 
 	_ref_speeds = new double [_njoints];
+	ACE_ASSERT (_ref_speeds != NULL);
 	_ref_accs = new double [_njoints];
+	ACE_ASSERT (_ref_accs != NULL);
 	_ref_positions = new double [_njoints];
-
+	ACE_ASSERT (_ref_positions != NULL);
 	_all_axes = new int16[_njoints];
+	ACE_ASSERT (_all_axes != NULL);
+
 	int i;
 	for(i = 0; i < _njoints; i++)
 		_all_axes[i] = i;
 
 	_filter_coeffs = new int16* [_njoints];
+	ACE_ASSERT (_filter_coeffs != NULL);
 	for(i = 0; i < _njoints; i++)
+	{
 		_filter_coeffs[i] = new int16 [COEFFICIENTS];
+		ACE_ASSERT (_filter_coeffs[i] != NULL);
+	}
 
 	_dsp_rate = dsp_sample_rate();
 	
@@ -171,15 +179,15 @@ int YARPMEIDeviceDriver::close(void)
 {
 	int16 rc = 0;
 
-	delete [] _ref_speeds;
-	delete [] _ref_accs;
-	delete [] _ref_positions;
+	if (_ref_speeds != NULL) delete [] _ref_speeds;
+	if (_ref_accs != NULL) delete [] _ref_accs;
+	if (_ref_positions != NULL) delete [] _ref_positions;
 	
 	for(int i = 0; i < _njoints; i++)
-		delete [] _filter_coeffs[i];
+		if (_filter_coeffs[i] != NULL) delete [] _filter_coeffs[i];
 
-	delete [] _filter_coeffs;
-	delete [] _all_axes;
+	if (_filter_coeffs != NULL) delete [] _filter_coeffs;
+	if (_all_axes != NULL) delete [] _all_axes;
 
 	if (_winding != NULL) delete[] _winding;
 	if (_16bit_oldpos != NULL) delete[] _16bit_oldpos;

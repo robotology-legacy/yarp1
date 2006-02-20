@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.7 2006-02-15 09:44:22 gmetta Exp $
+///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.8 2006-02-20 12:45:09 gmetta Exp $
 ///
 ///
 
@@ -539,7 +539,7 @@ public:
 		IOParameters cmd;
 		cmd.port = 1;
 		cmd.value = (short) 0x01;
-		IOCtl(CMDSetOutputPort, &cmd);
+		IOCtl(CMDSetPortValue, &cmd);
 		_amplifiers = false;
 		//////////////////////////
 
@@ -705,7 +705,7 @@ public:
 		IOParameters cmd;
 		cmd.port = 1;
 		cmd.value = (short) 0x00;
-		IOCtl(CMDSetOutputPort, &cmd);
+		IOCtl(CMDSetPortValue, &cmd);
 		_amplifiers = true;
 		//////////////////////////
 
@@ -724,7 +724,7 @@ public:
 	{
 		IOParameters cmd;
 		cmd.port = 0;
-		IOCtl(CMDGetOutputPort, &cmd);
+		IOCtl(CMDGetPortValue, &cmd);
 
 		if (cmd.value & 0x8)
 			return true;

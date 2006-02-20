@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.17 2006-02-15 09:44:22 gmetta Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.18 2006-02-20 12:45:09 gmetta Exp $
 ///
 ///
 
@@ -99,7 +99,8 @@ enum ControlBoardCmd
 	CMDGetPWMs				= 89,	// get pwm output multiple joints
 	CMDSetCurrentLimit		= 93,	// set the maximum current threshold (the exact numeric value depends on the card)
 									// this is typically measured internally by the control card.
-	CMDSetCurrentLimits		= 94,	// set the maximum current threshold for all joints.
+	CMDSetCurrentLimits		= 94,	// sets the maximum current threshold for all joints.
+	CMDSetErrorLimit		= 58,	// sets the position error threshold.
 
 	//
 	// actual motion commands.
@@ -125,15 +126,13 @@ enum ControlBoardCmd
 	//
 	// Digital I/O commands.
 	//
-	CMDSetOutputPort 		= 9,	// set output port to a specific value.
-	CMDSetOutputBit 		= 10,	// set single bit to 1.
-	CMDClearOutputBit 		= 11,	// set single bit to 0.
-	CMDReadSwitches 		= 19,	// read switches (limit or other, digital input).
-	CMDReadInput 			= 32,	// ???
-	CMDInitPortAsInput 		= 33,	// digital I/O 
-	CMDInitPortAsOutput 	= 34,	// digital I/O
-	CMDGetOutputPort 		= 35,	// digital I/O
-	CMDSetHomingBehavior	= 52,	// sets the homing behavior during calibration (search what, index, etc.).
+	CMDSetPortValue			= 9,	// set output port to a specific value.
+	CMDGetPortValue			= 35,	// read value from an input port.
+	CMDSetOutputBit 		= 10,	// set single output bit to 1.
+	CMDClearOutputBit 		= 11,	// set single output bit to 0.
+	//CMDReadInput 			= 32,	// ???
+	CMDInitPortAsInput 		= 33,	// sets port as input.
+	CMDInitPortAsOutput 	= 34,	// sets port as output.
 
 	//
 	// Amplifier/PWM control.
@@ -152,6 +151,9 @@ enum ControlBoardCmd
 	CMDSetNegativeLimit 	= 44,	// sets negative limit event.
 	CMDSetPositiveLevel 	= 45,	// sets level signal for limit switch.
 	CMDSetNegativeLevel 	= 46,	// sets level signal for limit switch.
+	CMDOffOnError			= 59,	// this command causes the controller to shut off
+									// the  motor command if a position error exceeds
+									// the limit specified by the CMDSetErrorLimit command
 
 	//
 	// Miscellaneous.
@@ -159,11 +161,9 @@ enum ControlBoardCmd
 	CMDSetPositionControlMode = 86,   // set position mode.
 	CMDSetForceControlMode	  = 87,	  // set force control mode.
 	// CMDSetVelocityControlMode = ,
+	CMDSetHomingBehavior	= 52,	// sets the homing behavior during calibration (search what, index, etc.)
+									// it's doubtful whether this command is to be maintained.
 	CMDResetController 		= 57,	// reset the controller.
-	CMDErrorLimit			= 58,	// PID error limit (position error threshold).
-	CMDOffOnError			= 59,	// this command causes the controller to shut off
-									// the  motor command if a position error exceeds
-									// the limit specified by the CMDErrorLimit command
 	CMDGetErrorStatus		= 74,	// gets the error status of the control card.
 	CMDGetFault				= 102,  // gets fault events for a single axis.
 	CMDGetFaults			= 103,  // gets fault events for all axes.

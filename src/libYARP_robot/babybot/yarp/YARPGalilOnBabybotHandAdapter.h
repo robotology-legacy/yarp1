@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPGalilOnBabybotHandAdapter.h,v 1.5 2006-02-15 09:44:22 gmetta Exp $
+///  $Id: YARPGalilOnBabybotHandAdapter.h,v 1.6 2006-02-20 12:45:09 gmetta Exp $
 ///
 ///
 
@@ -154,7 +154,7 @@ public:
 		// set output port to 1..1 (disable motors)
 		IOParameters out;
 		out.value = (i16) 65535;
-		return IOCtl(CMDSetOutputPort, &out);
+		return IOCtl(CMDSetPortValue, &out);
 	}
 
 	int activatePID()
@@ -177,7 +177,7 @@ public:
 		// set output port to 0 (enable motors)
 		IOParameters out;
 		out.value = (i16) 0;
-		return IOCtl(CMDSetOutputPort, &out);
+		return IOCtl(CMDSetPortValue, &out);
 	}
 
 	// returns max torque on axis; note: this is not the current value, this is

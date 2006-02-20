@@ -255,6 +255,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "imgtools"=.\imgtools\imgtools.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "kfexploration"=.\kfexploration\kfexploration.dsp - Package Owner=<4>
 
 Package=<5>
@@ -376,6 +388,18 @@ Package=<4>
 ###############################################################################
 
 Project: "trackercloned"=.\objectspotter\trackercloned.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "utils"=.\utils\utils.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

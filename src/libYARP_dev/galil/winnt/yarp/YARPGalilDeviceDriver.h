@@ -33,7 +33,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.1 2004-07-13 13:21:07 babybot Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.2 2006-02-20 12:45:09 gmetta Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -140,6 +140,7 @@ private:
 	
 	int check_motion_done(void *flag);
 	int check_motion_done(void *flag,int axis);
+	int check_motion_done2 (void * flag);
 	int check_frames_left(void *flag);
 	int wait_for_frames_left(void *cmd);
 	
@@ -353,26 +354,15 @@ char *YARPGalilDeviceDriver::_append_question_mark(char *buffer, int axis)
 	return buffer;
 }
 
-
-
 char *YARPGalilDeviceDriver::_append_commas(char *buffer, int axis)
-
 {
-
 	// add question marks
-
 	for(int i = 0; i<m_njoints && i < axis; i++)
-
 	{
-
 		buffer = _append_cmd(',', buffer);
-
 	}
 
-
-
 	return buffer;
-
 }
 
 short YARPGalilDeviceDriver::_convert_float_to_bin (float f)

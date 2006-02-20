@@ -87,7 +87,15 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Address.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Bottle.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BottleImpl.cpp
 # End Source File
 # Begin Source File
 
@@ -96,6 +104,14 @@ SOURCE=.\Carriers.cpp
 # Begin Source File
 
 SOURCE=.\Companion.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConstString.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Contact.cpp
 # End Source File
 # Begin Source File
 
@@ -151,6 +167,10 @@ SOURCE=.\NetType.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Port.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\PortCommand.cpp
 # End Source File
 # Begin Source File
@@ -187,6 +207,10 @@ SOURCE=.\Thread.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ThreadImpl.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Time.cpp
 # End Source File
 # Begin Source File
@@ -203,7 +227,23 @@ SOURCE=.\YARPBottle.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPConfigFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPParseParameters.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPPort.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPRefCount.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPScheduler.cpp
 # End Source File
 # Begin Source File
 
@@ -227,6 +267,10 @@ SOURCE=..\include\yarp\AbstractCarrier.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\Adapters.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\Address.h
 # End Source File
 # Begin Source File
@@ -240,6 +284,10 @@ SOURCE=..\include\yarp\BlockWriter.h
 # Begin Source File
 
 SOURCE=..\include\yarp\Bottle.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\BottleImpl.h
 # End Source File
 # Begin Source File
 
@@ -263,6 +311,34 @@ SOURCE=..\include\yarp\Companion.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\ConnectionReader.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\ConnectionWriter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\ConstString.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Contact.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\DgramTwoWayStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Dispatcher.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Election.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\Face.h
 # End Source File
 # Begin Source File
@@ -276,6 +352,14 @@ SOURCE=..\include\yarp\FakeFace.h
 # Begin Source File
 
 SOURCE=..\include\yarp\FakeTwoWayStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\FallbackNameClient.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\FallbackNameServer.h
 # End Source File
 # Begin Source File
 
@@ -303,7 +387,23 @@ SOURCE=..\include\yarp\ManagedBytes.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\McastCarrier.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\Name.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\NameClient.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\NameConfig.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\NameServer.h
 # End Source File
 # Begin Source File
 
@@ -323,6 +423,10 @@ SOURCE=..\include\yarp\OutputStream.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\Port.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\Portable.h
 # End Source File
 # Begin Source File
@@ -331,7 +435,31 @@ SOURCE=..\include\yarp\PortCommand.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\PortCore.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\PortCoreInputUnit.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\PortCoreOutputUnit.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\PortCoreUnit.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\PortManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\PortReader.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\PortWriter.h
 # End Source File
 # Begin Source File
 
@@ -355,6 +483,10 @@ SOURCE=..\include\yarp\Semaphore.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\SemaphoreImpl.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\ShiftStream.h
 # End Source File
 # Begin Source File
@@ -364,6 +496,10 @@ SOURCE=..\include\yarp\SizedWriter.h
 # Begin Source File
 
 SOURCE=..\include\yarp\SocketTwoWayStream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\SplitString.h
 # End Source File
 # Begin Source File
 
@@ -399,6 +535,10 @@ SOURCE=..\include\yarp\Thread.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\ThreadImpl.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\Time.h
 # End Source File
 # Begin Source File
@@ -407,7 +547,15 @@ SOURCE=..\include\yarp\TwoWayStream.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\UdpCarrier.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\UnitTest.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\UserDoc.h
 # End Source File
 # Begin Source File
 

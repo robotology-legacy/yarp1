@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHand.h,v 1.3 2006-02-15 09:44:22 gmetta Exp $
+///  $Id: YARPBabybotHand.h,v 1.4 2006-02-20 12:45:09 gmetta Exp $
 ///
 ///
 
@@ -242,7 +242,6 @@ public:
 	int input()
 	{
 		int rc = 0;
-		int i;
 		lock();
 		
 		// read Galil
@@ -266,15 +265,19 @@ public:
 		_convert_output_raw(_tmp_command_double, _reference_positions);
 
 		// switches // LATER: this should go in the adapter
+		rc = _control_board.IOCtl(CMDCheckMotionDone, &_moving);
+#if 0
 		rc = _control_board.IOCtl(CMDReadSwitches, _tmp_command_char);
 		_convert_output_raw(_tmp_command_char, _switches);
 		_moving = false;
+		int i;
 		for(i = 0; i < _naj; i++)
 		{
 			_is_moving[i] = ((char) 0x80 & _switches[i]);
 			_moving = _moving || _is_moving[i];
 		}
-
+#endif
+		
 		// read NIDAQ
 		rc = _hall_sensors.IOCtl(CMDAIVReadScan, _hall_encoders_raw);
 
