@@ -444,10 +444,12 @@ public:
 
 
 int NameServer::main(int argc, char *argv[]) {
+
+  // pick an address
+  Address suggest("...",0); // suggestion is initially empty
+
   try {
 
-    // pick an address
-    Address suggest("...",0); // suggestion is initially empty
     if (argc>=1) {
       if (argc>=2) {
 	suggest = Address(argv[0],NetType::toInt(argv[1]));
@@ -518,7 +520,13 @@ int NameServer::main(int argc, char *argv[]) {
     
   } catch (IOException e) {
     YARP_DEBUG(Logger::get(),e.toString() + " <<< name server exception");
-    YARP_ERROR(Logger::get(), "name server failed");
+    YARP_ERROR(Logger::get(), "name server failed to start");
+    YARP_ERROR(Logger::get(), String("   reason for failure is \"") + 
+	       e.toString() + "\"");
+    YARP_ERROR(Logger::get(), "   the name server may already be running?");
+    if (suggest.getPort()>0) {
+      YARP_ERROR(Logger::get(), String("   or perhaps another service may already be running on port ") + NetType::toString(suggest.getPort()) + "?");
+    }
     return 1;
   }
 
