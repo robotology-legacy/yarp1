@@ -199,9 +199,9 @@ Address NameClient::registerName(const String& name, const Address& suggest) {
   Address address = probe(q);
   if (address.isValid()) {
     String reg = address.getRegName();
-    send(String("NAME_SERVER set ") + reg + " offers tcp text udp mcast shmem",
+    send(String("NAME_SERVER set ") + reg + " offers tcp text udp mcast shmem local",
 	 false);
-    send(String("NAME_SERVER set ") + reg + " accepts tcp text udp mcast shmem",
+    send(String("NAME_SERVER set ") + reg + " accepts tcp text udp mcast shmem local",
 	 false);
     send(String("NAME_SERVER set ") + reg + " ips " + NameConfig::getIps(),
 	 false);
