@@ -43,7 +43,7 @@ static BOOL close_console (void)
 }
 
 /// Use wprintf like TRACE0, TRACE1, ... (The arguments are the same as printf)
-static int xprintf(char *fmt, ...)
+static int xprintf(const char *fmt, ...)
 {
 	if (__console_handle == INVALID_HANDLE_VALUE)
 		return -1;
