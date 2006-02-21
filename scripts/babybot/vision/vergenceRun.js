@@ -1,10 +1,10 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
 
 /// run the vergence code.
-WshShell.Run ("on -i -d -n cariddi \"vergence.exe --name /vergence --neti Net1 --neto Net0\"", 7, true);
+WshShell.Run ("on -i -d -n circe \"vergence.exe --name /vergence --neti Net1 --neto Net0\"", 7, true);
 
 /// run the viewer.
-WshShell.Run ("on -d -n cariddi \"camview.exe --name /viewvergence/i:img --l --x 10 --y 10 --net Net1 --p 100 --w 260 --h 140 \"", 7, true);
+WshShell.Run ("on -d -n circe \"camview.exe --name /viewvergence/i:img --l --x 10 --y 10 --net Net1 --p 100 --w 260 --h 140 \"", 7, true);
 // WshShell.Run ("on -d -n calliope \"camview.exe -name viewvergence2/i:img -l -x 260 -y 10 -net Net1 -p 100 -w 250 -h 260 \"", 7, true);
 // WshShell.Run ("on -d -n calliope \"camview.exe -name viewvergence3/i:img -l -x 10 -y 300 -net Net1 -p 100 -w 250 -h 260 \"", 7, true);
 // WshShell.Run ("on -d -n calliope \"camview.exe -name viewvergence4/i:img -l -x 260 -y 300 -net Net1 -p 100 -w 250 -h 260 \"", 7, true);

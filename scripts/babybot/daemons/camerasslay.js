@@ -6,5 +6,5 @@ WshShell.Run ("yarp-connect /right/o:img !/view002/i:img", 7, true);
 WshShell.Run ("yarp-connect /left/o:img !/view003/i:img", 7, true);
 WshShell.Run ("yarp-connect /right/o:img !/view004/i:img", 7, true);
 
-WshShell.Run ("slay -n athena grabber-logpola", 7, true);
-WshShell.Run ("slay -n leto camview.exe", 7, true);
+WshShell.Run ("slay -n polifemo grabber-logpolar.exe", 7, true);
+WshShell.Run ("slay -n cariddi camview.exe", 7, true);

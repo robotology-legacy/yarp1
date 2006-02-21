@@ -1,3 +1,3 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
 
-WshShell.Run ("slay -n oceanus camview.exe", 1, true);
+WshShell.Run ("slay -n polifemo camview.exe", 1, true);
