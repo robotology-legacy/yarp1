@@ -63,6 +63,23 @@ public:
     proto.takeStreams(NULL);
   }
 
+  virtual void write(Protocol& proto, SizedWriter& writer) {
+    // will need to modify that so that we can work
+    // through a shared object reference instead (the target
+    // is in the same process space as we are)
+
+    // ideally, we'd just pass a reference to the writer object
+    // and have it queried on the other side -- need to work a
+    // bit on how SizedWriter operates so that this becomes efficiently
+    // doable
+
+    // default behavior upon a write request
+    ACE_UNUSED_ARG(writer);
+    proto.sendIndex();
+    proto.sendContent();
+    proto.expectAck();
+  }
+
   virtual void respondToHeader(Protocol& proto) {
     // i am the receiver
     becomeLocal(proto,false);

@@ -88,6 +88,11 @@ public:
    * This will be the invalid contact (Contact::isValid is false).
    */
   static Contact unregisterContact(const Contact& contact);
+
+
+  //static void setLocalSupport(bool flag);
+
+  //static void setGlobalSupport(bool flag);
 };
 
 #endif

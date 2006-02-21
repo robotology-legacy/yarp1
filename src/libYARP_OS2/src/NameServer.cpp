@@ -283,10 +283,12 @@ String NameServer::cmdRoute(int argc, char *argv[]) {
     if (srcRec.checkProp("offers",carrier) &&
 	destRec.checkProp("accepts",carrier)) {
       bool ok = true;
-      if (carrier=="local"||carrier=="mcast") {
+      if (carrier=="local"||carrier=="shmem") {
 	if (srcRec.getProp("ips") == destRec.getProp("ips")) {
-	  if (srcRec.getProp("process") != destRec.getProp("process")) {
-	    ok = false;
+	  if (carrier=="local") {
+	    if (srcRec.getProp("process") != destRec.getProp("process")) {
+	      ok = false;
+	    }
 	  }
 	} else {
 	  ok = false;

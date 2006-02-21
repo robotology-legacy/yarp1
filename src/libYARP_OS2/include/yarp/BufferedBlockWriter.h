@@ -103,6 +103,10 @@ public:
     return b.length();
   }
 
+  virtual const char *data(int index) {
+    ManagedBytes& b = *(lst[index]);
+    return (const char *)b.get();
+  }
 
 
   String toString() {

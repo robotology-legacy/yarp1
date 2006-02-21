@@ -25,7 +25,7 @@ public:
 
   virtual int length(int index) = 0;
 
-  // also way to extract block sizes
+  virtual const char *data(int index) = 0;
 };
 
 #endif

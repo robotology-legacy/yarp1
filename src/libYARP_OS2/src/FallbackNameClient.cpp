@@ -51,7 +51,7 @@ Address FallbackNameClient::getAddress() {
 
 
 Address FallbackNameClient::seek() {
-  int tries = 4;
+  int tries = 3;
   for (int k=0; k<tries; k++) {
 
     FallbackNameClient seeker;
@@ -63,19 +63,19 @@ Address FallbackNameClient::seek() {
 	      NetType::toString(tries));
 
     seeker.start();
-    Time::delay(0.5);
+    Time::delay(0.25);
     if (seeker.getAddress().isValid()) {
       return seeker.getAddress();
     }
-    int len = 40;
+    int len = 20;
     for (int i0=0; i0<len; i0++) {
-      ACE_OS::fprintf(stderr,"+");
+      ACE_OS::fprintf(stderr,"++");
     }
     ACE_OS::fprintf(stderr,"\n");
 	    
     for (int i=0; i<len; i++) {
-      Time::delay(0.1);
-      ACE_OS::fprintf(stderr,"+");
+      Time::delay(0.025);
+      ACE_OS::fprintf(stderr,"++");
       if (seeker.getAddress().isValid()) {
 	ACE_OS::fprintf(stderr,"\n");
 	return seeker.getAddress();
