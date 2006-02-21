@@ -186,6 +186,7 @@ void NameServer::setup() {
   dispatcher.add("check", &NameServer::cmdCheck);
   dispatcher.add("match", &NameServer::cmdMatch);
   dispatcher.add("list", &NameServer::cmdList);
+  dispatcher.add("route", &NameServer::cmdRoute);
 }
 
 String NameServer::cmdRegister(int argc, char *argv[]) {
@@ -247,6 +248,63 @@ String NameServer::cmdUnregister(int argc, char *argv[]) {
   String portName = argv[0];
   Address address = unregisterName(portName);
   return terminate(textify(address));
+}
+
+
+String NameServer::cmdRoute(int argc, char *argv[]) {
+  // ignore source
+  argc--;
+  argv++;
+
+  if (argc<2) {
+    return "need at least two arguments: the source port and the target port\n(followed by an optional list of carriers in decreasing order of desirability)";
+  }
+  String src = argv[0];
+  String dest = argv[1];
+
+  argc-=2;
+  argv+=2;
+
+  char *altArgv[] = { "local", "shmem", "mcast", "udp", "tcp", "text" };
+  int altArgc = 6;
+
+  if (argc==0) {
+    argc = altArgc;
+    argv = altArgv;
+  }
+
+
+  NameRecord& srcRec = getNameRecord(src);
+  NameRecord& destRec = getNameRecord(dest);
+  String pref = "";
+
+  for (int i=0; i<argc; i++) {
+    String carrier = argv[i];
+    if (srcRec.checkProp("offers",carrier) &&
+	destRec.checkProp("accepts",carrier)) {
+      bool ok = true;
+      if (carrier=="local"||carrier=="mcast") {
+	if (srcRec.getProp("ips") == destRec.getProp("ips")) {
+	  if (srcRec.getProp("process") != destRec.getProp("process")) {
+	    ok = false;
+	  }
+	} else {
+	  ok = false;
+	}
+      }
+      if (ok) {
+	pref = carrier;
+	break;
+      }
+    }
+  }
+  if (pref!="") {
+    pref = pref + ":/" + dest;
+  } else {
+    pref = dest;
+  }
+
+  return "port " + src + " route " + dest + " = " + pref;
 }
 
 
@@ -417,19 +475,25 @@ public:
       if (reader.getStreams()!=NULL) {
 	remote = reader.getStreams()->getRemoteAddress();
       }
-      YARP_INFO(Logger::get(),String("name server receiving from ") + 
-		remote.toString());
-      YARP_INFO(Logger::get(),String("name server received message: ") + msg);
+      YARP_DEBUG(Logger::get(),String("name server receiving from ") + 
+		 remote.toString());
+      YARP_DEBUG(Logger::get(),String("name server request is ") + msg);
       String result = apply(msg,remote);
       OutputStream *os = reader.getReplyStream();
       if (os!=NULL) {
 	if (result=="") {
-	  result = terminate("unknown command\n");
+	  result = terminate(String("unknown command ") + msg + "\n");
 	}
-	YARP_INFO(Logger::get(),String("name server replying: ") + result);
 	os->writeLine(result);
 	os->flush();
 	os->close();
+	YARP_DEBUG(Logger::get(),String("name server reply is ") + result);
+	String resultSparse = result;
+	int end = resultSparse.find("\n*** end of message");
+	if (end>=0) {
+	  resultSparse[end] = '\0';
+	}
+	YARP_INFO(Logger::get(),resultSparse);
       }
     } else {
 	YARP_INFO(Logger::get(),"Name server ignoring unknown command: "+msg);

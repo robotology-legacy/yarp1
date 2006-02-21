@@ -302,6 +302,7 @@ private:
   String cmdCheck(int argc, char *argv[]);
   String cmdMatch(int argc, char *argv[]);
   String cmdList(int argc, char *argv[]);
+  String cmdRoute(int argc, char *argv[]);
 
 
   typedef ACE_Hash_Map_Manager<String,NameRecord,ACE_Null_Mutex> NameMapHash;

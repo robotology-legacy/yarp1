@@ -40,6 +40,8 @@ public:
   // public interface
   virtual void expectBlock(const char *data, int len) = 0;
   virtual ::yarp::os::ConstString expectText(int terminatingChar) = 0;
+
+  virtual void release() {}
 };
 
 #endif

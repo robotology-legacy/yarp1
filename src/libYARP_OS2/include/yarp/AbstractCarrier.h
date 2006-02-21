@@ -113,6 +113,14 @@ protected:
     Protocol::createYarpNumber(7777+specifier,header);
   }
 
+  virtual void write(Protocol& proto, SizedWriter& writer) {
+    // default behavior upon a write request
+    ACE_UNUSED_ARG(writer);
+    proto.sendIndex();
+    proto.sendContent();
+    proto.expectAck();
+  }
+
 };
 
 #endif

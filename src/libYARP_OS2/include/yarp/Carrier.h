@@ -3,6 +3,7 @@
 
 #include <yarp/ShiftStream.h>
 #include <yarp/Bytes.h>
+#include <yarp/SizedWriter.h>
 
 namespace yarp {
   class Carrier;
@@ -43,6 +44,8 @@ public:
   virtual void sendHeader(Protocol& proto) = 0;
   virtual void expectReplyToHeader(Protocol& proto) = 0;
   virtual void sendIndex(Protocol& proto) = 0;
+
+  virtual void write(Protocol& proto, SizedWriter& writer) = 0;
 
   // receiver
   virtual void expectExtraHeader(Protocol& proto) = 0;

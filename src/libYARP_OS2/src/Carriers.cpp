@@ -18,12 +18,12 @@ static Logger log("Carriers", Logger::get());
 Carriers yarp::Carriers::instance;
 
 Carriers::Carriers() {
-  delegates.push_back(new TcpCarrier());
-  delegates.push_back(new TextCarrier());
-  delegates.push_back(new UdpCarrier());
-  delegates.push_back(new McastCarrier());
-  delegates.push_back(new ShmemCarrier());
   delegates.push_back(new LocalCarrier());
+  delegates.push_back(new ShmemCarrier());
+  delegates.push_back(new TcpCarrier());
+  delegates.push_back(new McastCarrier());
+  delegates.push_back(new UdpCarrier());
+  delegates.push_back(new TextCarrier());
 }
 
 Carriers::~Carriers() {

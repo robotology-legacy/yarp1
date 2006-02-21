@@ -350,11 +350,16 @@ public:
     NameClient& nic = NameClient::getNameClient();
     Address address = nic.registerName(name);
     core.setReadHandler(*this);
-    ACE_OS::fprintf(stderr,"Port %s listening at %s\n", 
-		    name,
-		    address.toString().c_str());
-    core.listen(address);
-    core.start();
+    if (address.isValid()) {
+      ACE_OS::fprintf(stderr,"Port %s listening at %s\n", 
+		      name,
+		      address.toString().c_str());
+      core.listen(address);
+      core.start();
+    } else {
+      YARP_ERROR(Logger::get(),"could not create port");
+      done.post();
+    }
   }
 
   void wait() {
@@ -408,12 +413,17 @@ int Companion::write(const char *name, int ntargets, char *targets[]) {
     PortCore core;
     NameClient& nic = NameClient::getNameClient();
     Address address = nic.registerName(name);
-    ACE_OS::fprintf(stderr,"Port %s listening at %s\n", 
-		    name,
-		    address.toString().c_str());
-    core.listen(address);
-    core.start(); // this allows external connections
-
+    if (address.isValid()) {
+      ACE_OS::fprintf(stderr,"Port %s listening at %s\n", 
+		      name,
+		      address.toString().c_str());
+      core.listen(address);
+      core.start();
+    } else {
+      YARP_ERROR(Logger::get(),"could not create port");
+      return 1;
+    }
+    
     for (int i=0; i<ntargets; i++) {
       connect(name,targets[i]);
     }

@@ -108,6 +108,7 @@ private:
 
   Address address;
   String host;
+  String process;
   bool fake;
   NameServer *fakeServer;
 

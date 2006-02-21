@@ -203,7 +203,10 @@ Address NameClient::registerName(const String& name, const Address& suggest) {
 	 false);
     send(String("NAME_SERVER set ") + reg + " accepts tcp text udp mcast shmem local",
 	 false);
-    send(String("NAME_SERVER set ") + reg + " ips " + NameConfig::getIps(),
+    String ips = NameConfig::getIps();
+    send(String("NAME_SERVER set ") + reg + " ips " + ips,
+	 false);
+    send(String("NAME_SERVER set ") + reg + " process " + process,
 	 false);
   }
   return address;
@@ -240,6 +243,7 @@ NameServer& NameClient::getServer() {
 NameClient::NameClient() {
   NameConfig conf;
   address = Address();
+  process = NetType::toString(ACE_OS::getpid());
   if (conf.fromFile()) {
     address = conf.getAddress();
   } else {

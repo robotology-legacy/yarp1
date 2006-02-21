@@ -35,6 +35,7 @@ public:
     messageLen = 0;
     pendingAck = false;
     writer = NULL;
+    altReader = NULL;
   }
 
   virtual ~Protocol() {
@@ -310,27 +311,11 @@ public:
   virtual void write(SizedWriter& writer) {
     this->writer = &writer;
     if (isActive()) {
-      sendIndex();
-      sendContent();
-      expectAck();
+      YARP_ASSERT(delegate!=NULL);
+      delegate->write(*this,writer);
     }
     this->writer = NULL;
   }
-
-  /*
-  virtual BlockWriter& beginWrite() {
-    writer.reset(delegate->isTextMode());
-    return writer;
-  }
-
-  virtual void endWrite() {
-    if (isActive()) {
-      sendIndex();
-      sendContent();
-      expectAck();
-    }
-  }
-  */
 
   virtual OutputProtocol& getOutput() {
     return *this;
@@ -344,10 +329,17 @@ public:
   virtual BlockReader& beginRead() {
     expectIndex();
     respondToIndex();
+    if (altReader!=NULL) {
+      YARP_DEBUG(Logger::get(), "alternate reader in operation");
+      return *altReader;
+    }
     return reader;
   }
 
   virtual void endRead() {
+    if (altReader!=NULL) {
+      altReader->release();
+    }
     sendAck();
   }
 
@@ -357,6 +349,11 @@ public:
 
   virtual void resetStreams() {
     shift.reset();
+  }
+
+
+  void setReader(BlockReader *altReader) {
+    this->altReader = altReader;
   }
 
 private:
@@ -409,7 +406,6 @@ private:
     delegate->expectSenderSpecifier(*this);
     ACE_DEBUG((LM_DEBUG,"Sender name is %s",getRoute().getFromName().c_str()));
   }
-  
 
   int messageLen;
   bool pendingAck;
@@ -423,6 +419,7 @@ private:
   //BufferedBlockWriter writer;
   SizedWriter *writer;
   StreamBlockReader reader;
+  BlockReader *altReader;
 
 };
 
