@@ -61,11 +61,6 @@ public:
     proto.readYarpInt(); // ignore result
   }
 
-  virtual void start(const Address& address, ShiftStream& previous) {
-    //TwoWayStream *str = previous.giveStream();
-    //takeStream(str);
-  }
-
 private:
   bool requireAckFlag;
 };

@@ -92,14 +92,6 @@ public:
     proto.takeStreams(stream);
   }
 
-  virtual void start(const Address& address, ShiftStream& previous) {
-    //TwoWayStream *str = previous.giveStream();
-    //takeStream(str);
-    YARP_ERROR(Logger::get(),
-	       "I don't think this method is needed anymore");
-  }
-
-
 };
 
 #endif

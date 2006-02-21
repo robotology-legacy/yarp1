@@ -99,6 +99,9 @@ in them -- see the specification document.
 
 INTERNAL NOTES:
 
+Incompatibilities:
+  + Shmem carrier is not yet YARP1 compatible
+
 Compatibility files:
   + src/YARPPort.cpp
   + src/YARPSemaphore.cpp

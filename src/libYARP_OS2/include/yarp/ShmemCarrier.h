@@ -45,7 +45,7 @@ public:
   }
 
   virtual void becomeShmem(Protocol& proto, bool sender) {
-    YARP_ERROR(Logger::get(),"SHMEM carrier is not yet really implemented");
+    YARP_ERROR(Logger::get(),"warning - SHMEM carrier is not YARP1 compatible yet");
     ShmemTwoWayStream *stream = new ShmemTwoWayStream();
     YARP_ASSERT(stream!=NULL);
     Address remote = proto.getStreams().getRemoteAddress();
@@ -64,23 +64,16 @@ public:
   }
 
   virtual void respondToHeader(Protocol& proto) {
-    int cport = proto.getStreams().getLocalAddress().getPort();
-    proto.writeYarpInt(cport);
     // i am the receiver
     becomeShmem(proto,false);
   }
 
 
   virtual void expectReplyToHeader(Protocol& proto) {
-    proto.readYarpInt(); // ignore result
     // i am the sender
     becomeShmem(proto,true);
   }
 
-  virtual void start(const Address& address, ShiftStream& previous) {
-    YARP_ERROR(Logger::get(),
-	       "I don't think this method is needed anymore");
-  }
 };
 
 #endif

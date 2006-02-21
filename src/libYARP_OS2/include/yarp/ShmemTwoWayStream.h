@@ -4,7 +4,6 @@
 #include <yarp/TwoWayStream.h>
 #include <yarp/IOException.h>
 #include <yarp/Logger.h>
-#include <yarp/Time.h>
 
 #include <ace/config.h>
 #include <ace/MEM_Acceptor.h>
@@ -71,7 +70,6 @@ public:
 
   virtual void write(const Bytes& b) {
     int result = stream.send_n(b.get(),b.length());
-    yarp::os::Time::delay(1);
     if (result<0) {
       happy = false;
       YARP_DEBUG(Logger::get(),"bad socket write");

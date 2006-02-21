@@ -41,7 +41,8 @@ Address NameServer::unregisterName(const String& name) {
 
 
 Address NameServer::registerName(const String& name, 
-				 const Address& address) {
+				 const Address& address,
+				 const String& remote) {
   YARP_DEBUG(Logger::get(),"in registerName...");
 
   if (name!="...") {
@@ -67,8 +68,12 @@ Address NameServer::registerName(const String& name,
   String machine = suggestion.getName();
   if (machine == "...") {
     if (carrier!="mcast") {
-      YARP_DEBUG(Logger::get(),"FIXME: machine is assumed to be localhost");
-      machine = "localhost"; 
+      if (remote=="...") {
+	YARP_ERROR(Logger::get(),"remote machine name was not found!  can only guess it is local...");
+	machine = "localhost";
+      } else {
+	machine = remote; 
+      }
     } else {
       machine = mcastRecord.get();
     }
@@ -194,7 +199,7 @@ String NameServer::cmdRegister(int argc, char *argv[]) {
   }
   String portName = argv[0];
 
-  String machine = remote;
+  String machine = "...";
   String carrier = "...";
   int port = 0;
   if (argc>=2) {
@@ -212,7 +217,8 @@ String NameServer::cmdRegister(int argc, char *argv[]) {
   }
 
   Address address = registerName(portName,
-				 Address(machine,port,carrier,portName));
+				 Address(machine,port,carrier,portName),
+				 remote);
   return terminate(textify(address));
 }
 

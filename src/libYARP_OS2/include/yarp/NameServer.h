@@ -31,7 +31,13 @@ public:
   // address may be partial - partial information gets filled in
   // (not YARP2 compliant yet, won't do fill-in)
   Address registerName(const String& name, 
-		       const Address& address);
+		       const Address& address) {
+    return registerName(name,address,"...");
+  }
+
+  Address registerName(const String& name, 
+		       const Address& address,
+		       const String& remote);
 
   Address registerName(const String& name) {
     return registerName(name,Address());

@@ -130,12 +130,6 @@ public:
     becomeMcast(proto,true);
   }
 
-  virtual void start(const Address& address, ShiftStream& previous) {
-    YARP_ERROR(Logger::get(),
-	       "I don't think this method is needed anymore");
-  }
-
-
   void addSender(const String& key) {
     caster.add(key,this);
   }

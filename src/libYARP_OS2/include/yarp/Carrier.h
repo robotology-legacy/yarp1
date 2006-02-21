@@ -36,8 +36,6 @@ public:
 
   // all remaining may throw IOException
 
-  virtual void start(const Address& address, ShiftStream& previous) = 0;
-
   //virtual void close() = 0; // from ShiftStream
 
   // sender
