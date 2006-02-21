@@ -84,8 +84,7 @@ YARP Companion Utility Specification 2.0 \\
 This document specifies YARP network protocol version 2.0,
 and a companion utility.  The
 protocol and utility is based on code by Giorgio
-Metta, Lorenzo Natale, and the author, which none of them fully
-understands any more.
+Metta, Paul Fitzpatrick, Lorenzo Natale, and many others.
 
 \end{abstract}
 
@@ -648,6 +647,26 @@ Clearly different carriers have a lot of freedom in how they operate.
 \end{itemize}
 
 
+\subsection{The ``shmem'' carrier}
+
+This is essentially the same as the tcp carrier, except that there is no
+header reply, and there is a shift in protocol after header transmission
+on both sides to an ACE shared memory stream.  This carrier is 
+currently being reworked to make its specification independent of ACE, 
+and to further improve efficiency in an existing implementation.
+
+The advantage of this carrier is that it is fast -- the best way to
+send messages between processes on a single machine.  Of course, it
+doesn't work for processes on different machines.
+
+
+\subsection{The ``local'' carrier}
+
+This is a new carrier designed specifically for communication between
+threads in a single process.  Giving a specification for the protocol
+it uses has low priority, since two such threads are unlikely to be
+using different YARP implementations.
+
 
 \subsection{Known protocol specifiers}
 
@@ -668,6 +687,7 @@ implemented in the C++ version of YARP.
 `Y' & `A' & 0x64 & 0x1E & 0 & 0 & `R' & `P'  & tcp & without acks \\
 `Y' & `A' & 0xE4 & 0x1E & 0 & 0 & `R' & `P'  & tcp & with acks \\
 `C' & `O' & `N'  & `N'  & `E' & `C' & `T' & `\textvisiblespace{}'  & text & \\
+`L' & `O' & `C'  & `A'  & `L' & `I' & `T' & Y  & local & \\
 \hline
 \end{tabular}
 \end{figure}
@@ -778,7 +798,7 @@ But this process will change.
 
 An implementation of YARP2 must support at least the ``tcp'' carrier.
 Other carriers that may be supported:
-``text'', ``udp'', ``mcast'', ``shmem'', ``qnx''.
+``text'', ``udp'', ``mcast'', ``shmem'', ``qnx'', ``local''.
 
 As a place to start an implementation, the ``text'' carrier is very
 simple to implement, and can masquerade as ``tcp'' for the purposes
@@ -1075,6 +1095,36 @@ Returns the following response:
 port /write property offers = tcp udp mcast
 \end{code}
 
+\newusage
+\usage{NAME\_SERVER check PORT PROPERTY VALUE}
+Checks if a stored property can take the given value. For example, 
+after the {\tt set} command example shown earlier, the command:
+\begin{code}
+NAME_SERVER check /write offers tcp
+\end{code}
+Returns the following response:
+\begin{code}
+port /write property offers value tcp present true
+\end{code}
+
+\newusage
+\usage{NAME\_SERVER route PORT1 PORT2}
+Finds a good way to connect an output port to an input port, based
+on the carriers they have in common (preferred carriers can optionally
+be added to this command in decreasing order of preference) and
+which carriers are physically possible (for example, `shmem'
+requires ports to be on the same machine, and `local' requires
+ports to belong to threads with a shared memory space).
+For example, the command:
+\begin{code}
+NAME_SERVER route /write /read
+\end{code}
+Returns the following response:
+\begin{code}
+port /write route /read = shmem://read
+\end{code}
+Suggesting that shmem is the best carrier to use.
+
 
 %% \begin{codecase}{NAME\_SERVER check PORT PROPERTY VALUE}
 %% Not yet documented.
@@ -1110,6 +1160,17 @@ See yarp0.sourceforge.net for instructions on how to access this.
 This code is mature, well-tested, but does not yet conform fully
 with the protocols described in this document.
 
+There is a drop-in replacement implementation of YARP2 being developed
+in:
+
+\begin{code}
+  Modules = yarp/src/libYARP_OS2
+\end{code}
+
+\indent
+That implementation follows this document carefully, but at the
+time of writing is not yet tested much in the real world.
+
 \subsection{Matlab}
 
 There is a Matlab wrapper around the C++ implementation --
@@ -1126,7 +1187,6 @@ There is a conforming implementation of YARP2 written in Java.
 It is available in CVS from in the {\tt yarp/src/java}
 directory.
 See yarp0.sourceforge.net for instructions on how to access this.
-This code is new and not well tested yet.
 
 
 \appendix
@@ -1249,22 +1309,6 @@ Terminal C will report \ctt{Connecting /port2 to /port1}.  Now if
 you type ``hello world'' into terminal C, and hit enter, that text
 will appear on terminal B.
 
-If you have another computer with YARP installed on it, open a
-terminal on it (let's call that terminal E) and type:
-
-\begin{verbatim}
-yarp remote machinename
-\end{verbatim}
-
-where machinename is the full name or (better still) IP address of the
-first machine on which the YARP name service is running.  
-% If all goes
-% well it should report \ctt{connection established with YARP name
-% service running on {\bf machinename}}.  If things do not go well, 
-% try running ``yarp-service --check'' in terminal E.  You now have
-% two configuration files, one on each machine, which should both
-% refer to the IP address of the first machine (since that is the one
-% on which the server is running on).
 
 If everything is going okay so far, type on terminal E:
 %
