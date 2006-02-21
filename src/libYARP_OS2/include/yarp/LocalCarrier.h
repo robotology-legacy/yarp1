@@ -2,6 +2,7 @@
 #define _YARP2_LOCALCARRIER_
 
 #include <yarp/AbstractCarrier.h>
+#include <yarp/SemaphoreImpl.h>
 
 namespace yarp {
   class LocalCarrier;
@@ -9,7 +10,10 @@ namespace yarp {
 
 class yarp::LocalCarrier : public AbstractCarrier {
 public:
+  LocalCarrier *peer;
+
   LocalCarrier() {
+    peer = NULL;
   }
 
   virtual Carrier *create() {
