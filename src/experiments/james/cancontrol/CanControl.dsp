@@ -114,6 +114,10 @@ SOURCE=.\CardsDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\NetworkNumberDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SetAddressDlg.cpp
 # End Source File
 # Begin Source File
@@ -148,6 +152,10 @@ SOURCE=.\CardAddressDlg.h
 # Begin Source File
 
 SOURCE=.\CardsDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetworkNumberDlg.h
 # End Source File
 # Begin Source File
 
