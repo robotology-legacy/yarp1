@@ -1,11 +1,13 @@
-// learning.cpp : behaviour of a learning machine
+// learning.cpp : behaviour of learning machines
 //
 
 #include <iostream>
 #include <cmath>
 #include "learning.h"
 
-BodyMapLearningBlock::BodyMapLearningBlock(unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples) :
+// ---------------------- SVM learning machine, plain version
+
+SVMLearningMachine::SVMLearningMachine(unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples) :
 	_domainSize(DomainSize), _codomainSize(CodomainSize), _numOfSamples(NumOfSamples), _sampleCount(0)
 {
 
@@ -81,7 +83,7 @@ BodyMapLearningBlock::BodyMapLearningBlock(unsigned int DomainSize, unsigned int
 
 }
 
-BodyMapLearningBlock::~BodyMapLearningBlock()
+SVMLearningMachine::~SVMLearningMachine()
 {
 
 	{ foreach(_codomainSize,i) svm_destroy_model( _model[i] ); }
@@ -102,7 +104,7 @@ BodyMapLearningBlock::~BodyMapLearningBlock()
 
 }
 
-const bool BodyMapLearningBlock::addSample( const double x[], const double y[] )
+const bool SVMLearningMachine::addSample( const double x[], const double y[] )
 {
 
 	// add a new _sample to our training set.
@@ -113,36 +115,33 @@ const bool BodyMapLearningBlock::addSample( const double x[], const double y[] )
 		_sampleCount = 0;
 		return false;
 	} else {
-		// otherwise, is this sample worth adding to the current pool?
-		if ( isSampleWorthAdding( x ) ) {
-			// yes: then add it and then bail out.
-			foreach(_domainSize,i) {
-				_sample[_sampleCount][i].index = i+1;
-				_sample[_sampleCount][i].value = x[i];
-			}
-			_sample[_sampleCount][_domainSize].index = -1;
-			{ foreach(_codomainSize,i) _problem[i].y[_sampleCount] = y[i]; }
-			_sampleCount++;
+		// otherwise, add it and then bail out.
+		foreach(_domainSize,i) {
+			_sample[_sampleCount][i].index = i+1;
+			_sample[_sampleCount][i].value = x[i];
 		}
-		return true;
+		_sample[_sampleCount][_domainSize].index = -1;
+		{ foreach(_codomainSize,i) _problem[i].y[_sampleCount] = y[i]; }
+		_sampleCount++;
 	}
+	return true;
 
 }
 
-const bool BodyMapLearningBlock::isSampleWorthAdding ( const double x[] ) const
+const bool SVMLearningMachine::isSampleWorthAdding ( const double x[] ) const
 {
 
 	return true;
 
 }
 
-void BodyMapLearningBlock::train()
+void SVMLearningMachine::train()
 {
-
-	// first normalise samples and values
 
 	// destroy old models
 	{ foreach(_codomainSize,i) if ( _model[i] != NULL ) svm_destroy_model( _model[i] ); }
+
+	// ----------- samples and values normalisation
 
 	// clean means and standard deviations
 	{ foreach(_domainSize,i) _domainMean[i] = 0.0; }
@@ -166,14 +165,16 @@ void BodyMapLearningBlock::train()
 	{ foreach(_domainSize,j) _domainStdv[j] = sqrt(_domainStdv[j]/(_numOfSamples-1)); }
 	{ foreach(_codomainSize,j) _codomainStdv[j] = sqrt(_codomainStdv[j]/(_numOfSamples-1)); }
 
+	// normalise samples
 	{ foreach(_numOfSamples,i) {
 		{ foreach(_domainSize,j) { _sample[i][j].value -= _domainMean[j]; _sample[i][j].value /= _domainStdv[j]; } }
 		{ foreach(_codomainSize,j) { _problem[j].y[i] -= _codomainMean[j]; _problem[j].y[i] /= _codomainStdv[j]; } }
 	} }
 
+	// ----------- predict!
 	{ foreach(_codomainSize,i) _model[i] = svm_train( &_problem[i], &_param ); }
 
-/*	FILE* out = fopen("x0_data.txt", "w");
+	FILE* out = fopen("x0_data.txt", "w");
 	for ( int i=0; i<_numOfSamples; ++i ) {
 		fprintf( out, "%lf ", _problem[3].y[i]);
 		for ( int j=0; j<3; ++j ) {
@@ -182,11 +183,11 @@ void BodyMapLearningBlock::train()
 		fprintf( out, "\n");
 	}
 	fclose(out);
-	svm_save_model( "x0_model.txt", _model[3] ); */
+	svm_save_model( "x0_model.txt", _model[3] );
 
 }
 	
-void BodyMapLearningBlock::predict ( const double x[], double y[] ) const
+void SVMLearningMachine::predict ( const double x[], double y[] ) const
 {
 
 	// fill new _sample whose value to predict
@@ -200,5 +201,78 @@ void BodyMapLearningBlock::predict ( const double x[], double y[] ) const
 
 	// predict !!
 	{ foreach(_codomainSize,i) y[i] = svm_predict(_model[i], _newSample)*_codomainStdv[i]+_codomainMean[i]; }
+
+}
+
+// ---------------------- SVM uniform learning machine
+// this machine decides whether to add a sample or not according to a
+// uniformity criterion.
+
+UniformLearningMachine::UniformLearningMachine(unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples) :
+  SVMLearningMachine(DomainSize,CodomainSize,NumOfSamples)
+{
+
+	foreach(21,x) { foreach(21,y) { foreach(21,z) _spaceGrid[x][y][z] = false; } }
+
+}
+
+const bool UniformLearningMachine::addSample( const double x[], const double y[] )
+{
+
+	// add a new _sample to our training set.
+
+	// just in case this is the VERY FIRST sample we add, it is a good time
+	// to get the center of the world.
+	if ( _sampleCount == 0 ) {
+		_centerOfTheWorld[0] = x[0];
+		_centerOfTheWorld[1] = x[1];
+		_centerOfTheWorld[2] = x[2];
+	}
+
+	// if the buffer is full, stop and return failure, but reset
+	// counter, so that next time it will be ok.
+	if ( _sampleCount == _numOfSamples ) {
+		_sampleCount = 0;
+		return false;
+	} else {
+		// otherwise, is this sample worth adding to the current pool?
+		if ( isSampleWorthAdding( x ) ) {
+			// yes: then add it and then bail out.
+			foreach(_domainSize,i) {
+				_sample[_sampleCount][i].index = i+1;
+				_sample[_sampleCount][i].value = x[i];
+			}
+			_sample[_sampleCount][_domainSize].index = -1;
+			{ foreach(_codomainSize,i) _problem[i].y[_sampleCount] = y[i]; }
+			_sampleCount++;
+		}
+		return true;
+	}
+
+}
+
+const bool UniformLearningMachine::isSampleWorthAdding ( const double x[] )
+{
+
+	// 2.0 inches, so far the resolution
+
+	// evaluate coordinates, in terms of the space grid
+	int coordX = (int) ((x[0]-_centerOfTheWorld[0]) / 2.0 + 10);
+	int coordY = (int) ((x[1]-_centerOfTheWorld[1]) / 2.0 + 10);
+	int coordZ = (int) ((x[2]-_centerOfTheWorld[2]) / 2.0 + 10);
+
+	// outside the grid? then leave it...
+	if ( coordX<0 || coordX>20 || coordY<0 || coordY>20 || coordZ<0 || coordZ>20 ) {
+		return false;
+	}
+
+	// otherwise: have we already been here?
+	if ( _spaceGrid[coordX][coordY][coordZ] ) {
+		return false;
+	} else {
+		// no: then add me !!
+		_spaceGrid[coordX][coordY][coordZ] = true;
+		return true;
+	}
 
 }

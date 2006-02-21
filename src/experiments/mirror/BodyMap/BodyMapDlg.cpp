@@ -17,7 +17,9 @@ static char THIS_FILE[] = __FILE__;
 // CBodyMapDlg dialog
 
 CBodyMapDlg::CBodyMapDlg(CWnd* pParent /*=NULL*/) :
-   CDialog( CBodyMapDlg::IDD, pParent ), _acquiringSamples( false )
+	CDialog( CBodyMapDlg::IDD, pParent ),
+	_acquiringSamples( false ), _measuring( false ),
+	_distanceMean( 0.0 ), _distanceStdv( 0.0 ), _distanceNumOfSamples(0)
 {
 
 	//{{AFX_DATA_INIT(CBodyMapDlg)
@@ -84,21 +86,11 @@ BOOL CBodyMapDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// create and set up dialogs
+	_Camera0Dialog.Create(CLiveCameraDlg::IDD, this);	_Camera0Dialog.SetWindowText("LIVE: Camera #0");
+	_Camera1Dialog.Create(CLiveCameraDlg::IDD, this);	_Camera1Dialog.SetWindowText("LIVE: Camera #1");
+	_Tracker0Dialog.Create(CLiveTrackerDlg::IDD, this); _Tracker0Dialog.SetWindowText("LIVE: Tracker #0");
+	_Tracker1Dialog.Create(CLiveTrackerDlg::IDD, this); _Tracker1Dialog.SetWindowText("LIVE: Tracker #1");
 	_GloveDialog.Create(CLiveGloveDlg::IDD, this);
-	_Tracker0Dialog.Create(CLiveTrackerDlg::IDD, this);
-	_Tracker0Dialog.SetWindowText("LIVE: Tracker #0");
-	_Tracker1Dialog.Create(CLiveTrackerDlg::IDD, this);
-	_Tracker1Dialog.SetWindowText("LIVE: Tracker #1");
-	_Camera0Dialog.Create(CLiveCameraDlg::IDD, this);
-	_Camera0Dialog.SetWindowText("LIVE: Camera #0");
-	_Camera1Dialog.Create(CLiveCameraDlg::IDD, this);
-	_Camera1Dialog.SetWindowText("LIVE: Camera #1");
-	// enable windows
-	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
-	GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(FALSE);
-	GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
-	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
-	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
 	// register and connect ports
 	if ( RegisterAndConnectPorts() == YARP_FAIL ) {
 		MessageBox("Could not register or connect ports.", "Fatal error.", MB_ICONERROR);
@@ -109,7 +101,9 @@ BOOL CBodyMapDlg::OnInitDialog()
 	_Camera1Dialog.ShowWindow(SW_SHOW);
 	_Tracker0Dialog.ShowWindow(SW_SHOW);
 
-	_learningBlock = new BodyMapLearningBlock(3,4,50);
+	// create learning machine
+//	_BodyMapLearningMachine = new SVMLearningMachine(3,4,50);
+	_BodyMapLearningMachine = new UniformLearningMachine(3,4,50);
 
 	return TRUE;
 
@@ -165,20 +159,20 @@ void CBodyMapDlg::OnLiveCamera()
 
 }
 
-void CBodyMapDlg::OnLiveGlove() 
-{
-
-	// toggle dialog
-	_GloveDialog.ShowWindow(!_GloveDialog.ShowWindow(SW_SHOWNA));
-
-}
-
 void CBodyMapDlg::OnLiveTracker() 
 {
 
 	// toggle dialogs
 	_Tracker0Dialog.ShowWindow(!_Tracker0Dialog.ShowWindow(SW_SHOWNA));
 	
+}
+
+void CBodyMapDlg::OnLiveGlove() 
+{
+
+	// toggle dialog
+	_GloveDialog.ShowWindow(!_GloveDialog.ShowWindow(SW_SHOWNA));
+
 }
 
 void CBodyMapDlg::OnConnect() 
@@ -212,10 +206,8 @@ void CBodyMapDlg::OnConnect()
 		// enable the required windows
 		GetDlgItem(IDC_CONNECT)->EnableWindow(FALSE);
 		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
-		GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
-		GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
 		GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
+		GetDlgItem(IDC_ACQ_STOP)->EnableWindow(TRUE);
 		// start live timer
 		_settings._timerID = SetTimer(1, _options.refreshFrequency, NULL);
 		_ASSERT (_settings._timerID != 0);	
@@ -240,12 +232,10 @@ void CBodyMapDlg::OnDisconnect()
 	KillTimer(_settings._timerID);
 
 	// enable/disable required windows
-	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
-	GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(FALSE);
-	GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
-	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
 	GetDlgItem(IDC_CONNECT)->EnableWindow(TRUE);
 	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
+	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
+	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
 
 }
 
@@ -256,7 +246,7 @@ void CBodyMapDlg::OnClose()
 		OnDisconnect();
 	}
 	DisconnectAndUnregisterPorts();
-	delete _learningBlock;
+	delete _BodyMapLearningMachine;
 	CDialog::OnClose();
 
 }
@@ -268,7 +258,7 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 	// off the collector and update the live show. Moreover, if acquiringSamples
 	// is true we store one more sample in the learning block.
 
-	double x[3], y[4];
+	double x[3], y[4], predicted_y[4];
 
 	// get data
 	_settings._cmd_outport.Content() = CCmdGetData;
@@ -286,34 +276,47 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 		x[0] = _settings._data.tracker0Data.x;
 		x[1] = _settings._data.tracker0Data.y;
 		x[2] = _settings._data.tracker0Data.z;
-		_learningBlock->predict(x,y);
-		ShowExpectedTrackerXY(_settings._img0, (int)y[0], (int)y[1]);
-		ShowExpectedTrackerXY(_settings._img1, (int)y[2], (int)y[3]);
+		_BodyMapLearningMachine->predict(x,predicted_y);
+		ShowExpectedTrackerXY(_settings._img0, (int)predicted_y[0], (int)predicted_y[1]);
+		ShowExpectedTrackerXY(_settings._img1, (int)predicted_y[2], (int)predicted_y[3]);
 		// find real tracker position and show it
 		int x0, y0, x1, y1;
-		FindTrackerXY(_settings._img0, &x0, &y0);
-		ShowTrackerXY(_settings._img0, x0, y0);
-		FindTrackerXY(_settings._img1, &x1, &y1);
-		ShowTrackerXY(_settings._img1, x1, y1);
-		// if we are gathering samples, store this one
+		FindTrackerXY(_settings._img0, &x0, &y0); ShowTrackerXY(_settings._img0, x0, y0);
+		FindTrackerXY(_settings._img1, &x1, &y1); ShowTrackerXY(_settings._img1, x1, y1);
+		// fill y with the actualy tracker position
+		y[0] = x0; y[1] = y0; y[2] = x1; y[3] = y1;
+		// are we gathering samples?
 		if ( _acquiringSamples ) {
-			y[0] = x0;
-			y[1] = y0;
-			y[2] = x1;
-			y[3] = y1;
-			int addedOk = _learningBlock->addSample(x, y);
+			// then add the current sample, until we fill the sample pool
+			int addedOk = _BodyMapLearningMachine->addSample(x, y);
 			if ( addedOk ) {
 				char title[50];
-				ACE_OS::sprintf(title, "Acquired sample %d (%.2lf%%)", _learningBlock->getSampleCount(),
-					(double)_learningBlock->getSampleCount()*100.0/(double)_learningBlock->getNumOfSamples());
+				ACE_OS::sprintf(title, "Acquired sample %d (%.0lf%%)", _BodyMapLearningMachine->getSampleCount(),
+					(double)_BodyMapLearningMachine->getSampleCount()*100.0/
+					(double)_BodyMapLearningMachine->getNumOfSamples());
 				AfxGetMainWnd()->SetWindowText(title);
 			} else {
 				_acquiringSamples = false;
 				AfxGetMainWnd()->SetWindowText("Training...");
-				_learningBlock->train();
+				_BodyMapLearningMachine->train();
 				AfxGetMainWnd()->SetWindowText("BodyMap");
 				GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
+				GetDlgItem(IDC_ACQ_STOP)->EnableWindow(TRUE);
 			}
+		} else if ( _measuring ) {
+			// or, are we measuring the error? then evaluate and display its stats
+			double newDistance = Distance(y,predicted_y,4);
+			_distanceMean = (1/(double)(_distanceNumOfSamples+1)) *
+						    ( _distanceNumOfSamples*_distanceMean + newDistance );
+			_distanceStdv = sqrt( (1/(double)(_distanceNumOfSamples+1)) *
+							      ( _distanceNumOfSamples*_distanceStdv*_distanceStdv + 
+							        (newDistance-_distanceMean)*(newDistance-_distanceMean)
+							    ) );
+
+			char title[50];
+			ACE_OS::sprintf(title, "Mean distance: %.2lf (stdv: %.2lf)", _distanceMean, _distanceStdv);
+			AfxGetMainWnd()->SetWindowText(title);
+			++_distanceNumOfSamples;
 		}
 	} else {
 		MessageBox("Could not read data from mirrorCollector.", "Error.",MB_ICONERROR);
@@ -322,7 +325,7 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 	// update dialogs
 	_Tracker0Dialog.UpdateState(_settings._data.tracker0Data);
 	_Tracker1Dialog.UpdateState(_settings._data.tracker1Data);
-	_GloveDialog.UpdateState(_settings._data.gloveData, _settings._data.pressureData, _settings._data.GTData);
+//	_GloveDialog.UpdateState(_settings._data.gloveData, _settings._data.pressureData, _settings._data.GTData);
 	_Camera0Dialog.UpdateState(&_settings._img0);
 	_Camera1Dialog.UpdateState(&_settings._img1);
 
@@ -334,13 +337,106 @@ void CBodyMapDlg::OnAcqStart()
 {
 
 	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
+	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
 	_acquiringSamples = true;
 
 }
 
-void CBodyMapDlg::OnAcqStop() {}
+void CBodyMapDlg::OnAcqStop()
+{
+
+	_measuring = !_measuring;
+
+	if ( _measuring == false ) {
+		AfxGetMainWnd()->SetWindowText("BodyMap");
+		GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
+	} else {
+		GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
+	}
+
+}
 
 // ---------------- procedures which are not associated with MFC objects
+
+const double CBodyMapDlg::Distance( const double x[], const double y[], const unsigned int dim ) const
+{
+
+	double distSquared = 0.0;
+
+	{ foreach(dim,i) distSquared += (x[i]-y[i])*(x[i]-y[i]); }
+
+	return sqrt(distSquared);
+
+}
+
+void CBodyMapDlg::FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y)
+{
+
+	unsigned long sumX = 0, sumY = 0, nOfPixels = 0;
+
+	IMGFOR(img,i,j) {
+		
+		double r = img(i,j).r/255.0;
+		double g = img(i,j).g/255.0;
+		double b = img(i,j).b/255.0;
+		double h, s, v;
+		double max = (r>=b && r>=g) ? r : ((g>=r && g>=b) ? g : b );
+		double min = (r<=b && r<=g) ? r : ((g<=r && g<=b) ? g : b );
+
+		if ( max == min ) {
+			h = 0;
+		} else {
+			if ( max == r ) h = 60*(g-b)/(max-min)+0;
+			if ( max == g ) h = 60*(b-r)/(max-min)+120;
+			if ( max == b ) h = 60*(r-g)/(max-min)+240;
+		}
+		if ( max == 0 ) {
+			s = 0;
+		} else {
+			s = (max-min)/max;
+		}
+		v = max;
+
+		if ( cos(h/360*2*M_PI)>0.85 && s>0.5 && v>0.65 ) {
+			sumX += i;
+			sumY += j;
+			++nOfPixels;
+		}
+	}
+
+	if ( nOfPixels > 0 ) {
+		*x = (int)(sumX/nOfPixels);
+		*y = (int)(sumY/nOfPixels);
+	} else {
+		*x = -1;
+		*y = -1;
+	}
+
+}
+
+void CBodyMapDlg::ShowTrackerXY(YARPImageOf<YarpPixelBGR>& img, int x, int y)
+{
+
+	// draw a white cross where the tracker is actually seen
+
+	YarpPixelBGR tmpBGRWhitePixel(255,255,255);
+
+	if ( x>0 && y>0 ) {
+		YARPSimpleOperations::DrawCross<YarpPixelBGR>(img, x, y, tmpBGRWhitePixel, 5);
+	}
+
+}
+
+void CBodyMapDlg::ShowExpectedTrackerXY(YARPImageOf<YarpPixelBGR>& img, int x, int y)
+{
+
+	// draw a YELLOW cross where the system thinks it is
+	
+	YarpPixelBGR tmpBGRYellowPixel(255,255,0);
+
+	YARPSimpleOperations::DrawCross<YarpPixelBGR>(img, x, y, tmpBGRYellowPixel, 10);
+
+}
 
 int CBodyMapDlg::RegisterAndConnectPorts()
 {
@@ -439,74 +535,5 @@ void CBodyMapDlg::DisconnectAndUnregisterPorts()
 	ACE_OS::sprintf(tmpMCPortName,"/%s/o:str", _settings.MirrorCollectorPortName);
 	_settings._data_inport.Connect(tmpMCPortName, tmpBMPortName);
 	_settings._data_inport.Unregister();
-
-}
-
-void CBodyMapDlg::ShowTrackerXY(YARPImageOf<YarpPixelBGR>& img, int x, int y)
-{
-
-	// draw a white cross where the tracker is actually seen
-
-	YarpPixelBGR tmpBGRWhitePixel(255,255,255);
-
-	if ( x>0 && y>0 ) {
-		YARPSimpleOperations::DrawCross<YarpPixelBGR>(img, x, y, tmpBGRWhitePixel, 5);
-	}
-
-}
-
-void CBodyMapDlg::ShowExpectedTrackerXY(YARPImageOf<YarpPixelBGR>& img, int x, int y)
-{
-
-	// draw a YELLOW cross where the system thinks it is
-	
-	YarpPixelBGR tmpBGRYellowPixel(255,255,0);
-
-	YARPSimpleOperations::DrawCross<YarpPixelBGR>(img, x, y, tmpBGRYellowPixel, 10);
-
-}
-
-void CBodyMapDlg::FindTrackerXY(YARPImageOf<YarpPixelBGR>& img, int* x, int* y)
-{
-
-	unsigned long sumX = 0, sumY = 0, nOfPixels = 0;
-
-	IMGFOR(img,i,j) {
-		
-		double r = img(i,j).r/255.0;
-		double g = img(i,j).g/255.0;
-		double b = img(i,j).b/255.0;
-		double h, s, v;
-		double max = (r>=b && r>=g) ? r : ((g>=r && g>=b) ? g : b );
-		double min = (r<=b && r<=g) ? r : ((g<=r && g<=b) ? g : b );
-
-		if ( max == min ) {
-			h = 0;
-		} else {
-			if ( max == r ) h = 60*(g-b)/(max-min)+0;
-			if ( max == g ) h = 60*(b-r)/(max-min)+120;
-			if ( max == b ) h = 60*(r-g)/(max-min)+240;
-		}
-		if ( max == 0 ) {
-			s = 0;
-		} else {
-			s = (max-min)/max;
-		}
-		v = max;
-
-		if ( cos(h/360*2*M_PI)>0.85 && s>0.5 && v>0.65 ) {
-			sumX += i;
-			sumY += j;
-			++nOfPixels;
-		}
-	}
-
-	if ( nOfPixels > 0 ) {
-		*x = (int)(sumX/nOfPixels);
-		*y = (int)(sumY/nOfPixels);
-	} else {
-		*x = -1;
-		*y = -1;
-	}
 
 }

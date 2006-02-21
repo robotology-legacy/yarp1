@@ -27,6 +27,7 @@ public:
 	void ShowTrackerXY(YARPImageOf<YarpPixelBGR>&, int, int);
 	void ShowExpectedTrackerXY(YARPImageOf<YarpPixelBGR>&, int, int);
 	void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*);
+	const double Distance(const double[], const double[], const unsigned int) const;
 
 	CBodyMapDlg(CWnd* pParent = NULL);	// standard constructor
 
@@ -81,10 +82,15 @@ private:
 	BodyMapSettings _settings;
 
 	// the learning machine
-	BodyMapLearningBlock* _learningBlock;
+	LearningMachine* _BodyMapLearningMachine;
 
 	// true whilst we are gathering samples
 	bool _acquiringSamples;
+	// true whilst we are measuring the error
+	bool _measuring;
+	// self explanatory
+	double _distanceMean, _distanceStdv;
+	unsigned int _distanceNumOfSamples;
 
 };
 
