@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDeviceDriver.h,v 1.2 2006-02-21 16:32:30 gmetta Exp $
+/// $Id: YARPEsdDeviceDriver.h,v 1.3 2006-02-21 16:34:06 gmetta Exp $
 ///
 ///
 
@@ -46,27 +46,19 @@
  */
 
 /**
- * Max number of addressable cards in this implementation.
- */
-const int ESD_MAX_CARDS		= 16;
-
-
-/**
  * The open parameter class containing the initialization values.
  */
-struct EsdCanOpenParameters
+struct EsdOpenParameters
 {
 	/**
 	 * Constructor.
 	 */
-	EsdCanOpenParameters (void)
+	EsdOpenParameters (void)
 	{
 		_networkN = 0;
-		memset (_destinations, 0, sizeof(unsigned char) * ESD_MAX_CARDS);
 		_my_address = 0;
 		_polling_interval = 10;
 		_timeout = 20;
-		_njoints = 0;
 		_p = NULL;
 
 		_txQueueSize = 2047;					/** max len of the buffer for the esd driver */
@@ -81,8 +73,6 @@ struct EsdCanOpenParameters
 	long int _rxTimeout;
 
 	int _networkN;								/** network number */
-	int _njoints;								/** number of joints (cards * 2) */
-	unsigned char _destinations[ESD_MAX_CARDS];		/** destination addresses */
 	unsigned char _my_address;					/** my address */
 	int _polling_interval;						/** thread polling interval [ms] */
 	int _timeout;								/** number of cycles before timing out */
