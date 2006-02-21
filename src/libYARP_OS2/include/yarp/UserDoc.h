@@ -45,13 +45,15 @@
   // source for sender.cpp
   #include <yarp/Port.h>
   #include <yarp/Bottle.h>
+  #include <yarp/Time.h>
+  #include <stdio.h>
   using namespace yarp::os;
   int main() {
     Bottle bot1; 
     bot1.addString("testing"); // a simple message
     Port output;
     output.open("/out");
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<100; i++) {
       output.write(bot1);
       printf("Sent message: %s\n", bot1.toString().c_str());
       bot1.addInt(i); // change the message for next time
@@ -68,6 +70,7 @@
   // source for receiver.cpp
   #include <yarp/Port.h>
   #include <yarp/Bottle.h>
+  #include <stdio.h>
   using namespace yarp::os;
   int main() {
     Bottle bot2;
@@ -84,7 +87,8 @@
  *
  * To compile these programs you need two libraries: yarp and ace.
  * These instructions assume you have installed them - if not, see
- * their websites for instructions.
+ * their websites for instructions.  The source of these programs
+ * and a makefile are in the directory src/libYARP_OS2/examples
  *
  * If you're on a UNIX machine, you can compile with:
  * \code
@@ -105,7 +109,8 @@
   yarp connect /out /in
  * \endcode
  *
- * The process on windows in similar.
+ * (You may have to give a path to wherever yarp is compiled if it is
+ * not in your path). The process on windows in similar.
  *
  */
 

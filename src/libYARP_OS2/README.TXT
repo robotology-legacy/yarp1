@@ -1,7 +1,7 @@
 
 ===============================================================================
 
-This will become, in time, a replacement for libYARP_OS, bringing that library 
+This directory contains a replacement for libYARP_OS, bringing that library 
 into conformance with the YARP2 specification document available in draft form 
 at:
 
@@ -12,13 +12,6 @@ at:
 ===============================================================================
 
 DEVELOPER'S GUIDE:
-
-This directory holds an almost-complete implementation of the YARP2 
-specification, at:
-
-  http://yarp0.sourceforge.net/specs/yarp-protocol-2-0.pdf
-
-Here is an inventory:
 
   include/
     Header files for the implementation
@@ -106,13 +99,6 @@ in them -- see the specification document.
 
 INTERNAL NOTES:
 
-State of development:
-  + tcp connections work - YARP1 compatible
-  + udp connections work - YARP1 compatible
-  + text connections work
-  + port infrastructure
-  + partial companion
-
 Compatibility files:
   + src/YARPPort.cpp
   + src/YARPSemaphore.cpp
@@ -124,12 +110,11 @@ for this to compile and run.
 
 Namespaces:
   + currently being reorganized
-  + there is "yarp" catch-all, but this should be mostly user-interface
-  + making a yarp::sys namespace
+  + making a yarp::os namespace
 
 ===============================================================================
 
-IMPLEMENTATION OF PORTS AND CONNECTIONS
+IMPLEMENTATION OF PORTS AND CONNECTIONS (for DEVELOPERS, not USERS)
 
 What are all these strange classes?  Carriers, Connections, Ports?
 This section works through examples that are ONLY of interest
