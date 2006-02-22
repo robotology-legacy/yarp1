@@ -1,9 +1,27 @@
-\section{Is that all?}
-Further, YARP contains simple libraries for managing images and other sensory data types, including the possibility of trasmitting them through the network. For example, images can be grabbed on one node and sent, in parallel, by using the IP-multicast protocol to many nodes for parallel processing. With certain limitations, this is efficient enough to parallelize image processing which is typically time consuming on current processors.
+section{Is that all?}
 
-YARP also comes with libraries for shielding the dependencies on the robot hardware. Clearly such a mechanism could never be fail-proof given the number and combinations of different control cards, robot structure, etc. We attempted at shielding these dependencies so that future hardware replacement is possible with a minimal amount of work. This encapsulation comes into two different libraries: {\bf libYARP\_dev} and {\bf libYARP\_robot}. The first library deals with the encapsulation and standardization of different hardware cards, the latter with the robot architecture itself.
+Further, YARP contains simple libraries for managing images and other
+sensory data types, including the possibility of transmitting them
+through the network. For example, images can be grabbed on one node
+and sent, in parallel, by using the IP-multicast protocol to many
+nodes for parallel processing. With certain limitations, this is
+efficient enough to parallelise image processing which is typically
+time consuming on current processors.
 
-The following sections describe first how to compile the existing libraries and then how to prepare new device drivers to be included in the generic YARP structure, finally, we will delve deep into the preparation of a new robot architecture.
+YARP also comes with libraries for shielding the dependencies on the
+robot hardware. Clearly such a mechanism could never be fail-proof
+given the number and combinations of different control cards, robot
+structure, etc. We attempted at shielding these dependencies so that
+future hardware replacement is possible with a minimal amount of
+work. This encapsulation comes into two different libraries: {\bf
+libYARP\_dev} and {\bf libYARP\_robot}. The first library deals with
+the encapsulation and standardization of different hardware cards, the
+latter with the robot architecture itself.
+
+The following sections describe first how to compile the existing
+libraries and then how to prepare new device drivers to be included in
+the generic YARP structure, finally, we will delve deep into the
+preparation of a new robot architecture.
  
 \section{Preparing libYARP\_math}
 The mathematical library of YARP is a fairly simple and straightforward set of classes mostly used to support a generic vector and matrix type. As typical of YARP, the appropriate type definitions for sending and receiving vectors and matrices are provided. This allows sending vectors and matrices of double precision numbers through the network, exactly as for the other YARP types. Ideally, we would like to avoid implementing a full-fledged math library that would be outside the scope of YARP itself and rather provide the minimal amount of support leaving to the user the task of interfacing to their preferred packages. This, we believe, is in agreement with the general design philosophy of YARP: be respectful of the user's preferences. An interface to the GNU scientific library would be perhaps most welcome.
@@ -113,7 +131,7 @@ The basic data type used in libYARP\_sig is the {\em YARPGenericImage}. This is 
   in.Refer (input_port.Content());	
 \end{verbatim}
 
-Similarly, the signal processing library has classes for sound data transfer: {\em YARPSoundBuffer}. The sound buffer is a generic 8-bit array that can be trasmitted through ports (as for images). The sound buffer is much simpler in structure than images and thus it is the preferred method for handling raw data. The procedure to compile the libYARP\_img is very similar to the math library and it is reported below only for completness. Do not bother in actually reading it.
+Similarly, the signal processing library has classes for sound data transfer: {\em YARPSoundBuffer}. The sound buffer is a generic 8-bit array that can be transmitted through ports (as for images). The sound buffer is much simpler in structure than images and thus it is the preferred method for handling raw data. The procedure to compile the libYARP\_img is very similar to the math library and it is reported below only for completeness. Do not bother in actually reading it.
 
 \subsection{Perl scripts}
 Using perl is fairly trivial in this case: just run the {\em configure.pl} script (e.g. by typing perl configure.pl). The following output (or a similar one) should be printed on your terminal windows:
@@ -239,7 +257,7 @@ operable program or batch file.
 Ready to start...
 Now I'm going to ask a few questions that I need for configuring the device 
 drivers.
-For pathnames you can use (type) the pre-defined value $YARP_ROOT that I've 
+For pathnames you can use (type) the pre-defined variable YARP_ROOT that I've 
 verified as: "D:\Users\pasa\Repository\yarp"
 
 Please, use always the forward slash as a separator!
@@ -366,19 +384,32 @@ Copyright (C) Microsoft Corp 1992-1998. All rights reserved.
 
 Duplicate symbols warnings are typically of no concern under Windows.
 
-
-
 \section{YARPDeviceDriver}
-We start by introducing the YARP device driver templates and wrappers through an example. We consider the already mentioned BT848 frame grabber. This is a fairly simple device with only a few functions but enough to illustrate the principles. A more complex set of classes is shown later.
 
-The first component of the hierarchy is the YARPDeviceDriver template class. This is meant to be the base class of all device driver abstractions (within YARP of course). Check the {\em YARPDeviceDriver.h} file for details. The declaration of the template is the following:
+We start by introducing the YARP device driver templates and wrappers
+through an example. We consider the already mentioned BT848 frame
+grabber. This is a fairly simple device with only a few functions but
+enough to illustrate the principles. A more complex set of classes is
+shown later. Lastly, this Section shows a practical, hands-on tutorial
+on how to build your own device driver.
+
+The first component of the hierarchy is the YARPDeviceDriver template
+class. This is meant to be the base class of all device driver
+abstractions (within YARP of course). Check the {\em
+YARPDeviceDriver.h} file for details. The declaration of the template
+is the following:
 
 \begin{verbatim}
 template <class SYNC, class DERIVED> 
     class YARPDeviceDriver
 \end{verbatim}
 
-\noindent where SYNC is the synchronization object to use by the class and DERIVED is the type derived from the device driver. The SYNC object must support the {\em Post} and {\em Wait} methods. Valid examples are the {\em YARPNullSemaphore} and {\em YARPSemaphore} provided in the libYARP\_OS library. We should declare our frame grabber device driver as:
+\noindent where SYNC is the synchronization object to use by the class
+and DERIVED is the type derived from the device driver. The SYNC
+object must support the {\em Post} and {\em Wait} methods. Valid
+examples are the {\em YARPNullSemaphore} and {\em YARPSemaphore}
+provided in the libYARP\_OS library. We should declare our frame
+grabber device driver as:
 
 \begin{verbatim}
 class YARPPicoloDeviceDriver : 
@@ -386,16 +417,24 @@ class YARPPicoloDeviceDriver :
     public YARPThread
 \end{verbatim}
 
-\noindent this is called {\em YARPPicoloDeviceDriver} after the name of the card we actually used on one of our robots. As shown here, the device driver derives from the YARP template and also from the {\em YARPThread} class since it internally manages concurrent access to the acquisition buffers. In this case, since mutual exclusion is not required, the SYNC object is a {\em YARPNullSemaphore}.
+\noindent this is called {\em YARPPicoloDeviceDriver} after the name
+of the card we actually used on one of our robots. As shown here, the
+device driver derives from the YARP template and also from the {\em
+YARPThread} class since it internally manages concurrent access to the
+acquisition buffers. In this case, since mutual exclusion is not
+required, the SYNC object is a {\em YARPNullSemaphore}.
 
-The {\em YARPDeviceDriver} supports three methods only: {\em open}, {\em close}, and {\em IOCtl}. The device driver can be only opened, closed or controlled. The three methods are declared as follows:
+The {\em YARPDeviceDriver} supports three methods only: {\em open},
+{\em close}, and {\em IOCtl}. The device driver can be only opened,
+closed or controlled. The three methods are declared as follows:
+
 \begin{itemize}
 
 \item open.
 \begin{verbatim}
       virtual int open(void *) = 0;		
 \end{verbatim}
-where the {\em void *} argument is used to pass a generic type (e.g. a struct) containing the initialization paramters.
+where the {\em void *} argument is used to pass a generic type (e.g. a struct) containing the initialization parameters.
 
 \item close.
 \begin{verbatim}
@@ -411,16 +450,18 @@ The commands to the actual hardware are sent though this methods, the {\em cmd} 
 
 \end{itemize}
 
-The goal of the implementation of the device driver in YARP is then that of
-shielding completely any call to the original libraries through this class (the
-{\em YARPPicoloDeviceDriver}). With the same spirit, the original device header
-files are not included from the YARP driver header file so that, once compiled,
-YARP no longer requires anything from the original manufacturer library. To help
-shielding the implementation any type required by the driver is allocated
-through a {\em void *} variable called {\em system\_resources}. Typically this
-is a pointer to a class allocated during the device initialization containing
-all the device variables. In our example, the {\em YARPPicoloDeviceDriver} looks
-like this:
+The goal of the implementation of the device driver in YARP is then
+that of shielding completely any call to the original libraries
+through this class (the {\em YARPPicoloDeviceDriver}). With the same
+spirit, the original device header files are not included from the
+YARP driver header file so that, once compiled, YARP no longer
+requires anything from the original manufacturer library. To help
+shielding the implementation any type required by the driver is
+allocated through a {\em void *} variable called {\em
+system\_resources}. Typically this is a pointer to a class allocated
+during the device initialization containing all the device
+variables. In our example, the {\em YARPPicoloDeviceDriver} looks like
+this:
 
 \begin{verbatim}
     class YARPPicoloDeviceDriver : 
@@ -451,7 +492,14 @@ like this:
     };
 \end{verbatim}
 
-For the moment, it is important to note the private copy contructor and copy operator (this is done to avoid the user blissfully creating copies of the device driver) and the {\em system\_resources} variable as mentioned above. We then overload the {\em open} and {\em close} methods. Also, note that the {\em open} method accept a parameter through a {\em void *}. This contains a set of parameters, typically contained in a struct, that defines the initialization of the device. For example: 
+For the moment, it is important to note the private copy constructor
+and copy operator (this is done to avoid the user blissfully creating
+copies of the device driver) and the {\em system\_resources} variable
+as mentioned above. We then overload the {\em open} and {\em close}
+methods. Also, note that the {\em open} method accept a parameter
+through a {\em void *}. This contains a set of parameters, typically
+contained in a struct, that defines the initialization of the
+device. For example:
 
 \begin{verbatim}
     struct PicoloOpenParameters
@@ -463,7 +511,16 @@ For the moment, it is important to note the private copy contructor and copy ope
     }
 \end{verbatim}
 
-\noindent with the obvious meaning of the parameters. As we said, the device driver methods are invoked only through the {\em IOCtl}. This is obtained by calling {\em IOCtl} with a message number as first argument. The message number indexes  a table of function pointers which then invoke the appropriate method. Consequently, we are required to define the type of messages accepted by all frame grabber type device drivers which in practice become the standard interface to the physical device. The main abstraction is a message system! In our example, we create a {\em YARPFrameGrabberUtils.h} file with a list of messages:
+\noindent with the obvious meaning of the parameters. As we said, the
+device driver methods are invoked only through the {\em IOCtl}. This
+is obtained by calling {\em IOCtl} with a message number as first
+argument. The message number indexes a table of function pointers
+which then invoke the appropriate method. Consequently, we are
+required to define the type of messages accepted by all frame grabber
+type device drivers which in practice become the standard interface to
+the physical device. The main abstraction is a message system! In our
+example, we create a {\em YARPFrameGrabberUtils.h} file with a list of
+messages:
 
 \begin{verbatim}
     enum FrameGrabberCmd
@@ -478,7 +535,13 @@ For the moment, it is important to note the private copy contructor and copy ope
     };
 \end{verbatim}
 
-This represents all that can be done with the device driver: the actual interface between the harware and our software layer. Note that this is a separate file because many devices might share the same messages (many different frame grabbers are subsumed under the same interface). For the actual implementation, the frame grabber example, as mentioned earlier, defines a class embedding some of the details of the specific library (see next):
+This represents all that can be done with the device driver: the
+actual interface between the hardware and our software layer. Note that
+this is a separate file because many devices might share the same
+messages (many different frame grabbers are subsumed under the same
+interface). For the actual implementation, the frame grabber example,
+as mentioned earlier, defines a class embedding some of the details of
+the specific library (see next):
 
 \begin{verbatim}
     class PicoloResources
@@ -514,13 +577,13 @@ This represents all that can be done with the device driver: the actual interfac
     }
 \end{verbatim}
 
-Note that we are providing the size of the table of function pointers to the {\em YARPDeviceDriver} constructor that is taking care of allocating it. A default empty implementation of all messages is provided by the base class which makes safe to call the driver for messages that it does not implement. A destructor should be implemented, obviously taking care of freeing the memory allocated in the costructor. The message methods (those in the list above) are of type:
+Note that we are providing the size of the table of function pointers to the {\em YARPDeviceDriver} constructor that is taking care of allocating it. A default empty implementation of all messages is provided by the base class which makes safe to call the driver for messages that it does not implement. A destructor should be implemented, obviously taking care of freeing the memory allocated in the constructor. The message methods (those in the list above) are of type:
 
 \begin{verbatim}
       typedef int (DERIVED::*cmd_function_t)(void *); 
 \end{verbatim}
 
-\noindent where {\em DERIVED} is the class derived from the {\em YARPDeviceDriver}. As a last step in the preparation of the device driver the {\em open} and {\em close} methods must be implemented. They must respectively initialize and uninitialize the device driver and, in this case, unlike the costructor and destructor, start the communication with the physical layer. The {\em open} method accept a parameter (a {\em void *}) that can be used to configure the device driver. You can check the declarations in {\em YARPDeviceDriver.h}.
+\noindent where {\em DERIVED} is the class derived from the {\em YARPDeviceDriver}. As a last step in the preparation of the device driver the {\em open} and {\em close} methods must be implemented. They must respectively initialize and uninitialize the device driver and, in this case, unlike the constructor and destructor, start the communication with the physical layer. The {\em open} method accept a parameter (a {\em void *}) that can be used to configure the device driver. You can check the declarations in {\em YARPDeviceDriver.h}.
 
 An example of the implementation of a method that reads something from the {\em system\_resources} variable is shown below:
 
@@ -547,10 +610,180 @@ This is supposed to be the class hierarchy diagram.
 \label{fig:yarp-port}
 \end{figure}
 
+\subsection{Device driver HOWTO}
 
+This Subsection provides an example of how a YARP driver can be
+built. The case-study followed is that of the driver for the Ascension
+ASL E504 gaze tracker, which is mounted on the mirror setup. This
+piece of hardware is nothing like anything else made so far, so all
+relevant classes must be built from scratch; i.e., it could not fit
+into a previously defined "generic" class, as it would have been the
+case with, e.g., a new kind of magnetic tracker or frame grabber.
+
+After reading this, you should be able to instantiate this example with
+your own setup name, hardware model and class and operating system;
+this Subsection won't tell you anything about \emph{how} to write your
+own driver: you have to decide beforehand what methods to have, what
+data to return, what parameters to initialise the driver with.
+
+\begin{enumerate}
+
+  \item Create the following directories:
+
+	~	src/libYARP\_dev/e504
+
+	~	src/libYARP\_dev/e504/winnt
+
+	~	src/libYARP\_dev/e504/winnt/dd\_orig
+
+	~	src/libYARP\_dev/e504/winnt/yarp
+
+	and put all custom software (drivers, .h, .dll, .a etc.) in
+
+	~	src/libYARP\_dev/e504/winnt/dd\_orig
+
+  \item Create
+
+	~	src/libYARP\_dev/e504/driver.conf
+
+	Use an editor to write the following line (and nothing else) in it:
+
+	~	YARPGazeTracker YARPGenericGazeTracker
+
+	This will ultimately let you use the all-purpose class YARPGazeTracker
+	at the high level, whenever you need to use "just" a gaze tracker,
+	no matter which one.
+
+  \item Declare and define the driver in
+
+	~	src/libYARP\_dev/e504/winnt/yarp/YARPE504DeviceDriver.h
+
+	~	src/libYARP\_dev/e504/winnt/yarp/YARPE504DeviceDriver.cpp
+
+	These files define a class YARPE504DeviceDriver, derived from the
+	template
+
+        ~ YARPDeviceDriver$\langle$YARPNullSemaphore, YARPE504DeviceDriver$\rangle$.
+
+	Limit the use of custom software to the .cpp; the .h must NOT have any
+	reference to it. The "resource" in the .cpp is aimed exactly at keeping
+	all driver-specific stuff here.
+
+	YARPE504DeviceDriver.h contains the definition of E504OpenParameters,
+	that is the structure that will be passed on to the initialisation call
+	to the driver (e.g., COM port, baud rate etc.)
+
+  \item Create
+
+	~	src/libYARP\_dev/include/yarp/YARPGenericGazeTracker.h
+
+	~	src/libYARP\_dev/include/yarp/YARPGazeTrackerUtils.h
+
+	YARPGazeTrackerUtils.h must contain the definitions of the commands
+	supported by the driver, plus the data structure used for sending
+	data off to the upper level. The structure names are GazeTrackerCmd
+	and GazeTrackerData.
+
+	YARPGenericGazeTracker.h defines the class YARPGenericGazeTracker,
+	a template which is later on employed to instantiate the hardware
+	on a particular setup (see below).
+
+  \item Launch
+
+	~	src/libYARP\_dev/configure.pl
+
+	At some point the script should ask whether you want to build the
+	E504 driver; obviously the reply is YES. Now launch
+
+	~	src/libYARP\_dev/build.pl
+
+	Everything being fine, the E504 driver should be compiled. Use this
+	stage to check compilation/linking errors in the device driver you
+	wrote.
+
+  \item Create
+
+	~	src/libYARP\_robot/mirror/YARPMirrorGazeTracker.h
+
+	~	src/libYARP\_robot/mirror/YARPE504OnMirrorAdapter.h
+
+	In the basic case, YARPMirrorGazeTracker.h just defines via a typedef
+	what a YARPMirrorGazeTracker is: it is a YARPGenericGazeTracker
+	(see point (4) above) instantiated with YARPE504OnMirrorAdapter and
+	YARPMirrorGazeTrackerParams.
+
+	The latter two classes are, again in the minimal configuration, just
+	wrappers for YARPE504DeviceDriver and E504OpenParameters; these are
+	defined in
+
+        ~       YARPE504OnMirrorAdapter.h.
+
+  \item Launch
+
+	~	src/libYARP\_robot/configure.pl
+
+	Everything being fine, this script should ask you whether you want to
+	have a \#definition for YARPGenericGazeTracker as YARPGazeTracker (see
+	point (2) above). The answer is obviously YES. now launch
+
+	~	src/libYARP\_robot/build.pl
+
+	and this is the last step. libYARP\_robot should compile with no
+	errors, including your new driver (the E504 in this case).
+
+\end{enumerate}
+
+From now on, you can use the topmost classes to access the functions
+and data provided by the new hardware, just by including the
+automatically-generated file yarp/YARPRobotHardware.h in your
+code. following this example (code taken from the current version of
+mirrorCollector) it is now possible to have
+
+\begin{verbatim}
+typedef struct {
+[...]
+  YARPGazeTracker gt;
+[...]
+} CollectorHardware;
+\end{verbatim}
+
+\noindent among the hardware declared for the collector, and
+
+\begin{verbatim}
+typedef struct {
+[...]
+  GazeTrackerData  GTData;
+[...]
+} CollectorNumericalData;
+\end{verbatim}
+
+\noindent among the data gathered by the collector. Assuming you have
+an instance of CollectorHardware called myHW and an instance of
+CollectorNumericalData called myNumData, the gaze tracker and data are
+accessed by referring to the related fields and methods, e.g.,
+
+\begin{verbatim}
+if ( myHW.gt.initialize( params ) == YARP_OK ) { ... }
+
+if ( _options.useGazeTracker ) {
+  myHW.gt.getData( &myNumData.GTData );
+}
+\end{verbatim}
+
+Once everything is in place, do not forget to add your driver to the
+CVS repository, by issuing the ADD and COMMIT commands on all you
+added, that is:
+
+\begin{verbatim}
+src/libYARP_dev/e504/*
+src/libYARP_dev/include/yarp/YARPGenericGazeTracker.h
+src/libYARP_dev/include/yarp/YARPGazeTrackerUtils.h
+src/libYARP_robot/mirror/YARPMirrorGazeTracker.h
+src/libYARP_robot/mirror/YARPE504OnMirrorAdapter.h
+\end{verbatim}
 
 \section{The libYARP\_robot}
-The next step of the YARP abstraction is carried out through the robot library: libYARP\_robot. The goal of this library is that of providing a standard interface and easy hardware replacement at the cost of some added complexity of the overall coding structure. The rationale beyond the robot libray is that of allowing diverse robotic components such as heads and arms and various different control cards to be used by a common software component. This consists of three elements:
+The next step of the YARP abstraction is carried out through the robot library: libYARP\_robot. The goal of this library is that of providing a standard interface and easy hardware replacement at the cost of some added complexity of the overall coding structure. The rationale beyond the robot library is that of allowing diverse robotic components such as heads and arms and various different control cards to be used by a common software component. This consists of three elements:
 
 \begin{itemize}
 \item {\bf robot component}: e.g. the robot head or the visual sensors control
@@ -703,9 +936,9 @@ Let:
 The following files are to be created:
 \begin{itemize}
 
-\item YARP{\bf xxx}DeviceDriver.h and YARPxxxDevicedriver.cpp contain the definition and the implementation of the driver (clearly distinct for every different card). The definition might contain a new type called xxxOpenParameter which is a collection of parameters required in setting up the hardware. This is an argument to the {\em open} method of the device driver class. The implementation is typically done by instantiating a class called xxxResources to hide all the harware specific resources. These files must be saved in \$YARP\_ROOT/src/libYARP\_dev/src/xxx/uuu; in the same directory a directory called ``dd\_orig'' should be created with the original device driver files (headers, libraries, etc.) needed for compiling the YARP code;
+\item YARP{\bf xxx}DeviceDriver.h and YARPxxxDevicedriver.cpp contain the definition and the implementation of the driver (clearly distinct for every different card). The definition might contain a new type called xxxOpenParameter which is a collection of parameters required in setting up the hardware. This is an argument to the {\em open} method of the device driver class. The implementation is typically done by instantiating a class called xxxResources to hide all the hardware specific resources. These files must be saved in \$YARP\_ROOT/src/libYARP\_dev/src/xxx/uuu; in the same directory a directory called ``dd\_orig'' should be created with the original device driver files (headers, libraries, etc.) needed for compiling the YARP code;
 
-\item YARP{\bf yyy}Utils.h it can be shared with any different hardware implementing a resurce (e.g. every frame grabber). This file contains two structures: one with a list of the messages the peripheral accepts and the other one with the data type it uses. YARP{\bf yyy}Utils.h resides in \$YARP\_ROOT/src/libYARP\_dev/include/yarp;
+\item YARP{\bf yyy}Utils.h it can be shared with any different hardware implementing a resource (e.g. every frame grabber). This file contains two structures: one with a list of the messages the peripheral accepts and the other one with the data type it uses. YARP{\bf yyy}Utils.h resides in \$YARP\_ROOT/src/libYARP\_dev/include/yarp;
 
 \item YARPGeneric{\bf yyy}.h is the file that contains the definition of the generic peripheral class template, shared by any implementation of this hardware type (e.g. all frame grabbers). This file must reside in \$YARP\_ROOT/src/libYARP\_dev/include/yarp;
 
