@@ -3,12 +3,12 @@
 
 #include <yarp/InputStream.h>
 #include <yarp/TwoWayStream.h>
-#include <yarp/ConnectionReader.h>
+#include <yarp/os/ConnectionReader.h>
 #include <yarp/IOException.h>
 #include <yarp/NetType.h>
 #include <yarp/Bytes.h>
 #include <yarp/Logger.h>
-#include <yarp/Contact.h>
+#include <yarp/os/Contact.h>
 
 namespace yarp {
   class StreamConnectionReader;

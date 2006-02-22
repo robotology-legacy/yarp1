@@ -3,7 +3,7 @@
 
 #include <yarp/String.h>
 #include <yarp/OutputStream.h>
-#include <yarp/ConnectionReader.h>
+#include <yarp/os/ConnectionReader.h>
 #include <yarp/Logger.h>
 
 #include <ace/OS_NS_stdio.h>

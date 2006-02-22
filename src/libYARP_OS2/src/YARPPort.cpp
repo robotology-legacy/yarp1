@@ -10,7 +10,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.5 2006-02-22 13:47:18 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.6 2006-02-22 22:15:04 eshuy Exp $
 //
 /// Based on: Id: YARPPort.cpp,v 2.0 2005/11/06 22:21:26 gmetta Exp
 //
@@ -30,8 +30,8 @@
 #include <yarp/NameClient.h>
 #include <yarp/Companion.h>
 #include <yarp/Logger.h>
-#include <yarp/Time.h>
-#include <yarp/Semaphore.h>
+#include <yarp/os/Time.h>
+#include <yarp/os/Semaphore.h>
 using namespace yarp;
 using namespace yarp::os;
 

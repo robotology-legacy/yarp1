@@ -2,7 +2,7 @@
 #include <yarp/DgramTwoWayStream.h>
 
 #include <yarp/Logger.h>
-#include <yarp/Time.h>
+#include <yarp/os/Time.h>
 #include <yarp/NetType.h>
 
 #include <ace/SOCK_Dgram_Mcast.h>

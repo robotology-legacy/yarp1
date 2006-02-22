@@ -1,7 +1,7 @@
 #ifndef _YARP2_CONTACT_
 #define _YARP2_CONTACT_
 
-#include <yarp/ConstString.h>
+#include <yarp/os/ConstString.h>
 
 namespace yarp {
   namespace os {

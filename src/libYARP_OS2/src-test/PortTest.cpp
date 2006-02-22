@@ -1,8 +1,8 @@
-#include <yarp/Port.h>
+#include <yarp/os/Port.h>
 #include <yarp/NameClient.h>
 #include <yarp/Companion.h>
-#include <yarp/Time.h>
-#include <yarp/Bottle.h>
+#include <yarp/os/Time.h>
+#include <yarp/os/Bottle.h>
 
 #include "TestList.h"
 
@@ -14,8 +14,8 @@ using yarp::String;
   Just making sure these examples from the documentation remain
   at least compilable
  */
-#include <yarp/Port.h>
-#include <yarp/Bottle.h>
+#include <yarp/os/Port.h>
+#include <yarp/os/Bottle.h>
 using namespace yarp::os;
 int doc_sender_main() {
   Bottle bot1; 
@@ -36,8 +36,8 @@ int doc_sender_main() {
   Just making sure these examples from the documentation remain
   at least compilable
  */
-#include <yarp/Port.h>
-#include <yarp/Bottle.h>
+#include <yarp/os/Port.h>
+#include <yarp/os/Bottle.h>
 using namespace yarp::os;
 int doc_receiver_main() {
   Bottle bot2;

@@ -1,7 +1,7 @@
 #ifndef _YARP2_BUFFEREDBLOCKWRITER_
 #define _YARP2_BUFFEREDBLOCKWRITER_
 
-#include <yarp/ConnectionWriter.h>
+#include <yarp/os/ConnectionWriter.h>
 #include <yarp/SizedWriter.h>
 #include <yarp/ManagedBytes.h>
 #include <yarp/Logger.h>

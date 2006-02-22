@@ -1,7 +1,7 @@
 #ifndef _YARP2_NETWORK_
 #define _YARP2_NETWORK_
 
-#include <yarp/Contact.h>
+#include <yarp/os/Contact.h>
 
 namespace yarp {
   namespace os {

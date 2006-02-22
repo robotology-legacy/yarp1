@@ -1,8 +1,8 @@
 #ifndef _YARP2_PORTREADER_
 #define _YARP2_PORTREADER_
 
-#include <yarp/ConstString.h>
-#include <yarp/ConnectionReader.h>
+#include <yarp/os/ConstString.h>
+#include <yarp/os/ConnectionReader.h>
 
 namespace yarp {
   namespace os {

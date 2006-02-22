@@ -1,7 +1,7 @@
 #ifndef _YARP2_READABLE_
 #define _YARP2_READABLE_
 
-#include <yarp/PortReader.h>
+#include <yarp/os/PortReader.h>
 
 // this typedef will be removed soon - it used be a separate class
 

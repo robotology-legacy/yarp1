@@ -1,7 +1,7 @@
 #ifndef _YARP2_PORTWRITER_
 #define _YARP2_PORTWRITER_
 
-#include <yarp/ConnectionWriter.h>
+#include <yarp/os/ConnectionWriter.h>
 
 namespace yarp {
   namespace os {

@@ -1,5 +1,5 @@
 
-#include <yarp/Network.h>
+#include <yarp/os/Network.h>
 
 #include <yarp/Companion.h>
 #include <yarp/NameClient.h>

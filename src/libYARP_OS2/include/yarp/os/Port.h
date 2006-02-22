@@ -1,9 +1,9 @@
 #ifndef _YARP2_PORT_
 #define _YARP2_PORT_
 
-#include <yarp/Contact.h>
-#include <yarp/PortReader.h>
-#include <yarp/PortWriter.h>
+#include <yarp/os/Contact.h>
+#include <yarp/os/PortReader.h>
+#include <yarp/os/PortWriter.h>
 
 namespace yarp {
   namespace os {

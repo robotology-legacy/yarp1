@@ -2,8 +2,8 @@
 #define _YARP2_PORTCOMMAND_
 
 #include <yarp/Portable.h>
-#include <yarp/ConnectionReader.h>
-#include <yarp/ConnectionWriter.h>
+#include <yarp/os/ConnectionReader.h>
+#include <yarp/os/ConnectionWriter.h>
 #include <yarp/ManagedBytes.h>
 
 namespace yarp {

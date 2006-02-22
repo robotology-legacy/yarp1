@@ -8,7 +8,7 @@ newdefault: yarp
 
 include $(YARP_ROOT)/conf/Makefile.tool.template
 
-INCS += -I../src-test
+INCS += -I../src-test -I../include
 
 VPATH += $(EXECDIR)
 

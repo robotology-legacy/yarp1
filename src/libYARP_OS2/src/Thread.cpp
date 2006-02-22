@@ -1,5 +1,5 @@
 
-#include <yarp/Thread.h>
+#include <yarp/os/Thread.h>
 #include <yarp/ThreadImpl.h>
 #include <yarp/Logger.h>
 

@@ -67,19 +67,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = include/yarp/Bottle.h \
-			 include/yarp/ConnectionReader.h \
-			 include/yarp/ConnectionWriter.h \
-			 include/yarp/ConstString.h \
-			 include/yarp/Contact.h \
-			 include/yarp/Port.h \
-			 include/yarp/PortReader.h \
-			 include/yarp/PortWriter.h \
-			 include/yarp/Semaphore.h \
-			 include/yarp/Thread.h \
-			 include/yarp/Time.h \
-			 include/yarp/Network.h \
-			 include/yarp/UserDoc.h
+INPUT                  = include/yarp/os
 FILE_PATTERNS          = 
 RECURSIVE              = YES
 EXCLUDE                = 

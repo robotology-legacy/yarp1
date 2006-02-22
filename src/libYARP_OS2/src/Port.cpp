@@ -1,9 +1,9 @@
 
-#include <yarp/Port.h>
+#include <yarp/os/Port.h>
 #include <yarp/PortCore.h>
 #include <yarp/Logger.h>
 #include <yarp/NameClient.h>
-#include <yarp/Contact.h>
+#include <yarp/os/Contact.h>
 #include <yarp/Companion.h>
 #include <yarp/SemaphoreImpl.h>
 

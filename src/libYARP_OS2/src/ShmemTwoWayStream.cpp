@@ -1,7 +1,7 @@
 
 #include <yarp/ShmemTwoWayStream.h>
 #include <yarp/NetType.h>
-#include <yarp/Time.h>
+#include <yarp/os/Time.h>
 
 #include <ace/INET_Addr.h>
 

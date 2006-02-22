@@ -3,7 +3,7 @@
 
 #include <yarp/Address.h>
 #include <yarp/Route.h>
-#include <yarp/ConnectionReader.h>
+#include <yarp/os/ConnectionReader.h>
 #include <yarp/InputStream.h>
 #include <yarp/OutputStream.h>
 

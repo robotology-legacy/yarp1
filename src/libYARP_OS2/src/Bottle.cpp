@@ -2,7 +2,7 @@
 #include <yarp/Logger.h>
 #include <yarp/IOException.h>
 
-#include <yarp/Bottle.h>
+#include <yarp/os/Bottle.h>
 
 using namespace yarp;
 using namespace yarp::os;

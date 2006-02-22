@@ -2,7 +2,7 @@
 #include <yarp/NameServer.h>
 #include <yarp/Logger.h>
 #include <yarp/PortCore.h>
-#include <yarp/Time.h>
+#include <yarp/os/Time.h>
 #include <yarp/SplitString.h>
 #include <yarp/NetType.h>
 #include <yarp/ManagedBytes.h>

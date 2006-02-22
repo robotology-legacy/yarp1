@@ -1,7 +1,7 @@
 
 #include <yarp/String.h>
 #include <yarp/Logger.h>
-#include <yarp/ConstString.h>
+#include <yarp/os/ConstString.h>
 
 using namespace yarp;
 using namespace yarp::os;

@@ -1,7 +1,7 @@
 
 #include <yarp/YARPTime.h>
 
-#include <yarp/Time.h>
+#include <yarp/os/Time.h>
 
 using namespace yarp::os;
 

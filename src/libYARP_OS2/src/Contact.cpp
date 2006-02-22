@@ -1,5 +1,5 @@
 
-#include <yarp/Contact.h>
+#include <yarp/os/Contact.h>
 #include <yarp/Address.h>
 #include <yarp/Logger.h>
 

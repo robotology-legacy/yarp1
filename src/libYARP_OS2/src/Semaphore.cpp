@@ -1,5 +1,5 @@
 
-#include <yarp/Semaphore.h>
+#include <yarp/os/Semaphore.h>
 #include <yarp/Logger.h>
 #include <yarp/SemaphoreImpl.h>
 

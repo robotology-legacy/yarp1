@@ -1,8 +1,8 @@
 #ifndef _YARP2_CONNECTIONREADER_
 #define _YARP2_CONNECTIONREADER_
 
-#include <yarp/ConstString.h>
-#include <yarp/Contact.h>
+#include <yarp/os/ConstString.h>
+#include <yarp/os/Contact.h>
 
 namespace yarp {
   namespace os {

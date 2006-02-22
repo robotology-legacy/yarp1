@@ -1,6 +1,6 @@
 // source for receiver.cpp
-#include <yarp/Port.h>
-#include <yarp/Bottle.h>
+#include <yarp/os/Port.h>
+#include <yarp/os/Bottle.h>
 #include <stdio.h>
 
 using namespace yarp::os;

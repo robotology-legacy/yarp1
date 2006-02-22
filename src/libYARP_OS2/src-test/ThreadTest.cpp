@@ -1,6 +1,6 @@
 #include <yarp/ThreadImpl.h>
-#include <yarp/Semaphore.h>
-#include <yarp/Time.h>
+#include <yarp/os/Semaphore.h>
+#include <yarp/os/Time.h>
 
 #include "TestList.h"
 

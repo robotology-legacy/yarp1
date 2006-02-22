@@ -1,4 +1,4 @@
-#include <yarp/Network.h>
+#include <yarp/os/Network.h>
 
 using namespace yarp::os;
 

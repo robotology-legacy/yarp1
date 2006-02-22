@@ -6,7 +6,7 @@
 #include <yarp/Logger.h>
 #include <yarp/Dispatcher.h>
 #include <yarp/NetType.h>
-#include <yarp/Time.h>
+#include <yarp/os/Time.h>
 
 #include <ace/Hash_Map_Manager.h>
 #include <ace/Vector_T.h>

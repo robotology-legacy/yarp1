@@ -2,7 +2,7 @@
 #define _YARP2_ADDRESS_
 
 #include <yarp/String.h>
-#include <yarp/Contact.h>
+#include <yarp/os/Contact.h>
 
 #include <ace/OS_NS_stdlib.h>
 

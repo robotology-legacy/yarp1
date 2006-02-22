@@ -1,9 +1,9 @@
 #ifndef _YARP2_BOTTLE_
 #define _YARP2_BOTTLE_
 
-#include <yarp/ConstString.h>
-#include <yarp/PortReader.h>
-#include <yarp/PortWriter.h>
+#include <yarp/os/ConstString.h>
+#include <yarp/os/PortReader.h>
+#include <yarp/os/PortWriter.h>
 
 namespace yarp {
   namespace os {

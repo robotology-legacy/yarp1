@@ -3,7 +3,7 @@
 #include <yarp/Logger.h>
 #include <yarp/NetType.h>
 #include <yarp/NameClient.h>
-#include <yarp/Time.h>
+#include <yarp/os/Time.h>
 #include <yarp/FallbackNameServer.h>
 
 using namespace yarp;

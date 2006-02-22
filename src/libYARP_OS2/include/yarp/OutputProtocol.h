@@ -2,7 +2,7 @@
 #define _YARP2_OUTPUTPROTOCOL_
 
 #include <yarp/Route.h>
-#include <yarp/ConnectionWriter.h>
+#include <yarp/os/ConnectionWriter.h>
 #include <yarp/SizedWriter.h>
 
 namespace yarp {

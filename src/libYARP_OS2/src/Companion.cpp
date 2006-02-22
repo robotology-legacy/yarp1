@@ -8,7 +8,7 @@
 #include <yarp/BufferedConnectionWriter.h>
 #include <yarp/PortCore.h>
 #include <yarp/BottleImpl.h>
-#include <yarp/Time.h>
+#include <yarp/os/Time.h>
 #include <yarp/NameServer.h>
 
 // just for "write", which needs to read from standard input

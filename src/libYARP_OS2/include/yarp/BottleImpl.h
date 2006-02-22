@@ -3,8 +3,8 @@
 
 #include <yarp/String.h>
 #include <yarp/ManagedBytes.h>
-#include <yarp/ConnectionReader.h>
-#include <yarp/ConnectionWriter.h>
+#include <yarp/os/ConnectionReader.h>
+#include <yarp/os/ConnectionWriter.h>
 #include <yarp/Portable.h>
 
 

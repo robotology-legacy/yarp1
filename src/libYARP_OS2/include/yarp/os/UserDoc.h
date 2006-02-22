@@ -43,9 +43,9 @@
  * @subsection example_sender A program for sending a message
  * \code
   // source for sender.cpp
-  #include <yarp/Port.h>
-  #include <yarp/Bottle.h>
-  #include <yarp/Time.h>
+  #include <yarp/os/Port.h>
+  #include <yarp/os/Bottle.h>
+  #include <yarp/os/Time.h>
   #include <stdio.h>
   using namespace yarp::os;
   int main() {
@@ -68,8 +68,8 @@
  *
  * \code
   // source for receiver.cpp
-  #include <yarp/Port.h>
-  #include <yarp/Bottle.h>
+  #include <yarp/os/Port.h>
+  #include <yarp/os/Bottle.h>
   #include <stdio.h>
   using namespace yarp::os;
   int main() {
