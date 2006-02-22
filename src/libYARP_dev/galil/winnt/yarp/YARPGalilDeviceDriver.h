@@ -33,7 +33,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.2 2006-02-20 12:45:09 gmetta Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.3 2006-02-22 19:52:17 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -56,14 +56,22 @@ struct GalilOpenParameters
 	GalilOpenParameters()
 	{
 		hwnd = 0;
-		nj = 8;
+		nj = NUMBER_OF_JOINTS;
 		mask = (char) 0xFF;
+        // The motor type usually is a servo (1)
+        // Other possibilities are:
+        // -1 reverse servo
+        // 2 steppers
+        memset((int *)motor_type, 1, NUMBER_OF_JOINTS * sizeof(int));
 	}
 
+    // We are working maily with galil 1880 cards with 8 axis
+    enum { NUMBER_OF_JOINTS = 8 };
 	void *hwnd;
 	int nj;
 	char mask;		//tells which axes are really connected
 	int device_id;
+    int motor_type[NUMBER_OF_JOINTS];
 };
 
 class YARPGalilDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver> 
@@ -143,6 +151,8 @@ private:
 	int check_motion_done2 (void * flag);
 	int check_frames_left(void *flag);
 	int wait_for_frames_left(void *cmd);
+    int set_index_search(void * cmd);
+    int find_index();
 	
 	int dummy(void *d);	// dummy function, for debug purpose
 
@@ -158,6 +168,7 @@ private:
 	double * _current_vel;
 	double * _current_accel;
 	char *m_question_marks;
+    bool _index_search;
 
 	unsigned char m_all_axes;
 

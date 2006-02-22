@@ -1,19 +1,39 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.4 2006-02-20 12:45:09 gmetta Exp $
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
+///                                                                   ///
+///                    #Add our name(s) here#                         ///
+///                                                                   ///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+//
+// $Id: YARPGalilDeviceDriver.cpp,v 1.5 2006-02-22 19:52:17 beltran Exp $
+//
 
 #include "YARPGalilDeviceDriver.h"
-
-
-#ifdef __WIN32__
 
 #	include <windows.h>
 #	include "../dd_orig/include/DMCCom.h"
 #	include "../dd_orig/include/DMCMLIB.h"
-
-#else
-
-#	include <dmcqnx.h>
-
-#endif
 
 YARPGalilDeviceDriver::YARPGalilDeviceDriver() :
 YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
@@ -57,6 +77,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetNegativeLimit]	= &YARPGalilDeviceDriver::set_negative_limit;
 	m_cmds[CMDSetCommands]		= &YARPGalilDeviceDriver::set_commands;
 	m_cmds[CMDSetCommand]		= &YARPGalilDeviceDriver::set_command;
+	m_cmds[CMDSetHomingBehavior] = &YARPGalilDeviceDriver::set_index_search;
 
 	m_question_marks = NULL;
 	m_temp_int_array = NULL;
@@ -68,37 +89,25 @@ int YARPGalilDeviceDriver::open(void *d)
 	// temporarly removed
 	long rc = 0;
 	
-#ifdef __QNX6__
-	CONTROLLERINFO controllerinfo;
-	
-	memset(&controllerinfo, '\0', sizeof(controllerinfo));
-
-	controllerinfo.cbSize = sizeof(controllerinfo);
-	controllerinfo.usModelID = MODEL_1800;
-	controllerinfo.fControllerType = ControllerTypePCIBus;
-	controllerinfo.ulTimeout = 3000;
-
-	//controllerinfo.ulTimeout = 0;
-   /* If you have more than 1 Galil PCI bus controller, use the serial
-      number to identify the controller you wish to connect to */
-	
-	controllerinfo.ulSerialNumber = 0;
-	controllerinfo.pid = getpid();
-	
-	DMCInitLibrary();
-
-#endif
 	GalilOpenParameters *p = (GalilOpenParameters *)d;
 
 	m_all_axes = p->mask;
-	m_njoints = p->nj;
-#ifdef __QNX6__
-	rc = DMCOpen(&controllerinfo,(HANDLEDMC *)&m_handle);
-#else
-#ifdef __WIN32__
+	m_njoints  = p->nj;
+
 	rc = DMCOpen(p->device_id, NULL, (HANDLEDMC *)&m_handle);
-#endif
-#endif
+
+    // Reset control board
+    reset_controller(NULL);
+
+    // Setting motor type
+    int i;
+    for (i=0; i < m_njoints; i++){
+        SingleAxisParameters cmd;
+        cmd.axis = i;
+        double my_motor_type = p->motor_type[i];
+        cmd.parameters = &my_motor_type;
+        motor_type(&cmd);
+    }
 
 	m_question_marks = new char [2*m_njoints];
 	ACE_ASSERT (m_question_marks != NULL);
@@ -113,7 +122,8 @@ int YARPGalilDeviceDriver::open(void *d)
 	_current_accel	   = new double [m_njoints];
 	ACE_ASSERT (_current_accel != NULL);
 
-	int i;
+    _index_search = false;
+
 	int j;
 	for (i=0,j=0; i<m_njoints; i++)
 	{
@@ -700,11 +710,8 @@ int YARPGalilDeviceDriver::set_output_port(void *cmd)
 
 	///////////////////////////////////////////////////////////////////
 	// set output port
-
 	// The OP command sends data to the output ports of the controller. You can use
-
 	// the output port to control external switches and relays
-
 	//////////////////////////////////////////////////////////////////
 	buff = _append_cmd((char) 0xE8, buff);		//OP
 	buff = _append_cmd((char) 0x04, buff);		//04 two words
@@ -1346,6 +1353,16 @@ int YARPGalilDeviceDriver::set_jogs (void *spds)
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, cmd_length ,
 							m_buffer_in, buff_length);
+	//----------------------------------------------------------------------
+	// If the seach index procedure has been activated it is necesary to send
+	// the FI command. This is done so because of the particular procedure
+	// used by the galil card to search indexes. JG->FI->BG  
+	//----------------------------------------------------------------------
+	if ( _index_search )
+	{
+		find_index();
+		_index_search = false;
+	}
 	rc = begin_motion(NULL);
 	return rc;
 }
@@ -1354,7 +1371,9 @@ int YARPGalilDeviceDriver::set_safe_jogs (void *spds)
 {
 	long rc = 0;
 	// NOT IMPLEMENTED YET !!
-	ACE_ASSERT(0);
+    // TODO: Implement adequate save jogs in the galil
+    // redirecting to normal set_jogs command
+    set_jogs(spds);
 	return rc;
 }
 
@@ -1612,3 +1631,43 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag, int axis)
 	return rc;
 }
 
+//--------------------------------------------------------------------------------------
+//       Class:  YARPGalilDeviceDriver
+//      Method:  activate_index_search
+// Description:  This method set a boolean variable that it used by the set_jogs method
+// 				 to detect if indexes have to be searched.  
+//--------------------------------------------------------------------------------------
+int
+YARPGalilDeviceDriver::set_index_search(void * cmd)
+{
+	bool *tmp = (bool *) cmd;
+	_index_search = *tmp; 
+	return 0;	
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  YARPGalilDeviceDriver
+//      Method:  find_index 
+// Description:  This method activates de FI command in all the axis. It is not available 
+// 				 externally. This is because the find index procedure has to follow a 
+// 				 particular sequence (JG,FI,BG). Therefore, in upper levels the activate_index_search
+// 				 is used.
+//--------------------------------------------------------------------------------------
+int
+YARPGalilDeviceDriver::find_index()
+{
+	int rc = 0;
+	char *buff = m_buffer_out;
+
+	buff = _append_cmd((char) 0xA5, buff);		//FI
+	buff = _append_cmd((char) 0x00, buff);		//00 no data fields
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+	buff = _append_cmd((char) 0x00, buff);		//00 for all the axis
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+						  (unsigned char *) m_buffer_out, 
+						  4,
+						  m_buffer_in, 
+						  buff_length);
+	return rc;
+}

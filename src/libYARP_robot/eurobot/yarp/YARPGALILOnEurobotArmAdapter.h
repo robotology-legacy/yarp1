@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.7 2005-06-23 09:39:26 beltran Exp $
+///  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.8 2006-02-22 19:52:17 beltran Exp $
 ///
 ///
 
@@ -45,6 +45,7 @@
 #include <ace/Log_Msg.h>
 #include <yarp/YARPGalilDeviceDriver.h>
 #include <yarp/YARPString.h>
+#include <yarp/YARPTime.h>
 
 #define YARP_BABYBOT_ARM_ADAPTER_VERBOSE
 
@@ -96,6 +97,8 @@ namespace _EurobotArm
 	const double _fwdCouple[_nj] = {0.0, 0.0, 0.0, -9.8462*_encWheels[3], 1.0*_encWheels[4], -5.5999886532*_encWheels[5]};
 	const int _stiffPID[_nj] = {0, 0, 0, 1, 1, 1};
 	const double _maxDAC[_nj] = {32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0};
+    const int _vMotorType[_nj] = {-1,-1,-1,-1,-1,-1};
+        
 }; // namespace
 
 
@@ -153,6 +156,7 @@ public:
 		_invCouple = NULL;
 		_stiffPID = NULL;
 		_maxDAC = NULL;
+        _vMotorType = NULL;
 		_nj = 0;
 
 		_nj = _EurobotArm::_nj;
@@ -173,7 +177,8 @@ public:
 			_fwdCouple[i]       = _EurobotArm::_fwdCouple[i];
 			_stiffPID[i]        = _EurobotArm::_stiffPID[i];
 			_maxDAC[i]          = _EurobotArm::_maxDAC[i];
-		}
+			_vMotorType[i]      = _EurobotArm::_vMotorType[i];
+        }
 
 		// compute inv couple
 		for (i = 0; i < 3; i++)
@@ -227,6 +232,8 @@ public:
 			delete [] _stiffPID;
 		if (_maxDAC != NULL)
 			delete [] _maxDAC;
+        if (_vMotorType != NULL)
+            delete [] _vMotorType;
 	}
 
 	/**
@@ -349,6 +356,7 @@ public:
 			memcpy (_invCouple, peer._invCouple, sizeof(double) * _nj);
 			memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
 			memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
+            memcpy (_vMotorType, peer._vMotorType, sizeof(int) * _nj);
 		}
 		else
 		{
@@ -363,18 +371,20 @@ public:
 			if (_invCouple != NULL)	delete [] _invCouple;
 			if (_stiffPID != NULL) delete [] _stiffPID;
 			if (_maxDAC != NULL) delete [] _maxDAC;
+            if (_vMotorType != NULL) delete[] _vMotorType;
 
 			_highPIDs = NULL;
-			_lowPIDs = NULL;
-			_zeros = NULL;
-			_signs = NULL;
+			_lowPIDs  = NULL;
+			_zeros    = NULL;
+			_signs    = NULL;
 			_axis_map = NULL;
-			_inv_axis_map = NULL;
+			_inv_axis_map    = NULL;
 			_encoderToAngles = NULL;
-			_fwdCouple = NULL;
-			_invCouple = NULL;
-			_stiffPID = NULL;
-			_maxDAC = NULL;
+			_fwdCouple  = NULL;
+			_invCouple  = NULL;
+			_stiffPID   = NULL;
+			_maxDAC     = NULL;
+			_vMotorType = NULL;
 		}
 
 		return YARP_OK;
@@ -409,18 +419,21 @@ private:
 			delete [] _stiffPID;
 		if (_maxDAC != NULL)
 			delete [] _maxDAC;
+        if (_vMotorType != NULL)
+            delete [] _vMotorType;
 		
 		_highPIDs = new LowLevelPID [nj];
-		_lowPIDs = new LowLevelPID [nj];
-		_zeros = new double [nj];
-		_signs = new double [nj];
+		_lowPIDs  = new LowLevelPID [nj];
+		_zeros    = new double [nj];
+		_signs    = new double [nj];
 		_axis_map = new int [nj];
 		_inv_axis_map = new int [nj];
 		_encoderToAngles = new double [nj];
 		_fwdCouple = new double [nj];
 		_invCouple = new double [nj];
-		_stiffPID = new int [nj];
-		_maxDAC = new double [nj];
+		_stiffPID  = new int [nj];
+		_maxDAC    = new double [nj];
+        _vMotorType = new int[nj];
 	}
 
 public:
@@ -431,6 +444,7 @@ public:
 	int *_stiffPID;
 	double *_maxDAC;
 	char _mask;
+    int * _vMotorType;
 };
 
 
@@ -452,8 +466,8 @@ public:
 	 */
 	YARPGALILOnEurobotArmAdapter()
 	{
-		_initialized = false;
-		_amplifiers = false;
+		_initialized    = false;
+		_amplifiers     = false;
 		_softwareLimits = false;
 	}
 	
@@ -485,42 +499,44 @@ public:
 	 */
 	int initialize(YARPEurobotArmParameters *par)
 	{
-		//// open device
-		_parameters = par;
-		GalilOpenParameters op_par;
-		op_par.nj= _parameters->_nj; 
-		op_par.mask = _parameters->_mask;
-		if (YARPGalilDeviceDriver::open(&op_par) != 0)
-			return YARP_FAIL;
-
-		delay(1000); //Just wait a little for the galil to initialize
-
 		//Reset the card
 		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Reseting control card\n"));
 		IOCtl(CMDResetController, NULL);
 
-		delay(1000);
+        YARPTime::DelayInSeconds(1);//Just wait a little for the galil to initialize
+
+		//// open device
+		_parameters = par;
+		GalilOpenParameters op_par;
+		op_par.nj   = _parameters->_nj;
+		op_par.mask = _parameters->_mask;
+
+        int i;
+        // Assign the motor type
+        ///motors type MT -1 (REVERSED POLARITY) ATENTION!!-This is the polarity of the eurobot arm
+        for (i=0; i < _parameters->_nj; i++){
+            op_par.motor_type[i] = _parameters->_vMotorType[i];
+            YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Motor type motor %d = %f\n",i, _parameters->_vMotorType[i]));
+        }
+            
+		if (YARPGalilDeviceDriver::open(&op_par) != 0)
+			return YARP_FAIL;
+
+        YARPTime::DelayInSeconds(1);
 
 		//idleMode();
 
 		_amplifiers = false;
 
 		// amp level and limits
-		for(int i=0; i < _parameters->_nj; i++)
+		for(i=0; i < _parameters->_nj; i++)
 		{
-			///motors type MT -1 (REVERSED POLARITY) ATENTION!!-This is the polarity of the eurobot arm
-			SingleAxisParameters cmd;
-			cmd.axis=i;
-			double motor_type = -1; 
-			cmd.parameters=&motor_type;
-			IOCtl(CMDMotorType,&cmd);
-			IOCtl(CMDGetMotorType,&cmd);
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Motor type motor %d = %f\n",cmd.axis, motor_type));
-
+            SingleAxisParameters cmd;
+            cmd.axis = i;
 			///Set the error limit
 			int error = 10000;
 			cmd.parameters=&error;
-			IOCtl(CMDErrorLimit, &cmd);
+			IOCtl(CMDSetErrorLimit, &cmd);
 
 			///set the off_on error
 			int value = 1;
@@ -544,10 +560,7 @@ public:
 		IOParameters cmd;
 		cmd.port = 1; //This is ignored
 		cmd.value = (short) 255;
-		IOCtl(CMDSetOutputPort,&cmd);
-
-		int frec = -3;
-		IOCtl(CMDSetDR,&frec); //Set second FIFO refresh frecuency (DR command)
+		IOCtl(CMDSetPortValue,&cmd);
 
 		_initialized = true;
 		return YARP_OK;
@@ -564,7 +577,7 @@ public:
 		IOParameters cmd;
 		cmd.port = 1;
 		cmd.value = (short) 0x01;
-		IOCtl(CMDSetOutputPort, &cmd);
+		IOCtl(CMDSetPortValue, &cmd);
 		_amplifiers = false;
 		//////////////////////////
 		 ****************************/
@@ -631,12 +644,17 @@ public:
 		double speeds1[6] = {-500.0, -500.0, -500.0, -500.0, -500.0, -500.0};
 
 		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Searching indexes...\n"));
-		IOCtl(CMDIndexSearch, &indexsearchFlag);
+		//IOCtl(CMDIndexSearch, &indexsearchFlag);
+        IOCtl(CMDSetHomingBehavior, &indexsearchFlag);
 		IOCtl(CMDVMove, speeds1);
 		//IOCtl(CMDWaitForMotionDone, NULL);
 		//IOCtl(CMDGetPositions, pos1);
 		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
 		////////////////////////////
+        //clearing index search procedure
+
+        indexsearchFlag = false;
+        IOCtl(CMDSetHomingBehavior, &indexsearchFlag);
 
 		if (limitFlag)
 			enableLimitCheck();
@@ -672,7 +690,7 @@ public:
 			double pos = 0.0;
 			cmd.parameters = &pos;
 			IOCtl(CMDDefinePosition, &cmd);
-			IOCtl(CMDServoHere,NULL); //Start the motors. This activates the amplifiers
+			//IOCtl(CMDServoHere,NULL); //Start the motors. This activates the amplifiers
 		}
 		_amplifiers = true;
 
@@ -734,45 +752,7 @@ public:
 
 protected:
 
-	/**
-	 * Sets the home configuration behavior.
-	 * @param event is one of the possible events to apply when a homing condition is
-	 * detected (e.g. STOP).
-	 */
-	void _setHomeConfig(int event)
-	{
-		for (int i = 0; i < _parameters->_nj; i++)
-		{
-			SingleAxisParameters cmd;
-			int ipar;
-			double dpar;
-			cmd.axis = _parameters->_axis_map[i];
-			cmd.parameters = &ipar;
-			
-			ipar = CBIndexOnly;			// index_only
-			IOCtl(CMDSetHomeIndexConfig, &cmd);
-			ipar = 0;					// (active low)
-			IOCtl(CMDSetHomeLevel, &cmd);
-			ipar = event;
-			IOCtl(CMDSetHome, &cmd);
-			cmd.parameters = &dpar;
-			dpar = 50000.0;				// stop rate (acc)
-			IOCtl(CMDSetStopRate, &cmd);
-		}
-	}
 
-	/**
-	 * Clears the STOP event from all axes. Needs to be done before
-	 * controlling the robot.
-	 */
-	void _clearStop() 
-	{
-		for (int i = 0; i < _parameters->_nj; i++)
-		{
-			int j = _parameters->_axis_map[i];
-			IOCtl(CMDClearStop, &j);	// clear stop event
-		}
-	}
 
 	bool _initialized;
 	bool _amplifiers;

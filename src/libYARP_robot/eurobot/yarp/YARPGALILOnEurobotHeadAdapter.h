@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.8 2005-06-23 09:39:26 beltran Exp $
+///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.9 2006-02-22 19:52:17 beltran Exp $
 ///
 ///
 
@@ -144,7 +144,8 @@ public:
 		_nj = _EurobotHead::_nj;
 		_mask = (char) 0x0F;
 		_realloc(_nj);
-		for(int i = 0; i<_nj; i++) 
+        int i;
+		for(i = 0; i<_nj; i++) 
 		{
 			_highPIDs[i] = _EurobotHead::_highPIDs[i];
 			_lowPIDs[i] = _EurobotHead::_lowPIDs[i];
@@ -159,7 +160,7 @@ public:
 
 		// invert the axis map.
 		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
-		for (int i = 0; i < _nj; i++)
+		for (i = 0; i < _nj; i++)
 		{
 			int j;
 			for (j = 0; j < _nj; j++)
@@ -472,7 +473,7 @@ public:
 			cmd.parameters=&error;
 			
 			///Set the error limit
-			IOCtl(CMDErrorLimit, &cmd);
+			IOCtl(CMDSetErrorLimit, &cmd);
 			
 			int value = 1;
 			cmd.parameters=&value;
@@ -501,8 +502,8 @@ public:
 		//----------------------------------------------------------------------
 		//  This command is important in order to activate the second FIFO communications
 		//----------------------------------------------------------------------
-		int frec = -3;
-		IOCtl(CMDSetDR,&frec); //Set second FIFO refresh frecuency (DR command)
+		//int frec = -3;
+		//IOCtl(CMDSetDR,&frec); //Set second FIFO refresh frecuency (DR command)
 
 		_initialized = true;
 		return YARP_OK;
@@ -606,7 +607,7 @@ public:
 				cmd.parameters = &pos;
 				IOCtl(CMDDefinePosition, &cmd);
 			}
-			IOCtl(CMDServoHere,NULL); //Start the motors
+			//IOCtl(CMDServoHere,NULL); //Start the motors
 			//IOCtl(CMDControllerRun, &i);
 			//IOCtl(CMDEnableAmp, &i);
 			//IOCtl(CMDClearStop, &i);

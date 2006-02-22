@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.3 2006-02-17 21:41:22 claudio72 Exp $
+/// $Id: TeleCtrl.cpp,v 1.4 2006-02-22 19:52:17 beltran Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -115,9 +115,9 @@ struct SaverOptions {
 
 // standard name for port
 const char *DEFAULT_TOMASTER_NAME = "TeleCtrlToMaster";
-const char *DEFAULT_TOSLAVE_NAME = "TeleCtrlToSlave";
+const char *DEFAULT_TOSLAVE_NAME  = "TeleCtrlToSlave";
 // scripts (dis)connecting TeleCtrl's ports to MASTER's and SLAVE's ones
-const char *CONNECT_SCRIPT = "%YARP_ROOT%\\src\\experiments\\mirror\\TeleCtrl\\TeleCtrlConnect.bat";
+const char *CONNECT_SCRIPT    = "%YARP_ROOT%\\src\\experiments\\mirror\\TeleCtrl\\TeleCtrlConnect.bat";
 const char *DISCONNECT_SCRIPT = "%YARP_ROOT%\\src\\experiments\\mirror\\TeleCtrl\\TeleCtrlDisconnect.bat";
 
 // communication ports to MASTER
@@ -688,11 +688,11 @@ int main()
     _master_cmd_inport.Read();
     int reply = _master_cmd_inport.Content();
     _options.useDataGlove = reply & HardwareUseDataGlove;
-    _options.useTracker0 = reply & HardwareUseTracker0;
-    _options.useTracker1 = reply & HardwareUseTracker1;
-    _options.usePresSens = reply & HardwareUsePresSens;
-    _options.useCamera0 = reply & HardwareUseCamera0;
-    _options.useCamera1 = reply & HardwareUseCamera1;
+    _options.useTracker0  = reply & HardwareUseTracker0;
+    _options.useTracker1  = reply & HardwareUseTracker1;
+    _options.usePresSens  = reply & HardwareUsePresSens;
+    _options.useCamera0   = reply & HardwareUseCamera0;
+    _options.useCamera1   = reply & HardwareUseCamera1;
     // and if we use the cameras,
     if ( _options.useCamera0 || _options.useCamera1 ) {
       // gather image size and set up image size
