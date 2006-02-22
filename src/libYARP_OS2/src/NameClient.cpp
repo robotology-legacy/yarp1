@@ -105,16 +105,19 @@ Address NameClient::extractAddress(const String& txt) {
 
 
 String NameClient::send(const String& cmd, bool multi) {
-  ACE_DEBUG((LM_DEBUG,">>> sending to nameserver: %s",cmd.c_str()));
+  YARP_DEBUG(Logger::get(),String("sending to nameserver: ") + cmd);
 
   if (isFakeMode()) {
+    YARP_DEBUG(Logger::get(),"fake mode nameserver");
     return getServer().apply(cmd,Address("localhost",10000,"tcp")) + "\n";
   }
 
   String result;
   TcpFace face;
+  YARP_DEBUG(Logger::get(),String("connecting to ") + getAddress().toString());
   OutputProtocol *ip = face.write(getAddress());
   if (ip==NULL) {
+    YARP_INFO(Logger::get(),"no connection to nameserver");
     Address alt;
     if (!isFakeMode()) {
       YARP_INFO(Logger::get(),"no connection to nameserver, scanning mcast");

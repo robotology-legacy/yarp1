@@ -105,8 +105,13 @@ int Companion::cmdName(int argc, char *argv[]) {
 int Companion::cmdWhere(int argc, char *argv[]) {
   NameClient& nic = NameClient::getNameClient();
   Address address = nic.queryName("root");
-  ACE_OS::printf("Name server is available at ip %s port %d\n",
-		 address.getName().c_str(), address.getPort());
+  if (address.isValid()) {
+    ACE_OS::printf("Name server is available at ip %s port %d\n",
+		   address.getName().c_str(), address.getPort());
+  } else {
+    ACE_OS::printf("Name server not found\n");
+    return 1;
+  }
   return 0;
 }
 

@@ -35,8 +35,13 @@ bool PortCore::listen(const Address& address) {
 
   YTRACE("PortCore::listen");
 
-  YARP_ASSERT(address.isValid());
+  if (!address.isValid()) {
+    YARP_ERROR(Logger::get(), "Port does not have a valid address");
+    return false;
+  }
 
+  YARP_ASSERT(address.isValid());
+    
   // try to enter listening phase
   stateMutex.wait();
   YARP_ASSERT(listening==false);
