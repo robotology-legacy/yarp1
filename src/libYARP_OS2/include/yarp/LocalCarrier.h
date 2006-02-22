@@ -86,12 +86,14 @@ public:
 
   virtual void respondToHeader(Protocol& proto) {
     // i am the receiver
+
     becomeLocal(proto,false);
   }
 
 
   virtual void expectReplyToHeader(Protocol& proto) {
     // i am the sender
+
     becomeLocal(proto,true);
   }
 

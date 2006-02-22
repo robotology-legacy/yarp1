@@ -4,8 +4,6 @@
 
 #include <yarp/Bottle.h>
 
-#include <yarp/Adapters.h>
-
 using namespace yarp;
 using namespace yarp::os;
 

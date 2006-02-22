@@ -7,8 +7,6 @@
 #include <yarp/Companion.h>
 #include <yarp/SemaphoreImpl.h>
 
-#include <yarp/Adapters.h>
-
 using namespace yarp;
 using namespace yarp::os;
 
