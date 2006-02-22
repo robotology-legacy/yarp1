@@ -64,13 +64,28 @@ public:
   virtual int getSize() = 0;
 
 
-  // sometimes replies are possible
+  /**
+   * Gets a way to reply to the message, if possible.
+   * @return An object that permits replies, or NULL if this cannot be done.
+   */
   virtual ConnectionWriter *getWriter() = 0;
 
-  // sometimes information about remote source is available
+  /**
+   * Gets information about who is supplying the data being read, if
+   * that information is available.
+   *
+   * @return contact information about sender (Contact::invalid if not
+   * available)
+   */
   virtual Contact getRemoteContact() = 0;
 
-  // sometimes information about local entity is available
+  /**
+   * Gets information about who is receiving the data, if that
+   * information is available.
+   *
+   * @return contact information about sender (Contact::invalid if not
+   * available)
+   */
   virtual Contact getLocalContact() = 0;
 };
 
