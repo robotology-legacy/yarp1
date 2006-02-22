@@ -69,7 +69,7 @@ void PortCoreInputUnit::run() {
 
     while (!done) {
       try {
-	BlockReader& br = ip->beginRead();
+	ConnectionReader& br = ip->beginRead();
 
 	if (autoHandshake) {
 	  cmd.readBlock(br);

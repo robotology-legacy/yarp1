@@ -5,6 +5,7 @@ namespace yarp {
   namespace os {
     class ConnectionWriter;
   }
+  using os::ConnectionWriter;
 }
 
 /**

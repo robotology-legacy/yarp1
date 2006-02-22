@@ -1,18 +1,18 @@
-#include <yarp/BufferedBlockWriter.h>
+#include <yarp/BufferedConnectionWriter.h>
 #include <yarp/StringOutputStream.h>
 
 #include "TestList.h"
 
 using namespace yarp;
 
-class BufferedBlockWriterTest : public UnitTest {
+class BufferedConnectionWriterTest : public UnitTest {
 public:
-  virtual String getName() { return "BufferedBlockWriterTest"; }
+  virtual String getName() { return "BufferedConnectionWriterTest"; }
 
   void testWrite() {
     report(0,"testing writing...");
     StringOutputStream sos;    
-    BufferedBlockWriter bbr;
+    BufferedConnectionWriter bbr;
     bbr.reset(true);
     bbr.appendLine("Hello");
     bbr.appendLine("Greetings");
@@ -25,9 +25,9 @@ public:
   }
 };
 
-static BufferedBlockWriterTest theBufferedBlockWriterTest;
+static BufferedConnectionWriterTest theBufferedConnectionWriterTest;
 
-UnitTest& getBufferedBlockWriterTest() {
-  return theBufferedBlockWriterTest;
+UnitTest& getBufferedConnectionWriterTest() {
+  return theBufferedConnectionWriterTest;
 }
 

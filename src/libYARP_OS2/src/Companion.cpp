@@ -5,7 +5,7 @@
 #include <yarp/PortCommand.h>
 
 #include <yarp/Carriers.h>
-#include <yarp/BufferedBlockWriter.h>
+#include <yarp/BufferedConnectionWriter.h>
 #include <yarp/PortCore.h>
 #include <yarp/BottleImpl.h>
 #include <yarp/Time.h>
@@ -152,9 +152,14 @@ int Companion::sendMessage(const String& port, Writable& writable,
     out->open(route);
     //printf("Route %s TEXT mode %d\n", out->getRoute().toString().c_str(),
     // out->isTextMode());
-    BufferedBlockWriter bw(out->isTextMode());
+    BufferedConnectionWriter bw(out->isTextMode());
     //bw.appendLine(msg);
-    writable.writeBlock(bw);
+    //writable.writeBlock(bw);
+    bool ok = writable.write(bw);
+    if (!ok) {
+      throw IOException("writer failed");
+    }
+
     out->write(bw);
     out->close();
   } catch (IOException e) {
@@ -235,9 +240,10 @@ class CompanionCheckHelper : public Readable {
 public:
   BottleImpl bot;
   bool got;
-  virtual void readBlock(BlockReader& reader) {
+  virtual bool read(yarp::os::ConnectionReader& reader) {
     bot.readBlock(reader);
     got = true;
+    return true;
   }
   BottleImpl *get() {
     if (got) {
@@ -366,7 +372,7 @@ public:
     done.wait();
   }
 
-  virtual void readBlock(BlockReader& reader) {
+  virtual bool read(ConnectionReader& reader) {
     BottleImpl bot;
     bot.readBlock(reader);
     if (bot.size()==2 && bot.isInt(0) && bot.isString(1)) {
@@ -380,6 +386,7 @@ public:
     } else {
       ACE_OS::printf("%s\n", bot.toString().c_str());
     }
+    return true;
   }
   
   void close() {

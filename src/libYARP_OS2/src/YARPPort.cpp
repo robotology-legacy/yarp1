@@ -10,7 +10,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.4 2006-02-10 16:48:41 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.5 2006-02-22 13:47:18 eshuy Exp $
 //
 /// Based on: Id: YARPPort.cpp,v 2.0 2005/11/06 22:21:26 gmetta Exp
 //
@@ -49,32 +49,33 @@ using namespace std;
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-class BlockWriter_to_YARPPortWriter : public YARPPortWriter {
+class ConnectionWriter_to_YARPPortWriter : public YARPPortWriter {
 private:
-  BlockWriter& writer;
+  ConnectionWriter& writer;
 public:
-  BlockWriter_to_YARPPortWriter(BlockWriter& writer) : writer(writer) {}
+  ConnectionWriter_to_YARPPortWriter(ConnectionWriter& writer) : writer(writer) {}
 
-  virtual ~BlockWriter_to_YARPPortWriter() {}
+  virtual ~ConnectionWriter_to_YARPPortWriter() {}
 
   virtual int Write(char *buffer, int length) {
     //ACE_OS::printf("Writing %d bytes\n", length);
-    writer.appendBlock(Bytes(buffer,length));
+    //writer.appendBlock(Bytes(buffer,length));
+    writer.appendBlock(buffer,length);
     return 1;
   }
 };
 
-class BlockReader_to_YARPPortReader : public YARPPortReader {
+class ConnectionReader_to_YARPPortReader : public YARPPortReader {
 private:
-  BlockReader& reader;
+  ConnectionReader& reader;
 public:
-  BlockReader_to_YARPPortReader(BlockReader& reader) : reader(reader) {}
+  ConnectionReader_to_YARPPortReader(ConnectionReader& reader) : reader(reader) {}
 
-  virtual ~BlockReader_to_YARPPortReader() {}
+  virtual ~ConnectionReader_to_YARPPortReader() {}
 
   virtual int Read(char *buffer, int length) {
     //ACE_OS::printf("Reading %d bytes\n", length);
-    reader.expectBlock(Bytes(buffer,length));
+    reader.expectBlock(buffer,length);
     return 1;
   }
 };
@@ -87,9 +88,10 @@ public:
 
   virtual ~WritableContent() {}
 
-  virtual void writeBlock(BlockWriter& writer) {
-    BlockWriter_to_YARPPortWriter delegate(writer);
-    content.Write(delegate);
+  virtual bool write(ConnectionWriter& writer) {
+    ConnectionWriter_to_YARPPortWriter delegate(writer);
+    int ok = content.Write(delegate);
+    return ok!=0;
   }
 };
 
@@ -102,9 +104,10 @@ public:
 
   virtual ~ReadableContent() {}
 
-  virtual void readBlock(BlockReader& reader) {
-    BlockReader_to_YARPPortReader delegate(reader);
-    content.Read(delegate);
+  virtual bool read(ConnectionReader& reader) {
+    ConnectionReader_to_YARPPortReader delegate(reader);
+    int result = content.Read(delegate);
+    return (result!=0);
   }
 };
 
@@ -207,14 +210,16 @@ public:
     return 1;
   }
 
-  virtual void readBlock(BlockReader& reader) {
+  virtual bool read(ConnectionReader& reader) {
     //ACE_OS::printf("got some data!\n");
+    bool result = false;
     if (ypc!=NULL) {
       //ACE_OS::printf("there is some content too so can read\n");
       ReadableContent rc(*ypc);
-      rc.readBlock(reader);
+      result = rc.read(reader);
       incoming.post();
     }
+    return result;
   }
 };
 

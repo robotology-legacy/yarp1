@@ -81,9 +81,9 @@ ConstString Bottle::toString() {
 bool Bottle::write(ConnectionWriter& writer) {
   bool result = false;
   try {
-    BlockWriterAdapter adapter(writer);
-    HELPER(implementation).writeBlock(adapter);
-    result = true;
+    //ConnectionWriterAdapter adapter(writer);
+    result = HELPER(implementation).write(writer);
+    //result = true;
   } catch (IOException e) {
     YARP_DEBUG(Logger::get(), e.toString() + " <<< Bottle::write saw this");
     // leave result false
@@ -95,9 +95,8 @@ bool Bottle::write(ConnectionWriter& writer) {
 bool Bottle::read(ConnectionReader& reader) {
   bool result = false;
   try {
-    BlockReaderAdapter adapter(reader);
-    HELPER(implementation).readBlock(adapter);
-    result = true;
+    //ConnectionReaderAdapter adapter(reader);
+    result = HELPER(implementation).read(reader);
   } catch (IOException e) {
     YARP_DEBUG(Logger::get(), e.toString() + " <<< Bottle::read saw this");
     // leave result false

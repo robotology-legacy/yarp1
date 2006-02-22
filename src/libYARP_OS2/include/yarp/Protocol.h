@@ -5,8 +5,8 @@
 #include <yarp/Logger.h>
 #include <yarp/TwoWayStream.h>
 #include <yarp/Carriers.h>
-#include <yarp/BufferedBlockWriter.h>
-#include <yarp/StreamBlockReader.h>
+#include <yarp/BufferedConnectionWriter.h>
+#include <yarp/StreamConnectionReader.h>
 #include <yarp/ManagedBytes.h>
 #include <yarp/NetType.h>
 #include <yarp/ShiftStream.h>
@@ -326,7 +326,7 @@ public:
   }
 
 
-  virtual BlockReader& beginRead() {
+  virtual ConnectionReader& beginRead() {
     expectIndex();
     respondToIndex();
     if (altReader!=NULL) {
@@ -338,7 +338,9 @@ public:
 
   virtual void endRead() {
     if (altReader!=NULL) {
-      altReader->release();
+      //altReader->release();
+    } else {
+      reader.flushWriter();
     }
     sendAck();
   }
@@ -352,7 +354,7 @@ public:
   }
 
 
-  void setReader(BlockReader *altReader) {
+  void setReader(ConnectionReader *altReader) {
     this->altReader = altReader;
   }
 
@@ -416,10 +418,10 @@ private:
   ShiftStream shift;
   Carrier *delegate;
   Route route;
-  //BufferedBlockWriter writer;
+  //BufferedConnectionWriter writer;
   SizedWriter *writer;
-  StreamBlockReader reader;
-  BlockReader *altReader;
+  StreamConnectionReader reader;
+  ConnectionReader *altReader;
 
 };
 

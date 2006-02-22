@@ -3,7 +3,7 @@
 
 #include <yarp/String.h>
 #include <yarp/OutputStream.h>
-#include <yarp/BlockReader.h>
+#include <yarp/ConnectionReader.h>
 #include <yarp/Logger.h>
 
 #include <ace/OS_NS_stdio.h>
@@ -53,7 +53,7 @@ public:
 	       getName().c_str()));
   }
 
-  virtual void readBlock(BlockReader& reader, void *id, OutputStream *os) {
+  virtual void readBlock(ConnectionReader& reader, void *id, OutputStream *os) {
     ACE_DEBUG((LM_ERROR,"PortManager for [%s] asked to deal with data\n",
 	       getName().c_str()));
   }

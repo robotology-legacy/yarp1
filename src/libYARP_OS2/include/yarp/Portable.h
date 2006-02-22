@@ -11,10 +11,10 @@ namespace yarp {
 /**
  * Readable and Writable.
  */
-class yarp::Portable : public Readable, public Writable {
+class yarp::Portable : public yarp::os::PortReader, public yarp::os::PortWriter {
 public:
-  virtual void readBlock(BlockReader& reader) = 0;
-  virtual void writeBlock(BlockWriter& writer) = 0;
+  //  virtual void readBlock(ConnectionReader& reader) = 0;
+  //  virtual void writeBlock(ConnectionWriter& writer) = 0;
 };
 
 #endif

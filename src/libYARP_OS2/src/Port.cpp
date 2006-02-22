@@ -27,7 +27,7 @@ public:
     produce(0), consume(0)
   {}
 
-  virtual void readBlock(BlockReader& reader) {
+  virtual bool read(ConnectionReader& reader) {
     // called by comms code
 
     // wait for happy consumer - don't want to miss a packet
@@ -40,6 +40,7 @@ public:
     }
     stateMutex.post();
     produce.post();
+    return readResult;
   }
 
   bool read(PortReader& reader) {
@@ -141,8 +142,8 @@ bool Port::write(PortWriter& writer) {
   PortCoreAdapter& core = HELPER(implementation);
   bool result = false;
   try {
-    WritableAdapter adapter(writer);
-    core.send(adapter);
+    //WritableAdapter adapter(writer);
+    core.send(writer);
     writer.onCompletion();
     result = true;
   } catch (IOException e) {

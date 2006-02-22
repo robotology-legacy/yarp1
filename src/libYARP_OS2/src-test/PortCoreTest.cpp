@@ -18,15 +18,16 @@ public:
   String expectation;
   int receives;
 
-  void readBlock(BlockReader& reader) {
+  bool read(ConnectionReader& reader) {
     receives++;
     BottleImpl bot;
     bot.readBlock(reader);
     if (expectation==String("")) {
       report(1,"got unexpected input");
-      return;
+      return false;
     }
     checkEqual(bot.toString(),expectation,"received bottle");
+    return true;
   }
 
   void testStartStop() {

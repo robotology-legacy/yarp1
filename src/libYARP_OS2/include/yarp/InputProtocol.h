@@ -3,7 +3,7 @@
 
 #include <yarp/Address.h>
 #include <yarp/Route.h>
-#include <yarp/BlockReader.h>
+#include <yarp/ConnectionReader.h>
 #include <yarp/InputStream.h>
 #include <yarp/OutputStream.h>
 
@@ -27,7 +27,7 @@ public:
 
   virtual const Route& getRoute() = 0;
 
-  virtual BlockReader& beginRead() = 0;
+  virtual ConnectionReader& beginRead() = 0;
   virtual void endRead() = 0;
 
   virtual bool checkStreams() = 0;

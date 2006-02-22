@@ -50,8 +50,9 @@ public:
     this->autoHandshake = autoHandshake;
   }
 
-  virtual void readBlock(BlockReader& reader) {
+  virtual bool read(ConnectionReader& reader) {
     // does nothing by default
+    return true;
   }
 
   // start up core
@@ -81,7 +82,7 @@ public:
   virtual void removeOutput(const String& dest, void *id, OutputStream *os);
   virtual void removeInput(const String& dest, void *id, OutputStream *os);
   virtual void describe(void *id, OutputStream *os);
-  virtual void readBlock(BlockReader& reader, void *id, OutputStream *os);
+  virtual void readBlock(ConnectionReader& reader, void *id, OutputStream *os);
 
 private:
 

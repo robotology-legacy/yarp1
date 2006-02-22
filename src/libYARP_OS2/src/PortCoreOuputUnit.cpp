@@ -4,7 +4,7 @@
 #include <yarp/PortCoreOutputUnit.h>
 #include <yarp/PortCommand.h>
 #include <yarp/Logger.h>
-#include <yarp/BufferedBlockWriter.h>
+#include <yarp/BufferedConnectionWriter.h>
 #include <yarp/Name.h>
 #include <yarp/Companion.h>
 
@@ -136,9 +136,12 @@ void PortCoreOutputUnit::send(Writable& writer) {
   try {
     if (op!=NULL) {
       PortCommand pc('d',"");
-      BufferedBlockWriter buf(op->isTextMode());
+      BufferedConnectionWriter buf(op->isTextMode());
       pc.writeBlock(buf);
-      writer.writeBlock(buf);
+      bool ok = writer.write(buf);
+      if (!ok) {
+	throw IOException("writer failed");
+      }
       op->write(buf);
     }
   } catch (IOException e) {

@@ -1,7 +1,7 @@
 #ifndef _YARP2_BUFFEREDBLOCKWRITER_
 #define _YARP2_BUFFEREDBLOCKWRITER_
 
-#include <yarp/BlockWriter.h>
+#include <yarp/ConnectionWriter.h>
 #include <yarp/SizedWriter.h>
 #include <yarp/ManagedBytes.h>
 #include <yarp/Logger.h>
@@ -11,19 +11,19 @@
 #include <ace/Vector_T.h>
 
 namespace yarp {
-  class BufferedBlockWriter;
+  class BufferedConnectionWriter;
 }
 
 /**
  * A helper for creating cached object descriptions.
  */
-class yarp::BufferedBlockWriter : public BlockWriter, public SizedWriter {
+class yarp::BufferedConnectionWriter : public ConnectionWriter, public SizedWriter {
 public:
 
-  BufferedBlockWriter(bool textMode = false) : textMode(textMode) {
+  BufferedConnectionWriter(bool textMode = false) : textMode(textMode) {
   }
 
-  virtual ~BufferedBlockWriter() {
+  virtual ~BufferedConnectionWriter() {
     clear();
   }
 
@@ -57,7 +57,7 @@ public:
     lst.push_back(buf);
   }
 
-  virtual void appendString(const String& data) {
+  virtual void appendStringBase(const String& data) {
     Bytes b((char*)(data.c_str()),data.length()+1);
     ManagedBytes *buf = new ManagedBytes(b,false);
     buf->copy();
@@ -113,6 +113,33 @@ public:
     StringOutputStream sos;
     write(sos);
     return sos.toString();
+  }
+
+
+  // new interface
+
+  virtual void appendBlock(const char *data, int len) {
+    appendBlockCopy(Bytes((char*)data,len));
+  }
+
+  virtual void appendString(const char *str, int terminate = '\n') {
+    if (terminate=='\n') {
+      appendLine(str);
+    } else if (terminate==0) {
+      appendStringBase(str);
+    } else {
+      String s = str;
+      str += terminate;
+      appendBlockCopy(Bytes((char*)(s.c_str()),s.length()));
+    }
+  }
+
+  virtual void appendExternalBlock(const char *data, int len) {
+    appendBlock(Bytes((char*)data,len));
+  }
+
+  virtual void declareSizes(int argc, int *argv) {
+    // cannot do anything with this yet
   }
 
 private:

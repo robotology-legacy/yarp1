@@ -454,10 +454,13 @@ String NameServer::apply(const String& txt, const Address& remote) {
 
 class MainNameServer : public NameServer, public Readable {
 public:
-  virtual void readBlock(BlockReader& reader) {
-    YARP_DEBUG(Logger::get(),"name server got something");
+  virtual bool read(ConnectionReader& reader) {
     ManagedBytes header(12);
-    reader.expectBlock(header.bytes());
+    for (int i=0; i<header.length(); i++) {
+      header.get()[i] = '\0';
+    }
+    reader.expectBlock(header.bytes().get(),header.bytes().length());
+    YARP_DEBUG(Logger::get(),"name server got something");
     String ref = "NAME_SERVER ";
     bool ok = true;
     for (int i=0; i<header.length(); i++) {
@@ -466,29 +469,35 @@ public:
 	break;
       }
     }
+    if (header.get()[0] == '\0') {
+      return false;
+    }
     String msg = "?";
     if (ok) {
-      msg = ref + reader.expectLine();
+      msg = ref + reader.expectText().c_str();
     }
     YARP_DEBUG(Logger::get(),String("name server got message ") + msg);
     int index = msg.find("NAME_SERVER");
     if (index==0) {
       Address remote;
-      if (reader.getStreams()!=NULL) {
-	remote = reader.getStreams()->getRemoteAddress();
-      }
+      remote = Address::fromContact(reader.getRemoteContact());
+      //if (reader.getStreams()!=NULL) {
+      //remote = reader.getStreams()->getRemoteAddress();
+      //}
       YARP_DEBUG(Logger::get(),String("name server receiving from ") + 
 		 remote.toString());
       YARP_DEBUG(Logger::get(),String("name server request is ") + msg);
       String result = apply(msg,remote);
-      OutputStream *os = reader.getReplyStream();
+      //OutputStream *os = reader.getReplyStream();
+      ConnectionWriter *os = reader.getWriter();
       if (os!=NULL) {
 	if (result=="") {
 	  result = terminate(String("unknown command ") + msg + "\n");
 	}
-	os->writeLine(result);
-	os->flush();
-	os->close();
+	//os->writeLine(result);
+	//os->flush();
+	//os->close();
+	os->appendString(result.c_str(),'\n');
 	YARP_DEBUG(Logger::get(),String("name server reply is ") + result);
 	String resultSparse = result;
 	int end = resultSparse.find("\n*** end of message");
@@ -499,14 +508,16 @@ public:
       }
     } else {
 	YARP_INFO(Logger::get(),"Name server ignoring unknown command: "+msg);
-	OutputStream *os = reader.getReplyStream();
+	//OutputStream *os = reader.getReplyStream();
+	ConnectionWriter *os = reader.getWriter();
 	if (os!=NULL) {
 	  // this result is necessary for YARP1 support
-	  os->writeLine("???????????????????????????????????????");
-	  os->flush();
-	  os->close();
+	  os->appendString("???????????????????????????????????????",'\n');
+	  //os->flush();
+	  //os->close();
 	}
     }
+    return true;
   }
 };
 

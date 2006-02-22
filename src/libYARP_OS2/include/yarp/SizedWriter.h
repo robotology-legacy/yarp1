@@ -13,7 +13,7 @@ namespace yarp {
  * In general, that requires generating the message before sending
  * it, but a user could do something more clever. The
  * SizedWriter class is referenced by the library instead of
- * BufferedBlockWriter specifically to leave that possibility open.
+ * BufferedConnectionWriter specifically to leave that possibility open.
  */
 class yarp::SizedWriter {
 public:

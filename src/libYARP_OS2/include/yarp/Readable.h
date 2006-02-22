@@ -1,21 +1,26 @@
 #ifndef _YARP2_READABLE_
 #define _YARP2_READABLE_
 
-#include <yarp/BlockReader.h>
+#include <yarp/PortReader.h>
+
+// this typedef will be removed soon - it used be a separate class
 
 namespace yarp {
-  class Readable;
+  typedef yarp::os::PortReader Readable;
+  //class Readable;
 }
 
 /**
  * Specification of minimal operations an object must support to
  * be readable from a port.
  */
+/*
 class yarp::Readable {
 public:
   virtual ~Readable() { }
 
-  virtual void readBlock(BlockReader& reader) = 0;
+  virtual void readBlock(ConnectionReader& reader) = 0;
 };
+*/
 
 #endif

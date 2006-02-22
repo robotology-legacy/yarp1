@@ -1,7 +1,7 @@
 #include <yarp/PortCommand.h>
-#include <yarp/BufferedBlockWriter.h>
+#include <yarp/BufferedConnectionWriter.h>
 #include <yarp/StringInputStream.h>
-#include <yarp/StreamBlockReader.h>
+#include <yarp/StreamConnectionReader.h>
 
 #include "TestList.h"
 
@@ -15,12 +15,12 @@ public:
     report(0,"testing text-mode writing...");
 
     PortCommand cmd1('d',"");;
-    BufferedBlockWriter bw(true);
+    BufferedConnectionWriter bw(true);
     cmd1.writeBlock(bw);
     checkEqual(humanize(bw.toString()),"d\\n","basic data command");
     
     PortCommand cmd2('\0',"/bozo");;
-    BufferedBlockWriter bw2(true);
+    BufferedConnectionWriter bw2(true);
     cmd2.writeBlock(bw2);
     checkEqual(humanize(bw2.toString()),"/bozo\\n","connect command");
   }
@@ -30,7 +30,7 @@ public:
 
     PortCommand cmd;
     StringInputStream sis;
-    StreamBlockReader br;
+    StreamConnectionReader br;
     sis.add("d\n");
     br.reset(sis,NULL,sis.toString().length(),true);
     cmd.readBlock(br);

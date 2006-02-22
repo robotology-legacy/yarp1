@@ -2,11 +2,17 @@
 #define _YARP2_CONNECTIONREADER_
 
 #include <yarp/ConstString.h>
+#include <yarp/Contact.h>
 
 namespace yarp {
   namespace os {
     class ConnectionReader;
+    class ConnectionWriter;
   }
+
+  // place in both namespaces
+  using os::ConnectionReader;
+  using os::ConnectionWriter;
 }
 
 /**
@@ -56,6 +62,16 @@ public:
    * @return the number of bytes left on the connection.
    */
   virtual int getSize() = 0;
+
+
+  // sometimes replies are possible
+  virtual ConnectionWriter *getWriter() = 0;
+
+  // sometimes information about remote source is available
+  virtual Contact getRemoteContact() = 0;
+
+  // sometimes information about local entity is available
+  virtual Contact getLocalContact() = 0;
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include <yarp/StreamBlockReader.h>
+#include <yarp/StreamConnectionReader.h>
 #include <yarp/StringInputStream.h>
 #include <yarp/StringOutputStream.h>
 
@@ -6,16 +6,16 @@
 
 using namespace yarp;
 
-class StreamBlockReaderTest : public UnitTest {
+class StreamConnectionReaderTest : public UnitTest {
 public:
-  virtual String getName() { return "StreamBlockReaderTest"; }
+  virtual String getName() { return "StreamConnectionReaderTest"; }
 
   void testRead() {
     report(0,"testing reading...");
     StringInputStream sis;
     StringOutputStream sos;
     sis.add("Hello\ngood evening and welcome");
-    StreamBlockReader sbr;
+    StreamConnectionReader sbr;
     sbr.reset(sis,NULL,10,true);
     String line = sbr.expectLine();
     checkEqual(line,"Hello","one line");
@@ -26,9 +26,9 @@ public:
   }
 };
 
-static StreamBlockReaderTest theStreamBlockReaderTest;
+static StreamConnectionReaderTest theStreamConnectionReaderTest;
 
-UnitTest& getStreamBlockReaderTest() {
-  return theStreamBlockReaderTest;
+UnitTest& getStreamConnectionReaderTest() {
+  return theStreamConnectionReaderTest;
 }
 

@@ -1,7 +1,7 @@
 
 #include <yarp/BottleImpl.h>
-#include <yarp/BufferedBlockWriter.h>
-#include <yarp/StreamBlockReader.h>
+#include <yarp/BufferedConnectionWriter.h>
+#include <yarp/StreamConnectionReader.h>
 #include <yarp/StringOutputStream.h>
 #include <yarp/StringInputStream.h>
 
@@ -123,7 +123,7 @@ void BottleImpl::fromBytes(const Bytes& data) {
   wrapper.set(data.get(),data.length(),0);
   StringInputStream sis;
   sis.add(wrapper);
-  StreamBlockReader reader;
+  StreamConnectionReader reader;
   reader.reset(sis,NULL,data.length(),false);
 
   clear();
@@ -173,31 +173,36 @@ int BottleImpl::byteCount() {
   return data.size();
 }
 
-void BottleImpl::writeBlock(BlockWriter& writer) {
+void BottleImpl::writeBlock(ConnectionWriter& writer) {
   // could simplify this if knew lengths of blocks up front
   if (writer.isTextMode()) {
-    writer.appendLine(toString());
+    //writer.appendLine(toString());
+    writer.appendString(toString().c_str(),'\n');
   } else {
     String name = "YARP2";
     writer.appendInt(name.length()+1);
-    writer.appendString(name);
+    writer.appendString(name.c_str(),'\0');
     synch();
     writer.appendInt(byteCount());
-    writer.appendBlockCopy(Bytes((char*)getBytes(),byteCount()));
+    //writer.appendBlockCopy(Bytes((char*)getBytes(),byteCount()));
+    writer.appendBlock((char*)getBytes(),byteCount());
   }
 }
 
 
-void BottleImpl::readBlock(BlockReader& reader) {
+void BottleImpl::readBlock(ConnectionReader& reader) {
   if (reader.isTextMode()) {
-    String str = reader.expectLine();
+    String str = reader.expectText().c_str();
     fromString(str);
   } else {
     int len = reader.expectInt();
-    String name = reader.expectString(len);
+    //String name = reader.expectString(len);
+    String buf((size_t)len);
+    reader.expectBlock((const char *)buf.c_str(),len);
+    String name = buf.c_str();
     int bct = reader.expectInt();
     ManagedBytes b(bct);
-    reader.expectBlock(b.bytes());
+    reader.expectBlock(b.get(),b.length());
     fromBytes(b.bytes());
   }
 }
@@ -207,7 +212,7 @@ void BottleImpl::synch() {
   if (dirty) {
     data.clear();
     //StringOutputStream sos;
-    BufferedBlockWriter writer;
+    BufferedConnectionWriter writer;
     for (unsigned int i=0; i<content.size(); i++) {
       Storable *s = content[i];
       writer.appendInt(s->getCode());
@@ -236,11 +241,11 @@ void BottleImpl::StoreInt::fromString(const String& src) {
   x = ACE_OS::atoi(src.c_str());
 }
 
-void BottleImpl::StoreInt::readBlock(BlockReader& reader) {
+void BottleImpl::StoreInt::readBlock(ConnectionReader& reader) {
   x = reader.expectInt();
 }
 
-void BottleImpl::StoreInt::writeBlock(BlockWriter& writer) {
+void BottleImpl::StoreInt::writeBlock(ConnectionWriter& writer) {
   writer.appendInt(x);
 }
 
@@ -262,12 +267,13 @@ void BottleImpl::StoreDouble::fromString(const String& src) {
   x = ACE_OS::strtod(src.c_str(),NULL);
 }
 
-void BottleImpl::StoreDouble::readBlock(BlockReader& reader) {
-  reader.expectBlock(Bytes((char*)&x,sizeof(x)));
+void BottleImpl::StoreDouble::readBlock(ConnectionReader& reader) {
+  reader.expectBlock((const char*)&x,sizeof(x));
 }
 
-void BottleImpl::StoreDouble::writeBlock(BlockWriter& writer) {
-  writer.appendBlockCopy(Bytes((char*)&x,sizeof(x)));
+void BottleImpl::StoreDouble::writeBlock(ConnectionWriter& writer) {
+  //writer.appendBlockCopy(Bytes((char*)&x,sizeof(x)));
+  writer.appendBlock((char*)&x,sizeof(x));
 }
 
 
@@ -323,14 +329,17 @@ void BottleImpl::StoreString::fromString(const String& src) {
 }
 
 
-void BottleImpl::StoreString::readBlock(BlockReader& reader) {
+void BottleImpl::StoreString::readBlock(ConnectionReader& reader) {
   int len = reader.expectInt();
-  x = reader.expectString(len);
+  String buf((size_t)len);
+  reader.expectBlock((const char *)buf.c_str(),len);
+  x = buf.c_str();
+  //x = reader.expectString(len);
 }
 
-void BottleImpl::StoreString::writeBlock(BlockWriter& writer) {
+void BottleImpl::StoreString::writeBlock(ConnectionWriter& writer) {
   writer.appendInt(x.length()+1);
-  writer.appendString(x);
+  writer.appendString(x.c_str(),'\0');
 }
 
 

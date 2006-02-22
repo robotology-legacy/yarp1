@@ -1,7 +1,7 @@
 #include <yarp/InputProtocol.h>
 #include <yarp/Logger.h>
 #include <yarp/PortCore.h>
-#include <yarp/BufferedBlockWriter.h>
+#include <yarp/BufferedConnectionWriter.h>
 #include <yarp/NameClient.h>
 #include <yarp/PortCoreInputUnit.h>
 #include <yarp/PortCoreOutputUnit.h>
@@ -434,7 +434,7 @@ bool PortCore::removeUnit(const Route& route) {
 
 
 void PortCore::addOutput(const String& dest, void *id, OutputStream *os) {
-  BufferedBlockWriter bw(true);
+  BufferedConnectionWriter bw(true);
 
   Address parts = Name(dest).toAddress();
   Address address = NameClient::getNameClient().queryName(parts.getRegName());
@@ -464,7 +464,7 @@ void PortCore::addOutput(const String& dest, void *id, OutputStream *os) {
 }
 
 void PortCore::removeOutput(const String& dest, void *id, OutputStream *os) {
-  BufferedBlockWriter bw(true);
+  BufferedConnectionWriter bw(true);
   if (removeUnit(Route("*",dest,"*"))) {
     bw.appendLine(String("Removing connection from ") + getName() +
 		  " to " + dest);
@@ -479,7 +479,7 @@ void PortCore::removeOutput(const String& dest, void *id, OutputStream *os) {
 }
 
 void PortCore::removeInput(const String& dest, void *id, OutputStream *os) {
-  BufferedBlockWriter bw(true);
+  BufferedConnectionWriter bw(true);
   if (removeUnit(Route(dest,"*","*"))) {
     bw.appendLine(String("Removing connection from ") + dest + " to " +
 		  getName());
@@ -496,7 +496,7 @@ void PortCore::removeInput(const String& dest, void *id, OutputStream *os) {
 void PortCore::describe(void *id, OutputStream *os) {
   cleanUnits();
 
-  BufferedBlockWriter bw(true);
+  BufferedConnectionWriter bw(true);
 
   stateMutex.wait();
 
@@ -547,7 +547,7 @@ void PortCore::describe(void *id, OutputStream *os) {
   }
 }
 
-void PortCore::readBlock(BlockReader& reader, void *id, OutputStream *os) {
+void PortCore::readBlock(ConnectionReader& reader, void *id, OutputStream *os) {
 
   // pass the data on out
 
@@ -558,7 +558,7 @@ void PortCore::readBlock(BlockReader& reader, void *id, OutputStream *os) {
   // constant over the lifetime of the input threads.
 
   if (this->reader!=NULL) {
-    this->reader->readBlock(reader);
+    this->reader->read(reader);
   }
 }
 

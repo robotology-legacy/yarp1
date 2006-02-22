@@ -3,14 +3,16 @@
 
 #include <yarp/InputStream.h>
 #include <yarp/TwoWayStream.h>
-#include <yarp/BlockReader.h>
+#include <yarp/ConnectionReader.h>
 #include <yarp/IOException.h>
 #include <yarp/NetType.h>
 #include <yarp/Bytes.h>
 #include <yarp/Logger.h>
+#include <yarp/Contact.h>
 
 namespace yarp {
-  class StreamBlockReader;
+  class StreamConnectionReader;
+  class BufferedConnectionWriter;
 }
 
 
@@ -18,14 +20,17 @@ namespace yarp {
  * Lets Readable objects read from the underlying InputStream
  * associated with the connection between two ports.
  */
-class yarp::StreamBlockReader : public BlockReader {
+class yarp::StreamConnectionReader : public ConnectionReader {
 public:
-  StreamBlockReader() {
+  StreamConnectionReader() {
     in = NULL;
     str = NULL;
     messageLen = 0;
     textMode = false;
+    writer = NULL;
   }
+
+  virtual ~StreamConnectionReader();
 
   void reset(InputStream& in, TwoWayStream *str, 
 	     int len, bool textMode) {
@@ -84,16 +89,38 @@ public:
     return messageLen;
   }
 
+  /*
   virtual OutputStream *getReplyStream() {
     if (str==NULL) {
       return NULL;
     }
     return &(str->getOutputStream());
   }
+  */
 
-  virtual TwoWayStream *getStreams() {
-    return str;
+  virtual yarp::os::ConnectionWriter *getWriter();
+
+  virtual void flushWriter();
+
+  //virtual TwoWayStream *getStreams() {
+  //return str;
+  //}
+
+  virtual yarp::os::Contact getRemoteContact() {
+    if (str!=NULL) {
+      Address remote = str->getRemoteAddress();
+      return remote.toContact();
+    }
+    return yarp::os::Contact::invalid();
   }
+
+  virtual yarp::os::Contact getLocalContact() {
+    YARP_ERROR(Logger::get(), 
+	       "StreamConnectionReader getLocalContact not implemented");
+    return yarp::os::Contact::invalid();
+  }
+
+
 
   virtual void expectBlock(const char *data, int len) {
     expectBlock(Bytes((char*)data,len));
@@ -108,7 +135,7 @@ public:
 
 
 private:
-
+  BufferedConnectionWriter *writer;
   InputStream *in;
   TwoWayStream *str;
   int messageLen;

@@ -1,21 +1,15 @@
 #ifndef _YARP2_WRITABLE_
 #define _YARP2_WRITABLE_
 
-#include <yarp/BlockWriter.h>
+#include <yarp/ConnectionWriter.h>
+
+#include <yarp/PortWriter.h>
+
+// this typedef will be removed soon - it used be a separate class
 
 namespace yarp {
-  class Writable;
+  typedef yarp::os::PortWriter Writable;
 }
 
-/**
- * Specification of minimal operations an object must support to
- * be writable from a port.
- */
-class yarp::Writable {
-public:
-  virtual ~Writable() {}
-
-  virtual void writeBlock(BlockWriter& writer) = 0;
-};
 
 #endif

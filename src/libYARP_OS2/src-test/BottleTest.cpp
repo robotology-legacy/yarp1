@@ -1,7 +1,7 @@
 
 #include <yarp/BottleImpl.h>
-#include <yarp/BufferedBlockWriter.h>
-#include <yarp/StreamBlockReader.h>
+#include <yarp/BufferedConnectionWriter.h>
+#include <yarp/StreamConnectionReader.h>
 #include <yarp/FakeTwoWayStream.h>
 #include <yarp/Logger.h>
 
@@ -70,12 +70,12 @@ public:
     bot.addString("hello");
 
     try {
-      BufferedBlockWriter bbw(true);
+      BufferedConnectionWriter bbw(true);
       bot.writeBlock(bbw);
       
       String s;
       StringInputStream sis;
-      StreamBlockReader sbr;
+      StreamConnectionReader sbr;
       
       s = bbw.toString();
       sis.add(s);

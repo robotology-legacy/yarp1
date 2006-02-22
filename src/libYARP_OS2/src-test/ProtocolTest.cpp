@@ -48,22 +48,22 @@ public:
       checkEqual(fake2->getOutputText(),"Welcome /out\n",
 		 "text carrier response");
 
-      BufferedBlockWriter writer;
+      BufferedConnectionWriter writer;
       writer.appendLine("d");
       writer.appendLine("0 \"Hello\"");
       p1.write(writer);
-
-	  const char *expect = "CONNECT /out\nd\n0 \"Hello\"\n";
+      
+      const char *expect = "CONNECT /out\nd\n0 \"Hello\"\n";
       checkEqual(fake1->getOutputText(),expect,
 		 "added a bottle");
 
-      BlockReader& reader = p2.beginRead();
-      String str1 = reader.expectLine();
-      String str2 = reader.expectLine();
+      ConnectionReader& reader = p2.beginRead();
+      String str1 = reader.expectText().c_str();
+      String str2 = reader.expectText().c_str();
       p2.endRead();
 
       checkEqual(str1,String("d"),"data tag");
-	  const char *expect2 = "0 \"Hello\"";
+      const char *expect2 = "0 \"Hello\"";
       checkEqual(str2,String(expect2),"bottle representation");
     } catch (IOException e) {
       report(1, e.toString() + " <<< exception thrown");
@@ -79,7 +79,7 @@ public:
     p2.write(writer);
     show(fake1,fake2);
 
-    BlockReader& reader2 = p1.beginRead();
+    ConnectionReader& reader2 = p1.beginRead();
     String str0 = reader2.expectLine(); // deal with welcome line
     str1 = reader2.expectLine();
     str2 = reader2.expectLine();

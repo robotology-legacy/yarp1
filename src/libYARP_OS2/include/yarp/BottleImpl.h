@@ -3,9 +3,10 @@
 
 #include <yarp/String.h>
 #include <yarp/ManagedBytes.h>
-#include <yarp/BlockReader.h>
-#include <yarp/BlockWriter.h>
+#include <yarp/ConnectionReader.h>
+#include <yarp/ConnectionWriter.h>
 #include <yarp/Portable.h>
+
 
 #include <ace/Vector_T.h>
 
@@ -18,7 +19,7 @@ namespace yarp {
  * Handy to use until you work out how to make your own more 
  * efficient formats for transmission.
  */
-class yarp::BottleImpl : public Portable {
+class yarp::BottleImpl : public yarp::Portable {
 public:
 
   BottleImpl();
@@ -60,9 +61,20 @@ public:
   void fromBytes(const Bytes& data);
   void toBytes(const Bytes& data);
 
-  void writeBlock(BlockWriter& writer);
+  void writeBlock(ConnectionWriter& writer);
 
-  void readBlock(BlockReader& reader);
+  void readBlock(ConnectionReader& reader);
+
+  virtual bool write(ConnectionWriter& writer) {
+    writeBlock(writer);
+    return true;
+  }
+
+  virtual bool read(yarp::os::ConnectionReader& reader) {
+    readBlock(reader);
+    return true;
+  }
+
 
   const char *getBytes();
   int byteCount();
@@ -74,8 +86,8 @@ private:
     virtual String toString() = 0;
     virtual void fromString(const String& src) = 0;
     virtual int getCode() = 0;
-    virtual void readBlock(BlockReader& reader) = 0;
-    virtual void writeBlock(BlockWriter& writer) = 0;
+    virtual void readBlock(ConnectionReader& reader) = 0;
+    virtual void writeBlock(ConnectionWriter& writer) = 0;
     virtual Storable *create() = 0;
 
     virtual int asInt() { return 0; }
@@ -92,8 +104,8 @@ private:
     virtual String toString();
     virtual void fromString(const String& src);
     virtual int getCode() { return code; }
-    virtual void readBlock(BlockReader& reader);
-    virtual void writeBlock(BlockWriter& writer);
+    virtual void readBlock(ConnectionReader& reader);
+    virtual void writeBlock(ConnectionWriter& writer);
     virtual Storable *create() { return new StoreInt(0); }
     virtual int asInt() { return x; }
     virtual double asDouble() { return x; }
@@ -109,8 +121,8 @@ private:
     virtual String toString();
     virtual void fromString(const String& src);
     virtual int getCode() { return code; }
-    virtual void readBlock(BlockReader& reader);
-    virtual void writeBlock(BlockWriter& writer);
+    virtual void readBlock(ConnectionReader& reader);
+    virtual void writeBlock(ConnectionWriter& writer);
     virtual Storable *create() { return new StoreString(String("")); }
     virtual String asString() { return x; }
     static const int code;
@@ -125,8 +137,8 @@ private:
     virtual String toString();
     virtual void fromString(const String& src);
     virtual int getCode() { return code; }
-    virtual void readBlock(BlockReader& reader);
-    virtual void writeBlock(BlockWriter& writer);
+    virtual void readBlock(ConnectionReader& reader);
+    virtual void writeBlock(ConnectionWriter& writer);
     virtual Storable *create() { return new StoreDouble(0); }
     virtual int asInt() { return (int)x; }
     virtual double asDouble() { return x; }

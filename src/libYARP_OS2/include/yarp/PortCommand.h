@@ -2,6 +2,8 @@
 #define _YARP2_PORTCOMMAND_
 
 #include <yarp/Portable.h>
+#include <yarp/ConnectionReader.h>
+#include <yarp/ConnectionWriter.h>
 #include <yarp/ManagedBytes.h>
 
 namespace yarp {
@@ -24,9 +26,19 @@ public:
     this->str = str;
   }
 
-  virtual void readBlock(BlockReader& reader);
+  virtual void readBlock(ConnectionReader& reader);
 
-  virtual void writeBlock(BlockWriter& writer);
+  virtual void writeBlock(ConnectionWriter& writer);
+
+  virtual bool write(yarp::os::ConnectionWriter& writer) {
+    writeBlock(writer);
+    return true;
+  }
+
+  virtual bool read(yarp::os::ConnectionReader& reader) {
+    readBlock(reader);
+    return true;
+  }
 
   char getKey() {
     return ch;
