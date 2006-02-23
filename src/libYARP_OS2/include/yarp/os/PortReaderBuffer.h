@@ -2,6 +2,7 @@
 #define _YARP2_PORTREADERBUFFER_
 
 #include <yarp/os/PortReader.h>
+#include <yarp/os/Port.h>
 
 namespace yarp {
   namespace os {
@@ -55,7 +56,7 @@ protected:
 /**
  * Buffer incoming data to a port.
  * An instance of this class can be associated with a Port by calling
- * Port::setReader().  From then on data that arrives to the Port will
+ * attach().  From then on data that arrives to the Port will
  * be passed to this buffer, to be picked up at the user's leisure
  * by calling check() and read().
  */
@@ -85,6 +86,16 @@ public:
   T *read() {
     return (T *)implementation.readBase();
   }
+
+  /**
+   * Attach this buffer to a particular port.  Data arriving to that
+   * port will from now on be placed in this buffer.
+   * @param port the port to attach to
+   */
+  void attach(Port& port) {
+    port.setReader(*this);
+  }
+
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
   /**
