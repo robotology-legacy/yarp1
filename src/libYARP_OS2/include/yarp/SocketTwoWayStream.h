@@ -52,6 +52,7 @@ public:
   virtual void interrupt() {
     stream.close_reader();
     stream.close_writer();
+    stream.close();
     happy = false;
   }
 

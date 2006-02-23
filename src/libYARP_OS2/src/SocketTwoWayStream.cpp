@@ -32,4 +32,3 @@ void SocketTwoWayStream::updateAddresses() {
   remoteAddress = Address(remote.get_host_addr(),remote.get_port_number());
 }
 
-
