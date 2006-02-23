@@ -100,7 +100,7 @@ public:
    * Read an object from the port.
    * @param reader any object that knows how to read itself from a
    * network connection - see for example Bottle
-   * @result true iff the object is successfully read
+   * @return true iff the object is successfully read
    */
   bool read(PortReader& reader);
 
@@ -111,8 +111,9 @@ public:
 
   /**
    * set an external reader for port data
+   * @param reader the external reader to use
    */
-  //void setReader(PortReader& reader);
+  void setReader(PortReader& reader);
 
 private:
   void *implementation;

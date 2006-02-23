@@ -3,51 +3,17 @@
 #include <yarp/Companion.h>
 #include <yarp/os/Time.h>
 #include <yarp/os/Bottle.h>
+#include <yarp/os/PortReaderBuffer.h>
+#include <yarp/Logger.h>
+#include <yarp/NetType.h>
 
 #include "TestList.h"
 
 using namespace yarp::os;
+
 using yarp::String;
-
-
-/*
-  Just making sure these examples from the documentation remain
-  at least compilable
- */
-#include <yarp/os/Port.h>
-#include <yarp/os/Bottle.h>
-using namespace yarp::os;
-int doc_sender_main() {
-  Bottle bot1; 
-  bot1.addString("testing"); // a simple message
-  Port output;
-  output.open("/out");
-  for (int i=0; i<10; i++) {
-    output.write(bot1);
-    printf("Sent message: %s\n", bot1.toString().c_str());
-    bot1.addInt(i); // change the message for next time
-    Time::delay(1);
-  }
-  output.close();
-  return 0;
-}
-
-/*
-  Just making sure these examples from the documentation remain
-  at least compilable
- */
-#include <yarp/os/Port.h>
-#include <yarp/os/Bottle.h>
-using namespace yarp::os;
-int doc_receiver_main() {
-  Bottle bot2;
-  Port input;
-  input.open("/in");
-  input.read(bot2);
-  printf("Got message: %s\n", bot2.toString().c_str());
-  input.close();
-  return 0;
-}
+using yarp::NetType;
+using yarp::Logger;
 
 
 class PortTest : public yarp::UnitTest {
@@ -60,10 +26,6 @@ public:
 
     in.open("/in");
     out.open(Contact::bySocket("tcp","",9999));
-
-    //report(0,"running companion...");
-    //char *argv[] = {"yarp","name","list"};
-    //yarp::Companion::main(3,argv);
 
     Contact conIn = in.where();
     Contact conOut = out.where();
@@ -93,10 +55,51 @@ public:
     out.close();
   }
 
+
+  void testBuffer() {
+    report(0,"checking buffering");
+    Bottle bot1;
+    PortReaderBuffer<Bottle> buf;
+
+    bot1.fromString("1 2 3");
+    for (int i=0; i<10000; i++) {
+      bot1.addInt(i);
+    }
+
+    Port input, output;
+    input.open("/in");
+    output.open("/out");
+
+    input.setReader(buf);
+
+    output.addOutput(Contact::byName("/in").addCarrier("tcp"));
+    Time::delay(0.2);
+
+    report(0,"writing...");
+    output.write(bot1);
+    output.write(bot1);
+    output.write(bot1);
+    report(0,"reading...");
+    Bottle *result = buf.read();
+
+    for (int j=0; j<3; j++) {
+      checkTrue(result!=NULL,"got something check");
+      if (result!=NULL) {
+	checkEqual(bot1.size(),result->size(),"size check");
+	YARP_INFO(Logger::get(),String("size is in fact ") + 
+		  NetType::toString(result->size()));
+      }
+    }
+
+    output.close();
+    input.close();
+  }
+
   virtual void runTests() {
     yarp::NameClient& nic = yarp::NameClient::getNameClient();
     nic.setFakeMode(true);
     testOpen();
+    testBuffer();
     nic.setFakeMode(false);
   }
 };

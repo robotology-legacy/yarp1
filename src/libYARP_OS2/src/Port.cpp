@@ -16,12 +16,13 @@ private:
   Port& owner;
   SemaphoreImpl stateMutex;
   PortReader *readDelegate;
-  bool readResult, readActive;
+  bool readResult, readActive, readBackground;
   SemaphoreImpl produce, consume;
 public:
   PortCoreAdapter(Port& owner) : 
     owner(owner), stateMutex(1), readDelegate(NULL), readResult(false),
     readActive(false),
+    readBackground(false),
     produce(0), consume(0)
   {}
 
@@ -29,7 +30,9 @@ public:
     // called by comms code
 
     // wait for happy consumer - don't want to miss a packet
-    consume.wait();
+    if (!readBackground) {
+      consume.wait();
+    }
     
     stateMutex.wait();
     readResult = false;
@@ -37,7 +40,9 @@ public:
       readResult = readDelegate->read(reader);
     }
     stateMutex.post();
-    produce.post();
+    if (!readBackground) {
+      produce.post();
+    }
     return readResult;
   }
 
@@ -53,6 +58,15 @@ public:
     produce.wait();
     bool result = readResult;
     return result;
+  }
+
+  void configReader(PortReader& reader) {
+    stateMutex.wait();
+    readActive = true;
+    readBackground = true;
+    readDelegate = &reader;
+    consume.post(); // just do this once
+    stateMutex.post();
   }
 };
 
@@ -167,10 +181,8 @@ bool Port::read(PortReader& reader) {
 //  YARP_ERROR(Logger::get(),"Port::setWriter not implemented");
 //}
 
-  /**
-   * set an external reader for port data
-   */
-//void Port::setReader(PortReader& reader) {
-//  YARP_ERROR(Logger::get(),"Port::setReader not implemented");
-//}
+void Port::setReader(PortReader& reader) {
+  PortCoreAdapter& core = HELPER(implementation);
+  core.configReader(reader);
+}
 

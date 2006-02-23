@@ -10,6 +10,7 @@ SUBDIRS += src-test test
 # generate doxygen comments
 dox:
 	doxygen
+	doxygen Doxyfile.part
 
 user:
 	doxygen Doxyfile.part
@@ -21,6 +22,7 @@ alldoc:
 
 add:
 	cd include/yarp && ( cvs add *.h || echo -n )
+	cd include/yarp/os && ( cvs add *.h || echo -n )
 	cd src && ( cvs add *.cpp || echo -n )
 	cd src-test && ( cvs add *.cpp *.h || echo -n )
 

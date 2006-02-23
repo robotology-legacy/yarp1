@@ -141,9 +141,16 @@ public:
   /**
    * Set the bottle's value based on input from a network connection.
    * @param reader the interface to the network connection for reading
-   * @result true iff the bottle was read successfully.
+   * @return true iff the bottle was read successfully.
    */
   bool read(ConnectionReader& reader);
+
+
+  /*
+   * Gets the number of elements in the bottle
+   * @return number of elements in the bottle
+   */
+  int size();
 
 private:
   void *implementation;

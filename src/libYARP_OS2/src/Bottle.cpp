@@ -102,3 +102,6 @@ bool Bottle::read(ConnectionReader& reader) {
   return result;
 }
 
+int Bottle::size() {
+  return HELPER(implementation).size();
+}
