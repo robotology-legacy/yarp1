@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.4 2006-02-22 19:52:17 beltran Exp $
+/// $Id: TeleCtrl.cpp,v 1.5 2006-02-23 10:17:34 beltran Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -188,6 +188,7 @@ DP NR::amotry(Mat_IO_DP&, Vec_O_DP&, Vec_IO_DP&, DP funk(Vec_I_DP&),const int, c
 void registerPorts(void);
 void unregisterPorts(void);
 int SendArmPositions(double, double, double, double, double, double);
+int SendHandPositions(double, double, double, double);
 
 int main(void);
 
@@ -272,15 +273,13 @@ void streamingThread::Body (void)
       SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, -frRo, 0.0, 0.0 );
 
       // send glove commands to the gripper - not so far
-      //       dThumbMiddle  = 1.52 - (double)abs(_data.glove.thumb[0]-iThumbMiddleClosed) * (double)dThumbMiddleFactor;
-      //       dIndexMiddle  = 1.52 - (double)abs(_data.glove.index[0]-iIndexMiddleClosed) * (double)dIndexMiddleFactor;
-      //       dMiddleMiddle = 1.52 - (double)abs(_data.glove.middle[0]-iMiddleMiddleClosed) * (double)dMiddleMiddleFactor;
-      //       dAbduction    = (double)abs(_data.glove.abduction[1]-iAbductionClosed) * (double)dAbductionFactor;
-      //      cout << "Hand:\t" << dIndexMiddle << "\t" << dMiddleMiddle << "\t" << dThumbMiddle << "\t\r"; cout.flush();
+      dThumbMiddle  = 0.43 - (double)abs(_data.gloveData.thumb[0]-iThumbMiddleClosed) * (double)dThumbMiddleFactor;
+      dIndexMiddle  = 0.43 - (double)abs(_data.gloveData.index[0]-iIndexMiddleClosed) * (double)dIndexMiddleFactor;
+      dMiddleMiddle = 0.43 - (double)abs(_data.gloveData.middle[0]-iMiddleMiddleClosed) * (double)dMiddleMiddleFactor;
+      dAbduction    = (double)abs(_data.gloveData.abduction[1]-iAbductionClosed) * (double)dAbductionFactor;
+      cout << "Hand:\t" << dIndexMiddle << "\t" << dMiddleMiddle << "\t" << dThumbMiddle << "\t\r"; cout.flush();
       // do not use abduction so far --- seems not to work very well.
-      //      SendHandPositions(dAbduction, dThumbMiddle, dIndexMiddle, dMiddleMiddle);
-      //      SendHandPositions(1.0, dIndexMiddle, dMiddleMiddle, dThumbMiddle);
-      
+      SendHandPositions(dAbduction, dThumbMiddle, -dIndexMiddle, -dMiddleMiddle);
     }
 
   }
@@ -645,6 +644,30 @@ int SendArmPositions(double dof1, double dof2, double dof3, double dof4, double 
   
 }
 
+int SendHandPositions(double dAbduction, double dThumbMiddle, double dIndexMiddle, double dMiddleMiddle)
+{
+    YVector handCmd(6);
+    YARPBabyBottle tmpBottle;
+    tmpBottle.setID(YBVMotorLabel); 
+
+    // send command to the hand
+    //
+    handCmd(1) = dThumbMiddle;
+    handCmd(2) = 0.0;
+    handCmd(3) = dIndexMiddle;
+    handCmd(4) = 0.0;
+    handCmd(5) = dMiddleMiddle;
+    handCmd(6) = 0.0;
+
+    tmpBottle.reset();
+    tmpBottle.writeVocab(YBVocab(YBVHandNewCmd));
+    tmpBottle.writeYVector(handCmd);
+    _slave_outport.Content() = tmpBottle;
+    _slave_outport.Write();
+
+    return 0;
+}
+
 // -----------------------------------
 // main loop
 // -----------------------------------
@@ -742,67 +765,79 @@ int main()
        << refAz/myDegToRad << ", " << refEl/myDegToRad << ", " << refRo/myDegToRad << endl;
   cout.flush();
 
-goto skip_gripper_calibration;
+//goto skip_gripper_calibration;
 
-  // ----------------------------
-  // gather gripper calibration: open hand, snapshot, close hand, snapshot
-  cout << endl << "Now calibrating gripper. Open hand and press any key... ";
-  cout.flush();
-  cin.get();
-  // acquire open hand data
-  _master_cmd_outport.Content() = CCmdGetData;
-  _master_cmd_outport.Write();
-  _master_cmd_inport.Read();
-  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
-    _master_data_inport.Read();
-    CollectorNumericalData tmpData = _master_data_inport.Content();
-    // get data for open hand
-    iThumbMiddleOpen  = tmpData.gloveData.thumb[0];
-    iIndexMiddleOpen  = tmpData.gloveData.index[0];
-    iMiddleMiddleOpen = tmpData.gloveData.middle[0];
-    iAbductionOpen    = tmpData.gloveData.abduction[1];
-  } else {
-    cout << "failed." << endl;
-    unregisterPorts();
-    return 0;
+  //---------------------------------------------------- 
+  // Data glove calibration
+  // gather dataglove calibration: open hand, snapshot, close hand, snapshot
+  if (_options.useDataGlove)
+  {
+      //---------------------------------------------------- 
+      // acquire open hand data
+      cout << endl << "Now calibrating dataglove. Open hand and press any key... ";
+      cout.flush();
+      cin.get();
+
+      _master_cmd_outport.Content() = CCmdGetData;
+      _master_cmd_outport.Write();
+      _master_cmd_inport.Read();
+
+      if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+          _master_data_inport.Read();
+          CollectorNumericalData tmpData = _master_data_inport.Content();
+          // get data for open hand
+          iThumbMiddleOpen  = tmpData.gloveData.thumb[0];
+          iIndexMiddleOpen  = tmpData.gloveData.index[0];
+          iMiddleMiddleOpen = tmpData.gloveData.middle[0];
+          iAbductionOpen    = tmpData.gloveData.abduction[1];
+      } else {
+          cout << "failed." << endl;
+          unregisterPorts();
+          return 0;
+      }
+
+      //---------------------------------------------------- 
+      // acquire closed hand data
+      cout << endl << "Close hand and press any key... ";
+      cout.flush();
+      cin.get();
+
+      _master_cmd_outport.Content() = CCmdGetData;
+      _master_cmd_outport.Write();
+      _master_cmd_inport.Read();
+
+      if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+          _master_data_inport.Read();
+          CollectorNumericalData tmpData = _master_data_inport.Content();
+          // get data for closed hand
+          iThumbMiddleClosed  = tmpData.gloveData.thumb[0];
+          iIndexMiddleClosed  = tmpData.gloveData.index[0];
+          iMiddleMiddleClosed = tmpData.gloveData.middle[0];
+          iAbductionClosed    = tmpData.gloveData.abduction[1];
+      } else {
+          cout << "failed." << endl;
+          unregisterPorts();
+          return 0;
+      }
+      // evaluate gripper factors
+
+      cout << iThumbMiddleClosed  << " " << iThumbMiddleOpen  << " "
+          << iIndexMiddleClosed  << " " << iIndexMiddleOpen  << " "
+          << iMiddleMiddleClosed << " " << iMiddleMiddleOpen << " "
+          << iAbductionClosed    << " " << iAbductionOpen    << endl;
+
+      // evaluate hand calibration factor. empirically, the fingers range 0 - 0.43
+      // this is the angular range in radians for the babybot hand
+      dThumbMiddleFactor  = 0.43 / (double)abs(iThumbMiddleClosed-iThumbMiddleOpen);
+      dIndexMiddleFactor  = 0.43 / (double)abs(iIndexMiddleClosed-iIndexMiddleOpen);
+      dMiddleMiddleFactor = 0.43 / (double)abs(iMiddleMiddleClosed-iMiddleMiddleOpen);
+      dAbductionFactor    = 0.43 / (double)abs(iAbductionClosed-iAbductionOpen);
+
+      cout << "Babybot hand calibration done." << endl;
+      cout.flush();
   }
-  // acquire closed hand data
-  cout << endl << "Close hand and press any key... ";
-  cout.flush();
-  cin.get();
-  _master_cmd_outport.Content() = CCmdGetData;
-  _master_cmd_outport.Write();
-  _master_cmd_inport.Read();
-  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
-    _master_data_inport.Read();
-    CollectorNumericalData tmpData = _master_data_inport.Content();
-    // get data for closed hand
-    iThumbMiddleClosed  = tmpData.gloveData.thumb[0];
-    iIndexMiddleClosed  = tmpData.gloveData.index[0];
-    iMiddleMiddleClosed = tmpData.gloveData.middle[0];
-    iAbductionClosed    = tmpData.gloveData.abduction[1];
-  } else {
-    cout << "failed." << endl;
-    unregisterPorts();
-    return 0;
-  }
-  // evaluate gripper factors
 
-  cout << iThumbMiddleClosed << " " << iThumbMiddleOpen << " " 
-       << iIndexMiddleClosed << " " << iIndexMiddleOpen << " " 
-       << iMiddleMiddleClosed << " " << iMiddleMiddleOpen << " "
-       << iAbductionClosed << " " << iAbductionOpen << endl;
-
-  // evaluate calibration factor. empirically, the fingers range 0 - 1.52
-  dThumbMiddleFactor  = 1.52 / (double)abs(iThumbMiddleClosed-iThumbMiddleOpen);
-  dIndexMiddleFactor  = 1.52 / (double)abs(iIndexMiddleClosed-iIndexMiddleOpen);
-  dMiddleMiddleFactor = 1.52 / (double)abs(iMiddleMiddleClosed-iMiddleMiddleOpen);
-  dAbductionFactor    = 1.52 / (double)abs(iAbductionClosed-iAbductionOpen);
-  
-  cout << "Gripper calibration done." << endl;
-  cout.flush();
-
- skip_gripper_calibration:
+ //skip_gripper_calibration:
 
   // ----------------------------------
   // activate the streaming!!
