@@ -456,8 +456,8 @@ class MainNameServer : public NameServer, public Readable {
 public:
   virtual bool read(ConnectionReader& reader) {
     ManagedBytes header(12);
-    for (int i=0; i<header.length(); i++) {
-      header.get()[i] = '\0';
+    for (int i0=0; i0<header.length(); i0++) {
+      header.get()[i0] = '\0';
     }
     reader.expectBlock(header.bytes().get(),header.bytes().length());
     YARP_DEBUG(Logger::get(),"name server got something");
