@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.5 2006-02-23 10:17:34 beltran Exp $
+/// $Id: TeleCtrl.cpp,v 1.6 2006-02-23 16:44:42 claudio72 Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -219,10 +219,12 @@ void streamingThread::Body (void)
   rot[2][1] =  sin(refAz);            rot[2][2] =  cos(refAz);            rot[2][3] =  0;
   rot[3][1] =  sin(refEl)*cos(refAz); rot[3][2] = -sin(refEl)*sin(refAz); rot[3][3] =  cos(refEl);
 
+int count=0;
+
   // loop until the thread is terminated ( thread.End() )
   while ( !IsTerminated() ) {
 
-    YARPTime::DelayInSeconds(streamingFrequency);
+	YARPTime::DelayInSeconds(streamingFrequency);
 
     // gather glove, tracker and pressens data
     if ( _options.useDataGlove || _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
@@ -254,34 +256,32 @@ void streamingThread::Body (void)
       // it is an unwanted, in-place rotation. so we discard it and revert to the old required_Q
       YVector actual_X(3);
       forward_kinematics(required_Q, actual_X);
-      if ( (actual_X - current_X).norm2() < INPLACE_TOLERANCE ) {
-        continue;
-      }
-      // otherwise, go on searching.
-      starting_Q = required_Q;
-      current_X = actual_X;
-      // all Qs are in DEGREES
-      cout.precision(3);
-      cout 
-//           << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
-           << "Q: " << required_Q[0] << " " << required_Q[1] << " " << required_Q[2] << " "
-		   << "roll angle: " << frRo / myDegToRad << "       \r";
-      cout.flush();
-
-      // send IK commands to the arm.
-      // WARNING: the PUMA arm has all the axes swapped around, therefore the minus signs
-      SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, -frRo, 0.0, 0.0 );
-
+      if ( (actual_X - current_X).norm2() > INPLACE_TOLERANCE ) {
+	      // otherwise, go on searching.
+	      starting_Q = required_Q;
+	      current_X = actual_X;
+	      // all Qs are in DEGREES
+	      cout.precision(3);
+          cout 
+	        << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
+	        << "Q: " << required_Q[0] << " " << required_Q[1] << " " << required_Q[2] << " "
+	        << "roll angle: " << frRo / myDegToRad << "       \r";
+	      cout.flush();
+	      // send IK commands to the arm.
+	      // WARNING: the PUMA arm has all the axes swapped around, therefore the minus signs
+	      SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, -frRo, 0.0, 0.0 );
+	  }
       // send glove commands to the gripper - not so far
       dThumbMiddle  = 0.43 - (double)abs(_data.gloveData.thumb[0]-iThumbMiddleClosed) * (double)dThumbMiddleFactor;
       dIndexMiddle  = 0.43 - (double)abs(_data.gloveData.index[0]-iIndexMiddleClosed) * (double)dIndexMiddleFactor;
       dMiddleMiddle = 0.43 - (double)abs(_data.gloveData.middle[0]-iMiddleMiddleClosed) * (double)dMiddleMiddleFactor;
       dAbduction    = (double)abs(_data.gloveData.abduction[1]-iAbductionClosed) * (double)dAbductionFactor;
-      cout << "Hand:\t" << dIndexMiddle << "\t" << dMiddleMiddle << "\t" << dThumbMiddle << "\t\r"; cout.flush();
+      cout << "Hand:\t" << dIndexMiddle << "\t" << dMiddleMiddle << "\t" << dThumbMiddle << "\t" << count++ << "       \r";
+	  cout.flush();
       // do not use abduction so far --- seems not to work very well.
-      SendHandPositions(dAbduction, dThumbMiddle, -dIndexMiddle, -dMiddleMiddle);
+//      SendHandPositions(dAbduction, dThumbMiddle, -dIndexMiddle, -dMiddleMiddle);
     }
-
+	
   }
     
   return;
