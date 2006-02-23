@@ -95,7 +95,7 @@ SOURCE=.\BottleTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\BufferedBlockWriterTest.cpp
+SOURCE=.\BufferedConnectionWriterTest.cpp
 # End Source File
 # Begin Source File
 
@@ -131,7 +131,7 @@ SOURCE=.\ProtocolTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StreamBlockReaderTest.cpp
+SOURCE=.\StreamConnectionReaderTest.cpp
 # End Source File
 # Begin Source File
 

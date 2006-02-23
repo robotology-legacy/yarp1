@@ -207,6 +207,10 @@ SOURCE=.\SocketTwoWayStream.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StreamConnectionReader.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TcpFace.cpp
 # End Source File
 # Begin Source File
