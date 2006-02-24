@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.8 2006-02-24 13:58:25 beltran Exp $
+/// $Id: TeleCtrl.cpp,v 1.9 2006-02-24 14:40:51 claudio72 Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -182,6 +182,14 @@ double dIndexFactor[2]  = {0.0, 0.0};
 double dMiddleFactor[2] = {0.0, 0.0};
 double dWristYawFactor = 0.0;
 
+// arm joints initial position (in degrees)
+double offsetQ0 =   20.0;
+double offsetQ1 =   25.0;
+double offsetQ2 =  -40.0;
+double offsetQ3 =   20.0;
+double offsetQ4 =  -20.0;
+double offsetQ5 = -180.0;
+
 // -----------------------------------
 // prototypes
 // -----------------------------------
@@ -270,16 +278,24 @@ int count=0;
 	      // all Qs are in DEGREES
 	      cout.precision(3);
           cout 
-	        << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
-	        << "Q: " << required_Q[0] << " " << required_Q[1] << " " << required_Q[2] << " "
-	        << "roll angle: " << frRo / myDegToRad << "       \r";
+//	        << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
+	        << "Q: "
+			<< (offsetQ0-required_Q[0]) << " "
+			<< (offsetQ1-required_Q[1]) << " "
+			<< (offsetQ2-required_Q[2]) << "       \r";
 	      cout.flush();
 
           // computing glove wrist possition
           dWristYaw = (double)(_data.gloveData.wrist[1] - iWristYawMeanPosition)* (double)dWristYawFactor;
 	      // send IK commands to the arm.
 	      // WARNING: the PUMA arm has all the axes swapped around, therefore the minus signs
-	      SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, -frRo, dWristYaw, 0.0 );
+	      SendArmPositions(
+			  offsetQ0*myDegToRad,
+			  offsetQ1*myDegToRad,
+			  offsetQ2*myDegToRad,
+			  offsetQ3*myDegToRad,
+			  dWristYaw,
+			  offsetQ5*myDegToRad );
 	  }
       // send glove commands to the gripper - not so far
       dThumb[0]  = (double)abs(_data.gloveData.thumb[0]-iThumbClose[0]) * (double)dThumbFactor[0];
@@ -288,7 +304,7 @@ int count=0;
 
       cout << "Hand:\t" << dIndex[0] << "\t" << dMiddle[0] << "\t" << dThumb[0] << "\t" << count++ << "       \r";
 	  cout.flush();
-//      SendHandPositions(dThumb, dIndex, dMiddle);
+      SendHandPositions(dThumb, dIndex, dMiddle);
     }
 	
   }
@@ -487,7 +503,8 @@ void forward_kinematics(YVector& Q, YVector& X)
   // final configuration: chain-multiply all !!
   T = e_csi_1 * (e_csi_2 * (e_csi_3 * g_st_0));
 
-  // give me the end-effector's position translated back to its frame
+  // give me the end-effector's position translated back to its frame. we assume the arm is
+  // initially stretched in front of the head
   zero[0] = 0; zero[1] = 0; zero[2] = 0; zero[3] = 1;
   translation[0] = L2; translation[1] = L1-L3; translation[2] = H1+H2; translation[3] = 1;
   tmpX = (T * zero) - translation;
@@ -631,6 +648,8 @@ void unregisterPorts()
 
 int SendArmPositions(double dof1, double dof2, double dof3, double dof4, double dof5, double dof6)
 {
+
+//return 0;
 
   YVector armCmd(6);
   YARPBabyBottle tmpBottle;
@@ -914,7 +933,18 @@ int main()
       cout.flush();
   }
 
- //skip_gripper_calibration:
+//skip_gripper_calibration:
+
+  // ----------------------------
+  // place arm in its initial position
+  cout << endl << "Now initialising arm. Press a key when done... ";
+  cout.flush();
+  SendArmPositions( offsetQ0*myDegToRad, offsetQ1*myDegToRad,
+	  offsetQ2*myDegToRad, offsetQ3*myDegToRad,
+	  offsetQ4*myDegToRad, offsetQ5*myDegToRad );
+  cin.get();
+  cout << "done.";
+  cout.flush();
 
   // ----------------------------------
   // activate the streaming!!
@@ -971,20 +1001,6 @@ int main()
   } else {
     cout << "failed." << endl;
   }
-
-//  Sleep(1000);
-  // kill mirrorCollector - I know it shouldn't be like that, still...
-//  cout << "Now killing MirrorCollector... ";
-//  cout.flush();
-//  _master_cmd_outport.Content() = CCmdQuit;
-//  _master_cmd_outport.Write();
-//  _master_cmd_inport.Read();
-//  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
-//    cout << "done." << endl;
-//  } else {
-//    cout << "failed." << endl;
-//  }
-//  Sleep(2000);
 
   // launch batch file which yarp-disconnects ports
   cout << endl << "Now disconnecting ports." << endl;

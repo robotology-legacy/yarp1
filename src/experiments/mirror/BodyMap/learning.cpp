@@ -150,23 +150,23 @@ void SVMLearningMachine::train()
 	{ foreach(_codomainSize,i) _codomainStdv[i] = 0.0; }
 
 	// evaluate means
-	{  	foreach(_numOfSamples,i) {
+	{ foreach(_sampleCount,i) {
 			{ foreach(_domainSize,j) _domainMean[j] += _sample[i][j].value; }
 			{ foreach(_codomainSize,j) _codomainMean[j] += _problem[j].y[i]; }
 	} }
-	{ foreach(_domainSize,j) _domainMean[j] /= _numOfSamples; }
-	{ foreach(_codomainSize,j) _codomainMean[j] /= _numOfSamples; }
+	{ foreach(_domainSize,j) _domainMean[j] /= _sampleCount; }
+	{ foreach(_codomainSize,j) _codomainMean[j] /= _sampleCount; }
 
 	// evaluate standard deviations
-	{ foreach(_numOfSamples,i) {
+	{ foreach(_sampleCount,i) {
 			{ foreach(_domainSize,j) _domainStdv[j] += (_sample[i][j].value-_domainMean[j])*(_sample[i][j].value-_domainMean[j]); }
 			{ foreach(_codomainSize,j) _codomainStdv[j] += (_problem[j].y[i]-_codomainMean[j])*(_problem[j].y[i]-_codomainMean[j]); }
 	} }
-	{ foreach(_domainSize,j) _domainStdv[j] = sqrt(_domainStdv[j]/(_numOfSamples-1)); }
-	{ foreach(_codomainSize,j) _codomainStdv[j] = sqrt(_codomainStdv[j]/(_numOfSamples-1)); }
+	{ foreach(_domainSize,j) _domainStdv[j] = sqrt(_domainStdv[j]/(_sampleCount-1)); }
+	{ foreach(_codomainSize,j) _codomainStdv[j] = sqrt(_codomainStdv[j]/(_sampleCount-1)); }
 
 	// normalise samples
-	{ foreach(_numOfSamples,i) {
+	{ foreach(_sampleCount,i) {
 		{ foreach(_domainSize,j) { _sample[i][j].value -= _domainMean[j]; _sample[i][j].value /= _domainStdv[j]; } }
 		{ foreach(_codomainSize,j) { _problem[j].y[i] -= _codomainMean[j]; _problem[j].y[i] /= _codomainStdv[j]; } }
 	} }
@@ -174,8 +174,8 @@ void SVMLearningMachine::train()
 	// ----------- predict!
 	{ foreach(_codomainSize,i) _model[i] = svm_train( &_problem[i], &_param ); }
 
-	FILE* out = fopen("x0_data.txt", "w");
-	for ( int i=0; i<_numOfSamples; ++i ) {
+/*	FILE* out = fopen("x0_data.txt", "w");
+	for ( int i=0; i<_sampleCount; ++i ) {
 		fprintf( out, "%lf ", _problem[3].y[i]);
 		for ( int j=0; j<3; ++j ) {
 			fprintf( out, "%d:%lf ", _problem[3].x[i][j].index, _problem[3].x[i][j].value);
@@ -183,7 +183,7 @@ void SVMLearningMachine::train()
 		fprintf( out, "\n");
 	}
 	fclose(out);
-	svm_save_model( "x0_model.txt", _model[3] );
+	svm_save_model( "x0_model.txt", _model[3] ); */
 
 }
 	
@@ -212,6 +212,13 @@ UniformLearningMachine::UniformLearningMachine(unsigned int DomainSize, unsigned
   SVMLearningMachine(DomainSize,CodomainSize,NumOfSamples)
 {
 
+	resetSpaceGrid();
+
+}
+
+void UniformLearningMachine::resetSpaceGrid()
+{
+
 	foreach(21,x) { foreach(21,y) { foreach(21,z) _spaceGrid[x][y][z] = false; } }
 
 }
@@ -230,9 +237,10 @@ const bool UniformLearningMachine::addSample( const double x[], const double y[]
 	}
 
 	// if the buffer is full, stop and return failure, but reset
-	// counter, so that next time it will be ok.
+	// counter and space grid, so that acquisition will start over again
 	if ( _sampleCount == _numOfSamples ) {
 		_sampleCount = 0;
+		resetSpaceGrid();
 		return false;
 	} else {
 		// otherwise, is this sample worth adding to the current pool?
@@ -254,12 +262,12 @@ const bool UniformLearningMachine::addSample( const double x[], const double y[]
 const bool UniformLearningMachine::isSampleWorthAdding ( const double x[] )
 {
 
-	// 2.0 inches, so far the resolution
+	// 1 inch is the resolution
 
 	// evaluate coordinates, in terms of the space grid
-	int coordX = (int) ((x[0]-_centerOfTheWorld[0]) / 2.0 + 10);
-	int coordY = (int) ((x[1]-_centerOfTheWorld[1]) / 2.0 + 10);
-	int coordZ = (int) ((x[2]-_centerOfTheWorld[2]) / 2.0 + 10);
+	int coordX = (int) ((x[0]-_centerOfTheWorld[0]) / 1.0 + 10);
+	int coordY = (int) ((x[1]-_centerOfTheWorld[1]) / 1.0 + 10);
+	int coordZ = (int) ((x[2]-_centerOfTheWorld[2]) / 1.0 + 10);
 
 	// outside the grid? then leave it...
 	if ( coordX<0 || coordX>20 || coordY<0 || coordY>20 || coordZ<0 || coordZ>20 ) {

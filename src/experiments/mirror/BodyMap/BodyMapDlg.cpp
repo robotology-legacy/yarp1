@@ -18,7 +18,7 @@ static char THIS_FILE[] = __FILE__;
 
 CBodyMapDlg::CBodyMapDlg(CWnd* pParent /*=NULL*/) :
 	CDialog( CBodyMapDlg::IDD, pParent ),
-	_acquiringSamples( false ), _measuring( false ),
+	_acquiringSamples( true ), _measuring( false ),
 	_distanceMean( 0.0 ), _distanceStdv( 0.0 ), _distanceNumOfSamples(0)
 {
 
@@ -103,7 +103,7 @@ BOOL CBodyMapDlg::OnInitDialog()
 
 	// create learning machine
 //	_BodyMapLearningMachine = new SVMLearningMachine(3,4,50);
-	_BodyMapLearningMachine = new UniformLearningMachine(3,4,50);
+	_BodyMapLearningMachine = new UniformLearningMachine(3,4,1000);
 
 	return TRUE;
 
@@ -287,15 +287,16 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 		y[0] = x0; y[1] = y0; y[2] = x1; y[3] = y1;
 		// are we gathering samples?
 		if ( _acquiringSamples ) {
-			// then add the current sample, until we fill the sample pool
-			int addedOk = _BodyMapLearningMachine->addSample(x, y);
-			if ( addedOk ) {
+			// then try and add the current sample
+			if ( _BodyMapLearningMachine->addSample(x,y) ) {
+				// if we haven't yet filled the samples pool, just say we got one more
 				char title[50];
 				ACE_OS::sprintf(title, "Acquired sample %d (%.0lf%%)", _BodyMapLearningMachine->getSampleCount(),
 					(double)_BodyMapLearningMachine->getSampleCount()*100.0/
 					(double)_BodyMapLearningMachine->getNumOfSamples());
 				AfxGetMainWnd()->SetWindowText(title);
 			} else {
+				// otherwise, stop acquiring
 				_acquiringSamples = false;
 				AfxGetMainWnd()->SetWindowText("Training...");
 				_BodyMapLearningMachine->train();
@@ -312,7 +313,6 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 							      ( _distanceNumOfSamples*_distanceStdv*_distanceStdv + 
 							        (newDistance-_distanceMean)*(newDistance-_distanceMean)
 							    ) );
-
 			char title[50];
 			ACE_OS::sprintf(title, "Mean distance: %.2lf (stdv: %.2lf)", _distanceMean, _distanceStdv);
 			AfxGetMainWnd()->SetWindowText(title);

@@ -89,6 +89,7 @@ public:
 
 	const bool addSample( const double[], const double[] );
 	const bool isSampleWorthAdding ( const double[] );
+	void resetSpaceGrid();
 
 private:
 
