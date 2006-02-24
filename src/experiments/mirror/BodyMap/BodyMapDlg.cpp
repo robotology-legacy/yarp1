@@ -103,7 +103,7 @@ BOOL CBodyMapDlg::OnInitDialog()
 
 	// create learning machine
 //	_BodyMapLearningMachine = new SVMLearningMachine(3,4,50);
-	_BodyMapLearningMachine = new UniformLearningMachine(3,4,1000);
+	_BodyMapLearningMachine = new UniformLearningMachine(3,4,250);
 
 	return TRUE;
 

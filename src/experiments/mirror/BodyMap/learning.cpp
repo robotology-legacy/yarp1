@@ -112,7 +112,6 @@ const bool SVMLearningMachine::addSample( const double x[], const double y[] )
 	// if the buffer is full, stop and return failure, but reset
 	// counter, so that next time it will be ok.
 	if ( _sampleCount == _numOfSamples ) {
-		_sampleCount = 0;
 		return false;
 	} else {
 		// otherwise, add it and then bail out.
@@ -150,32 +149,32 @@ void SVMLearningMachine::train()
 	{ foreach(_codomainSize,i) _codomainStdv[i] = 0.0; }
 
 	// evaluate means
-	{ foreach(_sampleCount,i) {
+	{ foreach(_numOfSamples,i) {
 			{ foreach(_domainSize,j) _domainMean[j] += _sample[i][j].value; }
 			{ foreach(_codomainSize,j) _codomainMean[j] += _problem[j].y[i]; }
 	} }
-	{ foreach(_domainSize,j) _domainMean[j] /= _sampleCount; }
-	{ foreach(_codomainSize,j) _codomainMean[j] /= _sampleCount; }
+	{ foreach(_domainSize,j) _domainMean[j] /= _numOfSamples; }
+	{ foreach(_codomainSize,j) _codomainMean[j] /= _numOfSamples; }
 
 	// evaluate standard deviations
-	{ foreach(_sampleCount,i) {
+	{ foreach(_numOfSamples,i) {
 			{ foreach(_domainSize,j) _domainStdv[j] += (_sample[i][j].value-_domainMean[j])*(_sample[i][j].value-_domainMean[j]); }
 			{ foreach(_codomainSize,j) _codomainStdv[j] += (_problem[j].y[i]-_codomainMean[j])*(_problem[j].y[i]-_codomainMean[j]); }
 	} }
-	{ foreach(_domainSize,j) _domainStdv[j] = sqrt(_domainStdv[j]/(_sampleCount-1)); }
-	{ foreach(_codomainSize,j) _codomainStdv[j] = sqrt(_codomainStdv[j]/(_sampleCount-1)); }
+	{ foreach(_domainSize,j) _domainStdv[j] = sqrt(_domainStdv[j]/(_numOfSamples-1)); }
+	{ foreach(_codomainSize,j) _codomainStdv[j] = sqrt(_codomainStdv[j]/(_numOfSamples-1)); }
 
 	// normalise samples
-	{ foreach(_sampleCount,i) {
+	{ foreach(_numOfSamples,i) {
 		{ foreach(_domainSize,j) { _sample[i][j].value -= _domainMean[j]; _sample[i][j].value /= _domainStdv[j]; } }
 		{ foreach(_codomainSize,j) { _problem[j].y[i] -= _codomainMean[j]; _problem[j].y[i] /= _codomainStdv[j]; } }
 	} }
 
-	// ----------- predict!
+	// ----------- train the models
 	{ foreach(_codomainSize,i) _model[i] = svm_train( &_problem[i], &_param ); }
 
 /*	FILE* out = fopen("x0_data.txt", "w");
-	for ( int i=0; i<_sampleCount; ++i ) {
+	for ( int i=0; i<_numOfSamples; ++i ) {
 		fprintf( out, "%lf ", _problem[3].y[i]);
 		for ( int j=0; j<3; ++j ) {
 			fprintf( out, "%d:%lf ", _problem[3].x[i][j].index, _problem[3].x[i][j].value);
