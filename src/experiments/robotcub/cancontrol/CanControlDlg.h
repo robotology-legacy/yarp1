@@ -93,6 +93,7 @@ public:
 
 	int							m_njoints;
 	unsigned char				m_destinations[CANBUS_MAXCARDS];
+	double						m_current_limits[CANBUS_MAXCARDS * 2];
 	bool						m_driverok;
 
 	void ActivateGUI ();

@@ -8,6 +8,7 @@
 #include "CardAddressDlg.h"
 #include "CardsDlg.h"
 #include "SetAddressDlg.h"
+#include "NetworkNumberDlg.h"
 
 #include "math.h"
 
@@ -43,7 +44,7 @@ static BOOL close_console (void)
 }
 
 /// Use wprintf like TRACE0, TRACE1, ... (The arguments are the same as printf)
-static int xprintf(char *fmt, ...)
+static int xprintf(const char *fmt, ...)
 {
 	if (__console_handle == INVALID_HANDLE_VALUE)
 		return -1;
@@ -331,6 +332,7 @@ BOOL CCanControlDlg::OnInitDialog()
 	m_driverok = false;
 
 	memset (m_vmove, 0, sizeof(double) * CANBUS_MAXCARDS * 2);
+	memset (m_current_limits, 0, sizeof(double) * CANBUS_MAXCARDS * 2);
 
 	m_current_displayed_position = 0;
 
@@ -539,7 +541,11 @@ void CCanControlDlg::DeactivateGUI ()
 void CCanControlDlg::OnDriverRun() 
 {
 	/// we have a few defaults here.
-	m_params._networkN = CANBUS_DEVICE_NUM;
+	CNetworkNumberDlg dlg;
+	dlg.m_busno = 0;
+	dlg.DoModal();
+
+	m_params._networkN = dlg.m_busno;
 	
 	memcpy (m_params._destinations, m_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 
@@ -557,6 +563,15 @@ void CCanControlDlg::OnDriverRun()
 		m_driver.close ();
 		MessageBox ("The driver didn't start correctly, pls check the hardware", "Error!");
 		return;
+	}
+
+	int i;
+	for (i = 0; i < m_njoints; i++)
+	{
+		SingleAxisParameters cmd;
+		cmd.axis = i;
+		cmd.parameters = &m_current_limits[i];
+		m_driver.IOCtl(CMDSetCurrentLimit, &cmd);
 	}
 
 	MessageBox ("The driver is now running", "Good!");
@@ -1037,9 +1052,15 @@ void CCanControlDlg::OnFileLoadconfiguration()
 		int dest[CANBUS_MAXCARDS];
 		for (i = 0; i < CANBUS_MAXCARDS; i++) dest[i] = 16+128;
 
-		file.get("[GENERAL]", "Destinations", dest, m_njoints/2);
+		ret = file.get("[GENERAL]", "Destinations", dest, m_njoints/2);
+		if (ret != YARP_OK)
+			MessageBox ("Can't load the bus addresses", "Error!");
 		for (i = 0; i < m_njoints/2; i++)
 			m_destinations[i] = (dest[i] & 0x0f) + (dest[i] & 0x80);
+
+		ret = file.get("[GENERAL]", "CurrentLimits", m_current_limits, m_njoints);
+		if (ret != YARP_OK)
+			MessageBox ("Can't load the current limits parameter", "Error!");
 	}
 	else
 	{
