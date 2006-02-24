@@ -1,3 +1,3 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
 
-WshShell.Run ("slay -n polifemo camview.exe", 1, true);
+WshShell.Run ("slay -n hades camview.exe", 1, true);
