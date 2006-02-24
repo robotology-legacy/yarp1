@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPRobotcubHead.h,v 1.7 2006-02-03 00:00:08 gmetta Exp $
+///  $Id: YARPRobotcubHead.h,v 1.8 2006-02-24 15:53:30 marco_randa Exp $
 ///
 ///
 
@@ -165,4 +165,3 @@ public:
 };
 
 #endif
-

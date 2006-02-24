@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPRobotcubArm.h,v 1.4 2006-02-03 00:00:08 gmetta Exp $
+///  $Id: YARPRobotcubArm.h,v 1.5 2006-02-24 15:53:30 marco_randa Exp $
 ///
 ///
 
@@ -107,4 +107,3 @@ public:
 };
 
 #endif
-

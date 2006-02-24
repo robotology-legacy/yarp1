@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRobotcubGrabber.h,v 1.6 2006-02-03 00:00:08 gmetta Exp $
+/// $Id: YARPRobotcubGrabber.h,v 1.7 2006-02-24 15:53:30 marco_randa Exp $
 ///
 ///
 
@@ -35,11 +35,11 @@
 #define __YARPRobotcubGrabberh__
 
 #include <yarp/YARPGenericGrabber.h>
-//#include <yarp/YARPDragonflyGrabberOnRobotcubAdapter.h>
-#include <yarp/YARPNullGrabberOnRobotcubAdapter.h>
+#include <yarp/YARPDragonflyGrabberOnRobotcubAdapter.h>
+//#include <yarp/YARPNullGrabberOnRobotcubAdapter.h>
 
-//typedef YARPGenericGrabber<YARPDragonflyGrabberOnRobotcubAdapter, YARPRobotcubGrabberParams> YARPRobotcubGrabber;
-typedef YARPGenericGrabber<YARPNullGrabberOnRobotcubAdapter, YARPRobotcubGrabberParams> YARPRobotcubGrabber;
+typedef YARPGenericGrabber<YARPDragonflyGrabberOnRobotcubAdapter, YARPRobotcubGrabberParams> YARPRobotcubGrabber;
+//typedef YARPGenericGrabber<YARPNullGrabberOnRobotcubAdapter, YARPRobotcubGrabberParams> YARPRobotcubGrabber;
 
 #endif
 

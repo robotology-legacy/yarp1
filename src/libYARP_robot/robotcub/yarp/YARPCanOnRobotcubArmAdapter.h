@@ -2,7 +2,7 @@
 ///                                                                   ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-///                    #pasa#		                              ///
+///                    #pasa#				                          ///
 ///                                                                   ///
 ///     "Licensed under the Academic Free License Version 1.0"        ///
 ///                                                                   ///
@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.18 2006-02-03 00:00:08 gmetta Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.19 2006-02-24 15:53:30 marco_randa Exp $
 ///
 ///
 
@@ -103,7 +103,7 @@ namespace _RobotcubArm
 	const int _axis_map[_nj]			= { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
 	const double _signs[_nj]			= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+//	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 	const double _currentLimits[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
@@ -151,7 +151,7 @@ public:
 		_axis_map = NULL;
 		_inv_axis_map = NULL;
 		_encoderToAngles = NULL;
-		_stiffPID = NULL;
+//		_stiffPID = NULL;
 		_maxDAC = NULL;
 		_limitsMax = NULL;
 		_limitsMin = NULL;
@@ -168,7 +168,7 @@ public:
 		// signs should be int or bool?
 		ACE_OS::memcpy (_signs, _RobotcubArm::_signs, sizeof(double) * _nj);
 		ACE_OS::memcpy (_encoderToAngles, _RobotcubArm::_encoderToAngles, sizeof(double) * _nj);
-		ACE_OS::memcpy (_stiffPID, _RobotcubArm::_stiffPID, sizeof(int) * _nj);
+//		ACE_OS::memcpy (_stiffPID, _RobotcubArm::_stiffPID, sizeof(int) * _nj);
 		ACE_OS::memcpy (_maxDAC, _RobotcubArm::_maxDAC, sizeof(double) * _nj);
 		ACE_OS::memcpy (_destinations, _RobotcubArm::_destinations, sizeof(unsigned char) * _RobotcubArm::CANBUS_MAXCARDS);
 		ACE_OS::memcpy (_currentLimits, _RobotcubArm::_currentLimits, sizeof(double) * _nj);
@@ -205,7 +205,7 @@ public:
 		if (_axis_map != NULL) delete [] _axis_map;
 		if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL) delete [] _encoderToAngles;
-		if (_stiffPID != NULL) delete [] _stiffPID;
+//		if (_stiffPID != NULL) delete [] _stiffPID;
 		if (_maxDAC != NULL) delete [] _maxDAC;
 		if (_limitsMax != NULL) delete [] _limitsMax;
 		if (_limitsMin != NULL) delete [] _limitsMin;
@@ -274,8 +274,8 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "MaxDAC", _maxDAC, _nj) == YARP_FAIL)
 			return YARP_FAIL;
-		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
-			return YARP_FAIL;
+//		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
+//			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "CurrentLimits", _currentLimits, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
@@ -328,7 +328,7 @@ public:
 			ACE_OS::memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
 			ACE_OS::memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
 			ACE_OS::memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
-			ACE_OS::memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
+//			ACE_OS::memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
 			ACE_OS::memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
 			ACE_OS::memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
 			ACE_OS::memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
@@ -346,7 +346,7 @@ public:
 			if (_axis_map != NULL) delete [] _axis_map;
 			if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 			if (_encoderToAngles != NULL) delete [] _encoderToAngles;
-			if (_stiffPID != NULL) delete [] _stiffPID;
+//			if (_stiffPID != NULL) delete [] _stiffPID;
 			if (_maxDAC != NULL) delete [] _maxDAC;
 			if (_limitsMax != NULL) delete [] _limitsMax;
 			if (_limitsMin != NULL) delete [] _limitsMin;
@@ -360,7 +360,7 @@ public:
 			_axis_map = NULL;
 			_inv_axis_map = NULL;
 			_encoderToAngles = NULL;
-			_stiffPID = NULL;
+//			_stiffPID = NULL;
 			_maxDAC = NULL;
 			_limitsMax = NULL;
 			_limitsMin = NULL;
@@ -388,7 +388,7 @@ private:
 		if (_axis_map != NULL) delete [] _axis_map;
 		if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL) delete [] _encoderToAngles;
-		if (_stiffPID != NULL) delete [] _stiffPID;
+//		if (_stiffPID != NULL) delete [] _stiffPID;
 		if (_maxDAC != NULL) delete [] _maxDAC;
 		if (_limitsMax != NULL) delete [] _limitsMax;
 		if (_limitsMin != NULL) delete [] _limitsMin;
@@ -404,7 +404,7 @@ private:
 		_encoderToAngles = new double [nj];
 		_limitsMax = new double [nj];
 		_limitsMin = new double [nj];
-		_stiffPID = new int [nj];
+//		_stiffPID = new int [nj];
 		_maxDAC = new double [nj];
 		_destinations = new unsigned char[_RobotcubArm::CANBUS_MAXCARDS];
 		_currentLimits = new double [nj];
@@ -422,7 +422,7 @@ public:
 	int				*_axis_map;
 	int				*_inv_axis_map;
 	double			*_encoderToAngles;
-	int				*_stiffPID;
+//	int				*_stiffPID;
 	double			*_maxDAC;
 	double			*_limitsMax;
 	double			*_limitsMin;
@@ -816,4 +816,3 @@ private:
 };
 
 #endif	// .h
-

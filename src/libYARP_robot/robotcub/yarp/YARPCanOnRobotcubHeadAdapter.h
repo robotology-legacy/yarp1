@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.27 2006-02-03 00:00:08 gmetta Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.28 2006-02-24 15:53:30 marco_randa Exp $
 ///
 ///
 
@@ -93,7 +93,7 @@ namespace _RobotcubHead
 	const int _axis_map[_nj]			= { 5, 6, 4, 7, 3, 2, 1, 0 };
 	const double _signs[_nj]			= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1 };
+//	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 	const double _currentLimits[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
@@ -153,7 +153,7 @@ public:
 		_axis_map = NULL;
 		_inv_axis_map = NULL;
 		_encoderToAngles = NULL;
-		_stiffPID = NULL;
+//		_stiffPID = NULL;
 		_maxDAC = NULL;
 		_limitsMax = NULL;
 		_limitsMin = NULL;
@@ -169,7 +169,7 @@ public:
 		ACE_OS::memcpy (_axis_map, _RobotcubHead::_axis_map, sizeof(int) * _nj);
 		ACE_OS::memcpy (_signs, _RobotcubHead::_signs, sizeof(double) * _nj);
 		ACE_OS::memcpy (_encoderToAngles, _RobotcubHead::_encoderToAngles, sizeof(double) * _nj);
-		ACE_OS::memcpy (_stiffPID, _RobotcubHead::_stiffPID, sizeof(int) * _nj);
+//		ACE_OS::memcpy (_stiffPID, _RobotcubHead::_stiffPID, sizeof(int) * _nj);
 		ACE_OS::memcpy (_maxDAC, _RobotcubHead::_maxDAC, sizeof(double) * _nj);
 		ACE_OS::memcpy (_destinations, _RobotcubHead::_destinations, sizeof(unsigned char) * _RobotcubHead::CANBUS_MAXCARDS);
 		ACE_OS::memcpy (_currentLimits, _RobotcubHead::_currentLimits, sizeof(double) * _nj);
@@ -209,7 +209,7 @@ public:
 		if (_axis_map != NULL) delete [] _axis_map;
 		if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL) delete [] _encoderToAngles;
-		if (_stiffPID != NULL) delete [] _stiffPID;
+//		if (_stiffPID != NULL) delete [] _stiffPID;
 		if (_maxDAC != NULL) delete [] _maxDAC;
 		if (_limitsMax != NULL)	delete [] _limitsMax;
 		if (_limitsMin != NULL)	delete [] _limitsMin;
@@ -278,8 +278,8 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "MaxDAC", _maxDAC, _nj) == YARP_FAIL)
 			return YARP_FAIL;
-		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
-			return YARP_FAIL;
+//		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
+//			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "CurrentLimits", _currentLimits, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
@@ -332,7 +332,7 @@ public:
 			ACE_OS::memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
 			ACE_OS::memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
 			ACE_OS::memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
-			ACE_OS::memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
+//			ACE_OS::memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
 			ACE_OS::memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
 			ACE_OS::memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
 			ACE_OS::memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
@@ -351,7 +351,7 @@ public:
 			if (_axis_map != NULL) delete [] _axis_map;
 			if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 			if (_encoderToAngles != NULL) delete [] _encoderToAngles;
-			if (_stiffPID != NULL) delete [] _stiffPID;
+//			if (_stiffPID != NULL) delete [] _stiffPID;
 			if (_maxDAC != NULL) delete [] _maxDAC;
 			if (_limitsMax != NULL) delete [] _limitsMax;
 			if (_limitsMin != NULL) delete [] _limitsMin;
@@ -365,7 +365,7 @@ public:
 			_axis_map = NULL;
 			_inv_axis_map = NULL;
 			_encoderToAngles = NULL;
-			_stiffPID = NULL;
+//			_stiffPID = NULL;
 			_maxDAC = NULL;
 			_limitsMax = NULL;
 			_limitsMin = NULL;
@@ -393,7 +393,7 @@ private:
 		if (_axis_map != NULL) delete [] _axis_map;
 		if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL) delete [] _encoderToAngles;
-		if (_stiffPID != NULL) delete [] _stiffPID;
+//		if (_stiffPID != NULL) delete [] _stiffPID;
 		if (_maxDAC != NULL) delete [] _maxDAC;
 		if (_limitsMax != NULL)	delete [] _limitsMax;
 		if (_limitsMin != NULL)	delete [] _limitsMin;
@@ -409,7 +409,7 @@ private:
 		_encoderToAngles = new double [nj];
 		_limitsMax = new double [nj];
 		_limitsMin = new double [nj];
-		_stiffPID = new int [nj];
+//		_stiffPID = new int [nj];
 		_maxDAC = new double [nj];
 		_destinations = new unsigned char[_RobotcubHead::CANBUS_MAXCARDS];
 		_currentLimits = new double[nj];
@@ -427,7 +427,7 @@ public:
 	int				*_axis_map;
 	int				*_inv_axis_map;
 	double			*_encoderToAngles;
-	int				*_stiffPID;
+//	int				*_stiffPID;
 	double			*_maxDAC;
 	double			*_limitsMax;
 	double			*_limitsMin;
@@ -496,6 +496,10 @@ public:
 		op_par._njoints = _parameters->_nj;
 		op_par._p = _parameters->_p;
 
+		// before opening the device driver, I play a little trick here
+		// to replace the getPosition with the broadcast version.
+		///m_cmds[CMDGetPositions] = &YARPEsdCanDeviceDriver::getBCastPositions;
+
 		if (YARPEsdCanDeviceDriver::open ((void *)&op_par) < 0)
 		{
 			YARPEsdCanDeviceDriver::close();
@@ -506,7 +510,7 @@ public:
 		int msg = _parameters->_message_filter;
 		IOCtl(CMDSetDebugMessageFilter, (void *)&msg);
 
-		for(int i=0; i < _parameters->_nj; i++)
+		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			int actual_axis = _parameters->_axis_map[i];
 			SingleAxisParameters cmd;
@@ -578,6 +582,14 @@ public:
 			// sets the current limit on each joint according to the configuration file.
 			cmd.parameters = &_parameters->_currentLimits[i];
 			IOCtl(CMDSetCurrentLimit, &cmd);
+
+			// sets the broadcast messages for each card.
+			//if (!(actual_axis % 2))
+			//{
+			//	double tmp = double(0x1A);	/// 0x1A activates position and current consumption broadcast + fault events.
+			//	cmd.parameters = &tmp;
+			//	IOCtl (CMDSetBCastMsgs, &cmd);
+			//}
 		}
 
 		_initialized = true;
@@ -590,6 +602,25 @@ public:
 	 */
 	int uninitialize()
 	{
+		/*
+		int i;
+		for (i = 0; i < _parameters->_nj; i++)
+		{
+			int actual_axis = _parameters->_axis_map[i];
+
+			// sets the broadcast messages for each card.
+			if (!(actual_axis % 2))
+			{
+				SingleAxisParameters cmd;
+				cmd.axis = actual_axis;
+
+				double tmp = double(0x0);	/// 0x0 deactivates broadcast messages.
+				cmd.parameters = &tmp;
+				IOCtl (CMDSetBCastMsgs, &cmd);
+			}			
+		}
+		*/
+
 		if (YARPEsdCanDeviceDriver::close() != 0)
 			return YARP_FAIL;
 
@@ -871,4 +902,3 @@ private:
 };
 
 #endif	// .h
-
