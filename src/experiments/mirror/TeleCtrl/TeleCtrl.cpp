@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.7 2006-02-23 18:54:24 beltran Exp $
+/// $Id: TeleCtrl.cpp,v 1.8 2006-02-24 13:58:25 beltran Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -159,6 +159,7 @@ YVector desired_cfg(3);
 double dThumb[2]  = {0.0, 0.0};
 double dIndex[2]  = {0.0, 0.0};
 double dMiddle[2] = {0.0, 0.0};
+double dWristYaw = 0.0;
 
 // Values for open hand 
 int iThumbOpen[2]  = {0, 0};
@@ -170,10 +171,16 @@ int iThumbClose[2]  = {0, 0};
 int iIndexClose[2]  = {0, 0};
 int iMiddleClose[2] = {0, 0};
 
+// Values for wrist
+int iWristYawUp= 0;
+int iWristYawDown= 0;
+int iWristYawMeanPosition = 0;
+
 //Data glove transformation factors
 double dThumbFactor[2]  = {0.0, 0.0};
 double dIndexFactor[2]  = {0.0, 0.0};
 double dMiddleFactor[2] = {0.0, 0.0};
+double dWristYawFactor = 0.0;
 
 // -----------------------------------
 // prototypes
@@ -267,14 +274,17 @@ int count=0;
 	        << "Q: " << required_Q[0] << " " << required_Q[1] << " " << required_Q[2] << " "
 	        << "roll angle: " << frRo / myDegToRad << "       \r";
 	      cout.flush();
+
+          // computing glove wrist possition
+          dWristYaw = (double)(_data.gloveData.wrist[1] - iWristYawMeanPosition)* (double)dWristYawFactor;
 	      // send IK commands to the arm.
 	      // WARNING: the PUMA arm has all the axes swapped around, therefore the minus signs
-	      SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, -frRo, 0.0, 0.0 );
+	      SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, -frRo, dWristYaw, 0.0 );
 	  }
       // send glove commands to the gripper - not so far
-      dThumb[0]  = 0.87 - (double)abs(_data.gloveData.thumb[0]-iThumbClose[0]) * (double)dThumbFactor[0];
-      dIndex[0]  = 0.87 - (double)abs(_data.gloveData.index[0]-iIndexClose[0]) * (double)dIndexFactor[0];
-      dMiddle[0] = 0.87 - (double)abs(_data.gloveData.middle[0]-iMiddleClose[0]) * (double)dMiddleFactor[0];
+      dThumb[0]  = (double)abs(_data.gloveData.thumb[0]-iThumbClose[0]) * (double)dThumbFactor[0];
+      dIndex[0]  = (double)abs(_data.gloveData.index[0]-iIndexClose[0]) * (double)dIndexFactor[0];
+      dMiddle[0] = (double)abs(_data.gloveData.middle[0]-iMiddleClose[0]) * (double)dMiddleFactor[0];
 
       cout << "Hand:\t" << dIndex[0] << "\t" << dMiddle[0] << "\t" << dThumb[0] << "\t" << count++ << "       \r";
 	  cout.flush();
@@ -772,11 +782,14 @@ int main()
   // gather dataglove calibration: open hand, snapshot, close hand, snapshot
   if (_options.useDataGlove)
   {
+      cout << endl << "NOW CALIBRATING DATAGLOVE... ";
+      cout.flush();
+
       //---------------------------------------------------- 
       // acquire open hand data
-      cout << endl << "Now calibrating dataglove. Open hand and press any key... ";
-      cout.flush();
-      cin.get();
+      cout << endl << "Open hand and press any key.";
+      cout.flush(); 
+      cin.get(); 
 
       _master_cmd_outport.Content() = CCmdGetData;
       _master_cmd_outport.Write();
@@ -827,11 +840,64 @@ int main()
           unregisterPorts();
           return 0;
       }
+
+      cout << endl << "NOW CALIBRATING WRIST SENSOR......."; 
+      cout.flush();
+
+      //---------------------------------------------------- 
+      // acquire wrist DOWN position
+      cout << endl << "Move your hand DOWN and press any key.";
+      cout.flush(); 
+      cin.get(); 
+
+      _master_cmd_outport.Content() = CCmdGetData;
+      _master_cmd_outport.Write();
+      _master_cmd_inport.Read();
+
+      if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+          _master_data_inport.Read();
+          CollectorNumericalData tmpData = _master_data_inport.Content();
+
+          // get data for open hand
+          iWristYawDown= tmpData.gloveData.wrist[1];
+
+          } else {
+          cout << "failed." << endl;
+          unregisterPorts();
+          return 0;
+      }
+      
+      //---------------------------------------------------- 
+      // acquire wrist UP position
+      cout << endl << "Move your hand UP and press any key.";
+      cout.flush(); 
+      cin.get(); 
+
+      _master_cmd_outport.Content() = CCmdGetData;
+      _master_cmd_outport.Write();
+      _master_cmd_inport.Read();
+
+      if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+          _master_data_inport.Read();
+          CollectorNumericalData tmpData = _master_data_inport.Content();
+
+          // get data for open hand
+          iWristYawUp= tmpData.gloveData.wrist[1];
+
+          } else {
+          cout << "failed." << endl;
+          unregisterPorts();
+          return 0;
+      }
+
+
+
       // evaluate gripper factors
 
       cout << iThumbClose  << " " << iThumbOpen  << " "
           << iIndexClose  << " " << iIndexOpen  << " "
-          << iMiddleClose << " " << iMiddleOpen << " " << endl;
+          << iMiddleClose << " " << iMiddleOpen << " " 
+          << iWristYawDown << " " << iWristYawUp  << endl;
 
       // evaluate hand calibration factor. empirically, the fingers range 0 - 0.87
       // this is the angular range in radians for the babybot hand
@@ -841,6 +907,8 @@ int main()
       dIndexFactor[1]  = 0.87 / (double)abs(iIndexClose[1]-iIndexOpen[1]);
       dMiddleFactor[0] = 0.87 / (double)abs(iMiddleClose[0]-iMiddleOpen[0]);
       dMiddleFactor[1] = 0.87 / (double)abs(iMiddleClose[1]-iMiddleOpen[1]);
+      iWristYawMeanPosition = abs(iWristYawDown - iWristYawUp)/2;
+      dWristYawFactor  = 1.39 / (double)abs(iWristYawDown - iWristYawMeanPosition);
 
       cout << "Babybot hand calibration done." << endl;
       cout.flush();
