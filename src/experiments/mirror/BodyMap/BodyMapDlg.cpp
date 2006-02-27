@@ -102,8 +102,8 @@ BOOL CBodyMapDlg::OnInitDialog()
 	_Tracker0Dialog.ShowWindow(SW_SHOW);
 
 	// create learning machine
-//	_BodyMapLearningMachine = new SVMLearningMachine(3,4,50);
-	_BodyMapLearningMachine = new UniformLearningMachine(3,4,250);
+	_BodyMapLearningMachine = new SVMLearningMachine(3,4,250);
+//	_BodyMapLearningMachine = new UniformLearningMachine(3,4,250);
 
 	return TRUE;
 
@@ -295,11 +295,14 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 					(double)_BodyMapLearningMachine->getSampleCount()*100.0/
 					(double)_BodyMapLearningMachine->getNumOfSamples());
 				AfxGetMainWnd()->SetWindowText(title);
+				// every 50 new samples, re-train
+				if ( _BodyMapLearningMachine->getSampleCount() % 50 == 0 ) {
+					AfxGetMainWnd()->SetWindowText("Training...");
+					_BodyMapLearningMachine->train();
+				}
 			} else {
 				// otherwise, stop acquiring
 				_acquiringSamples = false;
-				AfxGetMainWnd()->SetWindowText("Training...");
-				_BodyMapLearningMachine->train();
 				AfxGetMainWnd()->SetWindowText("BodyMap");
 				GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
 				GetDlgItem(IDC_ACQ_STOP)->EnableWindow(TRUE);
