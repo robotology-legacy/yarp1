@@ -127,13 +127,6 @@ const bool SVMLearningMachine::addSample( const double x[], const double y[] )
 
 }
 
-const bool SVMLearningMachine::isSampleWorthAdding ( const double x[] ) const
-{
-
-	return true;
-
-}
-
 void SVMLearningMachine::train()
 {
 

@@ -44,7 +44,6 @@ public:
 	const unsigned int getSampleCount() const { return _sampleCount; }
 	const unsigned int getNumOfSamples() const { return _numOfSamples; }
 	const bool addSample( const double[], const double[] );
-	const bool isSampleWorthAdding ( const double[] ) const;
 	void train();
 	void predict ( const double[], double[] ) const;
 
