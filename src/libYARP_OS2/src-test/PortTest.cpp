@@ -4,6 +4,7 @@
 #include <yarp/os/Time.h>
 #include <yarp/os/Bottle.h>
 #include <yarp/os/PortReaderBuffer.h>
+#include <yarp/os/PortablePair.h>
 #include <yarp/Logger.h>
 #include <yarp/NetType.h>
 
@@ -96,11 +97,46 @@ public:
     input.close();
   }
 
+
+  void testPair() {
+    report(0,"checking paired send/receive");
+    PortReaderBuffer<PortablePair<Bottle,Bottle> > buf;
+
+    Port input, output;
+    input.open("/in");
+    output.open("/out");
+
+    input.setReader(buf);
+
+    output.addOutput(Contact::byName("/in").addCarrier("tcp"));
+    Time::delay(0.2);
+
+
+    PortablePair<Bottle,Bottle> bot1;
+    bot1.head.fromString("1 2 3");
+    bot1.body.fromString("4 5 6 7");
+
+    report(0,"writing...");
+    output.write(bot1);
+    report(0,"reading...");
+    PortablePair<Bottle,Bottle> *result = buf.read();
+
+    checkTrue(result!=NULL,"got something check");
+    checkEqual(bot1.head.size(),result->head.size(),"head size check");
+    checkEqual(bot1.body.size(),result->body.size(),"body size check");
+
+    output.close();
+    input.close();
+  }
+
+
+
   virtual void runTests() {
     yarp::NameClient& nic = yarp::NameClient::getNameClient();
     nic.setFakeMode(true);
     testOpen();
     testBuffer();
+    testPair();
     nic.setFakeMode(false);
   }
 };
