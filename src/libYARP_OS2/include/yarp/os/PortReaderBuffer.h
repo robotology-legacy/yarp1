@@ -58,7 +58,8 @@ protected:
  * An instance of this class can be associated with a Port by calling
  * attach().  From then on data that arrives to the Port will
  * be passed to this buffer, to be picked up at the user's leisure
- * by calling check() and read().
+ * by calling check() and read().  "T" should be a PortReader
+ * class, such as Bottle.
  */
 template <class T>
 class yarp::os::PortReaderBuffer : public yarp::os::PortReader, private yarp::PortReaderBufferBaseCreator {

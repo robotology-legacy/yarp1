@@ -71,7 +71,7 @@ public:
     output.open("/out");
 
     input.setReader(buf);
-    buf.attach(input);
+    //buf.attach(input); // this is an alternative
 
     output.addOutput(Contact::byName("/in").addCarrier("tcp"));
     Time::delay(0.2);

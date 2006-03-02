@@ -2,8 +2,7 @@
 #define _YARP2_BOTTLE_
 
 #include <yarp/os/ConstString.h>
-#include <yarp/os/PortReader.h>
-#include <yarp/os/PortWriter.h>
+#include <yarp/os/Portable.h>
 
 namespace yarp {
   namespace os {
@@ -24,7 +23,7 @@ namespace yarp {
  * somewhere else.  In the very early days of YARP, that is what
  * communication felt like.
  */
-class yarp::os::Bottle : public PortReader, public PortWriter {
+class yarp::os::Bottle : public Portable {
 public:
 
   /**

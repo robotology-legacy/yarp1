@@ -1,7 +1,7 @@
 #ifndef _YARP2_PORTCOMMAND_
 #define _YARP2_PORTCOMMAND_
 
-#include <yarp/Portable.h>
+#include <yarp/os/Portable.h>
 #include <yarp/os/ConnectionReader.h>
 #include <yarp/os/ConnectionWriter.h>
 #include <yarp/ManagedBytes.h>
@@ -13,7 +13,7 @@ namespace yarp {
 /**
  * Simple Readable and Writable object representing a command to a YARP port.
  */
-class yarp::PortCommand : public Portable {
+class yarp::PortCommand : public yarp::os::Portable {
 public:
 
   PortCommand() : header(8) {
