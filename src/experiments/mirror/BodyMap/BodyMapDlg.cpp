@@ -18,8 +18,8 @@ static char THIS_FILE[] = __FILE__;
 
 CBodyMapDlg::CBodyMapDlg(CWnd* pParent /*=NULL*/) :
 	CDialog( CBodyMapDlg::IDD, pParent ),
-	_acquiringSamples( true ), _measuring( false ),
-	_distanceMean( 0.0 ), _distanceStdv( 0.0 ), _distanceNumOfSamples(0)
+	_acquiringExamples( true ),
+	_distanceMean( 0.0 ), _distanceStdv( 0.0 ), _distanceNumOfExamples(0)
 {
 
 	//{{AFX_DATA_INIT(CBodyMapDlg)
@@ -52,7 +52,6 @@ BEGIN_MESSAGE_MAP(CBodyMapDlg, CDialog)
 	ON_WM_CLOSE()
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_ACQ_START, OnAcqStart)
-	ON_BN_CLICKED(IDC_ACQ_STOP, OnAcqStop)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -102,8 +101,16 @@ BOOL CBodyMapDlg::OnInitDialog()
 	_Tracker0Dialog.ShowWindow(SW_SHOW);
 
 	// create learning machine
-	_BodyMapLearningMachine = new SVMLearningMachine(3,4,250);
-//	_BodyMapLearningMachine = new UniformLearningMachine(3,4,250);
+	string name = "prova";
+	_learner = new SVMLearningMachine(3,4,50,name);
+//	set tolerance at one cm (0.4 times an inch)
+//	double tolerances[3] = { 0.4, 0.4, 0.4 };
+//	_learner = new UniformSVMLearningMachine(3,4,250,"prova",tolerances);
+
+	// try and load a previous model; if found, do not acquire enything else
+	if ( _learner->load() ) {
+		_acquiringExamples = false;
+	}
 
 	return TRUE;
 
@@ -206,8 +213,9 @@ void CBodyMapDlg::OnConnect()
 		// enable the required windows
 		GetDlgItem(IDC_CONNECT)->EnableWindow(FALSE);
 		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-		GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
-		GetDlgItem(IDC_ACQ_STOP)->EnableWindow(TRUE);
+		if ( _acquiringExamples == false ) {
+			GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
+		}
 		// start live timer
 		_settings._timerID = SetTimer(1, _options.refreshFrequency, NULL);
 		_ASSERT (_settings._timerID != 0);	
@@ -234,8 +242,6 @@ void CBodyMapDlg::OnDisconnect()
 	// enable/disable required windows
 	GetDlgItem(IDC_CONNECT)->EnableWindow(TRUE);
 	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
-	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
-	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
 
 }
 
@@ -246,7 +252,7 @@ void CBodyMapDlg::OnClose()
 		OnDisconnect();
 	}
 	DisconnectAndUnregisterPorts();
-	delete _BodyMapLearningMachine;
+	delete _learner;
 	CDialog::OnClose();
 
 }
@@ -254,76 +260,71 @@ void CBodyMapDlg::OnClose()
 void CBodyMapDlg::OnTimer(UINT nIDEvent)
 {
 
-	// this is the timer event. each time the timer ticks, we gather data
-	// off the collector and update the live show. Moreover, if acquiringSamples
-	// is true we store one more sample in the learning block.
-
-	double x[3], y[4], predicted_y[4];
-
-	// get data
+	// get and read data off the collector
 	_settings._cmd_outport.Content() = CCmdGetData;
 	_settings._cmd_outport.Write(true);
 	_settings._cmd_inport.Read();
-	if ( _settings._cmd_inport.Content() == CCmdSucceeded ) {
-		// read data (tracker and images)
-		_settings._data_inport.Read();
-		_settings._data = _settings._data_inport.Content();
-		_settings._img0_inport.Read();
-		_settings._img0.Refer(_settings._img0_inport.Content());
-		_settings._img1_inport.Read();
-		_settings._img1.Refer(_settings._img1_inport.Content());
-		// predict and show expected position
-		x[0] = _settings._data.tracker0Data.x;
-		x[1] = _settings._data.tracker0Data.y;
-		x[2] = _settings._data.tracker0Data.z;
-		_BodyMapLearningMachine->predict(x,predicted_y);
-		ShowExpectedTrackerXY(_settings._img0, (int)predicted_y[0], (int)predicted_y[1]);
-		ShowExpectedTrackerXY(_settings._img1, (int)predicted_y[2], (int)predicted_y[3]);
-		// find real tracker position and show it
-		int x0, y0, x1, y1;
-		FindTrackerXY(_settings._img0, &x0, &y0); ShowTrackerXY(_settings._img0, x0, y0);
-		FindTrackerXY(_settings._img1, &x1, &y1); ShowTrackerXY(_settings._img1, x1, y1);
-		// fill y with the actualy tracker position
-		y[0] = x0; y[1] = y0; y[2] = x1; y[3] = y1;
-		// are we gathering samples?
-		if ( _acquiringSamples ) {
-			// then try and add the current sample
-			if ( _BodyMapLearningMachine->addSample(x,y) ) {
-				// if we haven't yet filled the samples pool, just say we got one more
-				char title[50];
-				ACE_OS::sprintf(title, "Acquired sample %d (%.0lf%%)", _BodyMapLearningMachine->getSampleCount(),
-					(double)_BodyMapLearningMachine->getSampleCount()*100.0/
-					(double)_BodyMapLearningMachine->getNumOfSamples());
-				AfxGetMainWnd()->SetWindowText(title);
-				// every 50 new samples, re-train
-				if ( _BodyMapLearningMachine->getSampleCount() % 50 == 0 ) {
-					AfxGetMainWnd()->SetWindowText("Training...");
-					_BodyMapLearningMachine->train();
-				}
-			} else {
-				// otherwise, stop acquiring
-				_acquiringSamples = false;
-				AfxGetMainWnd()->SetWindowText("BodyMap");
-				GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
-				GetDlgItem(IDC_ACQ_STOP)->EnableWindow(TRUE);
-			}
-		} else if ( _measuring ) {
-			// or, are we measuring the error? then evaluate and display its stats
-			double newDistance = Distance(y,predicted_y,4);
-			_distanceMean = (1/(double)(_distanceNumOfSamples+1)) *
-						    ( _distanceNumOfSamples*_distanceMean + newDistance );
-			_distanceStdv = sqrt( (1/(double)(_distanceNumOfSamples+1)) *
-							      ( _distanceNumOfSamples*_distanceStdv*_distanceStdv + 
-							        (newDistance-_distanceMean)*(newDistance-_distanceMean)
-							    ) );
-			char title[50];
-			ACE_OS::sprintf(title, "Mean distance: %.2lf (stdv: %.2lf)", _distanceMean, _distanceStdv);
-			AfxGetMainWnd()->SetWindowText(title);
-			++_distanceNumOfSamples;
-		}
-	} else {
+	if ( _settings._cmd_inport.Content() == CCmdFailed ) {
 		MessageBox("Could not read data from mirrorCollector.", "Error.",MB_ICONERROR);
 	}
+	_settings._data_inport.Read();
+	_settings._data = _settings._data_inport.Content();
+	_settings._img0_inport.Read();
+	_settings._img0.Refer(_settings._img0_inport.Content());
+	_settings._img1_inport.Read();
+	_settings._img1.Refer(_settings._img1_inport.Content());
+
+	// (1) ---------- find real tracker position and show it
+	int x0, y0, x1, y1;
+	FindTrackerXY(_settings._img0, &x0, &y0); ShowTrackerXY(_settings._img0, x0, y0);
+	FindTrackerXY(_settings._img1, &x1, &y1); ShowTrackerXY(_settings._img1, x1, y1);
+
+	// (2) ---------- predict and show expected position
+	double x[3];
+	x[0] = _settings._data.tracker0Data.x;
+	x[1] = _settings._data.tracker0Data.y;
+	x[2] = _settings._data.tracker0Data.z;
+	double predicted_y[4];
+	_learner->predictValue(x,predicted_y);
+	ShowExpectedTrackerXY(_settings._img0, (int)predicted_y[0], (int)predicted_y[1]);
+	ShowExpectedTrackerXY(_settings._img1, (int)predicted_y[2], (int)predicted_y[3]);
+
+	// (3) ------- if it is the case, add the new sample and re-train
+	double y[4];
+	y[0] = x0; y[1] = y0; y[2] = x1; y[3] = y1;
+	if ( _acquiringExamples ) {
+		if ( _learner->addExample(x,y) ) {
+			// if we haven't yet filled the samples pool, show we got one more
+			char title[50];
+			ACE_OS::sprintf(title, "%d/%d",	_learner->getExampleCount(),
+				_learner->getNumOfExamples());
+			GetDlgItem(IDC_ACQ_START)->SetWindowText(title);
+			// and, every 20 new samples after the first 5, re-train
+			if ( _learner->getExampleCount() % 20 == 5 ) {
+				_learner->train();
+			}
+		} else {
+			// otherwise, train for the last time, save the model and stop acquiring
+			_learner->train();
+			GetDlgItem(IDC_ACQ_START)->SetWindowText("Reset");
+			GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
+			_learner->save();
+			_acquiringExamples = false;
+		}
+	}
+
+	// (4) ------- measure the error and display its stats
+	double newDistance = Distance(y,predicted_y,4);
+	_distanceMean = (1/(double)(_distanceNumOfExamples+1)) *
+				    ( _distanceNumOfExamples*_distanceMean + newDistance );
+	_distanceStdv = sqrt( (1/(double)(_distanceNumOfExamples+1)) *
+					      ( _distanceNumOfExamples*_distanceStdv*_distanceStdv + 
+					        (newDistance-_distanceMean)*(newDistance-_distanceMean)
+					    ) );
+	char title[50];
+	ACE_OS::sprintf(title, "%.2lf %.2lf", _distanceMean, _distanceStdv);
+	GetDlgItem(IDC_DISTANCE)->SetWindowText(title);
+	++_distanceNumOfExamples;
 
 	// update dialogs
 	_Tracker0Dialog.UpdateState(_settings._data.tracker0Data);
@@ -339,23 +340,18 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 void CBodyMapDlg::OnAcqStart()
 {
 
+	// reset learning machine
+	_learner->reset();
+	
+	// reset distance stats
+	_distanceNumOfExamples = 0;
+	_distanceMean = 0.0;
+	_distanceStdv = 0.0;
+
+	// and acquire samples again!
+	_acquiringExamples = true;
+
 	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
-	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
-	_acquiringSamples = true;
-
-}
-
-void CBodyMapDlg::OnAcqStop()
-{
-
-	_measuring = !_measuring;
-
-	if ( _measuring == false ) {
-		AfxGetMainWnd()->SetWindowText("BodyMap");
-		GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
-	} else {
-		GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
-	}
 
 }
 
@@ -366,7 +362,9 @@ const double CBodyMapDlg::Distance( const double x[], const double y[], const un
 
 	double distSquared = 0.0;
 
-	{ foreach(dim,i) distSquared += (x[i]-y[i])*(x[i]-y[i]); }
+	for ( int i=0; i<dim; ++i ) {
+		distSquared += (x[i]-y[i])*(x[i]-y[i]);
+	}
 
 	return sqrt(distSquared);
 

@@ -52,6 +52,8 @@ BOOL CBodyMapApp::InitInstance()
 	Enable3dControlsStatic();	// Call this when linking to MFC statically
 #endif
 
+	AfxEnableControlContainer();
+
 	CBodyMapDlg dlg;
 	m_pMainWnd = &dlg;
 	int nResponse = dlg.DoModal();

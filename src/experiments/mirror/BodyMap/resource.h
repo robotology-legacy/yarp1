@@ -19,7 +19,6 @@
 #define IDC_CONNECT                     1000
 #define IDC_DISCONNECT                  1001
 #define IDC_ACQ_START                   1002
-#define IDC_ACQ_STOP                    1003
 #define IDC_LIVE_CAMERA                 1004
 #define IDC_LIVE_GLOVE                  1005
 #define IDC_LIVE_TRACKER                1006
@@ -53,6 +52,7 @@
 #define IDC_REFRESH                     1022
 #define IDC_SAVEPATH                    1023
 #define IDC_PREFIX                      1025
+#define IDC_TEXTBOX1                    1025
 #define IDC_FINGER_13                   1026
 #define IDC_FINGER_14                   1027
 #define IDC_FINGER_15                   1028
@@ -70,14 +70,15 @@
 #define IDC_PUP_DIA                     1040
 #define IDC_PUP_X                       1041
 #define IDC_PUP_Y                       1042
+#define IDC_DISTANCE                    1043
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        140
+#define _APS_NEXT_RESOURCE_VALUE        141
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1025
+#define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

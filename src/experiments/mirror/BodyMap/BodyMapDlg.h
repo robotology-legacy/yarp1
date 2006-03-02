@@ -38,6 +38,7 @@ public:
 
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CBodyMapDlg)
+	public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -61,7 +62,6 @@ protected:
 	afx_msg void OnClose();
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnAcqStart();
-	afx_msg void OnAcqStop();
 	afx_msg void OnDebugWnd();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
@@ -82,15 +82,13 @@ private:
 	BodyMapSettings _settings;
 
 	// the learning machine
-	LearningMachine* _BodyMapLearningMachine;
+	LearningMachine* _learner;
 
-	// true whilst we are gathering samples
-	bool _acquiringSamples;
-	// true whilst we are measuring the error
-	bool _measuring;
+	// true whilst we are gathering examples
+	bool _acquiringExamples;
 	// self explanatory
 	double _distanceMean, _distanceStdv;
-	unsigned int _distanceNumOfSamples;
+	unsigned int _distanceNumOfExamples;
 
 };
 

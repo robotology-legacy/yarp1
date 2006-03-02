@@ -1,82 +1,96 @@
 // learning.h : header file for learning machines
 //
 
+using namespace std;
+
+#include <string>
 #include "libsvm.h"
 
-// little macro for easier (?) handling of for over arrays
-#define foreach(limit,index) unsigned int index; for ( index=0; index<limit; ++index )
+// a sample (borrowed from libsvm). The use of an index for each sample value
+// eases handling of sparse matrices.
 
-// a sample (borrowed from libsvm)
 struct sample {
 	int index;
 	double value;
 };
 
-// -------------------------------------------------------
-// a generic learning machine: a map (R^m -> R^n)
+// definition: an "example" is a pair (sample,value) where sample is in R^n and value is in R^m.
+// seems excessive to define a new struct/class for an example.
 
-// it stores pairs (sample,value) and can normalise/un-normalise them
-// any child to this class must be able at least to accept a new pair
-// (sample,value), train and predict.
+// -------------------------------------------------------
+// a generic (regression) learning machine: a map (R^m -> R^n).
+// it stores examples and can normalise/un-normalise them.
 
 class LearningMachine {
 public:
 
-	// initialise with the domain size (m), the codomain size (n)
-	// and the maximum number of pairs (sample,value) it can hold (NumOfSamples)
-	LearningMachine( unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples );
-	~LearningMachine();
+	// initialise with the domain size, the codomain size,
+	// the maximum number of examples it can hold and the file name
+	LearningMachine( unsigned int, unsigned int, unsigned int, string& );
+	~LearningMachine( void );
 
 	// viewing counters
-	const unsigned int getSampleCount() const { return _sampleCount; }
-	const unsigned int getNumOfSamples() const { return _numOfSamples; }
+	const unsigned int getExampleCount( void ) const { return _exampleCount; }
+	const unsigned int getNumOfExamples( void ) const { return _numOfExamples; }
+	// resetting the machine, loading and saving models and stats
+	virtual void reset( void );
+	virtual void save( void );
+	virtual const bool load( void );
 	// normalising
-	void LearningMachine::evalStats(void);
-	void LearningMachine::normalise(void);
+	void evalStats( void );
+	void normalise( double*, const double, const double );
+	void unNormalise( double*, const double, const double );
+	void normaliseExamples( void );
 
-	// abstract methods
-	virtual const bool addSample( const double[], const double[] ) = 0;
-	virtual void train() = 0;
-	virtual void predict ( const double[], double[] ) const = 0;
+	// abstract methods. any concrete learning machine must be able at least
+	// to add an example, train its models and predict a new value given a sample
+	virtual const bool addExample( const double[], const double[] ) = 0;
+	virtual void train( void ) = 0;
+	virtual void predictValue( const double[], double[] ) = 0;
 
 protected:
 
-	// sizes of the domain and codomain (m,n) for a map (R^m -> R^n)
+	// sizes of the domain and codomain
 	unsigned int _domainSize;
 	unsigned int _codomainSize;
 	// maximum number of samples
-	unsigned int _numOfSamples;
+	unsigned int _numOfExamples;
 	// currently stored normalised samples
-	unsigned int _normalSampleCount;
+	unsigned int _normalExampleCount;
 	// currently stored samples
-	unsigned int _sampleCount;
+	unsigned int _exampleCount;
 
-	// the samples and their values
+	// the examples
 	sample** _sample;
 	double** _value;
-	// the sample to be predicted
+	// the sample whose value to predict
 	sample* _newSample;
 
 	// the means and stdvs
 	double* _domainMean, * _codomainMean;
 	double* _domainStdv, * _codomainStdv;
 
+	// file name for saving and loading the machine state
+	string _machineFileName;
+
 };
 
 // -------------------------------------------------------
-// a plain learning machine based upon LIBSVM.
+// a plain support vector machine, based upon libsvm.
 
 class SVMLearningMachine : public LearningMachine {
 public:
 
-	// constructor and destructor
-	SVMLearningMachine( unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples );
-	~SVMLearningMachine();
+	SVMLearningMachine( unsigned int, unsigned int, unsigned int, string& );
+	~SVMLearningMachine( void );
 
-	// methods
-	const bool addSample( const double[], const double[] );
-	void train();
-	void predict ( const double[], double[] ) const;
+	void reset( void );
+	void save( void );
+	const bool load( void );
+
+	const bool addExample( const double[], const double[] );
+	void train( void );
+	void predictValue( const double[], double[] );
 
 private:
 
@@ -90,23 +104,23 @@ private:
 };
 
 // -------------------------------------------------------
-// a (hopefully) better learning machine based upon LIBSVM.
+// a (hopefully) better learning machine based upon libsvm.
+// this one tries to sample the domain in a more sensible (uniform) way.
 
-// this one tries to sample the domain in a more sensible way.
-
-class UniformLearningMachine : public SVMLearningMachine {
+class UniformSVMLearningMachine : public SVMLearningMachine {
 public:
 
 	// constructor and destructor
-	UniformLearningMachine(unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples);
+	UniformSVMLearningMachine( unsigned int, unsigned int, unsigned int, string&, double[] );
+	~UniformSVMLearningMachine( void );
 
-	const bool addSample( const double[], const double[] );
-	const bool isSampleWorthAdding ( const double[] );
-	void resetSpaceGrid();
+	const bool addExample( const double[], const double[] );
+	const bool isExampleWorthAdding ( const double[] );
 
 private:
 
-	bool _spaceGrid[21][21][21];
-	double _centerOfTheWorld[3];
+	// for each dimension of the codomain, we set a tolerance:
+	// examples within tolerance of any already-stored example will be rejected
+	double* _tolerance;
 
 };
