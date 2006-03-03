@@ -89,7 +89,7 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\learning.cpp
+SOURCE=.\learningMachine.cpp
 # End Source File
 # Begin Source File
 
@@ -99,13 +99,17 @@ SOURCE=.\libsvm.cpp
 
 SOURCE=.\main.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\SVMLearningMachine.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\learning.h
+SOURCE=.\learningMachine.h
 # End Source File
 # Begin Source File
 
@@ -114,6 +118,10 @@ SOURCE=.\libsvm.h
 # Begin Source File
 
 SOURCE=.\lMCommands.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SVMLearningMachine.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

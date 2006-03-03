@@ -12,7 +12,7 @@
 #include <yarp/YARPTime.h>
 #include <yarp/YARPParseParameters.h>
 
-#include "learning.h"
+#include "SVMLearningMachine.h"
 #include "lMCommands.h"
 
 using namespace std;

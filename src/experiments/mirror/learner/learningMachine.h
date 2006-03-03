@@ -1,15 +1,38 @@
-// learning.h : header file for learning machines
+// learningMachine.h : header file for learning machines
 //
+
+#ifndef __learningMachineh__
+#define __learningMachineh__
+
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <string>
 
 using namespace std;
 
-#include <string>
-#include "libsvm.h"
+// -------------------------------------------------------
 
 // little macros for easier (?) handling of for over arrays
+
 #define foreach(limit,index) unsigned int index; for ( index=0; index<limit; ++index )
 #define foreach_s(start,limit,index) unsigned int index; for ( index=start; index<limit; ++index )
 
+// allocating memory
+
+template <class T> void lMAlloc ( T*& base, unsigned int num_elem )
+{
+
+	base = new T[num_elem];
+
+	if ( base == 0 ) {
+		cout << "FATAL ERROR (learningMachine): no memory." << endl;
+		exit(-1);
+	}
+
+}
+
+// -------------------------------------------------------
 // a sample (borrowed from libsvm). The use of an index for each sample value
 // eases handling of sparse matrices.
 
@@ -18,6 +41,7 @@ struct sample {
 	double value;
 };
 
+// -------------------------------------------------------
 // definition: an "example" is a pair (sample,value) where sample is in R^n and value is in R^m.
 // seems excessive to define a new struct/class for an example.
 
@@ -79,52 +103,4 @@ protected:
 
 };
 
-// -------------------------------------------------------
-// a plain support vector machine, based upon libsvm.
-
-class SVMLearningMachine : public LearningMachine {
-public:
-
-	SVMLearningMachine( unsigned int, unsigned int, unsigned int, string& );
-	~SVMLearningMachine( void );
-
-	void reset( void );
-	void save( void );
-	const bool load( void );
-
-	const bool addExample( const double[], const double[] );
-	void train( void );
-	void predictValue( const double[], double[] );
-
-private:
-
-	// one SVM problem for each dimension of the codomain
-	svm_problem* _problem;
-	// svm parameters: for now, common to all problems
-	svm_parameter _param;
-	// one model pointer for each problem (each model is then created by svm_train())
-	svm_model** _model;
-
-};
-
-// -------------------------------------------------------
-// a (hopefully) better learning machine based upon libsvm.
-// this one tries to sample the domain in a more sensible (uniform) way.
-
-class UniformSVMLearningMachine : public SVMLearningMachine {
-public:
-
-	// constructor and destructor
-	UniformSVMLearningMachine( unsigned int, unsigned int, unsigned int, string&, double[] );
-	~UniformSVMLearningMachine( void );
-
-	const bool addExample( const double[], const double[] );
-	const bool isExampleWorthAdding ( const double[] );
-
-private:
-
-	// for each dimension of the codomain, we set a tolerance:
-	// examples within tolerance of any already-stored example will be rejected
-	double* _tolerance;
-
-};
+#endif
