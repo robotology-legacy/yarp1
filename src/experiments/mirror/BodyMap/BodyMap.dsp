@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 libYARP_sig.lib libYARP_OS.lib libYARP_dev.lib libYARP_robot.lib ace.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /machine:I386 /libpath:"..\..\..\..\lib\winnt"
+# ADD LINK32 libYARP_math.lib libYARP_sig.lib libYARP_OS.lib libYARP_dev.lib libYARP_robot.lib ace.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /machine:I386 /libpath:"..\..\..\..\lib\winnt"
 
 !ELSEIF  "$(CFG)" == "BodyMap - Win32 Debug"
 
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 libYARP_sigd.lib libYARP_OSd.lib libYARP_devd.lib libYARP_robotd.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\..\lib\winnt"
+# ADD LINK32 libYARP_mathd.lib libYARP_sigd.lib libYARP_OSd.lib libYARP_devd.lib libYARP_robotd.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\..\lib\winnt"
 
 !ENDIF 
 
@@ -105,14 +105,6 @@ SOURCE=.\BodyMapDlg.cpp
 # Begin Source File
 
 SOURCE=.\DIBConverter.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\learning.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\libsvm.cpp
 # End Source File
 # Begin Source File
 
@@ -145,14 +137,6 @@ SOURCE=.\BodyMapDlg.h
 # Begin Source File
 
 SOURCE=.\DIBConverter.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\learning.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\libsvm.h
 # End Source File
 # Begin Source File
 

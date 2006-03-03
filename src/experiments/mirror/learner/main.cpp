@@ -28,7 +28,8 @@ int main( int, char** );
 
 // YARP communication ports: data ports
 YARPOutputPortOf<YVector> data_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-YARPInputPortOf<YVector> data_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+//YARPInputPortOf<YVector> data_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+YARPInputPortOf<YVector> data_inport (YARPInputPort::NO_BUFFERS, YARP_TCP);
 // YARP communication ports: cmd ports.
 // must be NO_BUFFERS, otherwise sequentiality is lost -
 // to improve synchronous communication, then, we force .write(true) on this port
@@ -156,7 +157,7 @@ void parseCmdLine( int argc, char** argv )
 			cout << "FATAL ERROR: must specify " << domainSize << " tolerance arguments." << endl;
 			exit(YARP_FAIL);
 		}
-		tolerance = new double[domainSize];
+		lMAlloc(tolerance, domainSize);
 		if ( tolerance == 0 ) {
 			cout << "FATAL ERROR: no memory for the tolerances." << endl;
 			exit(YARP_FAIL);
@@ -205,44 +206,80 @@ int main ( int argc, char** argv )
 		exit(YARP_FAIL);
 	}
 
+	// arrays of double to interact with the machine
+	double* x, * y;
+	lMAlloc(x,domainSize);
+	lMAlloc(y,codomainSize);
+
 	// ------------ main command parsing loop
 
 	bool goOn = true;
 
 	while ( goOn ) {
 
-		// ----- we've received a command!
+		// ----- we've received a command thru the network
 		if ( cmd_inport.Read(false) ) {
 			switch ( cmd_inport.Content() ) {
 			case lMCommand::Quit: // QUIT
 				cmd_outport.Content() = lMCommand::Ok;
 				cmd_outport.Write(true);
+				cout << "Got QUIT command. Bailing out." << endl;
 				goOn = false;
 				break;
 			case lMCommand::Reset: // RESET
+				cout << "Got RESET command. Resetting machine." << endl;
 				learner->reset();
 				cmd_outport.Content() = lMCommand::Ok;
 				cmd_outport.Write(true);
 				break;
 			default: // unrecognised port command
-				cout << "Unrecognised command from the network." << endl;
+				cout << "Unrecognised command from the network " << cmd_inport.Content() << "." << endl;
 				cmd_outport.Content() = lMCommand::Failed;
 				cmd_outport.Write(true);
 			}
 		}
 
-		// ----- we've read an example!
+		// ----- we've read an example or a sample to be predicted
 		if ( data_inport.Read(false) ) {
+			YVector example;
+			example = data_inport.Content();
+			if ( example.Length() == domainSize ) {
+//				cout << "sample " << example;
+				// predict and send
+				{ foreach(domainSize,i) x[i] = example[i]; }
+				learner->predictValue(x, y);
+				YVector prediction(codomainSize);
+				{ foreach(codomainSize,i) prediction[i] = y[i]; } 
+				data_outport.Content() = prediction;
+				data_outport.Write();
+//				cout << "pred " << prediction;
+			} else if ( example.Length() == domainSize+codomainSize ) {
+//				cout << "example " << example;
+				// add example
+				{ foreach(domainSize,i) x[i] = example[i]; }
+				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
+				learner->addExample(x, y);
+//				cout << "example " << learner->getExampleCount() << "/" << learner->getNumOfExamples() << endl;
+				cout << learner->getExampleCount() << "/" << learner->getNumOfExamples() << "     \r";
+				// train every now and then
+				if ( learner->getExampleCount() % 20 == 5 ) {
+					learner->train();
+					cout << "trained.             \r";
+				}
+			} else {
+				cout << "ERROR: got sample/example of the wrong size." << endl;
+			}
 		}
 
 		// ----- any keyboard commands?
 		if ( _kbhit() ) {
 			switch ( _getch() ) {
 			case 'r': // RESET
+				cout << "Got RESET command. Resetting machine." << endl;
 				learner->reset();
-				cout << "Machine has been reset." << endl;
 				break;
 			case 'q': // QUIT
+				cout << "Got QUIT command. Bailing out." << endl;
 				goOn = false;
 				break;
 			default: // unrecognised keyboard command
@@ -260,6 +297,8 @@ int main ( int argc, char** argv )
 	cout << "Bailing out." << endl;
 	unregisterPorts();
 	if ( uniformMachine ) delete[] tolerance;
+	delete[] x;
+	delete[] y;
 	delete learner;
 
 	return 0;

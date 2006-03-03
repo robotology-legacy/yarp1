@@ -13,13 +13,9 @@ LearningMachine::LearningMachine(
 {
 
 	// allocate and clean memory for the examples: samples,
-
-// esempio. rimpiazzare TUTTI i new con questo.
-//	_sample = new sample*[_numOfExamples];
 	lMAlloc(_sample, _numOfExamples);
-
 	{ foreach(_numOfExamples,i) {
-		_sample[i] = new sample[_domainSize+1];
+		lMAlloc(_sample[i], _domainSize+1);
 		foreach(_domainSize,k) {
 			_sample[i][k].index = k+1;
 			_sample[i][k].value = 0;
@@ -27,20 +23,20 @@ LearningMachine::LearningMachine(
 		_sample[i][_domainSize].index = -1;
 	} }
 	// and values
-	_value = new double*[_codomainSize];
+	lMAlloc(_value, _codomainSize);
 	{ foreach(_codomainSize,i) {
-		_value[i] = new double[_numOfExamples];
+		lMAlloc(_value[i], _numOfExamples);
 		foreach(_numOfExamples,j) _value[i][j] = 0.0;
 	} }
 
 	// allocate the new sample, whose value to predict
-	_newSample = new sample[_codomainSize];
+	lMAlloc(_newSample, _codomainSize);
 
 	// the means and stdvs
-	_domainMean = new double[_domainSize];
-	_codomainMean = new double[_codomainSize];
-	_domainStdv = new double[_domainSize];
-	_codomainStdv = new double[_codomainSize];
+	lMAlloc(_domainMean, _domainSize);
+	lMAlloc(_codomainMean, _codomainSize);
+	lMAlloc(_domainStdv, _domainSize);
+	lMAlloc(_codomainStdv, _codomainSize);
 
 	// evaluate statistics first time, that is, fill them with a row of 0s
 	evalStats();

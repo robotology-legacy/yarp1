@@ -36,9 +36,9 @@ SVMLearningMachine::SVMLearningMachine(
 	}
 
 	// allocate SVM problems
-	_problem = new svm_problem[_codomainSize];
+	lMAlloc(_problem, _codomainSize);
 	// allocate and clean svm models pointers
-	_model = new svm_model*[_codomainSize];
+	lMAlloc(_model, _codomainSize);
 	{ foreach(_codomainSize,i) _model[i] = 0; }
 
 	// initialise SVM problems:
@@ -48,7 +48,7 @@ SVMLearningMachine::SVMLearningMachine(
 	{ foreach(_codomainSize,i) _problem[i].y = &_value[i][0]; }
 	// (3) create their "x"'s and link the "x" field to _samples
 	{ foreach(_codomainSize,i) {
-		_problem[i].x = new svm_node*[_numOfExamples+1];
+		lMAlloc(_problem[i].x, _numOfExamples+1);
 		foreach(_numOfExamples,j) _problem[i].x[j] = (svm_node*) &_sample[j][0];
 	} }
 	// there you are. from now on you alter _samples[] and _value[], and
@@ -193,7 +193,7 @@ UniformSVMLearningMachine::UniformSVMLearningMachine(
 {
 
 	// allocate and initialise tolerances array
-	_tolerance = new double[_domainSize];
+	lMAlloc(_tolerance, _domainSize);
 	foreach(_domainSize,i) _tolerance[i] = Tolerance[i];
 
 }
@@ -250,7 +250,8 @@ const bool UniformSVMLearningMachine::isExampleWorthAdding( const double x[] )
 	} }
 
 	// normalise and compare with normalised samples
-	double* normal_x = new double[_domainSize];
+	double* normal_x;
+	lMAlloc(normal_x, _domainSize);
 	{ foreach(_domainSize,i) {
 		normal_x[i] = x[i];
 		normalise( &normal_x[i], _domainMean[i], _domainStdv[i] );

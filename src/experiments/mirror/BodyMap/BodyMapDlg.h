@@ -13,8 +13,6 @@
 #include "LiveGloveDlg.h"
 #include "LiveTrackerDlg.h"
 
-#include "learning.h"
-
 /////////////////////////////////////////////////////////////////////////////
 // CBodyMapDlg dialog
 
@@ -24,6 +22,8 @@ public:
 
 	int RegisterAndConnectPorts(void);
 	void DisconnectAndUnregisterPorts(void);
+	int RegisterAndConnectLPorts(void);
+	void DisconnectAndUnregisterLPorts(void);
 	void ShowTrackerXY(YARPImageOf<YarpPixelBGR>&, int, int);
 	void ShowExpectedTrackerXY(YARPImageOf<YarpPixelBGR>&, int, int);
 	void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*);
@@ -81,11 +81,6 @@ private:
 	// program settings
 	BodyMapSettings _settings;
 
-	// the learning machine
-	LearningMachine* _learner;
-
-	// true whilst we are gathering examples
-	bool _acquiringExamples;
 	// self explanatory
 	double _distanceMean, _distanceStdv;
 	unsigned int _distanceNumOfExamples;

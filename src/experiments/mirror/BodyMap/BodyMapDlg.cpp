@@ -2,10 +2,10 @@
 //
 
 #include "stdafx.h"
+
 #include "BodyMap.h"
 #include "BodyMapDlg.h"
-
-#include <yarp/YARPImages.h>
+#include "../learner/lMCommands.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -18,7 +18,6 @@ static char THIS_FILE[] = __FILE__;
 
 CBodyMapDlg::CBodyMapDlg(CWnd* pParent /*=NULL*/) :
 	CDialog( CBodyMapDlg::IDD, pParent ),
-	_acquiringExamples( true ),
 	_distanceMean( 0.0 ), _distanceStdv( 0.0 ), _distanceNumOfExamples(0)
 {
 
@@ -99,18 +98,6 @@ BOOL CBodyMapDlg::OnInitDialog()
 	_Camera0Dialog.ShowWindow(SW_SHOW);
 	_Camera1Dialog.ShowWindow(SW_SHOW);
 	_Tracker0Dialog.ShowWindow(SW_SHOW);
-
-	// create learning machine
-	string name = "prova";
-	_learner = new SVMLearningMachine(3,4,50,name);
-//	set tolerance at one cm (0.4 times an inch)
-//	double tolerances[3] = { 0.4, 0.4, 0.4 };
-//	_learner = new UniformSVMLearningMachine(3,4,250,"prova",tolerances);
-
-	// try and load a previous model; if found, do not acquire enything else
-	if ( _learner->load() ) {
-		_acquiringExamples = false;
-	}
 
 	return TRUE;
 
@@ -213,9 +200,7 @@ void CBodyMapDlg::OnConnect()
 		// enable the required windows
 		GetDlgItem(IDC_CONNECT)->EnableWindow(FALSE);
 		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
-		if ( _acquiringExamples == false ) {
-			GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
-		}
+		GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
 		// start live timer
 		_settings._timerID = SetTimer(1, _options.refreshFrequency, NULL);
 		_ASSERT (_settings._timerID != 0);	
@@ -252,7 +237,6 @@ void CBodyMapDlg::OnClose()
 		OnDisconnect();
 	}
 	DisconnectAndUnregisterPorts();
-	delete _learner;
 	CDialog::OnClose();
 
 }
@@ -284,34 +268,31 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 	x[0] = _settings._data.tracker0Data.x;
 	x[1] = _settings._data.tracker0Data.y;
 	x[2] = _settings._data.tracker0Data.z;
+	YVector sample(3);
+	{ for (int i=0; i<3; ++i) sample[i] = x[i]; }
+	_settings._ldata_outport.Content() = sample;
+	_settings._ldata_outport.Write(true);
+	YVector value(4);
+	_settings._ldata_inport.Read();
+	value = _settings._ldata_inport.Content();
 	double predicted_y[4];
-	_learner->predictValue(x,predicted_y);
+	{ for (int i=0; i<4; ++i) predicted_y[i] = value[i]; }
 	ShowExpectedTrackerXY(_settings._img0, (int)predicted_y[0], (int)predicted_y[1]);
 	ShowExpectedTrackerXY(_settings._img1, (int)predicted_y[2], (int)predicted_y[3]);
 
-	// (3) ------- if it is the case, add the new sample and re-train
+	// (3) ------- send example
 	double y[4];
 	y[0] = x0; y[1] = y0; y[2] = x1; y[3] = y1;
-	if ( _acquiringExamples ) {
-		if ( _learner->addExample(x,y) ) {
-			// if we haven't yet filled the samples pool, show we got one more
-			char title[50];
-			ACE_OS::sprintf(title, "%d/%d",	_learner->getExampleCount(),
-				_learner->getNumOfExamples());
-			GetDlgItem(IDC_ACQ_START)->SetWindowText(title);
-			// and, every 20 new samples after the first 5, re-train
-			if ( _learner->getExampleCount() % 20 == 5 ) {
-				_learner->train();
-			}
-		} else {
-			// otherwise, train for the last time, save the model and stop acquiring
-			_learner->train();
-			GetDlgItem(IDC_ACQ_START)->SetWindowText("Reset");
-			GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
-			_learner->save();
-			_acquiringExamples = false;
-		}
-	}
+	YVector example(7);
+	example[0] = x[0];
+	example[1] = x[1];
+	example[2] = x[2];
+	example[3] = y[0];
+	example[4] = y[1];
+	example[5] = y[2];
+	example[6] = y[3];
+	_settings._ldata_outport.Content() = example;
+	_settings._ldata_outport.Write(true);
 
 	// (4) ------- measure the error and display its stats
 	double newDistance = Distance(y,predicted_y,4);
@@ -340,18 +321,19 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 void CBodyMapDlg::OnAcqStart()
 {
 
-	// reset learning machine
-	_learner->reset();
-	
+	// try and reset remote learner
+	_settings._lcmd_outport.Content() = lMCommand::Reset;
+	_settings._lcmd_outport.Write(true);
+	_settings._lcmd_inport.Read();
+	if ( _settings._lcmd_inport.Content() == lMCommand::Failed ) {
+		MessageBox("Could not reset learner.", "Error.",MB_ICONERROR);
+		return;
+	}
+
 	// reset distance stats
 	_distanceNumOfExamples = 0;
 	_distanceMean = 0.0;
 	_distanceStdv = 0.0;
-
-	// and acquire samples again!
-	_acquiringExamples = true;
-
-	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
 
 }
 
@@ -502,7 +484,7 @@ int CBodyMapDlg::RegisterAndConnectPorts()
 		return YARP_FAIL;
 	}
 
-	return YARP_OK;
+	return RegisterAndConnectLPorts();
 
 }
 
@@ -511,6 +493,8 @@ void CBodyMapDlg::DisconnectAndUnregisterPorts()
 
 	char tmpBMPortName[255];
 	char tmpMCPortName[255];
+
+	DisconnectAndUnregisterLPorts();
 
 	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:int", _settings.BodyMapPortName);
 	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", _settings.MirrorCollectorPortName);
@@ -536,5 +520,89 @@ void CBodyMapDlg::DisconnectAndUnregisterPorts()
 	ACE_OS::sprintf(tmpMCPortName,"/%s/o:str", _settings.MirrorCollectorPortName);
 	_settings._data_inport.Connect(tmpMCPortName, tmpBMPortName);
 	_settings._data_inport.Unregister();
+
+}
+
+int CBodyMapDlg::RegisterAndConnectLPorts()
+{
+
+	char tmpBMPortName[255];
+	char tmpMCPortName[255];
+
+	// ----------- data to/from learner
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:vec", "learner");
+	ACE_OS::sprintf(tmpBMPortName,"!/%s_L/i:vec", _settings.BodyMapPortName);
+	_settings._ldata_inport.Connect(tmpMCPortName, tmpBMPortName);
+	ACE_OS::sprintf(tmpBMPortName,"/%s_L/i:vec", _settings.BodyMapPortName);
+	if ( _settings._ldata_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
+		return YARP_FAIL;
+	}
+	if ( _settings._ldata_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
+		return YARP_FAIL;
+	}
+
+	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:vec", "learner");
+	ACE_OS::sprintf(tmpBMPortName,"/%s_L/o:vec", _settings.BodyMapPortName);
+	_settings._ldata_outport.Connect(tmpBMPortName, tmpMCPortName);
+	ACE_OS::sprintf(tmpMCPortName,"/%s/i:vec", "learner");
+	if ( _settings._ldata_outport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
+		return YARP_FAIL;
+	}
+	if ( _settings._ldata_outport.Connect(tmpBMPortName, tmpMCPortName) != YARP_OK ) {
+		return YARP_FAIL;
+	}
+
+	// ----------- commands
+	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:int", "learner");
+	ACE_OS::sprintf(tmpBMPortName,"/%s_L/o:int", _settings.BodyMapPortName);
+	_settings._lcmd_inport.Connect(tmpBMPortName, tmpMCPortName);
+	ACE_OS::sprintf(tmpMCPortName,"/%s/i:int", "learner");
+	if ( _settings._lcmd_outport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
+		return YARP_FAIL;
+	}
+	if ( _settings._lcmd_outport.Connect(tmpBMPortName, tmpMCPortName) != YARP_OK ) {
+		return YARP_FAIL;
+	}
+
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", "learner");
+	ACE_OS::sprintf(tmpBMPortName,"!/%s_L/i:int", _settings.BodyMapPortName);
+	_settings._lcmd_inport.Connect(tmpMCPortName, tmpBMPortName);
+	ACE_OS::sprintf(tmpBMPortName,"/%s_L/i:int", _settings.BodyMapPortName);
+	if ( _settings._lcmd_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
+		return YARP_FAIL;
+	}
+	if ( _settings._lcmd_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
+		return YARP_FAIL;
+	}
+
+	return YARP_OK;
+
+}
+
+void CBodyMapDlg::DisconnectAndUnregisterLPorts()
+{
+
+	char tmpBMPortName[255];
+	char tmpMCPortName[255];
+
+	ACE_OS::sprintf(tmpBMPortName,"!/%s_L/i:int", _settings.BodyMapPortName);
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", "learner");
+	_settings._lcmd_inport.Connect(tmpMCPortName, tmpBMPortName);
+	_settings._lcmd_inport.Unregister();
+
+	ACE_OS::sprintf(tmpBMPortName,"/%s_L/o:int", _settings.BodyMapPortName);
+	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:int", "learner");
+	_settings._lcmd_outport.Connect(tmpBMPortName, tmpMCPortName);
+	_settings._lcmd_outport.Unregister();
+	
+	ACE_OS::sprintf(tmpBMPortName,"!/%s_L/i:vec", _settings.BodyMapPortName);
+	ACE_OS::sprintf(tmpMCPortName,"/%s/o:vec", "learner");
+	_settings._ldata_inport.Connect(tmpMCPortName, tmpBMPortName);
+	_settings._ldata_inport.Unregister();
+
+	ACE_OS::sprintf(tmpBMPortName,"/%s_L/o:vec", _settings.BodyMapPortName);
+	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:vec", "learner");
+	_settings._ldata_outport.Connect(tmpBMPortName, tmpMCPortName);
+	_settings._ldata_outport.Unregister();
 
 }
