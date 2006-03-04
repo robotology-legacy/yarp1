@@ -10,6 +10,6 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
 
 // launch two mirrorCollector, learner and BodyMap
-WshShell.Run ("mirrorCollector", 1, false);
+WshShell.Run ("on -d -n atlas mirrorCollector", 1, false);
 WshShell.Run ("learner --dom 3 --cod 4 --ex 150", 1, false);
 WshShell.Run ("BodyMap", 1, false);
