@@ -32,7 +32,7 @@ template <class S, class T> inline void clone(T*& dst, S* src, int n)
 #define TAU 1e-12
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
-#if 1
+#if LIBSVM_DEBUG
 void info(char *fmt,...)
 {
 

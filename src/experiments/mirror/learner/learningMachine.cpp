@@ -46,16 +46,15 @@ LearningMachine::LearningMachine(
 LearningMachine::~LearningMachine()
 {
 
-	// delete statistics
 	delete[] _codomainStdv;
 	delete[] _domainStdv;
 	delete[] _codomainMean;
 	delete[] _domainMean;
 
-	// delete examples: values
+	delete[] _newSample;
+
 	{ foreach(_codomainSize,i) delete[] _value[i]; }
 	delete[] _value;
-	// and samples
 	{ foreach(_numOfExamples,i) delete[] _sample[i]; }
 	delete[] _sample;
 
@@ -75,10 +74,14 @@ void LearningMachine::save( void )
 
 	// save means and stdvs
 	string statsFileName = _machineFileName + ".stats";
-	ofstream ofOut(statsFileName.c_str());
+	ofstream statsOfstream(statsFileName.c_str());
+	if ( statsOfstream.is_open() == 0 ) {
+		cout << "ERROR: could not save statistics." << endl;
+		return;
+	}
 
-	{ foreach(_domainSize,i) ofOut << _domainMean[i] << " " << _domainStdv[i] << endl; }
-	{ foreach(_codomainSize,i) ofOut << _codomainMean[i] << " " << _codomainStdv[i] << endl; }
+	{ foreach(_domainSize,i) statsOfstream << _domainMean[i] << " " << _domainStdv[i] << endl; }
+	{ foreach(_codomainSize,i) statsOfstream << _codomainMean[i] << " " << _codomainStdv[i] << endl; }
 
 }
 
@@ -87,13 +90,14 @@ const bool LearningMachine::load( void )
 
 	// load means and stdvs
 	string statsFileName = _machineFileName + ".stats";
-	ifstream ifIn(statsFileName.c_str());
-	if ( ifIn.is_open() == false ) {
+	ifstream statsIfstream(statsFileName.c_str());
+	if ( statsIfstream.is_open() == false ) {
+		cout << "no previous statistics found." << endl;
 		return false;
 	}
 
-	{ foreach(_domainSize,i) ifIn >> _domainMean[i] >> _domainStdv[i]; }
-	{ foreach(_codomainSize,i) ifIn >> _codomainMean[i] >> _codomainStdv[i]; }
+	{ foreach(_domainSize,i) statsIfstream >> _domainMean[i] >> _domainStdv[i]; }
+	{ foreach(_codomainSize,i) statsIfstream >> _codomainMean[i] >> _codomainStdv[i]; }
 	
 	return true;
 

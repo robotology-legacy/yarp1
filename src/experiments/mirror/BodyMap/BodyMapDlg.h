@@ -20,14 +20,12 @@ class CBodyMapDlg : public CDialog {
 
 public:
 
-	int RegisterAndConnectPorts(void);
-	void DisconnectAndUnregisterPorts(void);
-	int RegisterAndConnectLPorts(void);
-	void DisconnectAndUnregisterLPorts(void);
+	const double Distance(const double[], const double[], const unsigned int) const;
+	void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*);
 	void ShowTrackerXY(YARPImageOf<YarpPixelBGR>&, int, int);
 	void ShowExpectedTrackerXY(YARPImageOf<YarpPixelBGR>&, int, int);
-	void FindTrackerXY(YARPImageOf<YarpPixelBGR>&, int*, int*);
-	const double Distance(const double[], const double[], const unsigned int) const;
+	int RegisterPorts(void);
+	void UnregisterPorts(void);
 
 	CBodyMapDlg(CWnd* pParent = NULL);	// standard constructor
 

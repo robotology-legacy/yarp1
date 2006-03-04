@@ -158,10 +158,6 @@ void parseCmdLine( int argc, char** argv )
 			exit(YARP_FAIL);
 		}
 		lMAlloc(tolerance, domainSize);
-		if ( tolerance == 0 ) {
-			cout << "FATAL ERROR: no memory for the tolerances." << endl;
-			exit(YARP_FAIL);
-		}
 		{ foreach_s(index+1,index+1+domainSize,i) 
 			if ( sscanf(argv[i], "%lf", &tolerance[i-index-1]) != 1 ) {
 				cout << "FATAL ERROR: invalid tolerance value." << endl;
@@ -206,7 +202,11 @@ int main ( int argc, char** argv )
 		exit(YARP_FAIL);
 	}
 
-	// arrays of double to interact with the machine
+	// try and load a previously saved model
+	learner->load();
+
+	// vectors and arrays of double to interact with the machine
+	YVector example, prediction(codomainSize);
 	double* x, * y;
 	lMAlloc(x,domainSize);
 	lMAlloc(y,codomainSize);
@@ -217,7 +217,7 @@ int main ( int argc, char** argv )
 
 	while ( goOn ) {
 
-		// ----- we've received a command thru the network
+		// ----- command thru the network
 		if ( cmd_inport.Read(false) ) {
 			switch ( cmd_inport.Content() ) {
 			case lMCommand::Quit: // QUIT
@@ -239,32 +239,26 @@ int main ( int argc, char** argv )
 			}
 		}
 
-		// ----- we've read an example or a sample to be predicted
+		// ----- read an example or a sample to be predicted
 		if ( data_inport.Read(false) ) {
-			YVector example;
 			example = data_inport.Content();
 			if ( example.Length() == domainSize ) {
-//				cout << "sample " << example;
-				// predict and send
+				// this is just a sample: then predict and send
 				{ foreach(domainSize,i) x[i] = example[i]; }
 				learner->predictValue(x, y);
-				YVector prediction(codomainSize);
 				{ foreach(codomainSize,i) prediction[i] = y[i]; } 
 				data_outport.Content() = prediction;
 				data_outport.Write();
-//				cout << "pred " << prediction;
 			} else if ( example.Length() == domainSize+codomainSize ) {
-//				cout << "example " << example;
-				// add example
+				// a full example: add it
 				{ foreach(domainSize,i) x[i] = example[i]; }
 				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
 				learner->addExample(x, y);
-//				cout << "example " << learner->getExampleCount() << "/" << learner->getNumOfExamples() << endl;
 				cout << learner->getExampleCount() << "/" << learner->getNumOfExamples() << "     \r";
-				// train every now and then
+				// every now and then, train and save the model
 				if ( learner->getExampleCount() % 20 == 5 ) {
 					learner->train();
-					cout << "trained.             \r";
+					learner->save();
 				}
 			} else {
 				cout << "ERROR: got sample/example of the wrong size." << endl;

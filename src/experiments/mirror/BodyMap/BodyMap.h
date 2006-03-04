@@ -15,6 +15,7 @@
 #include "resource.h"		// main symbols
 
 #include <yarp/YARPMath.h>
+#include <yarp/YARPString.h>
 
 // ----------- program options, coming from the collector
 struct BodyMapOptions {
@@ -41,22 +42,8 @@ struct BodyMapSettings {
 	  _lcmd_inport (YARPInputPort::NO_BUFFERS, YARP_TCP),
 	  _lcmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP),
 
-	  _timerID(0)
-	{
-		ACE_OS::strcpy(BodyMapPortName, "BodyMap");
-		ACE_OS::strcpy(MirrorCollectorPortName, "mirrorCollector");
-		ACE_OS::strcpy(netName, "default");
-		ACE_OS::strcpy(savePath, "d:\\tmp");
-	};
-	// strings related to ports and save-file
-	char BodyMapPortName[255];
-	char MirrorCollectorPortName[255];
-	char netName[255];
-	char savePath[255];
-	// data coming from the collector
-	CollectorNumericalData _data;
-	CollectorImage         _img0;
-	CollectorImage         _img1;
+	  _timerID(0), _portName("BodyMap"), _netName("default") {}
+
 	// ports: data from collector
 	YARPInputPortOf<CollectorNumericalData> _data_inport;
 	YARPInputPortOf<YARPGenericImage>       _img0_inport;
@@ -72,6 +59,13 @@ struct BodyMapSettings {
 	YARPOutputPortOf<int> _lcmd_outport;
 	// ID of live acquisition timer
 	UINT _timerID;
+	// port & net name
+	YARPString _portName;
+	YARPString _netName;
+	// data coming from the collector
+	CollectorNumericalData _data;
+	CollectorImage         _img0;
+	CollectorImage         _img1;
 };
 
 /////////////////////////////////////////////////////////////////////////////

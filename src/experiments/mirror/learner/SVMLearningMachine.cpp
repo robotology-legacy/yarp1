@@ -32,7 +32,8 @@ SVMLearningMachine::SVMLearningMachine(
 	const char* error_msg;
 	error_msg = svm_check_parameter( 0, &_param );
 	if ( error_msg != 0 ) {
-		exit(0);
+		cout << "FATAL ERROR: libsvm parameters are incorrect." << endl;
+		exit(-1);
 	}
 
 	// allocate SVM problems
@@ -45,11 +46,11 @@ SVMLearningMachine::SVMLearningMachine(
 	// (1) tell them how many _samples we use
 	{ foreach(_codomainSize,i) _problem[i].l = _numOfExamples; }
 	// (2) link their "y" field to values of the LearningMachine
-	{ foreach(_codomainSize,i) _problem[i].y = &_value[i][0]; }
+	{ foreach(_codomainSize,i) _problem[i].y = _value[i]; }
 	// (3) create their "x"'s and link the "x" field to _samples
 	{ foreach(_codomainSize,i) {
 		lMAlloc(_problem[i].x, _numOfExamples+1);
-		foreach(_numOfExamples,j) _problem[i].x[j] = (svm_node*) &_sample[j][0];
+		foreach(_numOfExamples,j) _problem[i].x[j] = (svm_node*) _sample[j];
 	} }
 	// there you are. from now on you alter _samples[] and _value[], and
 	// really you are touching the SVM problems.
@@ -59,16 +60,13 @@ SVMLearningMachine::SVMLearningMachine(
 SVMLearningMachine::~SVMLearningMachine()
 {
 
-	// delete models
 	{ foreach(_codomainSize,i) if ( _model[i] != 0 ) svm_destroy_model( _model[i] ); }
 	delete[] _model;
-	// delete problems
+
 	{ foreach(_codomainSize,i) delete[] _problem[i].x; }
 	delete[] _problem;
-	// delete sample to be predicted
-	delete[] _newSample;
-	// destroy machine parameters
-    svm_destroy_param( &_param );
+    
+	svm_destroy_param( &_param );
 
 }
 
@@ -149,10 +147,15 @@ void SVMLearningMachine::save( void )
 {
 
 	// save models
+
 	{ foreach(_codomainSize,i) {
-		char modelFileName[255];
-		sprintf(modelFileName, "%s.%d.model", _machineFileName.c_str(), i);
-		svm_save_model(modelFileName, _model[i]);
+		stringstream index;
+		index << i;
+		string modelFileName = _machineFileName + "." + index.str() + ".model";
+		if ( svm_save_model(modelFileName.c_str(), _model[i]) == -1 ) {
+			cout << "ERROR: could not save model." << endl;
+			return;
+		}
 	} }
 
 	LearningMachine::save();
@@ -166,10 +169,12 @@ const bool SVMLearningMachine::load( void )
 	// or the stats fail to be found, set all models to 0
 
 	{ foreach(_codomainSize,i) {
-		char modelFileName[255];
-		sprintf(modelFileName, "%s.%d.model", _machineFileName.c_str(), i);
-		_model[i] = svm_load_model(modelFileName);
+		stringstream index;
+		index << i;
+		string modelFileName = _machineFileName + "." + index.str() + ".model";
+		_model[i] = svm_load_model(modelFileName.c_str());
 		if ( _model[i] == 0 ) {
+			cout << "no previous model found." << endl;
 			foreach(_codomainSize,j) _model[j] = 0;
 			return false;
 		}
@@ -201,7 +206,6 @@ UniformSVMLearningMachine::UniformSVMLearningMachine(
 UniformSVMLearningMachine::~UniformSVMLearningMachine( void )
 {
 
-	// delete tolerances
 	delete[] _tolerance;
 
 }

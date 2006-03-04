@@ -7,6 +7,7 @@
 // -------------------------------------------------------
 // a plain support vector machine, based upon libsvm.
 
+#include <sstream>
 #include "learningMachine.h"
 #include "libsvm.h"
 

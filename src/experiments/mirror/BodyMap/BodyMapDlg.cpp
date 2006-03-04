@@ -7,6 +7,8 @@
 #include "BodyMapDlg.h"
 #include "../learner/lMCommands.h"
 
+#include <yarp/YARPString.h>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -90,8 +92,8 @@ BOOL CBodyMapDlg::OnInitDialog()
 	_Tracker1Dialog.Create(CLiveTrackerDlg::IDD, this); _Tracker1Dialog.SetWindowText("LIVE: Tracker #1");
 	_GloveDialog.Create(CLiveGloveDlg::IDD, this);
 	// register and connect ports
-	if ( RegisterAndConnectPorts() == YARP_FAIL ) {
-		MessageBox("Could not register or connect ports.", "Fatal error.", MB_ICONERROR);
+	if ( RegisterPorts() == YARP_FAIL ) {
+		MessageBox("Could not register ports.", "Fatal error.", MB_ICONERROR);
 		exit(YARP_FAIL);
 	}
 	// show windows
@@ -236,7 +238,7 @@ void CBodyMapDlg::OnClose()
 	if ( GetDlgItem(IDC_DISCONNECT)->IsWindowEnabled() ) {
 		OnDisconnect();
 	}
-	DisconnectAndUnregisterPorts();
+	UnregisterPorts();
 	CDialog::OnClose();
 
 }
@@ -421,188 +423,53 @@ void CBodyMapDlg::ShowExpectedTrackerXY(YARPImageOf<YarpPixelBGR>& img, int x, i
 
 }
 
-int CBodyMapDlg::RegisterAndConnectPorts()
+int CBodyMapDlg::RegisterPorts()
 {
 
-	char tmpBMPortName[255];
-	char tmpMCPortName[255];
+	YARPString tmpPortName;
 
-	// ----------- data
-	// set up collector's port name
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:str", _settings.MirrorCollectorPortName);
-	// first try and disconnect collector's port - useful if previous instance of BodyMap has crashed
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:str", _settings.BodyMapPortName);
-	_settings._data_inport.Connect(tmpMCPortName, tmpBMPortName);
-	// now register BodyMap's port
-	ACE_OS::sprintf(tmpBMPortName,"/%s/i:str", _settings.BodyMapPortName);
-	if ( _settings._data_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	// then try and connect to collector's port
-	if ( _settings._data_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	// ----------- images
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img0", _settings.MirrorCollectorPortName);
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:img0", _settings.BodyMapPortName);
-	_settings._img0_inport.Connect(tmpMCPortName, tmpBMPortName);
-	ACE_OS::sprintf(tmpBMPortName,"/%s/i:img0", _settings.BodyMapPortName);
-	if ( _settings._img0_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img0", _settings.MirrorCollectorPortName);
-	if ( _settings._img0_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img1", _settings.MirrorCollectorPortName);
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:img1", _settings.BodyMapPortName);
-	_settings._img1_inport.Connect(tmpMCPortName, tmpBMPortName);
-	ACE_OS::sprintf(tmpBMPortName,"/%s/i:img1", _settings.BodyMapPortName);
-	if ( _settings._img1_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	if ( _settings._img1_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	// ----------- commands
-	ACE_OS::sprintf(tmpBMPortName,"/%s/o:int", _settings.BodyMapPortName);
-	if ( _settings._cmd_outport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	ACE_OS::sprintf(tmpMCPortName,"/%s/i:int", _settings.MirrorCollectorPortName);
-	if ( _settings._cmd_outport.Connect(tmpBMPortName, tmpMCPortName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", _settings.MirrorCollectorPortName);
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:int", _settings.BodyMapPortName);
-	_settings._cmd_inport.Connect(tmpMCPortName, tmpBMPortName);
-	ACE_OS::sprintf(tmpBMPortName,"/%s/i:int", _settings.BodyMapPortName);
-	if ( _settings._cmd_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	if ( _settings._cmd_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
+	// ----------------------------------- to/from the collector
+	// numerical data & images
+	tmpPortName = "/" + _settings._portName + "/i:str";
+	if ( _settings._data_inport.Register(tmpPortName.c_str(), _settings._netName.c_str()) != YARP_OK ) return YARP_FAIL;
+	tmpPortName = "/" + _settings._portName + "/i:img0";
+	if ( _settings._img0_inport.Register(tmpPortName.c_str(), _settings._netName.c_str()) != YARP_OK ) return YARP_FAIL;
+	tmpPortName = "/" + _settings._portName + "/i:img1";
+	if ( _settings._img1_inport.Register(tmpPortName.c_str(), _settings._netName.c_str()) != YARP_OK ) return YARP_FAIL;
+	// commands
+	tmpPortName = "/" + _settings._portName + "/i:int";
+	if ( _settings._cmd_inport.Register(tmpPortName.c_str(), _settings._netName.c_str()) != YARP_OK ) return YARP_FAIL;
+	tmpPortName = "/" + _settings._portName + "/o:int";
+	if ( _settings._cmd_outport.Register(tmpPortName.c_str(), _settings._netName.c_str()) != YARP_OK ) return YARP_FAIL;
 
-	return RegisterAndConnectLPorts();
-
-}
-
-void CBodyMapDlg::DisconnectAndUnregisterPorts()
-{
-
-	char tmpBMPortName[255];
-	char tmpMCPortName[255];
-
-	DisconnectAndUnregisterLPorts();
-
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:int", _settings.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", _settings.MirrorCollectorPortName);
-	_settings._cmd_inport.Connect(tmpMCPortName, tmpBMPortName);
-	_settings._cmd_inport.Unregister();
-
-	ACE_OS::sprintf(tmpBMPortName,"/%s/o:int", _settings.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:int", _settings.MirrorCollectorPortName);
-	_settings._cmd_outport.Connect(tmpBMPortName, tmpMCPortName);
-	_settings._cmd_outport.Unregister();
-	
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:img1", _settings.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img1", _settings.MirrorCollectorPortName);
-	_settings._img1_inport.Connect(tmpMCPortName, tmpBMPortName);
-	_settings._img1_inport.Unregister();
-
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:img0", _settings.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:img0", _settings.MirrorCollectorPortName);
-	_settings._img0_inport.Connect(tmpMCPortName, tmpBMPortName);
-	_settings._img0_inport.Unregister();
-
-	ACE_OS::sprintf(tmpBMPortName,"!/%s/i:str", _settings.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:str", _settings.MirrorCollectorPortName);
-	_settings._data_inport.Connect(tmpMCPortName, tmpBMPortName);
-	_settings._data_inport.Unregister();
-
-}
-
-int CBodyMapDlg::RegisterAndConnectLPorts()
-{
-
-	char tmpBMPortName[255];
-	char tmpMCPortName[255];
-
-	// ----------- data to/from learner
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:vec", "learner");
-	ACE_OS::sprintf(tmpBMPortName,"!/%s_L/i:vec", _settings.BodyMapPortName);
-	_settings._ldata_inport.Connect(tmpMCPortName, tmpBMPortName);
-	ACE_OS::sprintf(tmpBMPortName,"/%s_L/i:vec", _settings.BodyMapPortName);
-	if ( _settings._ldata_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	if ( _settings._ldata_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-
-	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:vec", "learner");
-	ACE_OS::sprintf(tmpBMPortName,"/%s_L/o:vec", _settings.BodyMapPortName);
-	_settings._ldata_outport.Connect(tmpBMPortName, tmpMCPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/i:vec", "learner");
-	if ( _settings._ldata_outport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	if ( _settings._ldata_outport.Connect(tmpBMPortName, tmpMCPortName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-
-	// ----------- commands
-	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:int", "learner");
-	ACE_OS::sprintf(tmpBMPortName,"/%s_L/o:int", _settings.BodyMapPortName);
-	_settings._lcmd_inport.Connect(tmpBMPortName, tmpMCPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/i:int", "learner");
-	if ( _settings._lcmd_outport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	if ( _settings._lcmd_outport.Connect(tmpBMPortName, tmpMCPortName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", "learner");
-	ACE_OS::sprintf(tmpBMPortName,"!/%s_L/i:int", _settings.BodyMapPortName);
-	_settings._lcmd_inport.Connect(tmpMCPortName, tmpBMPortName);
-	ACE_OS::sprintf(tmpBMPortName,"/%s_L/i:int", _settings.BodyMapPortName);
-	if ( _settings._lcmd_inport.Register(tmpBMPortName, _settings.netName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
-	if ( _settings._lcmd_inport.Connect(tmpMCPortName, tmpBMPortName) != YARP_OK ) {
-		return YARP_FAIL;
-	}
+	// ----------------------------------- to/from the learner
+	// vectors
+	tmpPortName = "/" + _settings._portName + "L/i:vec";
+	if ( _settings._ldata_inport.Register(tmpPortName.c_str(), _settings._netName.c_str()) != YARP_OK ) return YARP_FAIL;
+	tmpPortName = "/" + _settings._portName + "L/o:vec";
+	if ( _settings._ldata_outport.Register(tmpPortName.c_str(), _settings._netName.c_str()) != YARP_OK ) return YARP_FAIL;
+	// commands
+	tmpPortName = "/" + _settings._portName + "L/i:int";
+	if ( _settings._lcmd_inport.Register(tmpPortName.c_str(), _settings._netName.c_str()) != YARP_OK ) return YARP_FAIL;
+	tmpPortName = "/" + _settings._portName + "L/o:int";
+	if ( _settings._lcmd_outport.Register(tmpPortName.c_str(), _settings._netName.c_str()) != YARP_OK ) return YARP_FAIL;
 
 	return YARP_OK;
 
 }
 
-void CBodyMapDlg::DisconnectAndUnregisterLPorts()
+void CBodyMapDlg::UnregisterPorts()
 {
 
-	char tmpBMPortName[255];
-	char tmpMCPortName[255];
-
-	ACE_OS::sprintf(tmpBMPortName,"!/%s_L/i:int", _settings.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:int", "learner");
-	_settings._lcmd_inport.Connect(tmpMCPortName, tmpBMPortName);
-	_settings._lcmd_inport.Unregister();
-
-	ACE_OS::sprintf(tmpBMPortName,"/%s_L/o:int", _settings.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:int", "learner");
-	_settings._lcmd_outport.Connect(tmpBMPortName, tmpMCPortName);
 	_settings._lcmd_outport.Unregister();
-	
-	ACE_OS::sprintf(tmpBMPortName,"!/%s_L/i:vec", _settings.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"/%s/o:vec", "learner");
-	_settings._ldata_inport.Connect(tmpMCPortName, tmpBMPortName);
+	_settings._lcmd_inport.Unregister();
+	_settings._ldata_outport.Unregister();
 	_settings._ldata_inport.Unregister();
 
-	ACE_OS::sprintf(tmpBMPortName,"/%s_L/o:vec", _settings.BodyMapPortName);
-	ACE_OS::sprintf(tmpMCPortName,"!/%s/i:vec", "learner");
-	_settings._ldata_outport.Connect(tmpBMPortName, tmpMCPortName);
-	_settings._ldata_outport.Unregister();
+	_settings._cmd_outport.Unregister();
+	_settings._cmd_inport.Unregister();
+	_settings._img1_inport.Unregister();
+	_settings._img0_inport.Unregister();
+	_settings._data_inport.Unregister();
 
 }
