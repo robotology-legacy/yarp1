@@ -19,10 +19,10 @@ WshShell.Run ("on -d -n polifemo \"grabber.exe --b 0 --name /left --net Net1 --o
 WshShell.Run ("on -d -n polifemo \"grabber.exe --b 1 --name /right --net Net1 --o -4\"", 7, true);
 WshShell.Run ("on -d -n atlas \"camview.exe --name /TeleCtrlLView/i:img --x 1 --y 1 --net Net1 --p 100\"", 7, true);
 WshShell.Run ("on -d -n atlas \"camview.exe --name /TeleCtrlRView/i:img --x 1 --y 270 --net Net1 --p 100\"", 7, true);
-WshShell.Run ("yarp-connect /left/o:img !/TeleCtrlLView/i:img", 7, false);
-WshShell.Run ("yarp-connect /right/o:img !/TeleCtrlRView/i:img", 7, false);
-WshShell.Run ("yarp-connect /left/o:img /TeleCtrlLView/i:img", 7, false);
-WshShell.Run ("yarp-connect /right/o:img /TeleCtrlRView/i:img", 7, false);
+WshShell.Run ("yarp-connect /left/o:img !/TeleCtrlLView/i:img", 7, true);
+WshShell.Run ("yarp-connect /right/o:img !/TeleCtrlRView/i:img", 7, true);
+WshShell.Run ("yarp-connect /left/o:img /TeleCtrlLView/i:img", 7, true);
+WshShell.Run ("yarp-connect /right/o:img /TeleCtrlRView/i:img", 7, true);
 
 // launch mirror collector
 WshShell.Run ("on -d -n atlas \"mirrorCollector\"", 7, true);
