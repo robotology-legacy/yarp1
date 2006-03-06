@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.9 2006-02-24 14:40:51 claudio72 Exp $
+/// $Id: TeleCtrl.cpp,v 1.10 2006-03-06 08:54:08 claudio72 Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -185,7 +185,7 @@ double dWristYawFactor = 0.0;
 // arm joints initial position (in degrees)
 double offsetQ0 =   20.0;
 double offsetQ1 =   25.0;
-double offsetQ2 =  -40.0;
+double offsetQ2 =   40.0;
 double offsetQ3 =   20.0;
 double offsetQ4 =  -20.0;
 double offsetQ5 = -180.0;
@@ -234,8 +234,6 @@ void streamingThread::Body (void)
   rot[2][1] =  sin(refAz);            rot[2][2] =  cos(refAz);            rot[2][3] =  0;
   rot[3][1] =  sin(refEl)*cos(refAz); rot[3][2] = -sin(refEl)*sin(refAz); rot[3][3] =  cos(refEl);
 
-int count=0;
-
   // loop until the thread is terminated ( thread.End() )
   while ( !IsTerminated() ) {
 
@@ -265,9 +263,9 @@ int count=0;
       cout.precision(5);
       // then set the desired_X (in CMs)
       desired_X[0] = frX*myInchToCM; desired_X[1] = frY*myInchToCM; desired_X[2] = frZ*myInchToCM;
-      // evaluate inverse kinematics according to tracker position
+	  // evaluate inverse kinematics according to tracker position
       inverse_kinematics(desired_X, required_Q, starting_Q);
-      // now: if the end-effector position has not changed thanks to this shift in required_Q,
+	  // now: if the end-effector position has not changed thanks to this shift in required_Q,
       // it is an unwanted, in-place rotation. so we discard it and revert to the old required_Q
       YVector actual_X(3);
       forward_kinematics(required_Q, actual_X);
@@ -277,24 +275,24 @@ int count=0;
 	      current_X = actual_X;
 	      // all Qs are in DEGREES
 	      cout.precision(3);
-          cout 
+//          cout 
 //	        << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
-	        << "Q: "
-			<< (offsetQ0-required_Q[0]) << " "
-			<< (offsetQ1-required_Q[1]) << " "
-			<< (offsetQ2-required_Q[2]) << "       \r";
-	      cout.flush();
+//	        << "Q: "
+//			<< offsetQ0-required_Q[0] << " "
+//			<< offsetQ1-required_Q[1] << " "
+//			<< offsetQ2-required_Q[2] << "       \r";
+//	      cout.flush();
 
-          // computing glove wrist possition
+          // computing glove wrist position
           dWristYaw = (double)(_data.gloveData.wrist[1] - iWristYawMeanPosition)* (double)dWristYawFactor;
 	      // send IK commands to the arm.
 	      // WARNING: the PUMA arm has all the axes swapped around, therefore the minus signs
 	      SendArmPositions(
-			  offsetQ0*myDegToRad,
-			  offsetQ1*myDegToRad,
-			  offsetQ2*myDegToRad,
+			  (offsetQ0-required_Q[0])*myDegToRad,
+			  (offsetQ1-required_Q[1])*myDegToRad,
+			  (offsetQ2-required_Q[2])*myDegToRad,
 			  offsetQ3*myDegToRad,
-			  dWristYaw,
+			  offsetQ4*myDegToRad,// dWristYaw,
 			  offsetQ5*myDegToRad );
 	  }
       // send glove commands to the gripper - not so far
@@ -302,9 +300,10 @@ int count=0;
       dIndex[0]  = (double)abs(_data.gloveData.index[0]-iIndexClose[0]) * (double)dIndexFactor[0];
       dMiddle[0] = (double)abs(_data.gloveData.middle[0]-iMiddleClose[0]) * (double)dMiddleFactor[0];
 
-      cout << "Hand:\t" << dIndex[0] << "\t" << dMiddle[0] << "\t" << dThumb[0] << "\t" << count++ << "       \r";
+      cout.precision(3);
+      cout << "Hand:\t" << dIndex[0] << "\t" << dMiddle[0] << "\t" << dThumb[0] << "       \r";
 	  cout.flush();
-      SendHandPositions(dThumb, dIndex, dMiddle);
+//      SendHandPositions(dThumb, dIndex, dMiddle);
     }
 	
   }
@@ -497,16 +496,15 @@ void forward_kinematics(YVector& Q, YVector& X)
   e_csi_3[3][0] =          0; e_csi_3[3][1] =          0; e_csi_3[3][2] =          0; e_csi_3[3][3] =  1;
   // end effector (displaced -L3 on Y)
   g_st_0[0][0]  =          1; g_st_0[0][1]  =          0; g_st_0[0][2]  =          0; g_st_0[0][3]  =  0;
-  g_st_0[1][0]  =          0; g_st_0[1][1]  =          1; g_st_0[1][2]  =          0; g_st_0[1][3]  = -L3;
+  g_st_0[1][0]  =          0; g_st_0[1][1]  =          1; g_st_0[1][2]  =          0; g_st_0[1][3]  =  -L3;
   g_st_0[2][0]  =          0; g_st_0[2][1]  =          0; g_st_0[2][2]  =          1; g_st_0[2][3]  =  0;
   g_st_0[3][0]  =          0; g_st_0[3][1]  =          0; g_st_0[3][2]  =          0; g_st_0[3][3]  =  1;
   // final configuration: chain-multiply all !!
   T = e_csi_1 * (e_csi_2 * (e_csi_3 * g_st_0));
 
-  // give me the end-effector's position translated back to its frame. we assume the arm is
-  // initially stretched in front of the head
+  // give me the end-effector's position translated back to its frame.
   zero[0] = 0; zero[1] = 0; zero[2] = 0; zero[3] = 1;
-  translation[0] = L2; translation[1] = L1-L3; translation[2] = H1+H2; translation[3] = 1;
+  translation[0] = L2; translation[1] = L1+L2prime-L3; translation[2] = H1+H2; translation[3] = 1;
   tmpX = (T * zero) - translation;
 
   // project on first three cordinates (we are not interested in the last "1")
@@ -794,7 +792,7 @@ int main()
        << refAz/myDegToRad << ", " << refEl/myDegToRad << ", " << refRo/myDegToRad << endl;
   cout.flush();
 
-//goto skip_gripper_calibration;
+// goto skip_gripper_calibration;
 
   //---------------------------------------------------- 
   // Data glove calibration
@@ -933,7 +931,7 @@ int main()
       cout.flush();
   }
 
-//skip_gripper_calibration:
+// skip_gripper_calibration:
 
   // ----------------------------
   // place arm in its initial position
