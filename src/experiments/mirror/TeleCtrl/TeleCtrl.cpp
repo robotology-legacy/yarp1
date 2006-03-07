@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.12 2006-03-07 17:10:35 claudio72 Exp $
+/// $Id: TeleCtrl.cpp,v 1.13 2006-03-07 17:51:48 beltran Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -180,14 +180,17 @@ int iMiddleClose[2] = {0, 0};
 // Values for wrist
 const double robotWristDown = -90*myDegToRad;
 const double robotWristUp   =  90*myDegToRad;
-double dWrist0;
-double dWristF;
+double dWrist0 = 0.0;
+double dWristF = 0.0;
 
 //Data glove transformation factors
 double dThumbFactor[2]  = {0.0, 0.0};
 double dIndexFactor[2]  = {0.0, 0.0};
 double dMiddleFactor[2] = {0.0, 0.0};
-double dWristYawFactor = 0.0;
+
+//Fingers angles
+const double fingerOpen  = 0.0;
+const double fingerClose = 50 * myDegToRad;
 
 // arm joints initial position (in degrees). the arm is initially
 // stretched with the hand down (looks like the Fascist salutation, unluckily)
@@ -797,7 +800,7 @@ int main()
 
 	// ---------------------------------------------------- 
 	// acquire wrist
-	int iWristYawDown, iWristYawUp;
+	int iWristDown, iWristUp;
 	// down
 	cout << endl << "Move your hand DOWN and press any key.";
 	cout.flush();
@@ -809,7 +812,7 @@ int main()
 		_master_data_inport.Read();
         CollectorNumericalData tmpData = _master_data_inport.Content();
         // get data for open hand
-        iWristYawDown= tmpData.gloveData.wrist[0];
+        iWristDown= tmpData.gloveData.wrist[0];
     } else {
         cout << "failed." << endl;
         unregisterPorts();
@@ -826,20 +829,20 @@ int main()
 		_master_data_inport.Read();
         CollectorNumericalData tmpData = _master_data_inport.Content();
         // get data for open hand
-        iWristYawUp= tmpData.gloveData.wrist[0];
+        iWristUp= tmpData.gloveData.wrist[0];
     } else {
         cout << "failed." << endl;
         unregisterPorts();
         return 0;
     }
 
-    cout << "wrist interval: " << iWristYawDown << " to " << iWristYawUp  << endl;
+    cout << "wrist interval: " << iWristDown << " to " << iWristUp  << endl;
 
     // evaluate wrist0 and wristF
-	dWristF = fabs( (robotWristUp-robotWristDown)/(double)(iWristYawUp-iWristYawDown) );
+	dWristF = fabs( (robotWristUp-robotWristDown)/(double)(iWristUp-iWristDown) );
 	dWrist0 = min(robotWristDown,robotWristUp) - (double)min(robotWristDown,robotWristUp)*dWristF;
 
-goto skip_gripper_calibration;
+////goto skip_gripper_calibration;
 
   //---------------------------------------------------- 
   // Data glove calibration
@@ -911,8 +914,8 @@ goto skip_gripper_calibration;
       // evaluate gripper factors
 
       cout << iThumbClose  << " " << iThumbOpen  << " "
-          << iIndexClose  << " " << iIndexOpen  << " "
-          << iMiddleClose << " " << iMiddleOpen << endl;
+           << iIndexClose  << " " << iIndexOpen  << " "
+           << iMiddleClose << " " << iMiddleOpen << endl;
 
       // evaluate hand calibration factor. empirically, the fingers range 0 - 0.87
       // this is the angular range in radians for the babybot hand
@@ -927,7 +930,7 @@ goto skip_gripper_calibration;
       cout.flush();
   }
 
-skip_gripper_calibration:
+////skip_gripper_calibration:
 
   // ----------------------------------
   // activate the streaming!!
