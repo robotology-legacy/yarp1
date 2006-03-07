@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.10 2006-03-06 08:54:08 claudio72 Exp $
+/// $Id: TeleCtrl.cpp,v 1.11 2006-03-07 15:03:39 claudio72 Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -106,11 +106,18 @@ using namespace std;
 
 // global options
 struct SaverOptions {
-  int useCamera0, useCamera1;
-  int sizeX, sizeY;
-  int useTracker0, useTracker1;
-  int useDataGlove;
-  int usePresSens;
+
+	SaverOptions() {
+		useCamera0 = useCamera1 = sizeX = sizeY =
+		useTracker0 = useTracker1 =	useDataGlove = usePresSens = 0;
+	};
+
+	int useCamera0, useCamera1;
+	int sizeX, sizeY;
+	int useTracker0, useTracker1;
+	int useDataGlove;
+	int usePresSens;
+
 } _options;
 
 // standard name for port
@@ -120,37 +127,33 @@ const char *DEFAULT_TOSLAVE_NAME  = "TeleCtrlToSlave";
 const char *CONNECT_SCRIPT    = "%YARP_ROOT%\\src\\experiments\\mirror\\TeleCtrl\\TeleCtrlConnect.bat";
 const char *DISCONNECT_SCRIPT = "%YARP_ROOT%\\src\\experiments\\mirror\\TeleCtrl\\TeleCtrlDisconnect.bat";
 
-// communication ports to MASTER
-// data
+// ports: data from master
 YARPInputPortOf<CollectorNumericalData> _master_data_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
 YARPInputPortOf<YARPGenericImage> _master_img0_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
 YARPInputPortOf<YARPGenericImage> _master_img1_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-// commands (back and forth)
+// commands to/from master
 YARPInputPortOf<int> _master_cmd_inport (YARPInputPort::NO_BUFFERS, YARP_TCP);
 YARPOutputPortOf<CollectorCommand> _master_cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-// communication port to SLAVE
+// commands to the slave
 YARPOutputPortOf<YARPBabyBottle> _slave_outport(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 
-// prefix for saved images file names
-char _prefix[255];
-// from the cameras
+// cameras
 CollectorImage _img0;
 CollectorImage _img1;
-// data flowing from MASTER to TeleCtrl (glove, pressure, tracker)
+// numerical data
 CollectorNumericalData _data;
-// six coordinates of the reference frame (set by calibration at the beginning)
+// reference frame (set by calibration at the beginning)
 double refX=0, refY=0, refZ=0, refAz=0, refEl=0, refRo=0;
-// convert degrees to radiants
+
+// degrees to radiants
 const double myDegToRad = 2*M_PI/360.0;
-// convert inches to cm's
+// inches to cms
 const double myInchToCM = 2.45;
-// set in-place rotation tolerance to half a cm (the FOB works in inches...)
-#define INPLACE_TOLERANCE (0.5/myInchToCM)
+// movement tolerance (cms)
+const double tolerance = 0.5/myInchToCM;
 // streaming frequency
 const double streamingFrequency = 1.0/10.0;
-
-// evaluation of inverse kinematics
-// desired configuration - as a global, so far
+// inverse kinematics desired configuration - as a global, so far
 YVector desired_cfg(3);
 
 //---------------------------------------------------- 
@@ -182,10 +185,11 @@ double dIndexFactor[2]  = {0.0, 0.0};
 double dMiddleFactor[2] = {0.0, 0.0};
 double dWristYawFactor = 0.0;
 
-// arm joints initial position (in degrees)
+// arm joints initial position (in degrees). the arm is initially
+// stretched with the hand down (looks like the Fascist salutation, unluckily)
 double offsetQ0 =   20.0;
 double offsetQ1 =   25.0;
-double offsetQ2 =   40.0;
+double offsetQ2 =  -40.0;
 double offsetQ3 =   20.0;
 double offsetQ4 =  -20.0;
 double offsetQ5 = -180.0;
@@ -208,109 +212,99 @@ int SendHandPositions(double *, double *, double *);
 int main(void);
 
 // -----------------------------------
-// streaming thread. this gathers data from the MASTER,
-// processes them and the feeds the SLAVE the
-// appropriate commands.
+// streaming thread body.
+// gather data from the master, process, feed commands to the slave
 // -----------------------------------
 
 class streamingThread : public YARPThread {
 public:
-  virtual void Body (void);
-};
-
-// streaming thread
-void streamingThread::Body (void)
+virtual void Body (void)
 {
 
-  // for the inverse kinematics
-  YVector desired_X(3), required_Q(3), starting_Q(3), current_X(3);
-  starting_Q[0] = 0; starting_Q[1] = 0; starting_Q[2] = 0;
+	// for the inverse kinematics
+	YVector desired_X(3), required_Q(3), starting_Q(3), current_X(3);
+	starting_Q[0] = 0; starting_Q[1] = 0; starting_Q[2] = 0;
 
-  double frX, frY, frZ, frAz, frEl, frRo;
-  double dx, dy, dz;
-  double rot[4][4];
+	double frX, frY, frZ, frAz, frEl, frRo;
+	double dx, dy, dz;
+	double prev_dx = 0.0, prev_dy = 0.0, prev_dz = 0.0;
+	double rot[4][4];
 
-  rot[1][1] =  cos(refEl)*cos(refAz); rot[1][2] = -sin(refAz)*cos(refEl); rot[1][3] =  -sin(refEl);
-  rot[2][1] =  sin(refAz);            rot[2][2] =  cos(refAz);            rot[2][3] =  0;
-  rot[3][1] =  sin(refEl)*cos(refAz); rot[3][2] = -sin(refEl)*sin(refAz); rot[3][3] =  cos(refEl);
+	rot[1][1] =  cos(refEl)*cos(refAz); rot[1][2] = -sin(refAz)*cos(refEl); rot[1][3] =  -sin(refEl);
+	rot[2][1] =  sin(refAz);            rot[2][2] =  cos(refAz);            rot[2][3] =  0;
+	rot[3][1] =  sin(refEl)*cos(refAz); rot[3][2] = -sin(refEl)*sin(refAz); rot[3][3] =  cos(refEl);
 
-  // loop until the thread is terminated ( thread.End() )
-  while ( !IsTerminated() ) {
+	// loop until the thread is terminated
+	while ( !IsTerminated() ) {
 
-	YARPTime::DelayInSeconds(streamingFrequency);
+		YARPTime::DelayInSeconds(streamingFrequency);
 
-    // gather glove, tracker and pressens data
-    if ( _options.useDataGlove || _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
-
-      // get data
-      _master_data_inport.Read();
-      _data = _master_data_inport.Content();
+	    // get data
+	    _master_data_inport.Read();
+	    _data = _master_data_inport.Content();
       
-      // evaluate data wrt reference frame
-      dx = _data.tracker0Data.x - refX;
-      dy = _data.tracker0Data.y - refY;
-      dz = _data.tracker0Data.z - refZ;
+	    // evaluate data wrt reference frame
+	    dx = _data.tracker0Data.x - refX;
+	    dy = _data.tracker0Data.y - refY;
+	    dz = _data.tracker0Data.z - refZ;
+		// if we didn't move so much, skip it
+		double step = sqrt( (dx-prev_dx)*(dx-prev_dx) + (dy-prev_dy)*(dy-prev_dy) +(dz-prev_dz)*(dz-prev_dz) );
+		if ( step < tolerance ) {
+			continue;
+		} else {
+			prev_dx = dx; prev_dy = dy; prev_dz = dz;
+		}
 
-      frX  = rot[1][1]*dx +rot[1][2]*dy +rot[1][3]*dz;
-      frY  = rot[2][1]*dx +rot[2][2]*dy +rot[2][3]*dz;
-      frZ  = rot[3][1]*dx +rot[3][2]*dy +rot[3][3]*dz;
+		frX  = rot[1][1]*dx +rot[1][2]*dy +rot[1][3]*dz;
+	    frY  = rot[2][1]*dx +rot[2][2]*dy +rot[2][3]*dz;
+	    frZ  = rot[3][1]*dx +rot[3][2]*dy +rot[3][3]*dz;
+	    frAz = myDegToRad * _data.tracker0Data.azimuth - refAz;
+	    frEl = myDegToRad * _data.tracker0Data.elevation - refEl;
+	    frRo = myDegToRad * _data.tracker0Data.roll - refRo;
 
-      frAz = myDegToRad * _data.tracker0Data.azimuth - refAz;
-      frEl = myDegToRad * _data.tracker0Data.elevation - refEl;
-      frRo = myDegToRad * _data.tracker0Data.roll - refRo;
-
-      // output to screen what we are actually sending
-      cout.precision(5);
-      // then set the desired_X (in CMs)
-      desired_X[0] = frX*myInchToCM; desired_X[1] = frY*myInchToCM; desired_X[2] = frZ*myInchToCM;
-	  // evaluate inverse kinematics according to tracker position
-      inverse_kinematics(desired_X, required_Q, starting_Q);
-	  // now: if the end-effector position has not changed thanks to this shift in required_Q,
-      // it is an unwanted, in-place rotation. so we discard it and revert to the old required_Q
-      YVector actual_X(3);
-      forward_kinematics(required_Q, actual_X);
-      if ( (actual_X - current_X).norm2() > INPLACE_TOLERANCE ) {
-	      // otherwise, go on searching.
-	      starting_Q = required_Q;
-	      current_X = actual_X;
-	      // all Qs are in DEGREES
-	      cout.precision(3);
-//          cout 
-//	        << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
-//	        << "Q: "
-//			<< offsetQ0-required_Q[0] << " "
-//			<< offsetQ1-required_Q[1] << " "
-//			<< offsetQ2-required_Q[2] << "       \r";
-//	      cout.flush();
-
-          // computing glove wrist position
-          dWristYaw = (double)(_data.gloveData.wrist[1] - iWristYawMeanPosition)* (double)dWristYawFactor;
-	      // send IK commands to the arm.
-	      // WARNING: the PUMA arm has all the axes swapped around, therefore the minus signs
-	      SendArmPositions(
-			  (offsetQ0-required_Q[0])*myDegToRad,
-			  (offsetQ1-required_Q[1])*myDegToRad,
-			  (offsetQ2-required_Q[2])*myDegToRad,
-			  offsetQ3*myDegToRad,
-			  offsetQ4*myDegToRad,// dWristYaw,
-			  offsetQ5*myDegToRad );
-	  }
-      // send glove commands to the gripper - not so far
-      dThumb[0]  = (double)abs(_data.gloveData.thumb[0]-iThumbClose[0]) * (double)dThumbFactor[0];
-      dIndex[0]  = (double)abs(_data.gloveData.index[0]-iIndexClose[0]) * (double)dIndexFactor[0];
-      dMiddle[0] = (double)abs(_data.gloveData.middle[0]-iMiddleClose[0]) * (double)dMiddleFactor[0];
-
-      cout.precision(3);
-      cout << "Hand:\t" << dIndex[0] << "\t" << dMiddle[0] << "\t" << dThumb[0] << "       \r";
-	  cout.flush();
-//      SendHandPositions(dThumb, dIndex, dMiddle);
-    }
-	
-  }
+	    // set the desired_X (in cms)
+	    desired_X[0] = frX*myInchToCM; desired_X[1] = frY*myInchToCM; desired_X[2] = frZ*myInchToCM;
+	    // evaluate inverse kinematics according to tracker position
+	    inverse_kinematics(desired_X, required_Q, starting_Q);
+	    // let next starting point be the one we've just found
+	    starting_Q = required_Q; // all Qs are in DEGREES
     
-  return;
+		// output to screen
+	    cout.precision(2);
+		cout.setf(ios::fixed);
+	    cout << "X:\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
+		     << "Q:\t" << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "     \r";
+//	 		 << offsetQ0-required_Q[0] << "\t" << offsetQ1-required_Q[1] << "\t" << offsetQ2-required_Q[2] << "    \r";
+	    cout.flush();
 
-}
+		// compute glove wrist position
+		dWristYaw = (double)(_data.gloveData.wrist[1] - iWristYawMeanPosition)* (double)dWristYawFactor;
+		// send commands to the arm, after correction (offsets and signs)
+		SendArmPositions(
+			(offsetQ0-required_Q[0])*myDegToRad,
+			(offsetQ1-required_Q[1])*myDegToRad,
+			(offsetQ2-required_Q[2])*myDegToRad,
+			offsetQ3*myDegToRad,
+			offsetQ4*myDegToRad,// dWristYaw,
+			offsetQ5*myDegToRad );
+
+		// send commands to the hand
+		dThumb[0]  = (double)abs(_data.gloveData.thumb[0]-iThumbClose[0]) * (double)dThumbFactor[0];
+		dIndex[0]  = (double)abs(_data.gloveData.index[0]-iIndexClose[0]) * (double)dIndexFactor[0];
+		dMiddle[0] = (double)abs(_data.gloveData.middle[0]-iMiddleClose[0]) * (double)dMiddleFactor[0];
+		// output to screen
+//		cout.precision(3);
+//		cout << "Hand:\t" << dIndex[0] << "\t" << dMiddle[0] << "\t" << dThumb[0] << "       \r";
+//		cout.flush();
+//      SendHandPositions(dThumb, dIndex, dMiddle);
+
+	}
+    
+	return;
+
+	}
+
+};
 
 // -----------------------------------
 // functions & procedures
@@ -455,83 +449,83 @@ namespace NR {
   
 } // end of namespace NR
 
-// so you give me the forward kinematics in this function. it takes as input
-// the vector Q of joint coordinates IN DEGREES and writes into X the Cartesian-space
-// position of the end-effector
+// forward kinematics: for given joint coordinates Q (deg), give end-effector position X
+//
+// WARNING. this function is HIGHLY dependent on
+//   (1) the Babybot arm, that is, a PUMA200,
+//   (2) the initial position of the arm, which MUST be set each time during the
+//       startup phase (check the main() procedure and the offsetQx globals)
+
 void forward_kinematics(YVector& Q, YVector& X)
 {
-  // forward kinematics for the PUMA 200 robotic arm
 
-  // specifications of the joints - taken from the PUMA200 manual
-  // lenghts of the joints - Figure 2-1 of the manual
-  const float L1 = 13.0*myInchToCM,
-    L2 = 7.8*myInchToCM, L2prime = -0.75*myInchToCM,
-    L3 = 8.0*myInchToCM;
-  const float H1 = 0.0, H2 = 5.9*myInchToCM-2.5; // measured on the robot directly!!
+	// specifications of the joints - taken from the PUMA200 manual
+	// lenghts of the joints - Figure 2-1 of the manual
+	const float L1 = 13.0*myInchToCM, L2 = 7.8*myInchToCM, L2prime = -0.75*myInchToCM, L3 = 8.0*myInchToCM,
+				H1 = 0.0, H2 = 5.9*myInchToCM-2.5;
 
-  // allocate configuration matrices and vectors
-  YMatrix e_csi_1(4,4), e_csi_2(4,4), e_csi_3(4,4), g_st_0(4,4), T(4,4);
-  YVector zero(4), translation(4), tmpX(4);
+	// configuration matrices and vectors
+	YMatrix e_csi_1(4,4), e_csi_2(4,4), e_csi_3(4,4), g_st_0(4,4), T(4,4);
+	YVector zero(4), translation(4), tmpX(4);
 
-  // turn degrees into radiants
-  Q[0] *= myDegToRad;
-  Q[1] *= myDegToRad;
-  Q[2] *= myDegToRad;
+	// turn degrees into radiants
+	Q[0] *= myDegToRad;
+	Q[1] *= myDegToRad;
+	Q[2] *= myDegToRad;
 
-  // evaluate configurations:
-  // first joint (rotate Q[0] radiants about Y axis)
-  e_csi_1[0][0] =  cos(Q[0]); e_csi_1[0][1] = 0;          e_csi_1[0][2] =  sin(Q[0]); e_csi_1[0][3] =  0;
-  e_csi_1[1][0] =          0; e_csi_1[1][1] = 1;          e_csi_1[1][2] =          0; e_csi_1[1][3] =  0;
-  e_csi_1[2][0] = -sin(Q[0]); e_csi_1[2][1] = 0;          e_csi_1[2][2] =  cos(Q[0]); e_csi_1[2][3] =  0;
-  e_csi_1[3][0] =          0; e_csi_1[3][1] = 0;          e_csi_1[3][2] =          0; e_csi_1[3][3] =  1;
-  // second joint (rot Q[1] about Z, displaced L1 on Y, H1 on Z)
-  e_csi_2[0][0] =  cos(Q[1]); e_csi_2[0][1] = -sin(Q[1]); e_csi_2[0][2] =          0; e_csi_2[0][3] =  0;
-  e_csi_2[1][0] =  sin(Q[1]); e_csi_2[1][1] =  cos(Q[1]); e_csi_2[1][2] =          0; e_csi_2[1][3] =  L1;
-  e_csi_2[2][0] =          0; e_csi_2[2][1] =          0; e_csi_2[2][2] =          1; e_csi_2[2][3] =  H1;
-  e_csi_2[3][0] =          0; e_csi_2[3][1] =          0; e_csi_2[3][2] =          0; e_csi_2[3][3] =  1;
-  // third joint (rot Q[2] about Z, displaced L2 on X, L2prime on Y, H2 on Z)
-  e_csi_3[0][0] =  cos(Q[2]); e_csi_3[0][1] = -sin(Q[2]); e_csi_3[0][2] =          0; e_csi_3[0][3] =  L2;
-  e_csi_3[1][0] =  sin(Q[2]); e_csi_3[1][1] =  cos(Q[2]); e_csi_3[1][2] =          0; e_csi_3[1][3] =  L2prime;
-  e_csi_3[2][0] =          0; e_csi_3[2][1] =          0; e_csi_3[2][2] =          1; e_csi_3[2][3] =  H2;
-  e_csi_3[3][0] =          0; e_csi_3[3][1] =          0; e_csi_3[3][2] =          0; e_csi_3[3][3] =  1;
-  // end effector (displaced -L3 on Y)
-  g_st_0[0][0]  =          1; g_st_0[0][1]  =          0; g_st_0[0][2]  =          0; g_st_0[0][3]  =  0;
-  g_st_0[1][0]  =          0; g_st_0[1][1]  =          1; g_st_0[1][2]  =          0; g_st_0[1][3]  =  -L3;
-  g_st_0[2][0]  =          0; g_st_0[2][1]  =          0; g_st_0[2][2]  =          1; g_st_0[2][3]  =  0;
-  g_st_0[3][0]  =          0; g_st_0[3][1]  =          0; g_st_0[3][2]  =          0; g_st_0[3][3]  =  1;
-  // final configuration: chain-multiply all !!
-  T = e_csi_1 * (e_csi_2 * (e_csi_3 * g_st_0));
+	// evaluate configurations:
+	// first joint (rotate Q[0] radiants about Y axis)
+	e_csi_1[0][0] =  cos(Q[0]); e_csi_1[0][1] = 0;          e_csi_1[0][2] =  sin(Q[0]); e_csi_1[0][3] =  0;
+	e_csi_1[1][0] =          0; e_csi_1[1][1] = 1;          e_csi_1[1][2] =          0; e_csi_1[1][3] =  0;
+	e_csi_1[2][0] = -sin(Q[0]); e_csi_1[2][1] = 0;          e_csi_1[2][2] =  cos(Q[0]); e_csi_1[2][3] =  0;
+	e_csi_1[3][0] =          0; e_csi_1[3][1] = 0;          e_csi_1[3][2] =          0; e_csi_1[3][3] =  1;
+	// second joint (rot Q[1] about Z, displaced L1 on Y, H1 on Z)
+	e_csi_2[0][0] =  cos(Q[1]); e_csi_2[0][1] = -sin(Q[1]); e_csi_2[0][2] =          0; e_csi_2[0][3] =  0;
+	e_csi_2[1][0] =  sin(Q[1]); e_csi_2[1][1] =  cos(Q[1]); e_csi_2[1][2] =          0; e_csi_2[1][3] =  L1;
+	e_csi_2[2][0] =          0; e_csi_2[2][1] =          0; e_csi_2[2][2] =          1; e_csi_2[2][3] =  H1;
+	e_csi_2[3][0] =          0; e_csi_2[3][1] =          0; e_csi_2[3][2] =          0; e_csi_2[3][3] =  1;
+	// third joint (rot Q[2] about Z, displaced L2 on X, L2prime on Y, H2 on Z)
+	e_csi_3[0][0] =  cos(Q[2]); e_csi_3[0][1] = -sin(Q[2]); e_csi_3[0][2] =          0; e_csi_3[0][3] =  L2;
+	e_csi_3[1][0] =  sin(Q[2]); e_csi_3[1][1] =  cos(Q[2]); e_csi_3[1][2] =          0; e_csi_3[1][3] =  L2prime;
+	e_csi_3[2][0] =          0; e_csi_3[2][1] =          0; e_csi_3[2][2] =          1; e_csi_3[2][3] =  H2;
+	e_csi_3[3][0] =          0; e_csi_3[3][1] =          0; e_csi_3[3][2] =          0; e_csi_3[3][3] =  1;
+	// end effector (displaced L3 on X)
+	g_st_0[0][0]  =          1; g_st_0[0][1]  =          0; g_st_0[0][2]  =          0; g_st_0[0][3]  =  L3;
+	g_st_0[1][0]  =          0; g_st_0[1][1]  =          1; g_st_0[1][2]  =          0; g_st_0[1][3]  =  0;
+	g_st_0[2][0]  =          0; g_st_0[2][1]  =          0; g_st_0[2][2]  =          1; g_st_0[2][3]  =  0;
+	g_st_0[3][0]  =          0; g_st_0[3][1]  =          0; g_st_0[3][2]  =          0; g_st_0[3][3]  =  1;
+	// final configuration: chain-multiply all !!
+	T = e_csi_1 * (e_csi_2 * (e_csi_3 * g_st_0));
 
-  // give me the end-effector's position translated back to its frame.
-  zero[0] = 0; zero[1] = 0; zero[2] = 0; zero[3] = 1;
-  translation[0] = L2; translation[1] = L1+L2prime-L3; translation[2] = H1+H2; translation[3] = 1;
-  tmpX = (T * zero) - translation;
+	// give me the end-effector's position translated back to its frame.
+	zero[0] = 0; zero[1] = 0; zero[2] = 0; zero[3] = 1;
+	translation[0] = L2+L3; translation[1] = L1+L2prime; translation[2] = H1+H2; translation[3] = 1;
+	tmpX = (T * zero) - translation;
 
-  // project on first three cordinates (we are not interested in the last "1")
-  X[0] = tmpX[0]; X[1] = tmpX[1]; X[2] = tmpX[2];
+	// project on first three cordinates (we are not interested in the last "1")
+	X[0] = tmpX[0]; X[1] = tmpX[1]; X[2] = tmpX[2];
 
-  // revert the Q to degrees
-  Q[0] /= myDegToRad;
-  Q[1] /= myDegToRad;
-  Q[2] /= myDegToRad;
+	// revert the Q to degrees
+	Q[0] /= myDegToRad;
+	Q[1] /= myDegToRad;
+	Q[2] /= myDegToRad;
 
 }
 
-// given the forward_kinematics function, this evaluates the
-// norm of the error w.r.t. a given desired position (expressed
-// IN DEGREES)
+// error of the forward kinematics w.r.t. a given desired position
 DP evaluate_error(Vec_I_DP& Q_NR)
 {
 
-  // translate from NR's vector representation to YARP's
-  YVector X(3), Q(3);
-  Q[0] = Q_NR[0]; Q[1] = Q_NR[1]; Q[2] = Q_NR[2];
+	// translate from NR's vector representation to YARP's
+	YVector X(3), Q(3);
+	Q[0] = Q_NR[0]; Q[1] = Q_NR[1]; Q[2] = Q_NR[2];
 
-  // evaluate forward kinematics
-  forward_kinematics(Q,X);
+	// evaluate forward kinematics
+	forward_kinematics(Q,X);
 
-  // return norm of distance to desired position
-  return (X - desired_cfg).norm2();
+	// return norm of distance to desired position; add a punishment term
+	// which avoids bending the elbow in a totally innatural way
+	return (X - desired_cfg).norm2() + (0.0001*(Q[2]+90)*(Q[2]+90));
 
 }
 
@@ -541,35 +535,35 @@ DP evaluate_error(Vec_I_DP& Q_NR)
 void inverse_kinematics(YVector& X, YVector& Q, YVector& init)
 {
 
-  // set desired cfg (a global so far... must work around this!)
-  desired_cfg[0] = X[0]; desired_cfg[1] = X[1]; desired_cfg[2] = X[2];
+	// set desired cfg (a global so far... must work around this!)
+	desired_cfg[0] = X[0]; desired_cfg[1] = X[1]; desired_cfg[2] = X[2];
 
-  // four points for the simplex, three are the arguments,
-  // tolerance is 1e-6, starting simplex is much bigger
-  const int MP = 4,NP = 3;
-  const DP FTOL = 1.0e-6;
-  const DP simplex_dim = 1;
+	// four points for the simplex, three are the arguments,
+	// tolerance is 1e-6, starting simplex is much bigger
+	const int MP = 4,NP = 3;
+	const DP FTOL = 1.0e-6;
+	const DP simplex_dim = 1;
 
-  // declare x, y, p
-  Vec_DP x(NP),y(MP);
-  Mat_DP p(MP,NP);
+	// declare x, y, p
+	Vec_DP x(NP),y(MP);
+	Mat_DP p(MP,NP);
   
-  // initialise y and p. p's rows contains the initial simplex coordinates;
-  // given the the point init, we build a simplex around it. y is the evaluated
-  // in the vertices of the simplex
-  int i, nfunc, j;
-  for ( i=0; i<MP; i++ ) {
-    for ( j=0; j<NP; j++ ) {
-      p[i][j] = ( i==(j+1) ? init[j]+simplex_dim : init[j] );
-      x[j] = p[i][j];
-    }
-    y[i] = evaluate_error(x);
-  }
-  // go for the gold!
-  NR::amoeba(p,y,FTOL,evaluate_error,nfunc);
+	// initialise y and p. p's rows contains the initial simplex coordinates;
+	// given the the point init, we build a simplex around it. y is the evaluated
+	// in the vertices of the simplex
+	int i, nfunc, j;
+	for ( i=0; i<MP; i++ ) {
+		for ( j=0; j<NP; j++ ) {
+			p[i][j] = ( i==(j+1) ? init[j]+simplex_dim : init[j] );
+			x[j] = p[i][j];
+	    }
+		y[i] = evaluate_error(x);
+	}
+	// go for the gold!
+	NR::amoeba(p,y,FTOL,evaluate_error,nfunc);
 
-  // ok, show me what you got!
-  Q[0] = p[0][0]; Q[1] = p[0][1]; Q[2] = p[0][2];
+	// ok, show me what you got!
+	Q[0] = p[0][0]; Q[1] = p[0][1]; Q[2] = p[0][2];
 
 }
 
@@ -672,12 +666,12 @@ int SendArmPositions(double dof1, double dof2, double dof3, double dof4, double 
 
 int SendHandPositions(double * dThumb, double * dIndex, double * dMiddle)
 {
+
     YVector handCmd(6);
     YARPBabyBottle tmpBottle;
     tmpBottle.setID(YBVMotorLabel); 
 
     // send command to the hand
-    //
     handCmd(1) = 0.0;         // Thumb inner
     handCmd(2) = 0.0;         // Thumb middle
     handCmd(3) = -dIndex[0];  // Index inner
@@ -693,6 +687,7 @@ int SendHandPositions(double * dThumb, double * dIndex, double * dMiddle)
     _slave_outport.Write();
 
     return 0;
+
 }
 
 // -----------------------------------
@@ -708,19 +703,10 @@ int main()
   // register communication ports
   registerPorts();
 
-  // ----------------------------------
-  // setting communications up...
-  // ----------------------------------
-
   // launch batch file which yarp-connects ports
   cout << endl << "Now connecting ports. Hit any key upon completion." << endl;
   system(CONNECT_SCRIPT);
   cin.get();
-
-  // declare image
-  CollectorImage img;
-  _options.sizeX = 0;
-  _options.sizeY = 0;
 
   YARPScheduler::setHighResScheduling();
 
@@ -737,13 +723,19 @@ int main()
     // gather which sensors we use
     _master_cmd_inport.Read();
     int reply = _master_cmd_inport.Content();
+	// so far, only tracker 0 and glove are used
+	if ( reply != (HardwareUseDataGlove|HardwareUseTracker0) ) {
+		cout << "must use tracker 0 and dataglove only." << endl;
+		unregisterPorts();
+		return 0;
+	}
     _options.useDataGlove = reply & HardwareUseDataGlove;
     _options.useTracker0  = reply & HardwareUseTracker0;
     _options.useTracker1  = reply & HardwareUseTracker1;
     _options.usePresSens  = reply & HardwareUsePresSens;
     _options.useCamera0   = reply & HardwareUseCamera0;
     _options.useCamera1   = reply & HardwareUseCamera1;
-    // and if we use the cameras,
+	// and if we use the cameras,
     if ( _options.useCamera0 || _options.useCamera1 ) {
       // gather image size and set up image size
       _master_cmd_inport.Read();
@@ -792,7 +784,7 @@ int main()
        << refAz/myDegToRad << ", " << refEl/myDegToRad << ", " << refRo/myDegToRad << endl;
   cout.flush();
 
-// goto skip_gripper_calibration;
+goto skip_gripper_calibration;
 
   //---------------------------------------------------- 
   // Data glove calibration
@@ -931,7 +923,16 @@ int main()
       cout.flush();
   }
 
-// skip_gripper_calibration:
+skip_gripper_calibration:
+
+//while(1){
+
+//YVector q(3), x(3);
+//cin >> q[0] >> q[1] >> q[2];
+//forward_kinematics(q, x);
+//cout << x[0] << " " << x[1] << " " << x[2] << endl;
+//}
+
 
   // ----------------------------
   // place arm in its initial position
