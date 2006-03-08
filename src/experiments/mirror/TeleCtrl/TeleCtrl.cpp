@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.13 2006-03-07 17:51:48 beltran Exp $
+/// $Id: TeleCtrl.cpp,v 1.14 2006-03-08 17:17:57 claudio72 Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -159,9 +159,7 @@ const double streamingFrequency = 1.0/10.0;
 // inverse kinematics desired configuration - as a global, so far
 YVector desired_cfg(3);
 
-//---------------------------------------------------- 
-// Dataglove local values
-// 
+// Values send to the robot hand. Measured in radians
 double dThumb[2]  = {0.0, 0.0};
 double dIndex[2]  = {0.0, 0.0};
 double dMiddle[2] = {0.0, 0.0};
@@ -185,12 +183,15 @@ double dWristF = 0.0;
 
 //Data glove transformation factors
 double dThumbFactor[2]  = {0.0, 0.0};
+double dThumb0[2]       = {0.0, 0.0};
 double dIndexFactor[2]  = {0.0, 0.0};
+double dIndex0[2]       = {0.0, 0.0};
 double dMiddleFactor[2] = {0.0, 0.0};
+double dMiddle0[2]      = {0.0, 0.0};
 
 //Fingers angles
-const double fingerOpen  = 0.0;
-const double fingerClose = 50 * myDegToRad;
+const double robotFingerOpen  = 0.0;
+const double robotFingerClose = 65 * myDegToRad;
 
 // arm joints initial position (in degrees). the arm is initially
 // stretched with the hand down (looks like the Fascist salutation, unluckily)
@@ -303,14 +304,22 @@ virtual void Body (void)
 			offsetQ5*myDegToRad );
 
 		// send commands to the hand
-		dThumb[0]  = (double)abs(_data.gloveData.thumb[0]-iThumbClose[0]) * (double)dThumbFactor[0];
-		dIndex[0]  = (double)abs(_data.gloveData.index[0]-iIndexClose[0]) * (double)dIndexFactor[0];
-		dMiddle[0] = (double)abs(_data.gloveData.middle[0]-iMiddleClose[0]) * (double)dMiddleFactor[0];
+		//dThumb[0]  = (double)abs(_data.gloveData.thumb[0]-iThumbClose[0]) * (double)dThumbFactor[0];
+		//dIndex[0]  = (double)abs(_data.gloveData.index[0]-iIndexClose[0]) * (double)dIndexFactor[0];
+		//dMiddle[0] = (double)abs(_data.gloveData.middle[0]-iMiddleClose[0]) * (double)dMiddleFactor[0];
+
+        dThumb[0]  = dThumb0[0]  + _data.gloveData.thumb[0]  * dThumbFactor[0];
+        dThumb[1]  = dThumb0[1]  + _data.gloveData.thumb[1]  * dThumbFactor[1];
+        dIndex[0]  = dIndex0[0]  + _data.gloveData.index[0]  * dIndexFactor[0];
+        dIndex[1]  = dIndex0[1]  + _data.gloveData.index[1]  * dIndexFactor[1];
+        dMiddle[0] = dMiddle0[0] + _data.gloveData.middle[0] * dMiddleFactor[0];
+        dMiddle[1] = dMiddle0[1] + _data.gloveData.middle[1] * dMiddleFactor[1];
 		// output to screen
-//		cout.precision(3);
-//		cout << "Hand:\t" << dIndex[0] << "\t" << dMiddle[0] << "\t" << dThumb[0] << "       \r";
-//		cout.flush();
-//      SendHandPositions(dThumb, dIndex, dMiddle);
+		cout.precision(3);
+		cout << "Hand:\t" << dIndex[0]/myDegToRad << "\t" << dMiddle[0]/myDegToRad << "\t" << dThumb[0]/myDegToRad << "\t"  
+            << dIndex[1]/myDegToRad << "\t" << dMiddle[1]/myDegToRad << "\t" << dThumb[1]/myDegToRad << "       \r";
+		cout.flush();
+        SendHandPositions(dThumb, dIndex, dMiddle);
 
 	}
     
@@ -655,7 +664,7 @@ void unregisterPorts()
 int SendArmPositions(double dof1, double dof2, double dof3, double dof4, double dof5, double dof6)
 {
 
-//return 0;
+    return 0;
 
   YVector armCmd(6);
   YARPBabyBottle tmpBottle;
@@ -680,13 +689,14 @@ int SendArmPositions(double dof1, double dof2, double dof3, double dof4, double 
 
 int SendHandPositions(double * dThumb, double * dIndex, double * dMiddle)
 {
+    //return 0;
 
     YVector handCmd(6);
     YARPBabyBottle tmpBottle;
     tmpBottle.setID(YBVMotorLabel); 
 
     // send command to the hand
-    handCmd(1) = 0.0;         // Thumb inner
+    handCmd(1) = dThumb[0];         // Thumb inner
     handCmd(2) = 0.0;         // Thumb middle
     handCmd(3) = -dIndex[0];  // Index inner
     handCmd(4) = -dIndex[1];  // Index middle
@@ -917,14 +927,25 @@ int main()
            << iIndexClose  << " " << iIndexOpen  << " "
            << iMiddleClose << " " << iMiddleOpen << endl;
 
-      // evaluate hand calibration factor. empirically, the fingers range 0 - 0.87
       // this is the angular range in radians for the babybot hand
-      dThumbFactor[0]  = 0.87 / (double)abs(iThumbClose[0]-iThumbOpen[0]);
-      dThumbFactor[1]  = 0.87 / (double)abs(iThumbClose[1]-iThumbOpen[1]);
-      dIndexFactor[0]  = 0.87 / (double)abs(iIndexClose[0]-iIndexOpen[0]);
-      dIndexFactor[1]  = 0.87 / (double)abs(iIndexClose[1]-iIndexOpen[1]);
-      dMiddleFactor[0] = 0.87 / (double)abs(iMiddleClose[0]-iMiddleOpen[0]);
-      dMiddleFactor[1] = 0.87 / (double)abs(iMiddleClose[1]-iMiddleOpen[1]);
+      double robotFingerRange = fabs(robotFingerClose-robotFingerOpen);
+      dThumbFactor[0]  = robotFingerRange / (double)abs(iThumbClose[0]-iThumbOpen[0]);
+      dThumbFactor[1]  = robotFingerRange / (double)abs(iThumbClose[1]-iThumbOpen[1]);
+      dIndexFactor[0]  = robotFingerRange / (double)abs(iIndexClose[0]-iIndexOpen[0]);
+      dIndexFactor[1]  = robotFingerRange / (double)abs(iIndexClose[1]-iIndexOpen[1]);
+      dMiddleFactor[0] = robotFingerRange / (double)abs(iMiddleClose[0]-iMiddleOpen[0]);
+      dMiddleFactor[1] = robotFingerRange / (double)abs(iMiddleClose[1]-iMiddleOpen[1]);
+
+      // compute de 0 componets (robot_d - finger_close * fingerFactor)
+      double minRobotFingerAngle = min(robotFingerClose,robotFingerOpen);
+      dThumb0[0]  = minRobotFingerAngle - (double)min(iThumbClose[0],iThumbOpen[0]) * dThumbFactor[0];
+      dThumb0[1]  = minRobotFingerAngle - (double)min(iThumbClose[1],iThumbOpen[1]) * dThumbFactor[1];
+
+      dIndex0[0]  = minRobotFingerAngle - (double)min(iIndexClose[0],iIndexOpen[0]) * dIndexFactor[0];
+      dIndex0[1]  = minRobotFingerAngle - (double)min(iIndexClose[1],iIndexOpen[1]) * dIndexFactor[1];
+
+      dMiddle0[0] = minRobotFingerAngle - (double)min(iMiddleClose[0],iMiddleOpen[0]) * dMiddleFactor[0];
+      dMiddle0[1] = minRobotFingerAngle - (double)min(iMiddleClose[1],iMiddleOpen[1]) * dMiddleFactor[1];
 
       cout << "Babybot hand calibration done." << endl;
       cout.flush();
