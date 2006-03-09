@@ -1,6 +1,7 @@
 
 #include <yarp/UnitTest.h>
 #include <yarp/Logger.h>
+#include <yarp/IOException.h>
 
 #include <ace/OS_NS_stdio.h>
 
@@ -80,13 +81,21 @@ void UnitTest::runSubTests(int argc, char *argv[]) {
   //sprintf(buf,"size is %d", subTests.size());
   //report(0,buf);
   for (unsigned int i=0; i<subTests.size(); i++) {
-    subTests[i]->run(argc,argv);
+    try {
+      subTests[i]->run(argc,argv);
+    } catch (IOException e) {
+      report(1,String("exception thrown ") + e.toString());
+    }
   }
 }
 
 
 void UnitTest::run() {
-  run(0,NULL);
+  try {
+    run(0,NULL);
+  } catch (IOException e) {
+    report(1,String("exception thrown ") + e.toString());
+  }
 }
 
 

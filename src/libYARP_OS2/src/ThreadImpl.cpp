@@ -2,6 +2,7 @@
 #include <yarp/ThreadImpl.h>
 #include <yarp/SemaphoreImpl.h>
 #include <yarp/Logger.h>
+#include <yarp/IOException.h>
 
 using namespace yarp;
 
@@ -19,7 +20,12 @@ unsigned theExecutiveBranch (void *args)
   ACE_OS::signal(SIGPIPE, SIG_IGN);
 
   ThreadImpl *thread = (ThreadImpl *)args;
-  thread->run();
+  try {
+    thread->run();
+  } catch (IOException e) {
+    YARP_ERROR(Logger::get(),String("uncaught exception in thread: ") +
+	       e.toString());
+  }
   ThreadImpl::changeCount(-1);
   YARP_DEBUG(Logger::get(),"Thread shutting down");
   //ACE_Thread::exit();

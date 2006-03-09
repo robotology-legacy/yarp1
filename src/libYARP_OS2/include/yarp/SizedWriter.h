@@ -2,9 +2,11 @@
 #define _YARP2_SIZEDWRITER_
 
 #include <yarp/OutputStream.h>
+#include <yarp/os/PortReader.h>
 
 namespace yarp {
   class SizedWriter;
+  using os::PortReader;
 }
 
 /**
@@ -26,6 +28,8 @@ public:
   virtual int length(int index) = 0;
 
   virtual const char *data(int index) = 0;
+
+  virtual PortReader *getReplyHandler() = 0;
 };
 
 #endif

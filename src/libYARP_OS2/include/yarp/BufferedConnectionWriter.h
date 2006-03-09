@@ -12,6 +12,8 @@
 
 namespace yarp {
   class BufferedConnectionWriter;
+  using os::ConnectionWriter;
+  using os::ConnectionReader;
 }
 
 /**
@@ -21,6 +23,7 @@ class yarp::BufferedConnectionWriter : public ConnectionWriter, public SizedWrit
 public:
 
   BufferedConnectionWriter(bool textMode = false) : textMode(textMode) {
+    reader = NULL;
   }
 
   virtual ~BufferedConnectionWriter() {
@@ -30,6 +33,7 @@ public:
   void reset(bool textMode) {
     this->textMode = textMode;
     clear();
+    reader = NULL;
   }
 
   void clear() {
@@ -142,8 +146,17 @@ public:
     // cannot do anything with this yet
   }
 
+  virtual void setReplyHandler(PortReader& reader) {
+    this->reader = &reader;
+  }
+
+  virtual PortReader *getReplyHandler() {
+    return reader;
+  }
+
 private:
   ACE_Vector<ManagedBytes *> lst;
+  PortReader *reader;
   bool textMode;
 };
 

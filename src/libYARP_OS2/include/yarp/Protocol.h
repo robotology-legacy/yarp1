@@ -313,6 +313,11 @@ public:
     if (isActive()) {
       YARP_ASSERT(delegate!=NULL);
       delegate->write(*this,writer);
+      PortReader *reply = writer.getReplyHandler();
+      if (reply!=NULL) {
+	reader.reset(is(),&getStreams(),messageLen,delegate->isTextMode());
+	reply->read(reader);
+      }
     }
     this->writer = NULL;
   }
@@ -339,10 +344,11 @@ public:
   virtual void endRead() {
     if (altReader!=NULL) {
       //altReader->release();
+      sendAck();
     } else {
+      sendAck();
       reader.flushWriter();
     }
-    sendAck();
   }
 
   virtual bool checkStreams() {

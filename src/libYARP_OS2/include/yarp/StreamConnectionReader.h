@@ -35,7 +35,7 @@ public:
   void reset(InputStream& in, TwoWayStream *str, 
 	     int len, bool textMode) {
     this->in = &in;
-    this->str = str;
+    this->str = str;    
     this->messageLen = len;
     this->textMode = textMode;
   }

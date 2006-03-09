@@ -17,6 +17,57 @@ using yarp::NetType;
 using yarp::Logger;
 
 
+class ServiceProvider : public PortReader {
+public:
+
+  virtual bool read(ConnectionReader& connection) {
+    Bottle receive;
+    //printf("service provider reading data\n");
+    receive.read(connection);
+    //printf("service provider read data\n");
+    receive.addInt(5);
+    ConnectionWriter *writer = connection.getWriter();
+    if (writer!=NULL) {
+      //printf("service provider replying\n");
+      receive.write(*writer);
+      //printf("service provider replied\n");
+    }
+    return true;
+  }
+};
+
+class ServiceTester : public Portable {
+public:
+  yarp::UnitTest& owner;
+  Bottle send, receive;
+  int ct;
+
+  ServiceTester(yarp::UnitTest& owner) : owner(owner) {}
+
+  virtual bool write(ConnectionWriter& connection) {
+    ct = 0;
+    //printf("service tester writing data\n");
+    send.write(connection);
+    //printf("service tester wrote data\n");
+    connection.setReplyHandler(*this);
+    return true;
+  }
+
+  virtual bool read(ConnectionReader& connection) {
+    //printf("service tester getting reply\n");
+    receive.read(connection);
+    //printf("service tester got reply\n");
+    ct++;
+    return true;
+  }
+
+  void finalCheck() {
+    owner.checkEqual(receive.size(),send.size()+1,"size incremented");
+    owner.checkEqual(ct,1,"just one read");
+  }
+};
+
+
 class PortTest : public yarp::UnitTest {
 public:
   virtual yarp::String getName() { return "PortTest"; }
@@ -130,6 +181,25 @@ public:
   }
 
 
+  void testReply() {
+    report(0,"checking reply processing");
+    PortReaderBuffer<ServiceProvider> buf;
+
+    Port input, output;
+    input.open("/in");
+    output.open("/out");
+    
+    input.setReader(buf);
+    
+    output.addOutput(Contact::byName("/in").addCarrier("tcp"));
+    Time::delay(0.1);
+    ServiceTester tester(*this);
+    output.write(tester);
+    Time::delay(0.1);
+    tester.finalCheck();
+    output.close();
+    input.close();    
+  }
 
   virtual void runTests() {
     yarp::NameClient& nic = yarp::NameClient::getNameClient();
@@ -137,6 +207,7 @@ public:
     testOpen();
     testBuffer();
     testPair();
+    testReply();
     nic.setFakeMode(false);
   }
 };

@@ -4,8 +4,9 @@
 namespace yarp {
   namespace os {
     class ConnectionWriter;
+    class ConnectionReader;
+    class PortReader;
   }
-  using os::ConnectionWriter;
 }
 
 /**
@@ -74,11 +75,12 @@ public:
   virtual void declareSizes(int argc, int *argv) = 0;
 
   /**
-   * If you placed want to know when everything is sent,
-   * you can request a callback here.
+   * This sets a handler to deal with replies to the message.  The
+   * handler will be called once per connection. There will be
+   * problems for connections using carriers that don't support replies.
+   * @param reader the object that handles replies.
    */
-  //virtual void registerCallback(PortSendListener& listener,
-  //			void *key) = 0;
+  virtual void setReplyHandler(PortReader& reader) = 0;
 };
 
 #endif
