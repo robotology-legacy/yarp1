@@ -8,6 +8,7 @@
 #include <ace/OS.h>
 #include <yarp/YARPRobotHardware.h>
 #include <yarp/YARPImage.h>
+#include <yarp/YARPImageFile.h>
 
 //=============================================================================
 // System Includes
@@ -23,7 +24,7 @@
 #include "YARPSusanFilter.h"
 
 
-#define N_IMAGES 10
+#define N_IMAGES 1
 #define PI 3.1415926535
 
 #define  FTOI(a) ( (a) < 0 ? ((int)(a-0.5)) : ((int)(a+0.5)) )
@@ -44,6 +45,9 @@ double _initialOrientation;
 double _finalOrientation;
 double orientation;
 double distance;
+int count = 0;
+char FilePath[512];
+
 
 double _normalize0ToPI(double angle)
 {
@@ -142,6 +146,8 @@ void calibrate(void)
 	double acc2 = 0.0;
 	double angle;
 	double dist;
+	char *root = GetYarpRoot();
+
 	for (i=0; i<N_IMAGES; i++)
 	{
 		_susanFlt.apply(&(_imgBuffer[i]), &_susanImg);
@@ -152,8 +158,11 @@ void calibrate(void)
 		acc2 += dist;
 
 		printf(".");
-		printf("%.2f acc");
+		printf("%.2f acc", acc);
 
+		ACE_OS::sprintf (FilePath, "%s%s%s%03u%s\0", root, "/src/experiments/james/eyeCalib/Figure/","Img", count, ".pgm"); 
+		YARPImageFile::Write(FilePath,_imgBuffer[i],1);
+		count += 1;
 	}
 	orientation = acc / N_IMAGES;
 	distance = acc2 / N_IMAGES;
@@ -235,7 +244,7 @@ int main(int argc, char* argv[])
 	int boardN = 0;
 	int ret = 0;
 	int rhoSize = 256;
-	int thetaSize = 180;
+	int thetaSize = 720;
 	
 	YARPImageOf<YarpPixelMono> hough_img;
 	char c;
@@ -332,7 +341,7 @@ int main(int argc, char* argv[])
 			printf("\n[eyeCalib] Main orientation is %.3frad (%.3fdeg) - variance %.2f", orientation, _rad2deg(orientation));
 			printf("\n[eyeCalib] Main distance is %.3fpixels", distance);
 			if (outFile != NULL)
-				fprintf(outFile, "%lf;%lf;%lf;%lf;%lf;%lf\n", vel, posVector[0], posVector[1], posVector[2], posVector[3], orientation);
+				fprintf(outFile, "%lf;%lf;%lf;%lf;%lf;%lf;%lf\n", vel, posVector[0], posVector[1], posVector[2], posVector[3], orientation, distance);
 			printf("\n[eyeCalib] Another loop ? [Y/n] ");
 			c = getch();
 		} while (c != 'n');
