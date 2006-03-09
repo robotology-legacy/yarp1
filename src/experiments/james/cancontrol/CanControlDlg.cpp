@@ -566,7 +566,7 @@ void CCanControlDlg::OnDriverRun()
 	}
 
 	int i;
-	for (i = 0; i < CANBUS_MAXCARDS * 2; i++)
+	for (i = 0; i < m_njoints; i++)
 	{
 		SingleAxisParameters cmd;
 		cmd.axis = i;

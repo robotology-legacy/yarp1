@@ -78,10 +78,10 @@ asm int get_flash_addr (void)
 
 void main(void)
 {
-	Int32 acceptance_code ; 
+	Int32 acceptance_code; 
 
-   /*** Initialization **/
-   PE_low_level_init();
+	/*** Initialization **/
+	PE_low_level_init();
 
 /*****************************************************************************/
 /* Initialize all downloader and bootloader subsystems                                      */
@@ -91,47 +91,46 @@ void main(void)
       loader will wait to begin receiving code to be programmed. If no code
       is received before this timeout, the bootloader will begin execution
       of the application already loaded in Program Flash. */
-   archStartDelayAddress = (void *)0x0083;
-   flashmemCopyPtoX( &TmpXdataVar, \
-                     archStartDelayAddress, \
-                     sizeof(unsigned int));
-   CAN1_init ();  // CAN bus init
-   /* gets the address of flash memory from the linker */
+	archStartDelayAddress = (void *)0x0083;
+	flashmemCopyPtoX(&TmpXdataVar, archStartDelayAddress, sizeof(unsigned int));
+	
+	CAN1_init ();  // CAN bus init
+	/* gets the address of flash memory from the linker */
 	_flash_addr = get_flash_addr();	 
 	_board_ID = readflash(_flash_addr);
 	_board_ID &= 0xF;
 	_board_FW_VER = readflash(_flash_addr+2);	
 		
-   // CAN masks/filters init 
-   acceptance_code = (_board_ID>>3) | ((_board_ID & 0x7)<<13) | 0x00e0;
-   CAN1_setFilter (0xffff1f1e,0xffff1f1e,acceptance_code,0xe0e1,SINGLE_32_FILTER);
-   CAN_messID = (CMD_DONWL << 8) | (_board_ID << 4) | DEST;
+	// CAN masks/filters init 
+	acceptance_code = (_board_ID>>3) | ((_board_ID & 0x7)<<13) | 0x00e000e0;
+	CAN1_setFilter (0x1f1e1f1e,0x1f1e1f1e,acceptance_code,0xe0e1e0e1,TWO_16_FILTER);
+	CAN_messID = (CMD_DONWL << 8) | (_board_ID << 4) | DEST;
    
-   // TmpXdataVar is the downloader start delay
-   // TmpXdataVar = 0 => Jumps immediately to the application's Start Address; 
-   //					 downloader disabled
-   // TmpXdataVar = 1-254 => Waits a specified number of seconds before the 
-   //						 S-Record begins to download
-   // TmpXdataVar = 255 => Waits forever before the S-Record begins downloading 
-   if(TmpXdataVar != 0x0000)
-   {
+	// TmpXdataVar is the downloader start delay
+	// TmpXdataVar = 0 => Jumps immediately to the application's Start Address; 
+	//					 downloader disabled
+	// TmpXdataVar = 1-254 => Waits a specified number of seconds before the 
+	//						 S-Record begins to download
+	// TmpXdataVar = 255 => Waits forever before the S-Record begins downloading 
+	if(TmpXdataVar != 0x0000)
+	{
+		if(TmpXdataVar != 0x00FF)
+		{
+			setReg(TMRC0_CNTR,0);              // Reset counter /
+			setReg(TMRC1_CNTR,0);
+			setRegBitGroup(TMRC0_CTRL,CM,1);   // Run counter /
+		}
+		
+		// send ACK packet for CMD_BOARD command
+		comACK(CMD_BOARD);
+		// Start communication loop. Wait for S-Record file /
+		comMainLoop();
+	}	
 
-     if(TmpXdataVar != 0x00FF)
-     {
-        setReg(TMRC0_CNTR,0);              // Reset counter /
-        setReg(TMRC1_CNTR,0);
-        setRegBitGroup(TMRC0_CTRL,CM,1);   // Run counter /
+	userDelay(TERMINAL_OUTPUT_DELAY);
 
-     }
-	// send ACK packet for CMD_BOARD command
-	 comACK(CMD_BOARD);
-     // Start communication loop. Wait for S-Record file /
-     comMainLoop();
-   }	
-   userDelay(TERMINAL_OUTPUT_DELAY);
-
-   /* User application will be started from _EntryPoint() file after exit from main() */
-   asm(jmp archStart);
+	/* User application will be started from _EntryPoint() file after exit from main() */
+	asm(jmp archStart);
 }
 
 
@@ -147,14 +146,13 @@ void main(void)
 * Arguments:      Error number
 *
 *****************************************************************************/
-
 void userError(int Error)
 {
 	CAN_data[0] = CMD_ERR;
 	CAN_data[1] = Error;
 	CAN1_sendFrame (CAN_messID, 2, CAN_data);	
 	comWaitEnd();
-   _EntryPoint();
+	_EntryPoint();
 }
 
 /*****************************************************************************
@@ -169,15 +167,14 @@ void userError(int Error)
 * Arguments:      Counter - programmable delay
 *
 *****************************************************************************/
-
 asm void userDelay(UWord16 Counter)
 {
-   do      y0,userDelay1
-   movei   #0xffff, y0
-   rep     y0             ;// bootloader does not serve any interrupts
-   nop
+		do      y0,userDelay1
+		movei   #0xffff, y0
+		rep     y0             ;// bootloader does not serve any interrupts
+		nop
 userDelay1:
-    rts
+	    rts
 }
 
 /*****************************************************************************
@@ -197,18 +194,15 @@ userDelay1:
 *                 count - data length in words
 *
 *****************************************************************************/
-
 asm void *  bootmemCopyXtoX(void *dest, const void *src, size_t count)
 {
-            tstw    Y0
-            beq     EndDo
-            do      Y0,EndDo
-            move    X:(R3)+,Y0
-            move    Y0,X:(R2)+
+		tstw    Y0
+		beq     EndDo
+		do      Y0,EndDo
+		move    X:(R3)+,Y0
+		move    Y0,X:(R2)+
 EndDo:
-            ; R2 - Contains *dest return value
-            rts
+        ; R2 - Contains *dest return value
+        rts
 }
-
-
 

@@ -72,6 +72,7 @@ Int16  _fault[JN] = { 0, 0 };			/* amp fault memory */
 
 Int16  _pid[JN] = { 0, 0 };				/* pid result */
 Int16  _pid_limit[JN] = { 100, 100 };	/* pid limit */
+Int32  _pd[JN] = { 0, 0 };              /* pd portion of the pid*/
 
 Int16  _kp[JN] = { 10, 10 };			/* PID gain */
 Int16  _kd[JN] = { 40, 40 };
@@ -138,10 +139,51 @@ Int32 compute_pid2(byte j);
 void compute_desired(byte j);
 void print_version(void);
 void compute_filtcurr(byte j);
+void set_can_masks(void);
 
+//#if VERSION == 0x0113
+//void can_send_request(void);
+//#endif
+
+void set_can_masks()
+{
+	Int32 acceptance_code = 0x0;
+	Int32 acceptance_code2 = 0x0;
+	word temporary;
+		
 #if VERSION == 0x0113
-void can_send_request(void);
-#endif
+#define NEIGHBOR 11	
+	CAN1_setAcceptanceMask (0xff011f1e, 0x1f1e1f1e);
+	temporary = (NEIGHBOR << 1);
+	temporary |= (0x0020);
+	acceptance_code = L_deposit_h (temporary); 
+	temporary = _board_ID >> 3;
+	temporary |= (_board_ID << 13);
+	temporary &= (0xff1f);
+	acceptance_code |= temporary;
+	acceptance_code2 = 0xe0e10000;
+	temporary = _board_ID >> 3;
+	temporary |= (_board_ID << 13);
+	temporary |= (0x00e0);
+	acceptance_code2 |= temporary;	
+	CAN1_setAcceptanceCode (acceptance_code, acceptance_code2);
+#undef NEIGHBOR
+#else
+	CAN1_setAcceptanceMask (0x1f1e1f1e, 0x1f1e1f1e);
+	//acceptance_code = 0x00100010;
+	temporary = _board_ID >> 3;
+	temporary |= (_board_ID << 13);
+	temporary &= (0xff1f);
+	acceptance_code = L_deposit_h (temporary);
+	acceptance_code |= temporary;
+	acceptance_code2 = 0xe0e10000;
+	temporary = _board_ID >> 3;
+	temporary |= (_board_ID << 13);
+	temporary |= (0x00e0);
+	acceptance_code2 |= temporary;	
+	CAN1_setAcceptanceCode (acceptance_code, acceptance_code2);
+#endif	
+}
 
 /*
  * compute PID control (integral is not yet implemented).
@@ -149,7 +191,6 @@ void can_send_request(void);
 Int32 compute_pid2(byte j)
 {
 	Int32 ProportionalPortion, DerivativePortion, IntegralPortion;
-	Int32 SumDerivativeProportional;
 	Int32 IntegralError;
 	Int32 PIDoutput;
 	Int32 InputError;
@@ -187,46 +228,46 @@ Int32 compute_pid2(byte j)
 	_integral[j] = L_add(_integral[j], IntegralError);
 	IntegralPortion = _integral[j];
 		
-	SumDerivativeProportional = L_add(ProportionalPortion, DerivativePortion);
-	PIDoutput = L_add(SumDerivativeProportional, IntegralPortion);
-	
-	/* Anti reset wind up scheme */
-	if (PIDoutput > _pid_limit[j])
-    {
-    	if ( _ki[j] != 0)
-    	{
-    		_integral[j] =  ((Int32) _pid_limit[j]) - SumDerivativeProportional;
-		}
-	}
-	else 
-	{
-		if (PIDoutput < -_pid_limit[j])
-	    {
-			if ( _ki[j] != 0)
-			{
-	    		_integral[j] =  ((Int32) (-_pid_limit[j])) - SumDerivativeProportional;
-			}
-		}
-	}
-							
-	/* Accumulator saturation */
-	if (_integral[j] >= _integral_limit[j])
-    {
-		_integral[j] = (Int32) _integral_limit[j];
-	}
-	else 
-	{
-		if (_integral[j] < -_integral_limit[j])
-	    {
-			_integral[j] = (Int32) -_integral_limit[j];
-		}
-	}		
+	_pd[j] = L_add(ProportionalPortion, DerivativePortion);
+	PIDoutput = L_add(_pd[j], IntegralPortion);
+			
 	return PIDoutput;
 }
 
 //void enforce_PIDlimits(byte j, Int32 PIDoutput)
 #define ENFORCE_LIMITS(j, PID) \
 { \
+	/* Anti reset wind up scheme */ \
+	if (PID > _pid_limit[j]) \
+    { \
+    	if ( _ki[j] != 0) \
+		{ \
+    		_integral[j] =  ((Int32) _pid_limit[j]) - _pd[j]; \
+		} \
+	} \
+	else \
+	{\
+		if (PID < -_pid_limit[j]) \
+		{ \
+			if ( _ki[j] != 0) \
+			{ \
+	    		_integral[j] =  ((Int32) (-_pid_limit[j])) - _pd[j]; \
+			} \
+		} \
+	}\
+	/* Accumulator saturation */ \
+	if (_integral[j] >= _integral_limit[j]) \
+    { \
+		_integral[j] = (Int32) _integral_limit[j]; \
+	} \
+	else \
+	{ \
+		if (_integral[j] < -_integral_limit[j]) \
+		{ \
+			_integral[j] = (Int32) -_integral_limit[j]; \
+		} \
+	} \
+	/* Control saturation */ \
 	if (PID > _pid_limit[j]) \
     	_pid[j] = _pid_limit[j]; \
 	else \
@@ -490,6 +531,7 @@ void print_version(void)
 	AS1_printStringEx ("\r\n");
 }
 
+#if 0
 #if VERSION == 0x0113
 void can_send_request(void)
 {
@@ -525,6 +567,7 @@ void can_send_request(void)
 			AS1_printStringEx ("timeout\r\n");
 	}
 }
+#endif
 #endif
 
 /* send broadcast messages according to mask */
@@ -649,7 +692,7 @@ void can_send_broadcast(void)
 		_canmsg.CAN_data[3] = BYTE_L(_current[1]);
 		
 			
-		_canmsg.CAN_length = 8;
+		_canmsg.CAN_length = 4;
 		_canmsg.CAN_frameType = DATA_FRAME;
 		if (CAN1_sendFrame (1, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data) != ERR_OK)
 			AS1_printStringEx("send err\r\n");		
@@ -679,7 +722,7 @@ byte channel = 0;
 */
 void main(void)
 {
-	Int32 acceptance_code = 0x0;
+//	Int32 acceptance_code = 0x0, acceptance_code2 = 0x0;
 	Int32 PIDoutput1, PIDoutput0;
 	word temporary;
 	
@@ -735,11 +778,7 @@ void main(void)
 	//readFromFlash (_flash_addr);
 
 	/* CAN masks/filters init, note the reverse order of mask comparison (see manual) */
-	CAN1_setAcceptanceMask (0xffff1ffe, 0xffff1ffe);
-	temporary = _board_ID >> 3;
-	temporary |= (_board_ID << 13);
-	acceptance_code = L_deposit_l (temporary);
-	CAN1_setAcceptanceCode (acceptance_code, 0xe001);
+	set_can_masks ();
 	
 	/* reset encoders, LATER: should do something more than this */
 	calibrate(0);
@@ -759,10 +798,10 @@ void main(void)
 		serial_interface ();
 		can_interface ();
 		
-#if VERSION == 0x0113
+//#if VERSION == 0x0113
 		/* used to ask information about neighbor cards */
-		can_send_request ();
-#endif
+//		can_send_request ();
+//#endif
 
 		/* instructions are executed for both axes and only the PWM isn't 
 		   used if the specific axis is not used/calibrated
@@ -798,7 +837,7 @@ void main(void)
 #endif
 
 #elif VERSION == 0x0113
-#ifdef DEBUG_TRAJECTORY
+//#ifdef DEBUG_TRAJECTORY
 		if (_verbose && _counter == 0)
 		{
 			AS1_printDWordAsCharsDec (_position[0]);
@@ -808,7 +847,7 @@ void main(void)
 			AS1_printDWordAsCharsDec (_adjustment[1]);
 			AS1_printStringEx ("\r\n");
 		}
-#endif
+//#endif
 		
 		/* beware of the first cycle when _old has no meaning */		
 		_position[0] = L_add(_position[0], _adjustment[0] >> 1);
@@ -819,8 +858,8 @@ void main(void)
 		_adjustment[1] = L_add(_adjustment[1], _delta_adj[1]);
 		
 #elif VERSION == 0x0115
-		_position[0] = L_add(_position[0], -_position[1]);
-		_position[1] = L_add(_position[0], 2*_position[1]);	
+		_position[0] = _position[0] - _position[1];
+		_position[1] = _position[0] + 2*_position[1];	
 #endif
 
 		/* this can be useful to estimate speed later on */
@@ -847,10 +886,14 @@ void main(void)
 		
 #if VERSION == 0x0115
 
-		PIDoutput0 = (L_add(PIDoutput0, PIDoutput1) >> 2);
-		PIDoutput1 = L_sub(PIDoutput0, PIDoutput1);	
+		PIDoutput0 = (PIDoutput0 + PIDoutput1) >> 1;
+		PIDoutput1 = PIDoutput0 - PIDoutput1;	
 		PIDoutput1 = -PIDoutput1;
-		
+
+		_pd[0] = (_pd[0] + _pd[1]) >> 1;
+		_pd[1] = _pd[0] - _pd[1];	
+		_pd[1] = -_pd[1];
+	
 #endif
 
 		ENFORCE_LIMITS(0,PIDoutput0);
@@ -1085,7 +1128,15 @@ byte can_interface (void)
 #if VERSION == 0x0113
 			if ((_canmsg.CAN_messID & 0x00000700) == 0x0100)
 			{
-				CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER(0)
+				switch (_canmsg.CAN_messID & 0x000f)
+				{
+					case CAN_BCAST_POSITION:
+						CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER(0)
+						break;
+					
+					default:
+						break;
+				}
 			}
 			else
 #else
@@ -1472,14 +1523,9 @@ byte serial_interface (void)
 			
 			if (iretval >= 1 && iretval <= 15)
 				_board_ID = iretval & 0x0f;
-
-			/* CAN masks/filters init, see main() */
-			CAN1_setAcceptanceMask (0xffff1ffe, 0xffff1ffe);
-			iretval = _board_ID >> 3;
-			iretval |= (_board_ID << 13);
-			acceptance_code = L_deposit_l (iretval);
-			CAN1_setAcceptanceCode (acceptance_code, 0xe001);
 			
+			/* CAN masks/filters init, see main() */
+			set_can_masks ();
 			c = 0;
 			break;
 
@@ -1515,5 +1561,4 @@ byte serial_interface (void)
 		
 	}	/* end switch/case */
 }
-
 

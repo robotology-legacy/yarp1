@@ -11,18 +11,15 @@
 
 #define  COM_BUFFER_LEN    20
 
-
 static UWord16  comIndex;
 static UWord16  comReadLength = 1;
 static bool     comContinue;
+static byte 	CAN_data[8];					/* CAN bus message */
 
-bool     comTimerEn;
-
-extern dword 	CAN_messID;
-
+bool   comTimerEn;
 canmsg_t comBuffer;
 
-static byte 	CAN_data[8];					/* CAN bus message */
+extern dword 	CAN_messID;
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -34,44 +31,44 @@ static byte 	CAN_data[8];					/* CAN bus message */
 ////////////////////////////////////////////////////////////////////////
 void comMainLoop(void)
 {
-   byte ReadCANState;
-   byte i;
-   comContinue = TRUE;
-   comTimerEn = TRUE;
-   while (comContinue)
-   {
+	byte ReadCANState;
+	byte i;
+	comContinue = TRUE;
+	comTimerEn = TRUE;
+	while (comContinue)
+	{
+		/* wait CAN data or while timer expired, if set */
+		while (CAN1_getStateRX() == 0) 
+		{
+			// Timer check
+			if (comTimerEn) 
+			{
+		        if (getRegBit(TMRC1_SCR,TCF))      /* Is the interrupt request flag set? */
+		        {
+					clrRegBit(TMRC1_SCR,TCF);        /* If yes then reset this flag */
+					if (--TmpXdataVar == 0) 
+					{
+						setRegBitGroup(TMRC0_CTRL,CM,0);   /* Stop counter */
+						return;
+					}
+				}
+			}
+		}
 
-      /* wait CAN data or while timer expired, if set */
-      while (CAN1_getStateRX() == 0) {
-        // Timer check
-        if (comTimerEn) {
-	        if (getRegBit(TMRC1_SCR,TCF))      /* Is the interrupt request flag set? */
-	        {
-	          clrRegBit(TMRC1_SCR,TCF);        /* If yes then reset this flag */
-	          if (--TmpXdataVar == 0) {
-	            setRegBitGroup(TMRC0_CTRL,CM,0);   /* Stop counter */
-	            return;
-	          }
-	        }
-	    }
-      }
-
-      if (CAN1_getStateRX() != 0)
-      {
-         /* Received CAN frame */
-		 ReadCANState=CAN1_readFrame (&comBuffer.CAN_messID,
-		 							  &comBuffer.CAN_length,
-		 							  comBuffer.CAN_data);
-         if ((ReadCANState != ERR_OK) && (ReadCANState != ERR_RXEMPTY))
-         {
-            userError(INDICATE_ERROR_RECEIVE);
-         }
-         sprsReady(&comBuffer);      /* call CAN protocol parser */
-
-      }
-   }  /* while */
-
-   
+		if (CAN1_getStateRX() != 0)
+		{
+			/* Received CAN frame */
+			ReadCANState=CAN1_readFrame (&comBuffer.CAN_messID,
+										  &comBuffer.CAN_length,
+										  comBuffer.CAN_data);
+			if ((ReadCANState != ERR_OK) && (ReadCANState != ERR_RXEMPTY))
+			{
+				userError(INDICATE_ERROR_RECEIVE);
+			}
+			sprsReady(&comBuffer);      /* call CAN protocol parser */
+		}
+	
+	}  /* while */
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -83,7 +80,7 @@ void comMainLoop(void)
 ////////////////////////////////////////////////////////////////////////
 void comExit (void)
 {
-   comContinue = FALSE;
+	comContinue = FALSE;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -93,12 +90,11 @@ void comExit (void)
 // Send acknowledge message.
 //
 ////////////////////////////////////////////////////////////////////////
-void comACK (byte cmd )
+void comACK (byte cmd)
 {
 	CAN_data[0] = cmd;
 	CAN_data[1] = 1;
 	CAN1_sendFrame (CAN_messID, 2, CAN_data);	
-
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -126,11 +122,13 @@ void comSendType(void)
 ////////////////////////////////////////////////////////////////////////
 void comWaitEnd(void)
 {
-	do {
-      while (CAN1_getStateRX() == 0);
-	  CAN1_readFrame (&comBuffer.CAN_messID,
-					  &comBuffer.CAN_length,
-					  comBuffer.CAN_data);
-	}while ((comBuffer.CAN_data[0]==CMD_START) ||
+	do 
+	{
+		while (CAN1_getStateRX() == 0);
+		CAN1_readFrame (&comBuffer.CAN_messID,
+						&comBuffer.CAN_length,
+						comBuffer.CAN_data);
+	}
+	while ((comBuffer.CAN_data[0]==CMD_START) ||
 			(comBuffer.CAN_data[0]==CMD_END));
 }			

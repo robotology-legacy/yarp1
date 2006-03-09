@@ -436,8 +436,9 @@ void CAN1_init (void)
 	/* CANCTL1: ??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,CANE=1,??=0,??=0,??=0,??=0,LOOPB=0,WUPM=0,CLKSRC=0 */
 	setReg(CAN_CTL1, 0x0080);
 
-	clrRegBits (CAN_IDAC, 0x0030); /* mode = 0 */
-
+	clrRegBits (CAN_IDAC, 0x0030); /* mode = 01 */
+	setRegBits (CAN_IDAC, 0x0010);
+	
 	/* resets all acceptance codes */
 	setReg(CAN_IDAR0, 0);
 	setReg(CAN_IDAR1, 0);

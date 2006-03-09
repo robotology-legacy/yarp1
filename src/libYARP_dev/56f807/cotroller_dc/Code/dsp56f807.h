@@ -105,6 +105,7 @@ extern volatile word __dummy;
 #define L_shr           _L_shr
 #define shr_r           __shr_r
 #define L_deposit_l     _L_deposit_l
+#define L_deposit_h     _L_deposit_h
 #define norm_s          __norm_s
 #define norm_l          __norm_l
 
@@ -114,7 +115,7 @@ extern volatile word __dummy;
 
 /* To resolve bug in MetroWerks CW 3.5 */
 Word32 L_shr_r(Word32 L_var1, Word16 var2);
-Word32 L_deposit_h(Word16 var1);
+//Word32 L_deposit_h(Word16 var1);
 
 /* disable/enable global interrupts */
 extern volatile word SR_reg;

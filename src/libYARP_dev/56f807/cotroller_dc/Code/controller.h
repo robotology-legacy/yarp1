@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.31 2006-02-20 17:38:36 babybot Exp $
+/// $Id: controller.h,v 1.32 2006-03-09 00:14:30 babybot Exp $
 ///
 ///
 
@@ -41,7 +41,7 @@
 
 /* 
  * the purpose of including this file on Linux/Winnt/Qnx is to 
- * get the definition of messages and params of the dsp controller
+ *     get the definition of messages and params of the dsp controller
  * define __ONLY_DEF before inclusion on Linux/Winnt/Qnx
  */
 
@@ -52,10 +52,10 @@
 #endif
 
 //#define VERSION 0x0111   				/* standard/basic implementation */
-//#define VERSION 0x0112				/* decouples shoulder first two joints */
+#define VERSION 0x0112				/* decouples shoulder first two joints */
 //#define VERSION 0x0113			   	/* decouples the third joint of the shoulder */
 //#define VERSION 0x0114		    	/* feedback from the AD */
-#define VERSION 0x0115		    		/* coordinated control of the eyes */
+//#define VERSION 0x0115		    		/* coordinated control of the eyes */
 
 //#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
