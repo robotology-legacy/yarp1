@@ -42,6 +42,8 @@ const char *const HEAD_INI_FILE = "head.ini";
 double *_headJointsStore;
 double _initialOrientation;
 double _finalOrientation;
+double orientation;
+double distance;
 
 double _normalize0ToPI(double angle)
 {
@@ -98,9 +100,9 @@ void releaseSensor(void)
 	}
 }
 
-double calibrate(void)
+void calibrate(void)
 {
-	double orientation;
+	
 	unsigned char *buffer = NULL;
 	int ret;
 	printf("\n[eyeCalib] Grabbing frames (1st cycle)\n");
@@ -137,19 +139,25 @@ double calibrate(void)
 
 	printf("\n[eyeCalib] Calculating main orientation (1st cycle)\n");
 	double acc = 0.0;
+	double acc2 = 0.0;
 	double angle;
+	double dist;
 	for (i=0; i<N_IMAGES; i++)
 	{
 		_susanFlt.apply(&(_imgBuffer[i]), &_susanImg);
 		_houghFlt.apply(&_susanImg);
 		_houghFlt.getMaxTheta(&angle);
+		_houghFlt.getMaxRho(&dist);
 		acc += _normalize0ToPI(PI/2.0-angle);
+		acc2 += dist;
+
 		printf(".");
 		printf("%.2f acc");
 
 	}
 	orientation = acc / N_IMAGES;
-	return orientation;
+	distance = acc2 / N_IMAGES;
+
 }
 
 bool readLine(FILE *file, double *vel, double *posArray)
@@ -251,7 +259,6 @@ int main(int argc, char* argv[])
 	_houghFlt.resize(thetaSize, rhoSize);
 	char fileName[255];
 	FILE *outFile = NULL;
-	double orientation;
 	double posVector[4];
 	double vel;
 	printf("\n[eyeCalib] Do you want to save results to file ? [Y/n] ");
@@ -301,7 +308,7 @@ int main(int argc, char* argv[])
 			printf("\n[eyeCalib] Hit any key when Position has been reached..");
 			moveHead(vel,posVector);
 			c = getch();
-			orientation = calibrate();
+			calibrate();
 			printf("\n[eyeCalib] Main orientation is %.3frad (%.3fdeg) - variance %.2f", orientation, _rad2deg(orientation));
 			if (outFile != NULL)
 				fprintf(outFile, "%lf;%lf;%lf;%lf;%lf;%lf\n", vel, posVector[0], posVector[1], posVector[2], posVector[3], orientation);
@@ -321,8 +328,9 @@ int main(int argc, char* argv[])
 			printf("\n[eyeCalib] Hit any key when Position has been reached..");
 			moveHead(vel, posVector);
 			c = getch();
-			orientation = calibrate();
+			calibrate();
 			printf("\n[eyeCalib] Main orientation is %.3frad (%.3fdeg) - variance %.2f", orientation, _rad2deg(orientation));
+			printf("\n[eyeCalib] Main distance is %.3fpixels", distance);
 			if (outFile != NULL)
 				fprintf(outFile, "%lf;%lf;%lf;%lf;%lf;%lf\n", vel, posVector[0], posVector[1], posVector[2], posVector[3], orientation);
 			printf("\n[eyeCalib] Another loop ? [Y/n] ");

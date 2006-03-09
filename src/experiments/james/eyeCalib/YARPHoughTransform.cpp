@@ -27,8 +27,6 @@ YARPHoughTransform::YARPHoughTransform(int sizeTheta, int sizeRho)
 	_sizeRho = sizeRho;
 	_sizeTheta = sizeTheta;
 	_thetaMax = PI;
-	_rhoMax = sqrt( (_sizeTheta * _sizeRho) + (_sizeTheta * _sizeRho) );
-	_rhoInc = (2*_rhoMax) / _sizeRho;
 	_thetaInc = _thetaMax / sizeTheta;
 	_allocate();
 }
@@ -42,8 +40,6 @@ void YARPHoughTransform::resize(int sizeTheta, int sizeRho)
 {
 	_sizeRho = sizeRho;
 	_sizeTheta = sizeTheta;
-	_rhoMax = sqrt( (_sizeTheta * _sizeRho) + (_sizeTheta * _sizeRho) );
-	_rhoInc = (2*_rhoMax) / _sizeRho;
 	_thetaInc = _thetaMax / sizeTheta;
 	_deallocate();
 	_allocate();
@@ -109,14 +105,19 @@ bool YARPHoughTransform::apply(YARPImageOf<YarpPixelMono> *img)
 		return false;
 
 	int sizeX, sizeY;
-	sizeX = img->GetWidth();
-	sizeY = img->GetHeight();
-	_initialize();
-
 	double rho, theta;
 	unsigned char value;
 	double vote;
 	int x,y,i,j;
+	int x_tras,y_tras;
+
+	sizeX = img->GetWidth();
+	sizeY = img->GetHeight();
+	_rhoMax = sqrt(sizeX/2*sizeX/2 + sizeY/2*sizeY/2);
+	_rhoInc = (2*_rhoMax) / _sizeRho;
+
+	_initialize();
+
 	// Main Hough Tranformation Cycle
 	for (x=0; x<sizeX; x++)
 		for(y=0; y<sizeY; y++)
@@ -125,18 +126,18 @@ bool YARPHoughTransform::apply(YARPImageOf<YarpPixelMono> *img)
 			theta = 0.0;
 			value = img->SafePixel(x,y);
 			
+			x_tras = x - sizeX/2;
+			y_tras = y - sizeY/2;
+
 			if (value != 0)
 				for (i=0; i<_sizeTheta; i++)
 				{
 					theta = _thetaInc * i;
-					rho = x * cos(theta) + y * sin(theta);
-					j = FTOI(rho/_rhoInc);
-					
-					if ((j>0) &&(j < _sizeRho))
-					{
-						vote = value/255.0;
-						_houghSpace[i][j] += vote;
-					}
+					rho = (x_tras * sin(theta) - y_tras * cos(theta));
+					j = (int) ((rho + _rhoMax) / _rhoInc);
+
+					vote = value/255.0;
+					_houghSpace[i][j] += vote;
 				}
 			
 		}
@@ -211,8 +212,7 @@ bool YARPHoughTransform::getMaxRho(double *dst)
 	
 	int maxRhoIndex, maxThetaIndex;
 	getMaxValue(&maxThetaIndex, &maxRhoIndex);
-	int index = maxRhoIndex - (_sizeRho/2);
-	*dst = _rhoInc * index;
+	*dst = (_rhoInc * maxRhoIndex) - _rhoMax;
 
 	return true;
 }
