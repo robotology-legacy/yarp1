@@ -7,9 +7,13 @@
 
 #include <yarp/UnitTest.h>
 
+
+#include <yarp/os/Bottle.h>
+
 #include "TestList.h"
 
 using namespace yarp;
+using namespace yarp::os;
 
 
 static double myfabs(double x) {
@@ -118,12 +122,46 @@ public:
 
   }
 
+
+  void testLists() {
+    report(0,"testing lists...");
+    BottleImpl bot, bot2, bot3;
+    bot.fromString("[1 [2 3 7] 3] [0.0 \"b\" 1]");
+    checkEqual(bot.size(),2,"list test 1");
+    bot2.fromString(bot.toString());
+    checkEqual(bot2.size(),2,"list test 2");
+    ManagedBytes store(bot.byteCount());
+    bot.toBytes(store.bytes());
+    bot3.fromBytes(store.bytes());
+    checkEqual(bot3.size(),2,"list test 3");
+    report(0,String("bot3 is ") + bot3.toString());
+
+    Bottle bot10;
+    {
+      Bottle& bb = bot10.addList();
+      bb.addInt(1);
+      bb.addInt(2);
+      bb.addInt(3);
+    }
+    {
+      Bottle& bb = bot10.addList();
+      bb.addInt(4);
+      bb.addInt(5);
+      bb.addInt(6);
+    }
+    checkEqual(bot10.size(),2,"construction test 1");
+    checkEqual(bot10.toString().c_str(),"[1 2 3] [4 5 6]",
+	       "construction test 2");
+  }
+
+
   virtual void runTests() {
     testSize();
     testString();
     testBinary();
     testStreaming();
     testTypes();
+    testLists();
   }
 
   virtual String getName() {

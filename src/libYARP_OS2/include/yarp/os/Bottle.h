@@ -68,6 +68,14 @@ public:
    */
   void addString(const char *str);
 
+
+  /**
+   * Places an empty nested list in the bottle, at the end of the list.
+   * The list itself is represented as a bottle.
+   * @return a reference to the newly added list
+   */
+  Bottle& addList();
+
   /**
    * Reads an integer from a certain part of the list.
    * @param index the part of the list to read from
@@ -93,6 +101,14 @@ public:
   double getDouble(int index);
 
   /**
+   * Reads a nested list from a certain part of the list.
+   * @param index the part of the list to read from
+   * @return a pointer to the nested list, or NULL if it isn't a list -
+   * see Bottle::isList
+   */
+  Bottle *getList(int index);
+
+  /**
    * Checks if a certain part of the list is an integer.
    * @param index the part of the list to check
    * @return true iff that part of the list is indeed an integer
@@ -112,6 +128,13 @@ public:
    * @return true iff that part of the list is indeed a string
    */
   bool isString(int index);
+
+  /**
+   * Checks if a certain part of the list is a nested list.
+   * @param index the part of the list to check
+   * @return true iff that part of the list is indeed a nested list
+   */
+  bool isList(int index);
 
   /**
    * Initializes bottle from a string, which should contain a textual
