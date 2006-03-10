@@ -5,7 +5,7 @@
 #include <yarp/ManagedBytes.h>
 #include <yarp/os/ConnectionReader.h>
 #include <yarp/os/ConnectionWriter.h>
-#include <yarp/Portable.h>
+#include <yarp/os/Portable.h>
 
 #include <ace/Vector_T.h>
 
@@ -92,7 +92,7 @@ namespace yarp {
  * Handy to use until you work out how to make your own more 
  * efficient formats for transmission.
  */
-class yarp::BottleImpl : public yarp::Portable {
+class yarp::BottleImpl : public yarp::os::Portable {
 public:
 
   BottleImpl();
