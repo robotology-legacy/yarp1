@@ -340,8 +340,8 @@ String NameServer::cmdSet(int argc, char *argv[]) {
   for (int i=2; i<argc; i++) {
     nameRecord.addProp(key,argv[i]);
   }
-  return String("port ") + target + " property " + key + " = " +
-    nameRecord.getProp(key);
+  return terminate(String("port ") + target + " property " + key + " = " +
+    nameRecord.getProp(key) + "\n");
 }
 
 String NameServer::cmdGet(int argc, char *argv[]) {
@@ -355,8 +355,8 @@ String NameServer::cmdGet(int argc, char *argv[]) {
   String target = argv[0];
   String key = argv[1];
   NameRecord& nameRecord = getNameRecord(target);
-  return String("port ") + target + " property " + key + " = " +
-    nameRecord.getProp(key);
+  return terminate(String("port ") + target + " property " + key + " = " +
+    nameRecord.getProp(key) + "\n");
 }
 
 String NameServer::cmdMatch(int argc, char *argv[]) {
@@ -371,8 +371,8 @@ String NameServer::cmdMatch(int argc, char *argv[]) {
   String key = argv[1];
   String prefix = argv[2];
   NameRecord& nameRecord = getNameRecord(target);
-  return String("port ") + target + " property " + key + " = " +
-    nameRecord.matchProp(key,prefix);
+  return terminate(String("port ") + target + " property " + key + " = " +
+    nameRecord.matchProp(key,prefix) + "\n");
 }
 
 String NameServer::cmdCheck(int argc, char *argv[]) {
@@ -398,7 +398,7 @@ String NameServer::cmdCheck(int argc, char *argv[]) {
     response += "port " + target + " property " + 
       key + " value " + argv[i] + " present " + val;
   }
-  return response;
+  return terminate(response);
 }
 
 

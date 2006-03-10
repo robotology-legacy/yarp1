@@ -152,6 +152,9 @@ public:
     checkEqual(bot10.size(),2,"construction test 1");
     checkEqual(bot10.toString().c_str(),"[1 2 3] [4 5 6]",
 	       "construction test 2");
+    checkTrue(bot10.isList(1),"construction test 3");
+    checkEqual(bot10.getList(1)->toString().c_str(),"4 5 6",
+	       "construction test 4");
   }
 
 

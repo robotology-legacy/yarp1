@@ -44,6 +44,10 @@ void Bottle::addString(const char *str) {
   HELPER(implementation).addString(str);
 }
 
+Bottle& Bottle::addList() {
+  return HELPER(implementation).addList();
+}
+
 int Bottle::getInt(int index) {
   return HELPER(implementation).getInt(index);
 }
@@ -56,6 +60,10 @@ double Bottle::getDouble(int index) {
   return HELPER(implementation).getDouble(index);
 }
 
+Bottle *Bottle::getList(int index) {
+  return HELPER(implementation).getList(index);
+}
+
 bool Bottle::isInt(int index) {
   return HELPER(implementation).isInt(index);
 }
@@ -66,6 +74,10 @@ bool Bottle::isDouble(int index) {
 
 bool Bottle::isString(int index) {
   return HELPER(implementation).isString(index);
+}
+
+bool Bottle::isList(int index) {
+  return HELPER(implementation).isList(index);
 }
 
 void Bottle::fromString(const char *text) {
@@ -105,3 +117,5 @@ bool Bottle::read(ConnectionReader& reader) {
 int Bottle::size() {
   return HELPER(implementation).size();
 }
+
+

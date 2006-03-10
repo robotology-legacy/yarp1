@@ -183,13 +183,13 @@ public:
 
   void testReply() {
     report(0,"checking reply processing");
-    PortReaderBuffer<ServiceProvider> buf;
+    ServiceProvider provider;
 
     Port input, output;
     input.open("/in");
     output.open("/out");
     
-    input.setReader(buf);
+    input.setReader(provider);
     
     output.addOutput(Contact::byName("/in").addCarrier("tcp"));
     Time::delay(0.1);

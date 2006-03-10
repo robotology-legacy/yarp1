@@ -10,9 +10,10 @@
 
 using namespace yarp;
 
-const int BottleImpl::StoreInt::code = 1;
-const int BottleImpl::StoreString::code = 5;
-const int BottleImpl::StoreDouble::code = 2;
+const int StoreInt::code = 1;
+const int StoreString::code = 5;
+const int StoreDouble::code = 2;
+const int StoreList::code = 16;
 
 
 BottleImpl::BottleImpl() {
@@ -49,6 +50,8 @@ void BottleImpl::smartAdd(const String& str) {
       } else {
 	s = new StoreDouble(0);
       }
+    } else if (ch=='[') {
+      s = new StoreList();
     } else {
       s = new StoreString("");
     }
@@ -67,6 +70,7 @@ void BottleImpl::fromString(const String& line) {
   bool quoted = false;
   bool back = false;
   bool begun = false;
+  int nested = 0;
   String nline = line + " ";
   for (unsigned int i=0; i<nline.length(); i++) {
     char ch = nline[i];
@@ -87,11 +91,19 @@ void BottleImpl::fromString(const String& line) {
 	    quoted = false;
 	  }
 	}
+	if (!quoted) {
+	  if (ch=='[') {
+	    nested++;
+	  }
+	  if (ch==']') {
+	    nested--;
+	  }
+	}
 	if (ch=='\\') {
 	  back = true;
 	  arg += ch;
 	} else {
-	  if ((!quoted)&&(ch==' '||ch=='\t')) {
+	  if ((!quoted)&&(ch==' '||ch=='\t')&&(nested==0)) {
 	    smartAdd(arg);
 	    arg = "";
 	    begun = false;
@@ -142,6 +154,9 @@ void BottleImpl::fromBytes(const Bytes& data) {
 	break;
       case StoreString::code:
 	storable = new StoreString();
+	break;
+      case StoreList::code:
+	storable = new StoreList();
 	break;
       }
       if (storable==NULL) {
@@ -231,21 +246,21 @@ void BottleImpl::synch() {
 ////////////////////////////////////////////////////////////////////////////
 // StoreInt
 
-String BottleImpl::StoreInt::toString() {
+String StoreInt::toString() {
   char buf[256];
   ACE_OS::sprintf(buf,"%d",x);
   return String(buf);
 }
 
-void BottleImpl::StoreInt::fromString(const String& src) {
+void StoreInt::fromString(const String& src) {
   x = ACE_OS::atoi(src.c_str());
 }
 
-void BottleImpl::StoreInt::readBlock(ConnectionReader& reader) {
+void StoreInt::readBlock(ConnectionReader& reader) {
   x = reader.expectInt();
 }
 
-void BottleImpl::StoreInt::writeBlock(ConnectionWriter& writer) {
+void StoreInt::writeBlock(ConnectionWriter& writer) {
   writer.appendInt(x);
 }
 
@@ -253,7 +268,7 @@ void BottleImpl::StoreInt::writeBlock(ConnectionWriter& writer) {
 ////////////////////////////////////////////////////////////////////////////
 // StoreDouble
 
-String BottleImpl::StoreDouble::toString() {
+String StoreDouble::toString() {
   char buf[256];
   ACE_OS::sprintf(buf,"%g",x);
   String str(buf);
@@ -263,15 +278,15 @@ String BottleImpl::StoreDouble::toString() {
   return str;
 }
 
-void BottleImpl::StoreDouble::fromString(const String& src) {
+void StoreDouble::fromString(const String& src) {
   x = ACE_OS::strtod(src.c_str(),NULL);
 }
 
-void BottleImpl::StoreDouble::readBlock(ConnectionReader& reader) {
+void StoreDouble::readBlock(ConnectionReader& reader) {
   reader.expectBlock((const char*)&x,sizeof(x));
 }
 
-void BottleImpl::StoreDouble::writeBlock(ConnectionWriter& writer) {
+void StoreDouble::writeBlock(ConnectionWriter& writer) {
   //writer.appendBlockCopy(Bytes((char*)&x,sizeof(x)));
   writer.appendBlock((char*)&x,sizeof(x));
 }
@@ -281,7 +296,7 @@ void BottleImpl::StoreDouble::writeBlock(ConnectionWriter& writer) {
 // StoreString
 
 
-String BottleImpl::StoreString::toString() {
+String StoreString::toString() {
   // quoting code: very inefficient, but portable
   String result;
   result += "\"";
@@ -296,7 +311,7 @@ String BottleImpl::StoreString::toString() {
   return result;
 }
 
-void BottleImpl::StoreString::fromString(const String& src) {
+void StoreString::fromString(const String& src) {
   // unquoting code: very inefficient, but portable
   String result = "";
   x = "";
@@ -329,7 +344,7 @@ void BottleImpl::StoreString::fromString(const String& src) {
 }
 
 
-void BottleImpl::StoreString::readBlock(ConnectionReader& reader) {
+void StoreString::readBlock(ConnectionReader& reader) {
   int len = reader.expectInt();
   String buf((size_t)len);
   reader.expectBlock((const char *)buf.c_str(),len);
@@ -337,10 +352,39 @@ void BottleImpl::StoreString::readBlock(ConnectionReader& reader) {
   //x = reader.expectString(len);
 }
 
-void BottleImpl::StoreString::writeBlock(ConnectionWriter& writer) {
+void StoreString::writeBlock(ConnectionWriter& writer) {
   writer.appendInt(x.length()+1);
   writer.appendString(x.c_str(),'\0');
 }
+
+
+
+
+
+String StoreList::toString() {
+  return String("[") + content.toString().c_str() + "]";
+}
+
+void StoreList::fromString(const String& src) {
+  if (src.length()>0) {
+    if (src[0]=='[') {
+      // ignore first [ and last ]
+      String buf = src.substr(1,src.length()-2);
+      content.fromString(buf.c_str());
+    }
+  }
+}
+
+void StoreList::readBlock(ConnectionReader& reader) {
+  // not using the most efficient representation
+  content.read(reader);
+}
+
+void StoreList::writeBlock(ConnectionWriter& writer) {
+  // not using the most efficient representation
+  content.write(writer);
+}
+
 
 
 
@@ -368,6 +412,15 @@ bool BottleImpl::isDouble(int index) {
 }
 
 
+bool BottleImpl::isList(int index) {
+  if (index>=0 && index<size()) {
+    return content[index]->getCode() == StoreList::code;
+  }
+  return false;
+}
+
+
+
 int BottleImpl::getInt(int index) {
   if (!isInt(index)) { return 0; }
   return content[index]->asInt();
@@ -383,5 +436,16 @@ double BottleImpl::getDouble(int index) {
   return content[index]->asDouble();
 }
 
+yarp::os::Bottle *BottleImpl::getList(int index) {
+  if (!isList(index)) { return NULL; }
+  return &(((StoreList*)content[index])->internal());
+}
+
+
+yarp::os::Bottle& BottleImpl::addList() {
+  StoreList *lst = new StoreList();
+  add(lst);
+  return lst->internal();
+}
 
 
