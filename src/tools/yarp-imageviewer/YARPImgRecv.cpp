@@ -22,7 +22,8 @@ YARPImgRecv::YARPImgRecv()
 
 YARPImgRecv::~YARPImgRecv()
 {
-	
+	if (_connected)
+		Disconnect();
 }
 
 YARPImgRecv::YARPImgRecv(char *portName, char *network)
