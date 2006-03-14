@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.33 2006-03-14 16:53:37 babybot Exp $
+/// $Id: controller.h,v 1.34 2006-03-14 17:16:23 babybot Exp $
 ///
 ///
 
@@ -54,8 +54,8 @@
 //#define VERSION 0x0111   				/* standard/basic implementation */
 //#define VERSION 0x0112				/* decouples shoulder first two joints */
 //#define VERSION 0x0113			   	/* decouples the third joint of the shoulder */
-//#define VERSION 0x0114		    	/* feedback from the AD */
-#define VERSION 0x0115		    		/* coordinated control of the eyes */
+#define VERSION 0x0114		    	/* feedback from the AD */
+//#define VERSION 0x0115		    		/* coordinated control of the eyes */
 
 //#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */

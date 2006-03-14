@@ -38,7 +38,13 @@ bool _calibrated[JN] = { false, false };
 bool _pad_enabled[JN] = { false, false };
 bool _verbose = false;
 
+#if VERSION == 0x0114
+/* analog feedback */
+#define INPOSITION_THRESHOLD 150
+#else
+/* digital encoder feedback */
 #define INPOSITION_THRESHOLD 60
+#endif
 bool _in_position[JN] = { true, true };
 
 byte _control_mode[JN] = { MODE_IDLE, MODE_IDLE };
