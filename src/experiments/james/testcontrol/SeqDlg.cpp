@@ -175,12 +175,29 @@ void CSeqDlg::SaveSequence (FILE *fp)
 	if (fp == NULL)
 		return;
 
+    UpdateData();
+
 	int i;
 	for (i = 0; i < SEQUENCE_LEN; i++)
 	{
-		fprintf (fp, "%d ", m_s[i]);
+        ACE_OS::fprintf (fp, "%d ", m_s[i]);
 	}
-	fprintf (fp, "\n");
+    ACE_OS::fprintf (fp, "\n");
+}
+
+void CSeqDlg::LoadSequence (FILE *fp)
+{
+    if (fp == NULL)
+        return;
+
+    int i;
+    for (i = 0; i < SEQUENCE_LEN; i++)
+    {
+        // not ACE compatible.
+        fscanf (fp, "%d ", m_s+i);
+    }
+
+    UpdateData (FALSE);
 }
 
 void CSeqDlg::Body (void)

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.32 2006-03-09 00:14:30 babybot Exp $
+/// $Id: controller.h,v 1.33 2006-03-14 16:53:37 babybot Exp $
 ///
 ///
 
@@ -52,10 +52,10 @@
 #endif
 
 //#define VERSION 0x0111   				/* standard/basic implementation */
-#define VERSION 0x0112				/* decouples shoulder first two joints */
+//#define VERSION 0x0112				/* decouples shoulder first two joints */
 //#define VERSION 0x0113			   	/* decouples the third joint of the shoulder */
 //#define VERSION 0x0114		    	/* feedback from the AD */
-//#define VERSION 0x0115		    		/* coordinated control of the eyes */
+#define VERSION 0x0115		    		/* coordinated control of the eyes */
 
 //#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
@@ -187,8 +187,8 @@ typedef struct canmsg_tag
 #define CAN_GET_MAX_VELOCITY		69
 
 /* special messages for inter board communication/synchronization */
-#define CAN_GET_ACTIVE_ENCODER_POSITION 70
-#define CAN_SET_ACTIVE_ENCODER_POSITION 71
+//#define CAN_GET_ACTIVE_ENCODER_POSITION 70
+//#define CAN_SET_ACTIVE_ENCODER_POSITION 71
 
 #define CAN_SET_CURRENT_LIMIT		72
 #define CAN_SET_BCAST_POLICY		73

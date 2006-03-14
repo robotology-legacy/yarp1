@@ -23,7 +23,6 @@
 #include "YARPHoughTransform.h"
 #include "YARPSusanFilter.h"
 
-
 #define N_IMAGES 1
 #define PI 3.1415926535
 
@@ -47,7 +46,6 @@ double orientation;
 double distance;
 int count = 0;
 char FilePath[512];
-
 
 double _normalize0ToPI(double angle)
 {

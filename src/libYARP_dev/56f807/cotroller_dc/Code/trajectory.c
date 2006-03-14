@@ -22,7 +22,7 @@ Int16 _period = CONTROLLER_PERIOD;	/* in ms */
 float _stepf[JN] = { 0., 0. };
 
 bool _ended[JN] = { true, true };
-extern bool EnablePrintOnScreen;
+//extern bool EnablePrintOnScreen;
 
 /* local prototypes */
 float p5f (float x);

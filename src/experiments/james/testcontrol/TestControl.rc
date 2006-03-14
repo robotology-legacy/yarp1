@@ -98,10 +98,11 @@ BEGIN
     GROUPBOX        "Head control",IDC_STATIC,7,7,326,157,WS_TABSTOP
     PUSHBUTTON      "Stop",IDC_BUTTON_STOP,61,143,49,14,WS_DISABLED
     PUSHBUTTON      "Go!",IDC_BUTTON_GO,115,143,49,14,WS_DISABLED
-    RTEXT           "Left eye pan",IDC_STATIC,17,24,53,10,SS_CENTERIMAGE
-    RTEXT           "Left eye tilt",IDC_STATIC,17,36,53,10,SS_CENTERIMAGE
-    RTEXT           "Right eye pan",IDC_STATIC,17,50,53,10,SS_CENTERIMAGE
-    RTEXT           "Right eye tilt",IDC_STATIC,17,64,53,10,SS_CENTERIMAGE
+    RTEXT           "Differential tilt",IDC_STATIC,17,24,53,10,
+                    SS_CENTERIMAGE
+    RTEXT           "Vergence",IDC_STATIC,17,36,53,10,SS_CENTERIMAGE
+    RTEXT           "Common tilt",IDC_STATIC,17,50,53,10,SS_CENTERIMAGE
+    RTEXT           "Version",IDC_STATIC,17,64,53,10,SS_CENTERIMAGE
     RTEXT           "Neck pan",IDC_STATIC,17,78,53,10,SS_CENTERIMAGE
     RTEXT           "Neck ventral",IDC_STATIC,17,92,53,10,SS_CENTERIMAGE
     RTEXT           "Neck left dorsal",IDC_STATIC,17,106,53,10,

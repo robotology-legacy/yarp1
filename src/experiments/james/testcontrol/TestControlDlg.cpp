@@ -1382,6 +1382,25 @@ void CTestControlDlg::OnUpdatePosturesSetsequence(CCmdUI* pCmdUI)
 
 void CTestControlDlg::OnFileLoadsequence() 
 {
+	int ret = AfxMessageBox ("Are you sure, this would overwrite the current memory",
+				   MB_ICONQUESTION | MB_YESNO);
+	if (ret == 0 || ret == IDNO)
+		return;
+	
+	if (!_headinitialized || !_arminitialized)
+		return;
+
+	ACE_OS::sprintf (_buffer, "%s/%ssequence_test.txt", GetYarpRoot(),ConfigFilePath);
+	FILE *fp = ACE_OS::fopen (_buffer, "r");
+	if (fp == NULL)
+	{
+		MessageBox ("Can't read sequence file", "Error!");
+		return;
+	}
+
+	_sequencedlg.LoadSequence (fp);
+
+	ACE_OS::fclose (fp);    
 }
 
 void CTestControlDlg::OnFileSavesequence() 
@@ -1394,7 +1413,7 @@ void CTestControlDlg::OnFileSavesequence()
 	if (!_headinitialized || !_arminitialized)
 		return;
 
-	ACE_OS::sprintf (_buffer, "%s/conf/robotcub/sequence_test.txt", GetYarpRoot());
+	ACE_OS::sprintf (_buffer, "%s/%ssequence_test.txt", GetYarpRoot(),ConfigFilePath);
 	FILE *fp = ACE_OS::fopen (_buffer, "w");
 	if (fp == NULL)
 	{

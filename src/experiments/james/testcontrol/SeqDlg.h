@@ -35,6 +35,7 @@ public:
 
 	void Body (void);
 	void SaveSequence (FILE *fp);
+	void LoadSequence (FILE *fp);
 
 // Overrides
 	// ClassWizard generated virtual function overrides

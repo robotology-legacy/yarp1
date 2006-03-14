@@ -38,7 +38,7 @@ bool _calibrated[JN] = { false, false };
 bool _pad_enabled[JN] = { false, false };
 bool _verbose = false;
 
-#define INPOSITION_THRESHOLD 350
+#define INPOSITION_THRESHOLD 60
 bool _in_position[JN] = { true, true };
 
 byte _control_mode[JN] = { MODE_IDLE, MODE_IDLE };
@@ -531,44 +531,6 @@ void print_version(void)
 	AS1_printStringEx ("\r\n");
 }
 
-#if 0
-#if VERSION == 0x0113
-void can_send_request(void)
-{
-	const byte _neighbor = 11;
-
-	if (_counter == 0)
-	{
-		if (!_pending_request)
-		{
-			_timeout = 0;
-			_canmsg.CAN_messID &= 0xfffff800;
-			_canmsg.CAN_messID |= (_board_ID) << 4;
-			_canmsg.CAN_messID |= (_neighbor);
-			//_canmsg.CAN_messID |= 0x00000100;
-			_canmsg.CAN_data[0] = CAN_GET_ACTIVE_ENCODER_POSITION;
-			
-			//while (CAN1_GetStateTX () == 0) ;
-			
-			_canmsg.CAN_length = 1;
-			_canmsg.CAN_frameType = DATA_FRAME;
-			if (CAN1_sendFrame (1, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data) != ERR_OK)
-				AS1_printStringEx("send err\r\n");
-			_pending_request = true;
-		}
-	}
-	
-	_timeout ++;
-	if (_timeout > 10) // these are 10 ms.
-	{
-		_timeout = 0;
-		_pending_request = false;
-		//if (_verbose) 
-			AS1_printStringEx ("timeout\r\n");
-	}
-}
-#endif
-#endif
 
 /* send broadcast messages according to mask */
 void can_send_broadcast(void)
@@ -798,11 +760,6 @@ void main(void)
 		serial_interface ();
 		can_interface ();
 		
-//#if VERSION == 0x0113
-		/* used to ask information about neighbor cards */
-//		can_send_request ();
-//#endif
-
 		/* instructions are executed for both axes and only the PWM isn't 
 		   used if the specific axis is not used/calibrated
 		   we're supposed to guarantee a constant loop period 
@@ -867,12 +824,12 @@ void main(void)
 		_speed[1] = _position[1] - _position_old[1];
 		
 		/* in position? */
-		if (__abs(_position[0] - _set_point[0]) < INPOSITION_THRESHOLD)
+		if (__abs(_position[0] - _set_point[0]) < INPOSITION_THRESHOLD && _ended[0])
 			_in_position[0] = true;
 		else
 			_in_position[0] = false;
 			
-		if (__abs(_position[1] - _set_point[1]) < INPOSITION_THRESHOLD)
+		if (__abs(_position[1] - _set_point[1]) < INPOSITION_THRESHOLD && _ended[1])
 			_in_position[1] = true;
 		else
 			_in_position[1] = false;
@@ -1240,7 +1197,7 @@ byte can_interface (void)
 			HANDLE_MSG (CAN_SET_BCAST_POLICY, CAN_SET_BCAST_POLICY_HANDLER)
 			HANDLE_MSG (CAN_GET_ERROR_STATUS, CAN_GET_ERROR_STATUS_HANDLER)
 
-			HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)
+//			HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)
 			
 			END_MSG_TABLE		
 			}

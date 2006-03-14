@@ -160,6 +160,7 @@
 }
 
 
+#if 0
 #define CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER(x) \
 { \
 	PREPARE_HEADER; \
@@ -185,6 +186,7 @@
 		AS1_printStringEx ("err 70 - no msg\r\n"); \
 	} \
 }
+#endif
 
 /* 
  * shift by 2 is because data is available every 4 control cycles 
