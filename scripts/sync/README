@@ -1,0 +1,10 @@
+
+this is probably a very bad idea.
+
+but we are playing with having multiple cvs repositories, some parts of 
+which are kept in sync with each other.
+
+may be ok for parts where there is not much activity.  may lose some 
+useful info like who made a change.
+
+using cvsdelta [has debian package]

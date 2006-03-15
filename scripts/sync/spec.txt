@@ -1,0 +1,121 @@
+
+repositories:
+  yarp2
+  james-yarp
+  robotcub-yarp
+
+sync equalities:
+  yarp/yarp2 = james/yarp
+  yarp/yarp2 = robotcub/yarp
+
+sync process:
+
+  every now and then, action "A to B" is done for an equality A = B
+  action "B to A" is also done
+
+"A to B" process:
+
+  make sure cvs doesn't require logins (ssh keys are all set up, etc)
+
+  cd $BASE
+  cd $A ; cvs update -d
+  cd $BASE
+  cd $b ; cvs update -d
+  ...
+
+
+Desired end state:
+
+  all repositories should have same content.
+
+  is this achievable? what is status of deletions?
+
+Alternative:
+
+  if repositories have same content, they should continue to 
+  have same content (by tracking diffs)
+
+  Diff mode:
+    add to one repository, adds to all
+    change to one repository, changes in all
+    deletion from one repository, removes from all
+
+  Aggregate mode:
+    presence in one repository, adds to all that don't have it
+
+
+Canonical repository:
+
+  add to any repository, adds to canonical
+  change in any repository, changes in canonical
+  deletion from any repository, removes from canonical
+
+Other ways of getting info from CVS:
+
+  cvs history -p `cat CVS/Repository` -x R -a
+
+  R = removed, M = modified, A = added
+
+  for each repository R; do
+    get record of file activity [A/Ms and Rs]
+    apply activity to canonical repository if safe and relevant
+  done
+
+  Repository model = list of filenames, and corresponding files,
+      and time stamp of most recently applied CVS event
+
+  Given model, can generate an update script from CVS of form:
+      cp F1 F2
+      cvs add F2
+      ...
+      rm F3
+      cvs remove F2
+      ...
+
+  In CVS directories don't get removed :( so that is not a worry.
+  Do need to add them though.
+
+
+  ACQUISITION STAGE --
+
+  Mark state of particular repository by last history entry looked at?
+  
+  + eliminate any actions related to files that are later R-ed.
+
+  + end up with a desc of form:
+         MOD f
+         REM f
+
+  + for first, need to acquire f by cvs update on the repository
+
+
+  APPLICATION STAGE --
+
+  Attempt to make the required changes on another repository.
+  Check it out in fresh form.  Then:
+
+  + for REM f, check if f exists, if it does delete it and do a 
+      cvs delete f
+  
+  + for MOD f:
+
+    if f does not exist, copy it in and do a
+      cvs add f
+    (may have to add any parent directories that did not exist)
+
+    if f does exist, and is different to our new version, delete it and copy 
+    in the new version
+      (don't just overwrite, might need to merge)
+
+  + now do a:
+      cvs commit
+
+  + if there is a conflict, it will be flagged.  Could stop, or
+    just commit the conflict (might be dangerous)
+
+
+  APPLICATION can be repeated for multiple repositories.
+  When complete, note timestamp of last history entry to start
+  from next time.
+
+
