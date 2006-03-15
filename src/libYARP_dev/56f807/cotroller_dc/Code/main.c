@@ -839,7 +839,7 @@ void main(void)
 			_in_position[1] = true;
 		else
 			_in_position[1] = false;
-		
+
 		/* computes PID control */
 		compute_desired(0);
 		compute_desired(1);
