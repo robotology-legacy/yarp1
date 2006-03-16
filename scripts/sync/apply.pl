@@ -2,7 +2,7 @@
 
 use strict;
 
-my $fake = 0;
+my $fake = 1;
 my $change = 0;
 
 sub loadCvs {
@@ -11,7 +11,8 @@ sub loadCvs {
     open(FIN,"<$f");
     while (<FIN>) {
 	chomp($_);
-	if (!($_ =~ /\$Id: apply.pl,v 1.2 2006-03-16 10:37:14 eshuy Exp $/)) {
+	my $k = "Id";
+	if (!($_ =~ /\$$k: .* Exp \$/)) {
 	    push(@line,$_);
 	}
     }
