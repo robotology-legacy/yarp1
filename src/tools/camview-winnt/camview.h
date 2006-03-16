@@ -33,6 +33,7 @@ public:
 	bool m_lp;
 	bool m_fov;
 	bool m_enable_output;
+	bool m_horiz_flip;
 	int m_width;
 	int m_height;
 

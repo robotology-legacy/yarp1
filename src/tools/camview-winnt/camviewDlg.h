@@ -37,6 +37,7 @@ public:
 	bool m_logp;
 	bool m_fov;
 	bool m_normal;
+	bool m_horiz_flip;
 	int m_period;
 	double m_est_interval;
 	CRect m_rect;
@@ -65,6 +66,7 @@ public:
 		m_est_interval = 0;
 		m_logp = false;
 		m_fov = false;
+		m_horiz_flip = false;
 
 		m_rect.left = -1;
 		m_rect.top = -1;
@@ -82,6 +84,7 @@ public:
 	inline int GetPeriod (void) const { return m_period; }
 	inline void AssumeLogpolar (void) { m_logp = true; }
 	inline void AssumeDisplayFovea (void) { m_fov = true; }
+	inline void AssumeHorizFlip (void) { m_horiz_flip = true; }
 	inline bool TablesOk (void) const { return m_mapper.TablesOk(); }
 	inline void SetNetworkName (const char * net) { strcpy (m_netname, net); }
 	inline void SetNetworkNameOut(const char * net) { strcpy (m_out_netname, net); }

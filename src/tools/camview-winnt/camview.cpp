@@ -113,6 +113,11 @@ BOOL CCamviewApp::InitInstance()
 	else 
 		m_fov = false;
 
+	if (YARPParseParameters::parse(argc, argv, "-flip"))
+		m_horiz_flip = true;
+	else 
+		m_horiz_flip = false;
+
 	/// not really needed.
 	AfxEnableControlContainer();
 

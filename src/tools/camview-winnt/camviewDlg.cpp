@@ -37,6 +37,23 @@ void CRecv::Body (void)
 			/// cartesian.
 			if (!m_logp)
 			{
+
+				if (m_horiz_flip)
+				{
+					const int width = m_img.GetWidth();
+					const int height = m_img.GetHeight();
+					const unsigned int pixSize = m_img.GetPixelSize();
+					char* tmpPixel = new char[pixSize];
+					for ( int i=0; i<height; ++i ) {
+						for ( int j=0; j<width/2; ++j ) {
+							memcpy (tmpPixel, m_img.RawPixel(j,i), pixSize);
+							memcpy (m_img.RawPixel(j,i), m_img.RawPixel(width-j-1,i), pixSize);
+							memcpy (m_img.RawPixel(width-j-1,i), tmpPixel, pixSize);
+						}
+					}
+					delete tmpPixel;
+				}
+
 				if (m_flipped.GetWidth() != m_img.GetWidth() || m_flipped.GetHeight() != m_img.GetHeight())
 				{
 					m_flipped.Resize (m_img.GetWidth(), m_img.GetHeight(), m_img.GetID());
@@ -176,6 +193,7 @@ void CRecv::Body (void)
 			AskForEnd();
 		}
 	}	/// while (!IsTerminated())
+
 }
 
 void CRecv::SaveCurrentFrame (const char *filename)
@@ -315,6 +333,7 @@ BOOL CCamviewDlg::OnInitDialog()
 	
 	if (p->m_lp && m_receiver.TablesOk()) m_receiver.AssumeLogpolar();
 	if (p->m_fov) m_receiver.AssumeDisplayFovea();
+	if (p->m_horiz_flip) m_receiver.AssumeHorizFlip();
 
 	UpdateData(FALSE);
 
