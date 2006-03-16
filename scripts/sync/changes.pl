@@ -26,6 +26,7 @@ my %del;
 
 my $last = "";
 
+my $seen = 0;
 my $on = 0;
 
 if ($prev eq "") {
@@ -59,6 +60,8 @@ while (<HIST>) {
 	    }
 	}
 	if ($stamp eq $prev) {
+	    $seen = 1;
+	} elsif ($seen) {
 	    $on = 1;
 	}
     }

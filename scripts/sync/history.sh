@@ -11,4 +11,5 @@ for f in `cat keys.txt`; do
     cd state/$f
     cvs history -p `cat CVS/Repository` -x RAM -a > $BASE/history/$f
     cd $BASE
+    perl changes.pl $f
 done

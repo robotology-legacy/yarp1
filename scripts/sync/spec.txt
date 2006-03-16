@@ -29,12 +29,10 @@ set up "keys.txt" file listing these:
 
 + run "sh history.sh"
     this gets history of relevant repository changes in "history"
+    adds required changes to "action" directory
 
-+ run "perl changes.pl [key]"
-     for each of the repositories - generates the "action" directory
-
-+ run "perl apply.pl [key1] [key2]"
-     which transfers mods from one repository to another
++ run "sh implement.sh"
+     which transfers mods from each repository to the others
      there is a $fake flag in the source for apply.pl
 
 
