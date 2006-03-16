@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.14 2006-03-08 17:17:57 claudio72 Exp $
+/// $Id: TeleCtrl.cpp,v 1.15 2006-03-16 08:29:30 claudio72 Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -144,22 +144,26 @@ CollectorImage _img1;
 // numerical data
 CollectorNumericalData _data;
 // reference frame (set by calibration at the beginning)
-double refX=0, refY=0, refZ=0, refAz=0, refEl=0, refRo=0;
+double refX = 0.0, refY = 0.0, refZ = 0.0, refAz = 0.0, refEl = 0.0, refRo = 0.0;
 
 // degrees to radiants
 const double myDegToRad = 2*M_PI/360.0;
 // inches to cms
 const double myInchToCM = 2.45;
-// movement tolerance (cms)
-const double tolerance = 0.5/myInchToCM;
-// wrist roll tolerance (deg)
-const double tolerance_roll = 2.0*myDegToRad;
+
+// movement tolerance (inches)
+const double moveTol = 0.5/myInchToCM;
+// wrist roll tolerance (radians)
+const double wrRollTol = 2.0*myDegToRad;
+// wrist yaw tolerance (glove units)
+const double wrYawTol = 2.0;
 // streaming frequency
 const double streamingFrequency = 1.0/10.0;
+
 // inverse kinematics desired configuration - as a global, so far
 YVector desired_cfg(3);
 
-// Values send to the robot hand. Measured in radians
+// values to send to the robot hand (radians)
 double dThumb[2]  = {0.0, 0.0};
 double dIndex[2]  = {0.0, 0.0};
 double dMiddle[2] = {0.0, 0.0};
@@ -176,8 +180,8 @@ int iIndexClose[2]  = {0, 0};
 int iMiddleClose[2] = {0, 0};
 
 // Values for wrist
-const double robotWristDown = -90*myDegToRad;
-const double robotWristUp   =  90*myDegToRad;
+const double robotWristDown = -90.0*myDegToRad;
+const double robotWristUp   =  90.0*myDegToRad;
 double dWrist0 = 0.0;
 double dWristF = 0.0;
 
@@ -191,16 +195,16 @@ double dMiddle0[2]      = {0.0, 0.0};
 
 //Fingers angles
 const double robotFingerOpen  = 0.0;
-const double robotFingerClose = 65 * myDegToRad;
+const double robotFingerClose = 90.0*myDegToRad;
 
 // arm joints initial position (in degrees). the arm is initially
 // stretched with the hand down (looks like the Fascist salutation, unluckily)
-double offsetQ0 =   20.0;
-double offsetQ1 =   25.0;
-double offsetQ2 =  -40.0;
-double offsetQ3 =    0.0;
-double offsetQ4 =  -20.0;
-double offsetQ5 = -180.0;
+const double armOffsetQ0 =   20.0;
+const double armOffsetQ1 =   25.0;
+const double armOffsetQ2 =  -40.0;
+const double armOffsetQ3 =    0.0;
+const double armOffsetQ4 =    0.0;
+const double armOffsetQ5 = -160.0;
 
 // -----------------------------------
 // prototypes
@@ -235,7 +239,7 @@ virtual void Body (void)
 
 	double frX, frY, frZ, frAz, frEl, frRo;
 	double dx, dy, dz;
-	double prev_dx = 0.0, prev_dy = 0.0, prev_dz = 0.0, prev_roll = 0.0;
+	double prevDx = 0.0, prevDy = 0.0, prevDz = 0.0, prevRo = 0.0, prevWr = 0.0;
 	double rot[4][4];
 
 	rot[1][1] =  cos(refEl)*cos(refAz); rot[1][2] = -sin(refAz)*cos(refEl); rot[1][3] =  -sin(refEl);
@@ -244,13 +248,10 @@ virtual void Body (void)
 
 	// loop until the thread is terminated
 	while ( !IsTerminated() ) {
-
 		YARPTime::DelayInSeconds(streamingFrequency);
-
 	    // get data
 	    _master_data_inport.Read();
 	    _data = _master_data_inport.Content();
-      
 	    // evaluate data wrt reference frame
 	    dx = _data.tracker0Data.x - refX;
 	    dy = _data.tracker0Data.y - refY;
@@ -261,53 +262,38 @@ virtual void Body (void)
 	    frAz = myDegToRad * _data.tracker0Data.azimuth - refAz;
 	    frEl = myDegToRad * _data.tracker0Data.elevation - refEl;
 	    frRo = myDegToRad * _data.tracker0Data.roll - refRo;
-
 		// if we didn't move so much, skip it
-		double step = sqrt( (dx-prev_dx)*(dx-prev_dx) +
-			                (dy-prev_dy)*(dy-prev_dy) +
-							(dz-prev_dz)*(dz-prev_dz) );
-		double step_roll = sqrt( (frRo-prev_roll)*(frRo-prev_roll) );
-//		if ( step < tolerance && step_roll < tolerance_roll ) {
-		if ( 0 ) {
-			continue;
-		} else {
-			prev_dx = dx; prev_dy = dy; prev_dz = dz; prev_roll = frRo;
+		double ds = sqrt( (dx-prevDx)*(dx-prevDx) + (dy-prevDy)*(dy-prevDy) + (dz-prevDz)*(dz-prevDz) );
+		double dRo = fabs( frRo-prevRo );
+		double dWr = fabs( (double)_data.gloveData.wrist[0]-prevWr );
+		if ( ds > moveTol || dRo > wrRollTol || dWr > wrYawTol ) {
+			prevDx = dx; prevDy = dy; prevDz = dz;
+			prevRo = frRo; prevWr = _data.gloveData.wrist[0];
+			// compute arm joint angles: set the desired_X (in cms)
+		    desired_X[0] = frX*myInchToCM; desired_X[1] = -frY*myInchToCM; desired_X[2] = frZ*myInchToCM;
+		    // evaluate inverse kinematics according to tracker position
+		    inverse_kinematics(desired_X, required_Q, starting_Q);
+		    // let next starting point be the one we've just found
+		    starting_Q = required_Q; // all Qs are in DEGREES
+			// compute glove wrist position
+			double dWristYaw = dWrist0+_data.gloveData.wrist[0]*dWristF;
+		    cout 
+//				<< "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
+//				<< "Q\t" << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "\t"
+//				<< "roll " << frRo/myDegToRad << "\tyaw " << armOffsetQ4+40-dWristYaw/myDegToRad << "\t"
+//				<< armOffsetQ0-required_Q[0] << "\t" << armOffsetQ1-required_Q[1] << "\t" << armOffsetQ2-required_Q[2] << "\t";
+				<< "       \r";
+//			cout.flush();
+			// send commands to the arm, after correction (armOffsets and signs)
+			SendArmPositions(
+				(armOffsetQ0-required_Q[0])*myDegToRad,
+				(armOffsetQ1-required_Q[1])*myDegToRad,
+				(armOffsetQ2-required_Q[2])*myDegToRad,
+				armOffsetQ3*myDegToRad+frRo,
+				(armOffsetQ4+20)*myDegToRad-dWristYaw,
+				armOffsetQ5*myDegToRad );
 		}
-
-	    // set the desired_X (in cms)
-	    desired_X[0] = frX*myInchToCM; desired_X[1] = frY*myInchToCM; desired_X[2] = frZ*myInchToCM;
-	    // evaluate inverse kinematics according to tracker position
-	    inverse_kinematics(desired_X, required_Q, starting_Q);
-	    // let next starting point be the one we've just found
-	    starting_Q = required_Q; // all Qs are in DEGREES
-    
-		// compute glove wrist position
-		double dWristYaw = dWrist0+_data.gloveData.wrist[0]*dWristF;
-
-		// output to screen
-	    cout.precision(2);
-		cout.setf(ios::fixed);
-	    cout 
-			<< "roll " << frRo/myDegToRad << "\tyaw " << dWristYaw/myDegToRad << "      \r";
-//			<< "X:\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
-//		    << "Q:\t" << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "     \r";
-//	 		  << offsetQ0-required_Q[0] << "\t" << offsetQ1-required_Q[1] << "\t" << offsetQ2-required_Q[2] << "    \r";
-	    cout.flush();
-
-		// send commands to the arm, after correction (offsets and signs)
-		SendArmPositions(
-			(offsetQ0-required_Q[0])*myDegToRad,
-			(offsetQ1-required_Q[1])*myDegToRad,
-			(offsetQ2-required_Q[2])*myDegToRad,
-			offsetQ3*myDegToRad-frRo,
-			offsetQ4*myDegToRad-dWristYaw,
-			offsetQ5*myDegToRad );
-
 		// send commands to the hand
-		//dThumb[0]  = (double)abs(_data.gloveData.thumb[0]-iThumbClose[0]) * (double)dThumbFactor[0];
-		//dIndex[0]  = (double)abs(_data.gloveData.index[0]-iIndexClose[0]) * (double)dIndexFactor[0];
-		//dMiddle[0] = (double)abs(_data.gloveData.middle[0]-iMiddleClose[0]) * (double)dMiddleFactor[0];
-
         dThumb[0]  = dThumb0[0]  + _data.gloveData.thumb[0]  * dThumbFactor[0];
         dThumb[1]  = dThumb0[1]  + _data.gloveData.thumb[1]  * dThumbFactor[1];
         dIndex[0]  = dIndex0[0]  + _data.gloveData.index[0]  * dIndexFactor[0];
@@ -315,19 +301,19 @@ virtual void Body (void)
         dMiddle[0] = dMiddle0[0] + _data.gloveData.middle[0] * dMiddleFactor[0];
         dMiddle[1] = dMiddle0[1] + _data.gloveData.middle[1] * dMiddleFactor[1];
 		// output to screen
-		cout.precision(3);
-		cout << "Hand:\t" << dIndex[0]/myDegToRad << "\t" << dMiddle[0]/myDegToRad << "\t" << dThumb[0]/myDegToRad << "\t"  
-            << dIndex[1]/myDegToRad << "\t" << dMiddle[1]/myDegToRad << "\t" << dThumb[1]/myDegToRad << "       \r";
-		cout.flush();
+//		cout << "Hand:\t" << dIndex[0]/myDegToRad << "\t" << dMiddle[0]/myDegToRad << "\t" << dThumb[0]/myDegToRad << "\t"  
+//			 << dIndex[1]/myDegToRad << "\t" << dMiddle[1]/myDegToRad << "\t" << dThumb[1]/myDegToRad << "       \r";
+//		cout.flush();
+        dIndex[0]  = 0.0;
+        dIndex[1]  = 0.0;
         SendHandPositions(dThumb, dIndex, dMiddle);
-
 	}
     
 	return;
 
-	}
+} // streamingThread::Body() 
 
-};
+}; // class stramingThread
 
 // -----------------------------------
 // functions & procedures
@@ -477,7 +463,7 @@ namespace NR {
 // WARNING. this function is HIGHLY dependent on
 //   (1) the Babybot arm, that is, a PUMA200,
 //   (2) the initial position of the arm, which MUST be set each time during the
-//       startup phase (check the main() procedure and the offsetQx globals)
+//       startup phase (check the main() procedure and the armOffsetQx globals)
 
 void forward_kinematics(YVector& Q, YVector& X)
 {
@@ -664,39 +650,42 @@ void unregisterPorts()
 int SendArmPositions(double dof1, double dof2, double dof3, double dof4, double dof5, double dof6)
 {
 
-    return 0;
+//return 0;
 
-  YVector armCmd(6);
-  YARPBabyBottle tmpBottle;
-  tmpBottle.setID(YBVMotorLabel);
+	YVector armCmd(6);
+	YARPBabyBottle tmpBottle;
+	tmpBottle.setID(YBVMotorLabel);
 
-  // send a command to the arm
-  armCmd(1) = dof1;
-  armCmd(2) = dof2;
-  armCmd(3) = dof3;
-  armCmd(4) = dof4;
-  armCmd(5) = dof5;
-  armCmd(6) = dof6;
-  tmpBottle.reset();
-  tmpBottle.writeVocab(YBVocab(YBVArmForceNewCmd));
-  tmpBottle.writeYVector(armCmd);
-  _slave_outport.Content() = tmpBottle;
-  _slave_outport.Write();
+	// send a command to the arm
+	armCmd(1) = dof1;
+	armCmd(2) = dof2;
+	armCmd(3) = dof3;
+	armCmd(4) = dof4;
+	armCmd(5) = dof5;
+	armCmd(6) = dof6;
+
+	tmpBottle.reset();
+	tmpBottle.writeVocab(YBVocab(YBVArmForceNewCmd));
+	tmpBottle.writeYVector(armCmd);
+	
+	_slave_outport.Content() = tmpBottle;
+	_slave_outport.Write();
   
-  return 0;
+	return 0;
   
 }
 
-int SendHandPositions(double * dThumb, double * dIndex, double * dMiddle)
+int SendHandPositions(double* dThumb, double* dIndex, double* dMiddle)
 {
-    //return 0;
+
+//return 0;
 
     YVector handCmd(6);
     YARPBabyBottle tmpBottle;
     tmpBottle.setID(YBVMotorLabel); 
 
     // send command to the hand
-    handCmd(1) = dThumb[0];         // Thumb inner
+    handCmd(1) = dThumb[0];   // Thumb inner
     handCmd(2) = 0.0;         // Thumb middle
     handCmd(3) = -dIndex[0];  // Index inner
     handCmd(4) = -dIndex[1];  // Index middle
@@ -721,99 +710,80 @@ int SendHandPositions(double * dThumb, double * dIndex, double * dMiddle)
 int main()
 {
 
-  // the streaming thread
-  streamingThread myStreamingThread;
+	cout.precision(2); cout.setf(ios::fixed);
 
-  // register communication ports
-  registerPorts();
+	// the streaming thread
+	streamingThread myStreamingThread;
 
-  // launch batch file which yarp-connects ports
-  cout << endl << "Now connecting ports. Hit any key upon completion." << endl;
-  system(CONNECT_SCRIPT);
-  cin.get();
+	// register communication ports
+	registerPorts();
 
-  YARPScheduler::setHighResScheduling();
+	// launch batch file which yarp-connects ports
+	cout << endl << "Now connecting ports. Hit any key upon completion." << endl;
+	system(CONNECT_SCRIPT);
+	cin.get();
 
-  // ----------------------------
-  // connect to the master
-  cout << endl << "Initialising master... ";
-  cout.flush();
-  _master_cmd_outport.Content() = CCmdConnect;
-  _master_cmd_outport.Write();
-  _master_cmd_inport.Read();
-  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
-    // success!
-    cout << "done." << endl;
-    // gather which sensors we use
-    _master_cmd_inport.Read();
-    int reply = _master_cmd_inport.Content();
-	// so far, only tracker 0 and glove are used
-	if ( reply != (HardwareUseDataGlove|HardwareUseTracker0) ) {
-		cout << "must use tracker 0 and dataglove only." << endl;
+	YARPScheduler::setHighResScheduling();
+
+	// ----------------------------
+	// tell collector to activate the sensors
+	cout << endl << "Initialising collector... "; cout.flush();
+	_master_cmd_outport.Content() = CCmdConnect;
+	_master_cmd_outport.Write();
+	_master_cmd_inport.Read();
+	if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+		cout << "done." << endl;
+		// gather which sensors we use
+		_master_cmd_inport.Read();
+		if ( _master_cmd_inport.Content() != (HardwareUseDataGlove|HardwareUseTracker0) ) {
+			cout << "must use tracker 0 and dataglove only." << endl;
+			unregisterPorts();
+			return 0;
+		}
+		// so far, use only tracker0 and glove
+		_options.useDataGlove = _options.useTracker0  = 1;
+	} else {
+		cout << "failed." << endl;
 		unregisterPorts();
 		return 0;
 	}
-    _options.useDataGlove = reply & HardwareUseDataGlove;
-    _options.useTracker0  = reply & HardwareUseTracker0;
-    _options.useTracker1  = reply & HardwareUseTracker1;
-    _options.usePresSens  = reply & HardwareUsePresSens;
-    _options.useCamera0   = reply & HardwareUseCamera0;
-    _options.useCamera1   = reply & HardwareUseCamera1;
-	// and if we use the cameras,
-    if ( _options.useCamera0 || _options.useCamera1 ) {
-      // gather image size and set up image size
-      _master_cmd_inport.Read();
-      _options.sizeX = _master_cmd_inport.Content();
-      _img0.Resize (_options.sizeX, _options.sizeY);
-      _master_cmd_inport.Read();
-      _options.sizeY = _master_cmd_inport.Content();
-      _img1.Resize (_options.sizeX, _options.sizeY);
-      cout << "image size is " << _options.sizeX << "x" << _options.sizeY << endl;
-    }
-  } else {
-    cout << "failed." << endl;
-    unregisterPorts();
-    return 0;
-  }
 
-  // ----------------------------------
-  // calibration....
-  // ----------------------------------
+	// ----------------------------------
+	// calibration....
+	// ----------------------------------
 
-  // ----------------------------
-  // gather reference coordinates
-  cout << endl << "Now gathering reference frame. Place hand at origin and press any key... ";
-  cout.flush();
-  cin.get();
-  _master_cmd_outport.Content() = CCmdGetData;
-  _master_cmd_outport.Write();
-  _master_cmd_inport.Read();
-  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
-    _master_data_inport.Read();
-    CollectorNumericalData tmpData = _master_data_inport.Content();
-    refX  = tmpData.tracker0Data.x;
-    refY  = tmpData.tracker0Data.y;
-    refZ  = tmpData.tracker0Data.z;
-    refAz = myDegToRad * tmpData.tracker0Data.azimuth;
-    refEl = myDegToRad * tmpData.tracker0Data.elevation;
-    refRo = myDegToRad * tmpData.tracker0Data.roll;
-    cout << "done." << endl;
-  } else {
-    cout << "failed." << endl;
-    unregisterPorts();
-    return 0;
-  }
-  cout << "done. Reference frame is: "
-       << refX << ", " << refY << ", " << refZ << ", "
-       << refAz/myDegToRad << ", " << refEl/myDegToRad << ", " << refRo/myDegToRad << endl;
-  cout.flush();
+	// ----------------------------
+	// gather reference coordinates
+	cout << endl << "Now gathering reference frame. Place hand at origin and press any key... "; cout.flush();
+	cin.get();
+	_master_cmd_outport.Content() = CCmdGetData;
+	_master_cmd_outport.Write();
+	_master_cmd_inport.Read();
+	if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+		_master_data_inport.Read();
+		CollectorNumericalData tmpData = _master_data_inport.Content();
+		refX  = tmpData.tracker0Data.x;
+		refY  = tmpData.tracker0Data.y;
+		// takes into account that the tracker is mounted about 2cm above the hand!
+		refZ  = tmpData.tracker0Data.z - 2.5/myInchToCM;
+		refAz = myDegToRad * tmpData.tracker0Data.azimuth;
+		refEl = myDegToRad * tmpData.tracker0Data.elevation;
+		refRo = myDegToRad * tmpData.tracker0Data.roll;
+		cout << "done." << endl;
+	} else {
+		cout << "failed." << endl;
+		unregisterPorts();
+		return 0;
+	}
+	cout << "done. (" << refX << " " << refY << " " << refZ << " "
+         << refAz/myDegToRad << " " << refEl/myDegToRad << " " << refRo/myDegToRad << endl;
+	cout.flush();
 
 	// ---------------------------------------------------- 
-	// acquire wrist
+	// calibrate wrist
 	int iWristDown, iWristUp;
 	// down
-	cout << endl << "Move your hand DOWN and press any key.";
-	cout.flush();
+	cout << endl << "Move your hand DOWN and press any key."; cout.flush();
 	cin.get(); 
 	_master_cmd_outport.Content() = CCmdGetData;
 	_master_cmd_outport.Write();
@@ -821,7 +791,6 @@ int main()
 	if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
 		_master_data_inport.Read();
         CollectorNumericalData tmpData = _master_data_inport.Content();
-        // get data for open hand
         iWristDown= tmpData.gloveData.wrist[0];
     } else {
         cout << "failed." << endl;
@@ -829,8 +798,7 @@ int main()
         return 0;
     }
     // up
-    cout << endl << "Move your hand UP and press any key.";
-    cout.flush(); 
+    cout << endl << "Move your hand UP and press any key."; cout.flush(); 
     cin.get(); 
     _master_cmd_outport.Content() = CCmdGetData;
     _master_cmd_outport.Write();
@@ -838,193 +806,161 @@ int main()
     if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
 		_master_data_inport.Read();
         CollectorNumericalData tmpData = _master_data_inport.Content();
-        // get data for open hand
         iWristUp= tmpData.gloveData.wrist[0];
     } else {
         cout << "failed." << endl;
         unregisterPorts();
         return 0;
     }
-
     cout << "wrist interval: " << iWristDown << " to " << iWristUp  << endl;
-
     // evaluate wrist0 and wristF
 	dWristF = fabs( (robotWristUp-robotWristDown)/(double)(iWristUp-iWristDown) );
 	dWrist0 = min(robotWristDown,robotWristUp) - (double)min(robotWristDown,robotWristUp)*dWristF;
 
-////goto skip_gripper_calibration;
+	//---------------------------------------------------- 
+	// calibrate fingers
+	cout << endl << "Now calibrating dataglove. ";
+	cout.flush();
 
-  //---------------------------------------------------- 
-  // Data glove calibration
-  // gather dataglove calibration: open hand, snapshot, close hand, snapshot
-  if (_options.useDataGlove)
-  {
-      cout << endl << "NOW CALIBRATING DATAGLOVE... ";
-      cout.flush();
+	//---------------------------------------------------- 
+	// acquire open hand data
+	cout << endl << "Open hand and press any key."; cout.flush(); 
+    cin.get(); 
+    _master_cmd_outport.Content() = CCmdGetData;
+    _master_cmd_outport.Write();
+    _master_cmd_inport.Read();
+    if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+		_master_data_inport.Read();
+        CollectorNumericalData tmpData = _master_data_inport.Content();
+        iThumbOpen[0]  = tmpData.gloveData.thumb[0];
+        iThumbOpen[1]  = tmpData.gloveData.thumb[1];
+        iIndexOpen[0]  = tmpData.gloveData.index[0];
+        iIndexOpen[1]  = tmpData.gloveData.index[1];
+        iMiddleOpen[0] = tmpData.gloveData.middle[0];
+        iMiddleOpen[1] = tmpData.gloveData.middle[1];
+    } else {
+        cout << "failed." << endl;
+        unregisterPorts();
+        return 0;
+    }
+    //---------------------------------------------------- 
+    // acquire closed hand data
+    cout << endl << "Close hand and press any key. "; cout.flush();
+    cin.get();
+    _master_cmd_outport.Content() = CCmdGetData;
+    _master_cmd_outport.Write();
+    _master_cmd_inport.Read();
+    if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+        _master_data_inport.Read();
+        CollectorNumericalData tmpData = _master_data_inport.Content();
+        iThumbClose[0]  = tmpData.gloveData.thumb[0];
+        iThumbClose[1]  = tmpData.gloveData.thumb[1];
+        iIndexClose[0]  = tmpData.gloveData.index[0];
+        iIndexClose[1]  = tmpData.gloveData.index[1];
+        iMiddleClose[0] = tmpData.gloveData.middle[0];
+        iMiddleClose[1] = tmpData.gloveData.middle[1];
+    } else {
+        cout << "failed." << endl;
+        unregisterPorts();
+        return 0;
+    }
 
-      //---------------------------------------------------- 
-      // acquire open hand data
-      cout << endl << "Open hand and press any key.";
-      cout.flush(); 
-      cin.get(); 
+    // this is the angular range in radians for the babybot hand
+    double robotFingerRange = fabs(robotFingerClose-robotFingerOpen);
+    dThumbFactor[0]  = robotFingerRange / (double)abs(iThumbClose[0]-iThumbOpen[0]);
+    dThumbFactor[1]  = robotFingerRange / (double)abs(iThumbClose[1]-iThumbOpen[1]);
+    dIndexFactor[0]  = robotFingerRange / (double)abs(iIndexClose[0]-iIndexOpen[0]);
+    dIndexFactor[1]  = robotFingerRange / (double)abs(iIndexClose[1]-iIndexOpen[1]);
+    dMiddleFactor[0] = robotFingerRange / (double)abs(iMiddleClose[0]-iMiddleOpen[0]);
+    dMiddleFactor[1] = robotFingerRange / (double)abs(iMiddleClose[1]-iMiddleOpen[1]);
+    // compute de 0 componets (robot_d - finger_close * fingerFactor)
+    double minRobotFingerAngle = min(robotFingerClose,robotFingerOpen);
+    dThumb0[0]  = minRobotFingerAngle - (double)min(iThumbClose[0],iThumbOpen[0]) * dThumbFactor[0];
+    dThumb0[1]  = minRobotFingerAngle - (double)min(iThumbClose[1],iThumbOpen[1]) * dThumbFactor[1];
+    dIndex0[0]  = minRobotFingerAngle - (double)min(iIndexClose[0],iIndexOpen[0]) * dIndexFactor[0];
+    dIndex0[1]  = minRobotFingerAngle - (double)min(iIndexClose[1],iIndexOpen[1]) * dIndexFactor[1];
+    dMiddle0[0] = minRobotFingerAngle - (double)min(iMiddleClose[0],iMiddleOpen[0]) * dMiddleFactor[0];
+    dMiddle0[1] = minRobotFingerAngle - (double)min(iMiddleClose[1],iMiddleOpen[1]) * dMiddleFactor[1];
+    cout << "Babybot hand calibration done." << endl; cout.flush();
 
-      _master_cmd_outport.Content() = CCmdGetData;
-      _master_cmd_outport.Write();
-      _master_cmd_inport.Read();
+	// ----------------------------------
+	// streaming
+	// ----------------------------------
 
-      if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
-          _master_data_inport.Read();
-          CollectorNumericalData tmpData = _master_data_inport.Content();
+	// have arm and hand positioned in the starting position
+	SendArmPositions(armOffsetQ0*myDegToRad,armOffsetQ1*myDegToRad,armOffsetQ2*myDegToRad,armOffsetQ3*myDegToRad,armOffsetQ4*myDegToRad,armOffsetQ5*myDegToRad );
+    cout << endl << "Positioning. Press any key when finished. "; cout.flush(); cin.get();
+		
+	// ----------------------------
+	// activate stream from master
+	cout << "Starting streaming mode (hit a key to stop)... "; cout.flush();
+	_master_cmd_outport.Content() = CCmdStartStreaming;
+	_master_cmd_outport.Write();
+	_master_cmd_inport.Read();
+	if ( _master_cmd_inport.Content() == CCmdSucceeded) {
+		// start streaming thread
+		cout << "done." << endl;
+		myStreamingThread.Begin();
+	} else {
+		cout << "failed." << endl;
+		unregisterPorts();
+		return 0;
+	}
+	// wait for a key to stop streaming mode  
+	cin.get();
+	// stop streaming
+	cout << endl << "Stopping streaming mode..."; cout.flush();
+	myStreamingThread.End();
+	_master_cmd_outport.Content() = CCmdStopStreaming;
+	_master_cmd_outport.Write();
+	_master_cmd_inport.Read();
+	if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+		cout << "done." << endl;
+	} else {
+		cout << "failed." << endl;
+		unregisterPorts();
+		return 0;
+	}
 
-          // get data for open hand
-          iThumbOpen[0]  = tmpData.gloveData.thumb[0];
-          iThumbOpen[1]  = tmpData.gloveData.thumb[1];
-          iIndexOpen[0]  = tmpData.gloveData.index[0];
-          iIndexOpen[1]  = tmpData.gloveData.index[1];
-          iMiddleOpen[0] = tmpData.gloveData.middle[0];
-          iMiddleOpen[1] = tmpData.gloveData.middle[1];
+	// ----------------------------------
+	// shut down....
+	// ----------------------------------
 
-          } else {
-          cout << "failed." << endl;
-          unregisterPorts();
-          return 0;
-      }
+	// ----------------------------
+	// reset hand
+	{ 
+		double zero1[2] = { 0.0, 0.0 };
+		double zero2[2] = { 0.0, 0.0 };
+		double zero3[2] = { 0.0, 0.0 };
+		SendHandPositions(zero1,zero2,zero3);
+	}
 
-      //---------------------------------------------------- 
-      // acquire closed hand data
-      cout << endl << "Close hand and press any key... ";
-      cout.flush();
-      cin.get();
+	// ----------------------------
+	// let the arm go to rest
+	YARPBabyBottle tmpBottle;
+	tmpBottle.setID(YBVMotorLabel);
+	tmpBottle.reset();
+	tmpBottle.writeVocab(YBVocab(YBVArmForceResting));
+	_slave_outport.Content() = tmpBottle;
+	_slave_outport.Write();
 
-      _master_cmd_outport.Content() = CCmdGetData;
-      _master_cmd_outport.Write();
-      _master_cmd_inport.Read();
+	// ----------------------------
+	// release collector and bail out
+	cout << "Now releasing collector. "; cout.flush();
+	_master_cmd_outport.Content() = CCmdDisconnect;
+	_master_cmd_outport.Write();
+	_master_cmd_inport.Read();
+	if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
+		cout << "done." << endl;
+	} else {
+		cout << "failed." << endl;
+	}
+	// launch batch file which yarp-disconnects ports
+	cout << endl << "Now disconnecting ports." << endl;
+	system(DISCONNECT_SCRIPT);
+	// unregister ports and bail out
+	unregisterPorts();
 
-      if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
-          _master_data_inport.Read();
-          CollectorNumericalData tmpData = _master_data_inport.Content();
-
-          // get data for closed hand
-          iThumbClose[0]  = tmpData.gloveData.thumb[0];
-          iThumbClose[1]  = tmpData.gloveData.thumb[1];
-          iIndexClose[0]  = tmpData.gloveData.index[0];
-          iIndexClose[1]  = tmpData.gloveData.index[1];
-          iMiddleClose[0] = tmpData.gloveData.middle[0];
-          iMiddleClose[1] = tmpData.gloveData.middle[1];
-
-      } else {
-          cout << "failed." << endl;
-          unregisterPorts();
-          return 0;
-      }
-
-      cout << endl << "NOW CALIBRATING WRIST SENSOR......."; 
-      cout.flush();
-
-      // evaluate gripper factors
-
-      cout << iThumbClose  << " " << iThumbOpen  << " "
-           << iIndexClose  << " " << iIndexOpen  << " "
-           << iMiddleClose << " " << iMiddleOpen << endl;
-
-      // this is the angular range in radians for the babybot hand
-      double robotFingerRange = fabs(robotFingerClose-robotFingerOpen);
-      dThumbFactor[0]  = robotFingerRange / (double)abs(iThumbClose[0]-iThumbOpen[0]);
-      dThumbFactor[1]  = robotFingerRange / (double)abs(iThumbClose[1]-iThumbOpen[1]);
-      dIndexFactor[0]  = robotFingerRange / (double)abs(iIndexClose[0]-iIndexOpen[0]);
-      dIndexFactor[1]  = robotFingerRange / (double)abs(iIndexClose[1]-iIndexOpen[1]);
-      dMiddleFactor[0] = robotFingerRange / (double)abs(iMiddleClose[0]-iMiddleOpen[0]);
-      dMiddleFactor[1] = robotFingerRange / (double)abs(iMiddleClose[1]-iMiddleOpen[1]);
-
-      // compute de 0 componets (robot_d - finger_close * fingerFactor)
-      double minRobotFingerAngle = min(robotFingerClose,robotFingerOpen);
-      dThumb0[0]  = minRobotFingerAngle - (double)min(iThumbClose[0],iThumbOpen[0]) * dThumbFactor[0];
-      dThumb0[1]  = minRobotFingerAngle - (double)min(iThumbClose[1],iThumbOpen[1]) * dThumbFactor[1];
-
-      dIndex0[0]  = minRobotFingerAngle - (double)min(iIndexClose[0],iIndexOpen[0]) * dIndexFactor[0];
-      dIndex0[1]  = minRobotFingerAngle - (double)min(iIndexClose[1],iIndexOpen[1]) * dIndexFactor[1];
-
-      dMiddle0[0] = minRobotFingerAngle - (double)min(iMiddleClose[0],iMiddleOpen[0]) * dMiddleFactor[0];
-      dMiddle0[1] = minRobotFingerAngle - (double)min(iMiddleClose[1],iMiddleOpen[1]) * dMiddleFactor[1];
-
-      cout << "Babybot hand calibration done." << endl;
-      cout.flush();
-  }
-
-////skip_gripper_calibration:
-
-  // ----------------------------------
-  // activate the streaming!!
-  // ----------------------------------
-
-  // ----------------------------
-  // activate stream from master: issue streaming command
-  cout << "Starting streaming mode (hit a key to stop)... ";
-  cout.flush();
-  _master_cmd_outport.Content() = CCmdStartStreaming;
-  _master_cmd_outport.Write();
-  _master_cmd_inport.Read();
-  if ( _master_cmd_inport.Content() == CCmdSucceeded) {
-    // start streaming thread
-    cout << "done." << endl;
-    myStreamingThread.Begin();
-  } else {
-    cout << "failed." << endl;
-    unregisterPorts();
-    return 0;
-  }
-
-  // wait for a key to stop streaming mode  
-  cin.get();
-
-  // stop streaming
-  cout << endl << "Stopping streaming mode...";
-  cout.flush();
-  _master_cmd_outport.Content() = CCmdStopStreaming;
-  _master_cmd_outport.Write();
-  myStreamingThread.End();
-  _master_cmd_inport.Read();
-  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
-    cout << "done." << endl;
-  } else {
-    cout << "failed." << endl;
-    unregisterPorts();
-    return 0;
-  }
-
-  // ----------------------------------
-  // shut down....
-  // ----------------------------------
-
-  // ----------------------------
-  // let the arm go to rest
-  YARPBabyBottle tmpBottle;
-  tmpBottle.setID(YBVMotorLabel);
-  tmpBottle.reset();
-  tmpBottle.writeVocab(YBVocab(YBVArmForceResting));
-  _slave_outport.Content() = tmpBottle;
-  _slave_outport.Write();
-
-  // ----------------------------
-  // release MASTER and bail out
-  cout << "Now releasing MASTER... ";
-  cout.flush();
-  _master_cmd_outport.Content() = CCmdDisconnect;
-  _master_cmd_outport.Write();
-  _master_cmd_inport.Read();
-  if ( _master_cmd_inport.Content() == CCmdSucceeded ) {
-    cout << "done." << endl;
-  } else {
-    cout << "failed." << endl;
-  }
-
-  // launch batch file which yarp-disconnects ports
-  cout << endl << "Now disconnecting ports." << endl;
-  system(DISCONNECT_SCRIPT);
-
-  // unregister ports and bail out
-  cout << endl << "Unregistering ports and bailing out." << endl;
-  unregisterPorts();
-  return 0;
+	return 0;
   
 }
