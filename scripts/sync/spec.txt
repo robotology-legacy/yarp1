@@ -8,6 +8,42 @@ sync equalities:
   yarp/yarp2 = james/yarp
   yarp/yarp2 = robotcub/yarp
 
+=======================================================================
+
+HOW IT WORKS RIGHT NOW:
+
+set up "sources" directory, moving desired CVS control dirs in, with
+nice names, e.g:
+  sources/yarp2
+    with sources/yarp2/Root = :ext:eshuy@cvs.sourceforge.net:/cvsroot/yarp0
+    with sources/yarp2/Repository = yarp2
+  sources/james-yarp
+    with sources/james-yarp/Root = toyota@hydra:/cvsroot
+    with sources/james-yarp/Repository = james/yarp
+
+set up "keys.txt" file listing these:
+   keys.txt = "james-yarp yarp2"
+
++ run "sh fresh.sh"
+    this checks everything out anew, produces the "state" directory
+
++ run "sh history.sh"
+    this gets history of relevant repository changes in "history"
+
++ run "perl changes.pl [key]"
+     for each of the repositories - generates the "action" directory
+
++ run "perl apply.pl [key1] [key2]"
+     which transfers mods from one repository to another
+     there is a $fake flag in the source for apply.pl
+
+
+
+=======================================================================
+
+OLD NOTES:
+
+
 sync process:
 
   every now and then, action "A to B" is done for an equality A = B
