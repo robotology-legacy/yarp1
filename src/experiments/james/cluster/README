@@ -1,0 +1,5 @@
+These scripts assume you are a user with the following properties:
+  your identity key is recognised (no passwd needed for ssh)
+  you are set up for NOPASSWD sudo
+
+This should be true for all machines listed in machines.txt

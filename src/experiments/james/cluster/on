@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ "k$1" = "k" ]; then
+    echo "This script assumes you are a user with the following properties:"
+    echo "  your identity key is recognised (no passwd needed for ssh)"
+    echo "  you are set up for NOPASSWD sudo"
+    echo "Call as: on <machine name> <command>"
+else
+    ssh $*
+fi

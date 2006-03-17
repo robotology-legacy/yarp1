@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ "k$1" = "k" ]; then
+    echo "please pass the name of a command to run";
+else
+    echo "Command is: $*"    
+    for f in `cat machines.txt`; do
+	echo "For machine $f:"
+	./on $f $*
+    done
+fi
+
