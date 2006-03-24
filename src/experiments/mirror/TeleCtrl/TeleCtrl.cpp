@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl.cpp,v 1.15 2006-03-16 08:29:30 claudio72 Exp $
+/// $Id: TeleCtrl.cpp,v 1.16 2006-03-24 16:15:54 claudio72 Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -180,8 +180,8 @@ int iIndexClose[2]  = {0, 0};
 int iMiddleClose[2] = {0, 0};
 
 // Values for wrist
-const double robotWristDown = -90.0*myDegToRad;
-const double robotWristUp   =  90.0*myDegToRad;
+const double robotWristDown = -70.0*myDegToRad;
+const double robotWristUp   =  70.0*myDegToRad;
 double dWrist0 = 0.0;
 double dWristF = 0.0;
 
@@ -195,7 +195,7 @@ double dMiddle0[2]      = {0.0, 0.0};
 
 //Fingers angles
 const double robotFingerOpen  = 0.0;
-const double robotFingerClose = 90.0*myDegToRad;
+const double robotFingerClose = 70.0*myDegToRad;
 
 // arm joints initial position (in degrees). the arm is initially
 // stretched with the hand down (looks like the Fascist salutation, unluckily)
@@ -294,18 +294,21 @@ virtual void Body (void)
 				armOffsetQ5*myDegToRad );
 		}
 		// send commands to the hand
-        dThumb[0]  = dThumb0[0]  + _data.gloveData.thumb[0]  * dThumbFactor[0];
-        dThumb[1]  = dThumb0[1]  + _data.gloveData.thumb[1]  * dThumbFactor[1];
+//        dThumb[0]  = dThumb0[0]  + _data.gloveData.thumb[0]  * dThumbFactor[0];
+        dThumb[0]  = dThumb0[1]  + _data.gloveData.thumb[1]  * dThumbFactor[1];
+//        dThumb[1]  = dThumb0[1]  + _data.gloveData.thumb[1]  * dThumbFactor[1];
+        dThumb[1]  = 50.0*myDegToRad;
         dIndex[0]  = dIndex0[0]  + _data.gloveData.index[0]  * dIndexFactor[0];
         dIndex[1]  = dIndex0[1]  + _data.gloveData.index[1]  * dIndexFactor[1];
         dMiddle[0] = dMiddle0[0] + _data.gloveData.middle[0] * dMiddleFactor[0];
         dMiddle[1] = dMiddle0[1] + _data.gloveData.middle[1] * dMiddleFactor[1];
 		// output to screen
-//		cout << "Hand:\t" << dIndex[0]/myDegToRad << "\t" << dMiddle[0]/myDegToRad << "\t" << dThumb[0]/myDegToRad << "\t"  
-//			 << dIndex[1]/myDegToRad << "\t" << dMiddle[1]/myDegToRad << "\t" << dThumb[1]/myDegToRad << "       \r";
-//		cout.flush();
-        dIndex[0]  = 0.0;
-        dIndex[1]  = 0.0;
+		cout << "Hand:"
+			 << "\t" << dThumb[0]/myDegToRad  << "\t" << dThumb[1]/myDegToRad
+			 << "\t" << dIndex[0]/myDegToRad  << "\t" << dIndex[1]/myDegToRad
+			 << "\t" << dMiddle[0]/myDegToRad << "\t" << dMiddle[1]/myDegToRad
+			 << "       \r";
+		cout.flush();
         SendHandPositions(dThumb, dIndex, dMiddle);
 	}
     
@@ -686,7 +689,7 @@ int SendHandPositions(double* dThumb, double* dIndex, double* dMiddle)
 
     // send command to the hand
     handCmd(1) = dThumb[0];   // Thumb inner
-    handCmd(2) = 0.0;         // Thumb middle
+    handCmd(2) = -dThumb[1];   // Thumb middle
     handCmd(3) = -dIndex[0];  // Index inner
     handCmd(4) = -dIndex[1];  // Index middle
     handCmd(5) = -dMiddle[0]; // middle-ring-pikkie inner
