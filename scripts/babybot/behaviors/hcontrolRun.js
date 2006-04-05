@@ -5,4 +5,3 @@ WshShell.Run ("on -i -d -n thaumas headvergence.exe", 7, true);
 WshShell.Run ("on -i -d -n thaumas attention.exe", 7, true);
 WshShell.Run ("on -i -d -n thaumas headsmooth.exe", 7, true);
 WshShell.Run ("on -i -d -n thaumas headsmooth.exe --name /smoothpursuit/ --inhibitneck", 7, true);
-
