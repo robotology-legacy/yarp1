@@ -7,6 +7,8 @@
 #include "BodyMapDlg.h"
 #include "../learner/lMCommands.h"
 
+#include <fstream>
+
 #include <yarp/YARPString.h>
 
 #ifdef _DEBUG
@@ -14,6 +16,8 @@
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
 // CBodyMapDlg dialog
@@ -306,6 +310,14 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 					    ) );
 	char title[50];
 	ACE_OS::sprintf(title, "%.2lf %.2lf", _distanceMean, _distanceStdv);
+	{
+		if ( _distanceNumOfExamples==0 ) {
+			ofstream outFile("distance.dat");
+		}
+		ofstream outFile("distance.dat",ios::app);
+		outFile << _distanceNumOfExamples << " " << _distanceMean << " " << _distanceStdv << endl;
+	}
+	
 	GetDlgItem(IDC_DISTANCE)->SetWindowText(title);
 	++_distanceNumOfExamples;
 

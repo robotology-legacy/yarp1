@@ -65,9 +65,8 @@ void CSaverThread::writeDataToFile(int i)
 	fprintf(pFile,";%d;%d;%d", pData->gloveData.middle[0], pData->gloveData.middle[1], pData->gloveData.middle[2]);
 	fprintf(pFile,";%d;%d;%d", pData->gloveData.ring[0], pData->gloveData.ring[1], pData->gloveData.ring[2]);
 	fprintf(pFile,";%d;%d;%d", pData->gloveData.pinkie[0], pData->gloveData.pinkie[1], pData->gloveData.pinkie[2]);
-	fprintf(pFile,";%d;%d;%d;%d;%d", pData->gloveData.abduction[0], pData->gloveData.abduction[1], pData->gloveData.abduction[2], pData->gloveData.abduction[3], pData->gloveData.abduction[4]);
-	fprintf(pFile,";%d", pData->gloveData.palmArch);
-	fprintf(pFile,";%d;%d", pData->gloveData.wrist[0], pData->gloveData.wrist[1]);
+	fprintf(pFile,";%d;%d;%d;%d", pData->gloveData.abduction[0], pData->gloveData.abduction[1], pData->gloveData.abduction[2], pData->gloveData.abduction[3]);
+	fprintf(pFile,";%d;%d;%d", pData->gloveData.palmArch, pData->gloveData.wristPitch, pData->gloveData.wristYaw);
 	fprintf(pFile,";%d;%d;%d;%d", pData->pressureData.channelA, pData->pressureData.channelB, pData->pressureData.channelC, pData->pressureData.channelD);
 	fprintf(pFile, "\n");
 
@@ -86,9 +85,8 @@ void CSaverThread::writeHeaderToFile()
 	fprintf(pFile,"MiddleInner;MiddleMiddle;MiddleOuter;");
 	fprintf(pFile,"RingInner;RingMiddle;RingOuter;");
 	fprintf(pFile,"PinkieInner;PinkieMiddle;PinkieOuter;");
-	fprintf(pFile,"Abduct1;Abduct2;Abduct3;Abduct4;Abduct5;");
-	fprintf(pFile,"PalmArch;");
-	fprintf(pFile,"Wrist1;Wrist2;");
+	fprintf(pFile,"ThumbIndex;IndexMiddle;MiddleRing;RingPinkie;");
+	fprintf(pFile,"PalmArch;WristPitch;WristYaw;");
 	fprintf(pFile,"PressureA;PressureB;PressureC;PressureC\n");
 
 }

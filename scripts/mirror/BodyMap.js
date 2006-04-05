@@ -9,7 +9,8 @@
 // create instance of JScript
 var WshShell = WScript.CreateObject("WScript.Shell");
 
-// launch two mirrorCollector, learner and BodyMap
-WshShell.Run ("on -d -n atlas mirrorCollector", 1, false);
-WshShell.Run ("learner --dom 3 --cod 4 --ex 150", 1, false);
+// launch mirrorCollector, learner and BodyMap
+//WshShell.Run ("on -d -n atlas mirrorCollector", 1, false);
+WshShell.Run ("mirrorCollector", 7, false);
+WshShell.Run ("learner --dom 3 --cod 4 --ex 500 --u .2 .2 .2", 7, false);
 WshShell.Run ("BodyMap", 1, false);

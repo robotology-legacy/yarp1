@@ -42,9 +42,9 @@ CLiveGloveDlg::CLiveGloveDlg(CWnd* pParent /*=NULL*/)
 	m_finPI = 0;
 	m_finPM = 0;
 	m_finPO = 0;
-	m_palm = 0;
-	m_wristABD = 0;
-	m_wristFLX = 0;
+	m_palmArch = 0;
+	m_wristPitch = 0;
+	m_wristYaw = 0;
 	m_PupDiam = 0;
 	m_pupX = 0;
 	m_pupY = 0;
@@ -79,9 +79,9 @@ void CLiveGloveDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_FINGER_13, m_finPI);
 	DDX_Text(pDX, IDC_FINGER_14, m_finPM);
 	DDX_Text(pDX, IDC_FINGER_15, m_finPO);
-	DDX_Text(pDX, IDC_PALM, m_palm);
-	DDX_Text(pDX, IDC_WR_ABD, m_wristABD);
-	DDX_Text(pDX, IDC_WR_FLX, m_wristFLX);
+	DDX_Text(pDX, IDC_PALM, m_palmArch);
+	DDX_Text(pDX, IDC_WR_ABD, m_wristPitch);
+	DDX_Text(pDX, IDC_WR_FLX, m_wristYaw);
 	DDX_Text(pDX, IDC_PUP_DIA, m_PupDiam);
 	DDX_Text(pDX, IDC_PUP_X, m_pupX);
 	DDX_Text(pDX, IDC_PUP_Y, m_pupY);
@@ -125,9 +125,9 @@ void CLiveGloveDlg::UpdateState(DataGloveData newGlove_d, PresSensData newPres_d
 	m_finPI = newGlove_d.pinkie[0];
 	m_finPM = newGlove_d.pinkie[1];
 	m_finPO = newGlove_d.pinkie[2];
-	m_palm = newGlove_d.palmArch;
-	m_wristABD = newGlove_d.wrist[0];
-	m_wristFLX = newGlove_d.wrist[1];
+	m_palmArch = newGlove_d.palmArch;
+	m_wristPitch = newGlove_d.wristPitch;
+	m_wristYaw = newGlove_d.wristYaw;
 
 	m_PupDiam = newGT_d.pupilDiam;
 	m_pupX = newGT_d.pupilX;

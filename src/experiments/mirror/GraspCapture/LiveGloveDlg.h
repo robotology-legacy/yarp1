@@ -43,9 +43,9 @@ public:
 	int		m_finPI;
 	int		m_finPM;
 	int		m_finPO;
-	int		m_palm;
-	int		m_wristABD;
-	int		m_wristFLX;
+	int		m_palmArch;
+	int		m_wristPitch;
+	int		m_wristYaw;
 	int		m_PupDiam;
 	int		m_pupX;
 	int		m_pupY;

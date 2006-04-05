@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\..\..\include\winnt" /I "..\..\..\..\include" /I "..\mirrorCollector" /I ".\NR" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FR /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\..\..\include\winnt" /I "..\..\..\..\include" /I "..\mirrorCollector" /I ".\NR" /I "c:\yarp" /I "c:\yarp\include" /I "c:\yarp\include\winnt" /I "c:\yarp\src\experiments" /I "NR" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FR /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x410 /d "NDEBUG"
 # ADD RSC /l 0x410 /d "NDEBUG"
@@ -67,7 +67,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\..\..\include\winnt" /I "..\..\..\..\include" /I "..\mirrorCollector" /I ".\NR" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FR /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "c:\yarp" /I "c:\yarp\include" /I "c:\yarp\include\winnt" /I "c:\yarp\src\experiments" /I "NR" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x410 /d "_DEBUG"
 # ADD RSC /l 0x410 /d "_DEBUG"
@@ -84,9 +84,57 @@ LINK32=link.exe
 
 # Name "TeleCtrl - Win32 Release"
 # Name "TeleCtrl - Win32 Debug"
+# Begin Group "Headers"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\ArmControlThread.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Calibration.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\mirrorCollector\CollectorCommands.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ControlThread.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\GazeControlThread.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\HandControlThread.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TeleCtrl.h
+# End Source File
+# End Group
+# Begin Group "Source"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\ArmControlThread.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\GazeControlThread.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\HandControlThread.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\TeleCtrl.cpp
 # End Source File
+# End Group
 # End Target
 # End Project
