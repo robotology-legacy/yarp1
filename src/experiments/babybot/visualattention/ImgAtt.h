@@ -106,6 +106,7 @@ class YARPImgAtt
 {
 protected:
 	int height, width, fovHeight;
+	int padding;
 	
 	YARPImageOf<YarpPixelMonoSigned> scr_s;
 	

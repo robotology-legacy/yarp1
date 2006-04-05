@@ -76,7 +76,7 @@
 
 
 YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
-	rain(x, y, x+x%8, 13),
+	rain(true, x, y, ceil(x/8.)*8, 13),
 	salience(x, y)
 {
 	int i;
@@ -84,6 +84,8 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	width=x;
 	height=y;
 	fovHeight=fovea;
+
+	padding=ceil(x/8.)*8-x;
 	
 	int	sobel0[]={1,2,1,
 		          0,0,0,
@@ -421,7 +423,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	integralGR.resize(x, y, fovea);
 	integralBY.resize(x, y, fovea);*/
 
-	tagged.Resize(x+x%8, y);
+	tagged.Resize(ceil(x/8.)*8, y);
 
 	//rain.resize(x, y, x+x%8, 15);
 	//rain.resize(x, y, x+x%8, 13);
@@ -569,7 +571,6 @@ void YARPImgAtt::Combine(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<
 void YARPImgAtt::CombineMax(YARPImageOf<YarpPixelMonoSigned> **src, int num, YARPImageOf<YarpPixelMono> &dst)
 {
 	int i=0;
-	const int padding = 4;
 
 	for (int r=0; r<height; r++) {
 		for (int c=0; c<width; c++)	{
