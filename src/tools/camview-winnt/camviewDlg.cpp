@@ -43,8 +43,6 @@ void CRecv::Body (void)
 					m_flipped.Resize (m_img.GetWidth(), m_img.GetHeight(), m_img.GetID());
 				}
 
-				YARPSimpleOperation::Flip (m_img, m_flipped);
-
 				if (m_horiz_flip)
 				{
 					const int width = m_img.GetWidth();
@@ -60,6 +58,8 @@ void CRecv::Body (void)
 					}
 					delete tmpPixel;
 				}
+
+				YARPSimpleOperation::Flip (m_img, m_flipped);
 
 				m_mutex.Wait();
 				if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
