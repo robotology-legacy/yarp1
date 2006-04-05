@@ -6,9 +6,9 @@
 #define MainRoutine
 
 #include "TeleCtrl.h"
+#include "GazeControlThread.h"
 #include "ArmControlThread.h"
 #include "HandControlThread.h"
-#include "GazeControlThread.h"
 
 #undef MainRoutine
 
@@ -27,8 +27,10 @@ public:
 			_coll_data_in.Read();
 		    _data = _coll_data_in.Content();
 			// image from the grabber
+			_imageSema.Wait();
 			_img_in.Read();
 			_image.Refer(_img_in.Content());
+			_imageSema.Post();
 		}
 	}
 };
@@ -136,11 +138,11 @@ int main()
 	// acquisition thread
 	acquisitionThread at;
 	// arm control thread
-	ControlThread* act = new ArmControlThread(1./10.,_rep_out,_controlSema);
+	ControlThread* act = new ArmControlThread(1./10.,_rep_out,_repeaterSema);
 	// hand control thread
-	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_controlSema);
+	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema);
 	// gaze control thread
-	ControlThread* gct = new GazeControlThread(1./10.,_hs_out,_img_out,_controlSema);
+	ControlThread* gct = new GazeControlThread(1./10.,_hs_out,_img_out,_imageSema);
 
 	// tell collector to activate the sensors
 	cout << endl << "Initialising collector... "; cout.flush();

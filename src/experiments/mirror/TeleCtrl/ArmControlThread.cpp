@@ -133,7 +133,8 @@ void ArmControlThread::shutdown()
 
 }
 
-void ArmControlThread::sendPosCmd(double dof1, double dof2, double dof3, double dof4, double dof5, double dof6)
+void ArmControlThread::sendPosCmd(const double dof1, const double dof2, const double dof3,
+								  const double dof4, const double dof5, const double dof6)
 {
 
 return;

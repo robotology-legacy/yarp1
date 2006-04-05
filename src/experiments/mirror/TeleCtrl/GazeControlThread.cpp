@@ -12,13 +12,29 @@ void GazeControlThread::Body (void)
 
 		// set operating frequency
 		YARPTime::DelayInSeconds(_streamingFrequency);
-	    
-		YarpPixelMono tmpMonoWhitePixel = 255;
-		YARPSimpleOperations::DrawCross<YarpPixelMono>((YARPImageOf<YarpPixelMono>&)_image, _x, _y, tmpMonoWhitePixel, 7);
+
+		// output to screen
+		cout << "Gaze:" << "\t"
+			 << _data.GTData.pupilDiam  << "\t"
+			 << _data.GTData.pupilX  << "\t"
+			 << _data.GTData.pupilY  << "\t"
+			 << "       \r";
+		cout.flush();
+
+		// convert logpolar image to Cartesian
+		_sema.Wait();
+		_LPMapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)_image, _coloredImg);
+		_sema.Post();
+		_LPMapper.Logpolar2Cartesian (_coloredImg, _remappedImg);
+
+		// draw a moving cross on it
+		YarpPixelBGR tmpWhitePixel(255,255,255);
+		YARPSimpleOperations::DrawCross<YarpPixelBGR>(_remappedImg, _x, _y, tmpWhitePixel, 5, 1);
 		_x = ++_x % 120;
 		_y = ++_y % 120;
 
-		_imgOutPort.Content().Refer(_image);
+		// send image to camview
+		_imgOutPort.Content().Refer(_remappedImg);
 		_imgOutPort.Write();
 
 	}

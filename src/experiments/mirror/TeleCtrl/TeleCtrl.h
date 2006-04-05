@@ -1,5 +1,5 @@
 ///
-/// $Id: TeleCtrl.h,v 1.1 2006-04-05 01:03:27 claudio72 Exp $
+/// $Id: TeleCtrl.h,v 1.2 2006-04-05 11:53:59 claudio72 Exp $
 ///
 
 #ifndef TeleCtrlH
@@ -10,7 +10,7 @@
 // -----------------------------------
 
 // C++ standards
-//#include <iostream>
+#include <iostream>
 // YARP standards
 #include <yarp/YARPRobotHardware.h>
 #include <yarp/YARPScheduler.h>
@@ -34,7 +34,7 @@ using namespace std;
 // function prototypes - these are seen by all threads, too.
 // -----------------------------------
 
-void SendCommandToCollector(CollectorCommand);
+void SendCommandToCollector(const CollectorCommand);
 void ReadCollectorData(void);
 
 // -----------------------------------
@@ -58,8 +58,11 @@ YARPOutputPortOf<YARPGenericImage>      _img_out(YARPOutputPort::DEFAULT_OUTPUTS
 YARPOutputPortOf<YARPBottle>            _hs_out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 // -----------------
 
-// a semaphore to manage the traffic to output ports among threads
-YARPSemaphore _controlSema;
+// traffic to repeater control port
+YARPSemaphore _repeaterSema;
+
+// traffic to/from read image
+YARPSemaphore _imageSema;
 
 // numerical data from the master
 CollectorNumericalData _data;

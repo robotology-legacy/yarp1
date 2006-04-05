@@ -8,7 +8,8 @@
 
 class ControlThread : public YARPThread {
 public:
-	ControlThread(double frequency, YARPSemaphore& sema) : _streamingFrequency(frequency), _sema(sema) {}
+	ControlThread(const double frequency, YARPSemaphore& sema)
+		: _streamingFrequency(frequency), _sema(sema) {}
 	virtual void Body (void) = 0;
 	virtual void calibrate(void) = 0;
 	virtual void initialise(void) = 0;

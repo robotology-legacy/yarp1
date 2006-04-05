@@ -13,11 +13,9 @@
 class ArmControlThread : public ControlThread {
 
 public:
-
-	ArmControlThread(double frequency, YARPOutputPortOf<YARPBabyBottle>& outPort, YARPSemaphore& sema) :
-	  ControlThread(frequency, sema),
-	  _outPort(outPort),
-	  _wristPitch(-70*DegRad,70*DegRad),
+	ArmControlThread(const double frequency, YARPOutputPortOf<YARPBabyBottle>& outPort, YARPSemaphore& sema)
+		: ControlThread(frequency, sema),
+	  _outPort(outPort), _wristPitch(-70*DegRad,70*DegRad),
 	  _armInit0(20), _armInit1(25), _armInit2(-40),
 	  _armInit3(0), _armInit4(0), _armInit5(-160) {}
 
@@ -27,11 +25,11 @@ public:
 	void shutdown(void);
 
 private:
-
 	// overloading: the babybot arm port sends off BabyBottles
 	YARPOutputPortOf<YARPBabyBottle>& _outPort;
 
-	void sendPosCmd(double,double,double,double,double,double);
+	void sendPosCmd(const double, const double, const double,
+		 const double, const double, const double);
 
 	// reference frame (set by calibration at the beginning)
 	struct referenceFrame {
