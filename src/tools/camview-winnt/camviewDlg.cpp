@@ -38,6 +38,13 @@ void CRecv::Body (void)
 			if (!m_logp)
 			{
 
+				if (m_flipped.GetWidth() != m_img.GetWidth() || m_flipped.GetHeight() != m_img.GetHeight())
+				{
+					m_flipped.Resize (m_img.GetWidth(), m_img.GetHeight(), m_img.GetID());
+				}
+
+				YARPSimpleOperation::Flip (m_img, m_flipped);
+
 				if (m_horiz_flip)
 				{
 					const int width = m_img.GetWidth();
@@ -53,13 +60,6 @@ void CRecv::Body (void)
 					}
 					delete tmpPixel;
 				}
-
-				if (m_flipped.GetWidth() != m_img.GetWidth() || m_flipped.GetHeight() != m_img.GetHeight())
-				{
-					m_flipped.Resize (m_img.GetWidth(), m_img.GetHeight(), m_img.GetID());
-				}
-
-				YARPSimpleOperation::Flip (m_img, m_flipped);
 
 				m_mutex.Wait();
 				if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
@@ -105,6 +105,21 @@ void CRecv::Body (void)
 				m_mapper.Logpolar2Cartesian (m_colored, m_remapped);
 				YARPSimpleOperation::Flip (m_remapped, m_flipped);
 
+				if (m_horiz_flip){
+					const int width = m_flipped.GetWidth();
+					const int height = m_flipped.GetHeight();
+					const unsigned int pixSize = m_flipped.GetPixelSize();
+					char* tmpPixel = new char[pixSize];
+					for ( int i=0; i<height; ++i ) {
+						for ( int j=0; j<width/2; ++j ) {
+							memcpy (tmpPixel, m_flipped.RawPixel(j,i), pixSize);
+							memcpy (m_flipped.RawPixel(j,i), m_flipped.RawPixel(width-j-1,i), pixSize);
+							memcpy (m_flipped.RawPixel(width-j-1,i), tmpPixel, pixSize);
+						}
+					}
+					delete tmpPixel;
+				}
+
 				m_mutex.Wait();
 				if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
 				{
@@ -118,6 +133,7 @@ void CRecv::Body (void)
 					/// prepare the DIB to display.
 					m_converter.ConvertToDIB (m_flipped);
 				}
+			
 			}
 			else	/// logpolar fovea.
 			if (m_logp && m_fov)
