@@ -359,82 +359,87 @@ int YARPPaxis::apply(YARPImageOf<YarpPixelMono>& src, YARPImageOf<YarpPixelMono>
 	ppmR=YMatrix(3, 3, A_right[0])*ppmR;
 	
 	image2RealVectorsMsk(src, msk, ppmL, ppmR);
-	YMatrix a=computeVarMatrix();
-	
-	/*ACE_OS::printf("%lf\t%lf\t%lf\n",a(1,1),a(1,2),a(1,3));
-	ACE_OS::printf("%lf\t%lf\t%lf\n",a(2,1),a(2,2),a(2,3));
-	ACE_OS::printf("%lf\t%lf\t%lf\n",a(3,1),a(3,2),a(3,3));
-	ACE_OS::printf("\n");*/
+	if (numPixel>15*15) {
+		YMatrix a=computeVarMatrix();
+		
+		/*ACE_OS::printf("%lf\t%lf\t%lf\n",a(1,1),a(1,2),a(1,3));
+		ACE_OS::printf("%lf\t%lf\t%lf\n",a(2,1),a(2,2),a(2,3));
+		ACE_OS::printf("%lf\t%lf\t%lf\n",a(3,1),a(3,2),a(3,3));
+		ACE_OS::printf("\n");*/
 
-	int nrot;
-	YVector d(3);
-	YMatrix v(3,3);
-	jacobi(a, 3, d, v, nrot);
-	/*ACE_OS::printf("%lf\t%lf\t%lf\n",a(1,1),a(1,2),a(1,3));
-	ACE_OS::printf("%lf\t%lf\t%lf\n",a(2,1),a(2,2),a(2,3));
-	ACE_OS::printf("%lf\t%lf\t%lf\n",a(3,1),a(3,2),a(3,3));
-	ACE_OS::printf("\n");*/
-	/*ACE_OS::printf("%lf\t%lf\t%lf\n",v(1,1),v(1,2),v(1,3));
-	ACE_OS::printf("%lf\t%lf\t%lf\n",v(2,1),v(2,2),v(2,3));
-	ACE_OS::printf("%lf\t%lf\t%lf\n",v(3,1),v(3,2),v(3,3));
-	ACE_OS::printf("\n");
-	ACE_OS::printf("%lf\t%lf\t%lf\n",d(1),d(2),d(3));
-	ACE_OS::printf("\n");*/
-	
-	//saveVectors("vec.txt");
+		int nrot;
+		YVector d(3);
+		YMatrix v(3,3);
+		//ACE_OS::printf("Factorizing matrix...\r");
+		jacobi(a, 3, d, v, nrot);
+		/*ACE_OS::printf("%lf\t%lf\t%lf\n",a(1,1),a(1,2),a(1,3));
+		ACE_OS::printf("%lf\t%lf\t%lf\n",a(2,1),a(2,2),a(2,3));
+		ACE_OS::printf("%lf\t%lf\t%lf\n",a(3,1),a(3,2),a(3,3));
+		ACE_OS::printf("\n");*/
+		/*ACE_OS::printf("%lf\t%lf\t%lf\n",v(1,1),v(1,2),v(1,3));
+		ACE_OS::printf("%lf\t%lf\t%lf\n",v(2,1),v(2,2),v(2,3));
+		ACE_OS::printf("%lf\t%lf\t%lf\n",v(3,1),v(3,2),v(3,3));
+		ACE_OS::printf("\n");
+		ACE_OS::printf("%lf\t%lf\t%lf\n",d(1),d(2),d(3));
+		ACE_OS::printf("\n");*/
+		
+		//saveVectors("vec.txt");
 
-	int maxAV=1;
-	if (d(maxAV)<d(2))
-		maxAV=2;
-	if (d(maxAV)<d(3))
-		maxAV=3;
-	
-	YVector pa(3);
-	YVector pa2(3);
-	pa(1)=v(1,maxAV);
-	pa(2)=v(2,maxAV);
-	pa(3)=v(3,maxAV);
+		int maxAV=1;
+		if (d(maxAV)<d(2))
+			maxAV=2;
+		if (d(maxAV)<d(3))
+			maxAV=3;
+		
+		YVector pa(3);
+		YVector pa2(3);
+		pa(1)=v(1,maxAV);
+		pa(2)=v(2,maxAV);
+		pa(3)=v(3,maxAV);
 
-	ACE_OS::printf("pa (camera) %lf\t%lf\t%lf\n",pa(1),pa(2),pa(3));
+		ACE_OS::printf("pa (camera) %lf\t%lf\t%lf\n",pa(1),pa(2),pa(3));
 
-	int x,y;
-	imageMoments.centerOfMass(msk, &x, &y);
-	drawPAxis(pa,x,y,src);
-	
-	angxL=-joints(2)-joints(3);
-	
-	Rx(1,1)=1;
-	Rx(1,2)=0;
-	Rx(1,3)=0;
-	Rx(2,1)=0;
-	Rx(2,2)=cos(angxL);
-	Rx(2,3)=-sin(angxL);
-	Rx(3,1)=0;
-	Rx(3,2)=sin(angxL);
-	Rx(3,3)=cos(angxL);
+		int x,y;
+		imageMoments.centerOfMass(msk, &x, &y);
+		drawPAxis(pa,x,y,src);
+		
+		angxL=-joints(2)-joints(3);
+		
+		Rx(1,1)=1;
+		Rx(1,2)=0;
+		Rx(1,3)=0;
+		Rx(2,1)=0;
+		Rx(2,2)=cos(angxL);
+		Rx(2,3)=-sin(angxL);
+		Rx(3,1)=0;
+		Rx(3,2)=sin(angxL);
+		Rx(3,3)=cos(angxL);
 
-	pa2=Rx.Transposed()*pa;
-	
-	ACE_OS::printf("pa (table) %lf\t%lf\t%lf\n",pa2(1),pa2(2),pa2(3));
+		pa2=Rx.Transposed()*pa;
+		
+		ACE_OS::printf("pa (table) %lf\t%lf\t%lf\n",pa2(1),pa2(2),pa2(3));
 
-	double pro=sqrt(pa2(1)*pa2(1)+pa2(3)*pa2(3));
+		double pro=sqrt(pa2(1)*pa2(1)+pa2(3)*pa2(3));
 
-	double m=pa2(2)/pro;
+		double m=pa2(2)/pro;
 
-	double angZ=atan(m)/3.14159265*180;
-	
-	ACE_OS::printf("ang=%lf\n",angZ);
+		double angZ=atan(m)/3.14159265*180;
+		
+		ACE_OS::printf("ang=%lf\n",angZ);
 
-	if ( fabs(angZ) < 30 ) {
-		ACE_OS::printf("IMO the object is laying on the table\n");
-		return 0;
-	}
-	if ( fabs(angZ) > 60 ) {
-		ACE_OS::printf("IMO the object is vertical on the table\n");
+		if ( fabs(angZ) < 30 ) {
+			ACE_OS::printf("IMO the object is laying on the table\n");
+			return 0;
+		}
+		if ( fabs(angZ) > 60 ) {
+			ACE_OS::printf("IMO the object is vertical on the table\n");
+			return 1;
+		}
+		ACE_OS::printf("IMO the object is diagonal on the table\n");
 		return 1;
 	}
-	ACE_OS::printf("IMO the object is diagonal on the table\n");
-	return 1;
+	ACE_OS::printf("Object too small\r");
+	return -1;
 }
 
 

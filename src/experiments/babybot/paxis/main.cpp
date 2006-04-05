@@ -170,9 +170,9 @@ public:
 
 void mainthread::Body(void)
 {
-	YARPInputPortOf<YARPGenericImage> inImage1(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	YARPInputPortOf<YARPGenericImage> inImage2(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	YARPInputPortOf<YARPGenericImage> inImage3(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	YARPInputPortOf<YARPGenericImage> inImage1(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+	YARPInputPortOf<YARPGenericImage> inImage2(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+	YARPInputPortOf<YARPGenericImage> inImage3(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 	DeclareOutport(outImage1);
 	YARPOutputPortOf<YARPBottle> outBottle(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
 
@@ -265,7 +265,8 @@ void mainthread::Body(void)
 		joints(4)=-0.097498;
 		joints(5)=-0.182050;*/
 
-		YARPTime::DelayInSeconds(0.010);
+		//YARPTime::DelayInSeconds(0.050);
+		YARPTime::DelayInSeconds(0.10);
 
 		ACE_OS::printf("%lf %lf %lf %lf %lf\n", joints(1), joints(2), joints(3), joints(4), joints(5));
 		
@@ -296,7 +297,18 @@ void mainthread::Body(void)
 		YARPImageFile::Read("disparity.pgm", imgMC1);
 		YARPImageFile::Read("mask.pgm", imgMC2);
 #else
+		//ACE_OS::printf("Reading image 1...");
 		inImage1.Read();
+		//ACE_OS::printf("done!\n");
+
+		//ACE_OS::printf("Reading image 2...");
+		inImage2.Read();
+		//ACE_OS::printf("done!\n");
+
+		//ACE_OS::printf("Reading image 3...");
+		inImage3.Read();
+		//ACE_OS::printf("done!\n");
+
 		imgML1.Refer(inImage1.Content());
 		//mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)imgML1, imgCL1);
 		mapper.ReconstructGrays((const YARPImageOf<YarpPixelMono>&)imgML1, imgML2);
@@ -305,7 +317,6 @@ void mainthread::Body(void)
 		YARPImageUtils::GetRed(imgCC1, imgMC1);
 		//iplMedianFilter(imgMC4, imgMC1, 5, 5, 1, 1);
 
-		inImage2.Read();
 		imgML1.Refer(inImage2.Content());
 		mapper.ReconstructGrays((const YARPImageOf<YarpPixelMono>&)imgML1, imgML2);
 		YARPImageUtils::SetRed(imgML2, imgCL1);
@@ -313,7 +324,6 @@ void mainthread::Body(void)
 		YARPImageUtils::GetRed(imgCC1, imgMC2);
 		//iplMedianFilter(imgMC4, imgMC2, 5, 5, 1, 1);
 
-		inImage3.Read();
 		imgML1.Refer(inImage3.Content());
 		mapper.ReconstructGrays((const YARPImageOf<YarpPixelMono>&)imgML1, imgML2);
 		YARPImageUtils::SetRed(imgML2, imgCL1);
@@ -362,14 +372,15 @@ void mainthread::Body(void)
 		int paa=axis.apply(dispImg, mskImg, joints);
 		//ACE_OS::printf("done!\n");
 		
-		outImage1.Content().Refer(dispImg);
-		outImage1.Write();
+		if (paa>=0) {
+			outImage1.Content().Refer(dispImg);
+			outImage1.Write();
 
-		tmpBottle.reset();
-		tmpBottle.writeInt(paa);
-		outBottle.Content() = tmpBottle;
-		outBottle.Write();
-
+			tmpBottle.reset();
+			tmpBottle.writeInt(paa);
+			outBottle.Content() = tmpBottle;
+			outBottle.Write();
+		}
 	}
 }
 

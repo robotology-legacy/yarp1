@@ -4,6 +4,7 @@
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBabyBottle.h>
 #include <yarp/YARPConfigRobot.h>
+#include <yarp/YARPParseParameters.h>
 #include <iostream>
 using namespace std;
 
@@ -11,6 +12,8 @@ using namespace std;
 
 YARPOutputPortOf<YARPBabyBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 COMMAND_TABLE _commands;
+
+const char *DEFAULT_NAME = "/motorcmd/o";
 
 void _fillTable()
 {
@@ -134,9 +137,20 @@ bool _parse(const YARPString &c, YARPBabyBottle &b)
 
 int main(int argc, char* argv[])
 {
+	YARPString name;
+	YARPString network_o;
+	char buf[256];
+
 	_fillTable();
+
+	if (!YARPParseParameters::parse(argc, argv, "-name", name))
+		name = DEFAULT_NAME;
+
+	if (!YARPParseParameters::parse(argc, argv, "-neto", network_o))
+		network_o = "default";
 	
-	_outPort.Register("/motorcmd/o");
+	sprintf(buf, "%s", name.c_str());
+	_outPort.Register(buf, network_o.c_str());
 	YARPBabyBottle tmp;
 	tmp.setID(YBVMotorLabel);	// set bottle label
 	YARPString c;

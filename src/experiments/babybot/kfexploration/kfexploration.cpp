@@ -10,7 +10,7 @@ const int _nJoints = 6;
 
 
 	// const double pos1[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
-	const double pos1[_nJoints] = {5.0 * degToRad, 10.0*degToRad, 25.0*degToRad, 0.0, 0.0, -40.0*degToRad};
+	const double pos1[_nJoints] = {5.0 * degToRad, 5.0*degToRad, 25.0*degToRad, 0.0, 0.0, -40.0*degToRad};
 	const double pos2[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, -70.0*degToRad};
 	const double pos3[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
 	const double pos4[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, -20.0*degToRad, 0.0};
@@ -20,7 +20,7 @@ const int _nJoints = 6;
 	
 	const double pos7[_nJoints] = {0.0 * degToRad, 20.0*degToRad, 20.0*degToRad, -20.0*degToRad, 0.0*degToRad, 0.0};
 	const double pos8[_nJoints] = {-10.0 * degToRad, 50.0*degToRad, -30.0*degToRad, 0.0*degToRad, 0.0*degToRad, 0.0};
-	const double pos9[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
+	const double pos9[_nJoints] = {15.0 * degToRad, 10.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
 	
 	const double pos10[_nJoints] = {5.0 * degToRad, 0.0*degToRad, 0.0*degToRad, 0.0, 0.0, -120.0*degToRad};
 
@@ -59,9 +59,9 @@ int main(int argc, char* argv[])
 	EBWaitIdle position2Wait("Position2 done");
 	EBWaitIdle position3Wait("Position3 done");
 	
-	EBWaitDeltaT position2Train(5);
-	EBWaitDeltaT position3Train(5);
-	EBWaitDeltaT position4Train(3);
+	EBWaitDeltaT position2Train(6);
+	EBWaitDeltaT position3Train(6);
+	EBWaitDeltaT position4Train(6);
 
 	EBWaitIdle position2("Waiting arm done");
 	EBWaitIdle position3("Waiting arm done");
@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 
 	EBWaitIdle waitArmAck("Wait armAck");
 
-	EBWaitDeltaT dT1(3);
+	EBWaitDeltaT dT1(6);
 	EBWaitDeltaT dT2(0.2);
 	EBWaitDeltaT dT3OneSecond(3);
 

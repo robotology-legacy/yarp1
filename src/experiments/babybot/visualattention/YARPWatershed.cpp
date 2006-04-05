@@ -71,7 +71,7 @@
 #include "YARPWatershed.h"
 
 
-YARPWatershed::YARPWatershed(const int width1, const int height1, const int wstep, const YarpPixelMono th)
+YARPWatershed::YARPWatershed(const bool lp, const int width1, const int height1, const int wstep, const YarpPixelMono th)
 {
 	neighborhood8=true;
 
@@ -79,6 +79,8 @@ YARPWatershed::YARPWatershed(const int width1, const int height1, const int wste
 	basinColor=255;
 
 	neigh=NULL;
+
+	logpolar=lp;
 
 	resize(width1, height1, wstep, th);
 }
@@ -456,7 +458,6 @@ void YARPWatershed::connectivityGraph(const YARPImageOf<YarpPixelInt>& src, bool
 int YARPWatershed::markMinimas(YARPImageOf<YarpPixelInt>& result)
 {
 	// smelt points of same level and give it a number(counter)
-	//int* tempRegion = new int[imageSize];
 	const int MASK = -2;
 	int countF, countB ;
 	int counter = 1; // number of region
@@ -521,8 +522,6 @@ int YARPWatershed::markMinimas(YARPImageOf<YarpPixelInt>& result)
 		i+=padding;
 	}
 	
-	//delete[] tempRegion;
-
 	return (counter-1);
 }
   
@@ -530,7 +529,6 @@ int YARPWatershed::markMinimas(YARPImageOf<YarpPixelInt>& result)
 void YARPWatershed::letsRain(YARPImageOf<YarpPixelInt>& result)
 {
 	int i,cc,tempi;
-	//int *tempRegion = new int [imageSize];
 	int *p_result=(int *)result.GetRawBuffer();
 	int *p_downPos=(int *)downPos2.GetRawBuffer();
 
@@ -554,8 +552,6 @@ void YARPWatershed::letsRain(YARPImageOf<YarpPixelInt>& result)
 		}
 		i+=padding;
 	}
-
-	//delete [] tempRegion;
 }
 
 

@@ -72,7 +72,7 @@ const double __preparePosition[] = { 5*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*
 	const double __wrist3FS1 = -90*degToRad;
 
 	// prepositioning, not really used here
-	const double __shoulderOffsetFS2 = 10*degToRad;
+	const double __shoulderOffsetFS2 = 0*degToRad;
 	const double __armOffsetFS2 = 0*degToRad;
 	const double __foreArmOffsetFS2 = -8*degToRad;
 	const double __wrist1FS2 = 0*degToRad;	
@@ -80,8 +80,8 @@ const double __preparePosition[] = { 5*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*
 	const double __wrist3FS2 = -90*degToRad;
 
 	// actual grasping
-	const double __shoulderOffsetFS3 = 10*degToRad;
-	const double __armOffsetFS3 = 0*degToRad;
+	const double __shoulderOffsetFS3 = 0*degToRad;
+	const double __armOffsetFS3 = -2*degToRad;
 	const double __foreArmOffsetFS3 = 5*degToRad;
 	const double __wrist1FS3 = 0*degToRad;	
 	const double __wrist2FS3 = 0*degToRad;

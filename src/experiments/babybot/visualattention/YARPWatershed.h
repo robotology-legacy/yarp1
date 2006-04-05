@@ -10,6 +10,8 @@
 
 
 class YARPWatershed {
+	bool logpolar;
+	
 	int neighSize;
 	int *neigh;
 	int *neighL;
@@ -52,7 +54,7 @@ class YARPWatershed {
 public:
 	//YARPWatershed::YARPWatershed();
 	YARPWatershed::~YARPWatershed();
-	YARPWatershed::YARPWatershed(const int width1, const int height1, const int wstep, const YarpPixelMono th);
+	YARPWatershed::YARPWatershed(const bool lp, const int width1, const int height1, const int wstep, const YarpPixelMono th);
 	void resize(const int width1, const int height1, const int wstep, const YarpPixelMono th);
 
 	inline void setThreshold(YarpPixelMono th) {threshold=th;}

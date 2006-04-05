@@ -434,9 +434,12 @@ void YARPSalience::ComputeMeanColors(int last_tag)
 	// create the subset of attentional boxes.
 	for (int i = 1; i <= last_tag; i++)
 		if (m_boxes[i].areaLP!=0) {
-			m_boxes[i].meanColors.r = m_boxes[i].rSum / m_boxes[i].areaLP;
-			m_boxes[i].meanColors.g = m_boxes[i].gSum / m_boxes[i].areaLP;
-			m_boxes[i].meanColors.b = m_boxes[i].bSum / m_boxes[i].areaLP;
+			// note that I should cast to double and add 0.5 to the result to round
+			// but the presence of noise in the image has the same effect
+			// and in this way it is faster!
+			m_boxes[i].meanColors.r = (double)m_boxes[i].rSum / m_boxes[i].areaLP + 0.5;
+			m_boxes[i].meanColors.g = (double)m_boxes[i].gSum / m_boxes[i].areaLP + 0.5;
+			m_boxes[i].meanColors.b = (double)m_boxes[i].bSum / m_boxes[i].areaLP + 0.5;
 		}
 }
 
