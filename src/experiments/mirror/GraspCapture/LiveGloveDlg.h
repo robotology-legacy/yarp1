@@ -47,8 +47,8 @@ public:
 	int		m_wristPitch;
 	int		m_wristYaw;
 	int		m_PupDiam;
-	int		m_pupX;
-	int		m_pupY;
+	double	m_pupX;
+	double	m_pupY;
 	//}}AFX_DATA
 
 

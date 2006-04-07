@@ -13,8 +13,10 @@
 class ArmControlThread : public ControlThread {
 
 public:
-	ArmControlThread(const double frequency, YARPOutputPortOf<YARPBabyBottle>& outPort, YARPSemaphore& sema)
-		: ControlThread(frequency, sema),
+
+	ArmControlThread(const double frequency, YARPOutputPortOf<YARPBabyBottle>& outPort,
+		YARPSemaphore& sema, bool enabled=true)
+		: ControlThread(frequency, sema, enabled),
 	  _outPort(outPort), _wristPitch(-70*DegRad,70*DegRad),
 	  _armInit0(20), _armInit1(25), _armInit2(-40),
 	  _armInit3(0), _armInit4(0), _armInit5(-160) {}

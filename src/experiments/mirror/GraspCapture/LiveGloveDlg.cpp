@@ -46,8 +46,8 @@ CLiveGloveDlg::CLiveGloveDlg(CWnd* pParent /*=NULL*/)
 	m_wristPitch = 0;
 	m_wristYaw = 0;
 	m_PupDiam = 0;
-	m_pupX = 0;
-	m_pupY = 0;
+	m_pupX = 0.0;
+	m_pupY = 0.0;
 	//}}AFX_DATA_INIT
 }
 
@@ -129,7 +129,7 @@ void CLiveGloveDlg::UpdateState(DataGloveData newGlove_d, PresSensData newPres_d
 	m_wristPitch = newGlove_d.wristPitch;
 	m_wristYaw = newGlove_d.wristYaw;
 
-	m_PupDiam = newGT_d.pupilDiam;
+	m_PupDiam = (int)newGT_d.valid;
 	m_pupX = newGT_d.pupilX;
 	m_pupY = newGT_d.pupilY;
 

@@ -129,7 +129,7 @@ void CLiveGloveDlg::UpdateState(DataGloveData newGlove_d, PresSensData newPres_d
 	m_wristPitch = newGlove_d.wristPitch;
 	m_wristYaw = newGlove_d.wristYaw;
 
-	m_PupDiam = newGT_d.pupilDiam;
+	m_PupDiam = newGT_d.valid;
 	m_pupX = newGT_d.pupilX;
 	m_pupY = newGT_d.pupilY;
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPE504DeviceDriver.cpp,v 1.1 2006-01-11 10:25:00 claudio72 Exp $
+/// $Id: YARPE504DeviceDriver.cpp,v 1.2 2006-04-07 20:48:46 claudio72 Exp $
 ///
 ///
 
@@ -88,23 +88,13 @@ class E504Resources
 public:
 	E504Resources () {
 		connected = false;
-		dataAcqMode = 1;
-		trackingMode = 1;
-		frameNumber = 0;
-		pupilDiam = 0;
-		pupilHorz = 0;
-		pupilVert = 0;
+		sceneUpLeftX = sceneUpLeftY = sceneDnRightX = sceneDnRightY = 0;
 	};
 
 	~E504Resources () { };
 
 	bool connected;
-	int dataAcqMode;
-	int trackingMode;
-	int frameNumber;
-	int pupilDiam;
-	int pupilHorz;
-	int pupilVert;
+	long sceneUpLeftX, sceneUpLeftY, sceneDnRightX, sceneDnRightY;
 
 	CComPtr<IASLControllerPort> E504ControllerPort;
 
@@ -160,15 +150,17 @@ int YARPE504DeviceDriver::open (void *res)
 	// connect me!!
 	if ( SUCCEEDED(d.E504ControllerPort->Connect(param->comPort, param->baudRate)) ) {
 		// initialize control unit:
-		d.E504ControllerPort->set_illuminator_power_mode(param->illuminatorState);
-		d.E504ControllerPort->set_helmet_illuminator_level(param->illuminatorLevel);
-		d.E504ControllerPort->set_corneal_reflection_threshold(param->CRThreshold);
-		d.E504ControllerPort->set_pupil_threshold(param->pupilThreshold);
-		d.E504ControllerPort->set_data_acquisition_mode(d.dataAcqMode);
-		d.E504ControllerPort->set_tracking_mode(d.trackingMode);
+		d.E504ControllerPort->set_illuminator_power_mode(1);
+		d.E504ControllerPort->set_tracking_mode(1);
+ 		d.E504ControllerPort->set_data_acquisition_mode(1);
 	} else {
 		return YARP_FAIL;
 	}
+
+	// gather scene target points - used to evaluate
+	// scene POG upon getData()
+	d.E504ControllerPort->get_scene_target_point_position (1, &d.sceneUpLeftX, &d.sceneUpLeftY);
+	d.E504ControllerPort->get_scene_target_point_position (9, &d.sceneDnRightX, &d.sceneDnRightY);
 
 	// ok, bail out
 	d.connected = true;
@@ -215,6 +207,11 @@ int YARPE504DeviceDriver::getData (void *cmd)
 
 	struct GazeTrackerData* data = (struct GazeTrackerData*) cmd;
 
+	data->targetPoints[0] = (double)d.sceneUpLeftX;
+	data->targetPoints[1] = (double)d.sceneUpLeftY;
+	data->targetPoints[2] = (double)d.sceneDnRightX;
+	data->targetPoints[3] = (double)d.sceneDnRightY;
+
 	ASLController_Results results;
 	VARIANT_BOOL valid = VARIANT_FALSE;
 
@@ -223,9 +220,15 @@ int YARPE504DeviceDriver::getData (void *cmd)
 	d.E504ControllerPort->get_results(&results, &valid);
 	// Extract all messages from the buffer
 	while (valid == VARIANT_TRUE) {
-		data->pupilDiam = results.pupil_diameter;
-		data->pupilX = results.pupil_center_horz;
-		data->pupilY = results.pupil_center_vert;
+		if (results.pupil_diameter != 0 && results.cr_diameter != 0) {
+			data->valid = true;
+			data->pupilX = (double)results.scene_x / (double)results.gaze_res_factor;
+			data->pupilY = (double)results.scene_y / (double)results.gaze_res_factor;
+		} else {
+			data->valid = false;
+			data->pupilX = 0.0;
+			data->pupilY = 0.0;
+		}
 		d.E504ControllerPort->get_results(&results, &valid);
 	}
 

@@ -15,7 +15,7 @@ void GazeControlThread::Body (void)
 
 		// output to screen
 		cout << "Gaze:" << "\t"
-			 << _data.GTData.pupilDiam  << "\t"
+			 << _data.GTData.valid   << "\t"
 			 << _data.GTData.pupilX  << "\t"
 			 << _data.GTData.pupilY  << "\t"
 			 << "       \r";
@@ -29,9 +29,10 @@ void GazeControlThread::Body (void)
 
 		// draw a moving cross on it
 		YarpPixelBGR tmpWhitePixel(255,255,255);
-		YARPSimpleOperations::DrawCross<YarpPixelBGR>(_remappedImg, _x, _y, tmpWhitePixel, 5, 1);
-		_x = ++_x % 120;
-		_y = ++_y % 120;
+		YARPSimpleOperations::DrawCross<YarpPixelBGR>(
+			_remappedImg,
+			_gazeX(_data.GTData.pupilX), _gazeY(_data.GTData.pupilY),
+			tmpWhitePixel, 5, 1);
 
 		// send image to camview
 		_imgOutPort.Content().Refer(_remappedImg);
@@ -50,7 +51,20 @@ void GazeControlThread::Body (void)
 void GazeControlThread::calibrate(void)
 {
 
-	return;
+	// read scene target points off gaze tracker
+	SendCommandToCollector(CCmdGetData);
+	ReadCollectorData();
+	cout << "(gaze calibration) got target points coords: "
+		 << _data.GTData.targetPoints[0]  << " "
+		 << _data.GTData.targetPoints[1]  << " "
+		 << _data.GTData.targetPoints[2]  << " "
+		 << _data.GTData.targetPoints[3]
+		 << endl;
+	cout.flush();
+
+	// calibrate accordingly
+	_gazeX.eval(_data.GTData.targetPoints[0], _data.GTData.targetPoints[2]);
+	_gazeY.eval(_data.GTData.targetPoints[1], _data.GTData.targetPoints[3]);
 
 }
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDataGloveUtils.h,v 1.3 2006-01-12 15:47:48 claudio72 Exp $
+/// $Id: YARPDataGloveUtils.h,v 1.4 2006-04-07 20:48:46 claudio72 Exp $
 ///
 ///
 
@@ -93,20 +93,19 @@ struct DataGloveData {
 		middle[0]=0; middle[1]=0; middle[2]=0;
 		ring[0]=0;   ring[1]=0;   ring[2]=0;
 		pinkie[0]=0; pinkie[1]=0; pinkie[2]=0;
-		abduction[0]=0; abduction[1]=0; abduction[2]=0; abduction[3]=0; abduction[4]=0;
-		palmArch=0;
-		wrist[0]=0; wrist[1]=0;
+		abduction[0]=0; abduction[1]=0; abduction[2]=0; abduction[3]=0;
+		palmArch=0;	wristPitch=0; wristYaw=0;
 	};
-	int thumb[3];	// [inner, middle, outer]
-	int index[3];	// [inner, middle, outer]
-	int middle[3];	// [inner, middle, outer]
-	int ring[3];	// [inner, middle, outer]
-	int pinkie[3];	// [inner, middle, outer]
+	int thumb[3];	// [rotation, inner, outer]
+	int index[3];	// [inner, middle, outer phalanx]
+	int middle[3];	// [inner, middle, outer phalanx]
+	int ring[3];	// [inner, middle, outer phalanx]
+	int pinkie[3];	// [inner, middle, outer phalanx]
+	int abduction[4];	// [thumb-index, index-middle, middle-ring, ring-pinkie relative abductions]
+	int palmArch;	// palm arch
+	int wristPitch;	// wrist pitch
+	int wristYaw;	// wrist yaw
 
-	int abduction[5]; // [thumb-index, index-middle, middle-ring, ring-pinkie, palm]
-
-	int palmArch;
-	int wrist[2]; // [pitch, yaw]
 };
 
 #include<yarp/end_pack_for_net.h>

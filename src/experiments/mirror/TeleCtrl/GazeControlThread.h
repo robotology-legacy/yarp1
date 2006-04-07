@@ -20,8 +20,10 @@ public:
 
 	GazeControlThread(const double frequency,
 		YARPOutputPortOf<YARPBottle>& saccadesOutPort, YARPOutputPortOf<YARPGenericImage>& imgOutPort,
-		YARPSemaphore& sema) 
-		: ControlThread(frequency, sema), _saccadesOutPort(saccadesOutPort), _imgOutPort(imgOutPort), _x(0), _y(0)
+		YARPSemaphore& sema, bool enabled=true) 
+		: ControlThread(frequency, sema, enabled),
+		  _saccadesOutPort(saccadesOutPort), _imgOutPort(imgOutPort),
+		  _gazeX(0,255), _gazeY(0,255)
 	{
 		_remappedImg.Resize (256, 256);
 		_coloredImg.Resize (_stheta, _srho);
@@ -46,7 +48,8 @@ private:
 	YARPLogpolar _LPMapper;
 
 	// coordinates of the cross indicating the user's gaze
-	int _x, _y;
+	// (normalised wrt the image)
+	LimitLinCalibration _gazeX, _gazeY;
 
 };
 

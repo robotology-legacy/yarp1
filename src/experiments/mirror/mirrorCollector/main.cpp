@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.10 2006-02-10 17:05:58 claudio72 Exp $
+/// $Id: main.cpp,v 1.11 2006-04-07 20:49:50 claudio72 Exp $
 ///
 ///
 
@@ -404,10 +404,6 @@ bool connectSensors(void)
 		E504OpenParameters params;
 		params.baudRate = _options.GTBaudRate;
 		params.comPort = _options.GTComPort;
-		params.illuminatorState = true;
-		params.illuminatorLevel = 30;
-		params.CRThreshold = 70;
-		params.pupilThreshold = 120;
 		if ( _hardware.gt.initialize (params) == YARP_OK ) {
 			cout <<  "done. On COM" << _options.GTComPort << ", " << _options.GTBaudRate << " baud." << endl;
 			atLeastOneIsOK = true;

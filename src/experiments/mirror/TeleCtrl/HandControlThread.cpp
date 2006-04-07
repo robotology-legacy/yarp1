@@ -71,22 +71,19 @@ void HandControlThread::calibrate(void)
 void HandControlThread::initialise(void)
 {
 
-	return;
+	sendPosCmd(_handInit0, _handInit1, _handInit2, _handInit3, _handInit4, _handInit5);
 
 }
 
 void HandControlThread::shutdown(void)
 {
 
-	// reset hand position
-	sendPosCmd(0, 0, 0, 0, 0, 0);
+	sendPosCmd(_handInit0, _handInit1, _handInit2, _handInit3, _handInit4, _handInit5);
 
 }
 
 void HandControlThread::sendPosCmd(double dof1, double dof2, double dof3, double dof4, double dof5, double dof6)
 {
-
-return;
 
     YVector handCmd(6);
     YARPBabyBottle tmpBottle;
@@ -104,9 +101,11 @@ return;
     tmpBottle.writeVocab(YBVocab(YBVHandNewCmd));
     tmpBottle.writeYVector(handCmd);
 
-    _sema.Wait();
-	_outPort.Content() = tmpBottle;
-    _outPort.Write(true);
-	_sema.Post();
+	if ( _enabled ) {
+	    _sema.Wait();
+		_outPort.Content() = tmpBottle;
+	    _outPort.Write(true);
+		_sema.Post();
+	}
 
 }

@@ -138,9 +138,9 @@ int main()
 	// acquisition thread
 	acquisitionThread at;
 	// arm control thread
-	ControlThread* act = new ArmControlThread(1./10.,_rep_out,_repeaterSema);
+	ControlThread* act = new ArmControlThread(1./10.,_rep_out,_repeaterSema, false);
 	// hand control thread
-	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema);
+	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema, false);
 	// gaze control thread
 	ControlThread* gct = new GazeControlThread(1./10.,_hs_out,_img_out,_imageSema);
 

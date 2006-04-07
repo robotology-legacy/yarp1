@@ -14,10 +14,11 @@ class HandControlThread : public ControlThread {
 
 public:
 
-	HandControlThread(const double frequency, YARPOutputPortOf<YARPBabyBottle>& outPort, YARPSemaphore& sema)
-		: ControlThread(frequency, sema),
+	HandControlThread(const double frequency, YARPOutputPortOf<YARPBabyBottle>& outPort,
+		YARPSemaphore& sema, bool enabled=true)
+		: ControlThread(frequency, sema, enabled),
 	  _outPort(outPort),
-	  _thumb(0,100), _index(0,-70), _fingers(0,-70),
+	  _thumb(-10,100), _index(10,-50), _fingers(10,-50),
 	  _handInit0(0), _handInit1(-60), _handInit2(0),
 	  _handInit3(0), _handInit4(0), _handInit5(0) {}
 

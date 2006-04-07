@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPE504DeviceDriver.h,v 1.1 2006-01-11 10:25:00 claudio72 Exp $
+/// $Id: YARPE504DeviceDriver.h,v 1.2 2006-04-07 20:48:46 claudio72 Exp $
 ///
 ///
 
@@ -76,18 +76,10 @@ struct E504OpenParameters {
 	E504OpenParameters() {
 		comPort = 1;
 		baudRate = 115200;
-		illuminatorState = false;
-		illuminatorLevel = 0;
-		CRThreshold = 0;
-		pupilThreshold = 0;
 	};
 
 	unsigned short comPort;
 	unsigned int baudRate;
-	bool illuminatorState;
-	int illuminatorLevel;
-	int CRThreshold;
-	int pupilThreshold;
 
 };
 

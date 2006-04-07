@@ -57,9 +57,9 @@ void CSaverThread::writeDataToFile(int i)
 
 	fprintf(pFile,"%d",i);
 
-	fprintf(pFile,";%.3f;%.3f;%.3f;%.3f;%.3f;%.3f", pData->tracker0Data.x, pData->tracker0Data.y, pData->tracker0Data.z, pData->tracker0Data.azimuth, pData->tracker0Data.elevation, pData->tracker0Data.roll);
-	fprintf(pFile,";%.3f;%.3f;%.3f;%.3f;%.3f;%.3f", pData->tracker1Data.x, pData->tracker1Data.y, pData->tracker1Data.z, pData->tracker1Data.azimuth, pData->tracker1Data.elevation, pData->tracker1Data.roll);
-	fprintf(pFile,";%d;%d;%d", pData->GTData.pupilDiam, pData->GTData.pupilX, pData->GTData.pupilY);
+	fprintf(pFile,";%.2f;%.2f;%.2f;%.2f;%.2f;%.2f", pData->tracker0Data.x, pData->tracker0Data.y, pData->tracker0Data.z, pData->tracker0Data.azimuth, pData->tracker0Data.elevation, pData->tracker0Data.roll);
+	fprintf(pFile,";%.2f;%.2f;%.2f;%.2f;%.2f;%.2f", pData->tracker1Data.x, pData->tracker1Data.y, pData->tracker1Data.z, pData->tracker1Data.azimuth, pData->tracker1Data.elevation, pData->tracker1Data.roll);
+	fprintf(pFile,";%d;%.2f;%.2f", pData->GTData.valid, pData->GTData.pupilX, pData->GTData.pupilY);
 	fprintf(pFile,";%d;%d;%d", pData->gloveData.thumb[0], pData->gloveData.thumb[1], pData->gloveData.thumb[2]);
 	fprintf(pFile,";%d;%d;%d", pData->gloveData.index[0], pData->gloveData.index[1], pData->gloveData.index[2]);
 	fprintf(pFile,";%d;%d;%d", pData->gloveData.middle[0], pData->gloveData.middle[1], pData->gloveData.middle[2]);

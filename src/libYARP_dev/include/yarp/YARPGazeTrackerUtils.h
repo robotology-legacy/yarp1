@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGazeTrackerUtils.h,v 1.2 2006-01-12 15:47:48 claudio72 Exp $
+/// $Id: YARPGazeTrackerUtils.h,v 1.3 2006-04-07 20:48:46 claudio72 Exp $
 ///
 ///
 
@@ -80,13 +80,18 @@ enum GazeTrackerCmd {
 struct GazeTrackerData {
 	GazeTrackerData(){ clean(); };
 	void clean() {
-		pupilDiam=pupilX=pupilY=0;
+		valid = false;
+		pupilX = pupilY = 0.0;
+		targetPoints[0] = 0.0;
+		targetPoints[1] = 0.0;
+		targetPoints[2] = 0.0;
+		targetPoints[3] = 0.0;
 	};
 
-	int pupilDiam;
-	int pupilX;
-	int pupilY;
-
+	bool valid;
+	double pupilX;
+	double pupilY;
+	double targetPoints[4];
 };
 
 #include<yarp/end_pack_for_net.h>

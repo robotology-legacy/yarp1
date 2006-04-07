@@ -80,7 +80,7 @@ void ArmControlThread::calibrate()
 	ReadCollectorData();
 	_ref.x  = _data.tracker0Data.x;
 	_ref.y  = _data.tracker0Data.y;
-	_ref.z  = _data.tracker0Data.z - 2.0/InchCm; // the tracker is about 2cm above the hand!
+	_ref.z  = _data.tracker0Data.z;
 	_ref.az = DegRad * _data.tracker0Data.azimuth;
 	_ref.el = DegRad * _data.tracker0Data.elevation;
 	_ref.ro = DegRad * _data.tracker0Data.roll;
@@ -126,18 +126,18 @@ void ArmControlThread::shutdown()
 	tmpBottle.reset();
 	tmpBottle.writeVocab(YBVocab(YBVArmForceResting));
 
-	_sema.Wait();
-	_outPort.Content() = tmpBottle;
-	_outPort.Write();
-	_sema.Post();
+	if ( _enabled ) {
+		_sema.Wait();
+		_outPort.Content() = tmpBottle;
+		_outPort.Write();
+		_sema.Post();
+	}
 
 }
 
 void ArmControlThread::sendPosCmd(const double dof1, const double dof2, const double dof3,
 								  const double dof4, const double dof5, const double dof6)
 {
-
-return;
 
 	YVector armCmd(6);
 	YARPBabyBottle tmpBottle;
@@ -155,10 +155,12 @@ return;
 	tmpBottle.writeVocab(YBVocab(YBVArmForceNewCmd));
 	tmpBottle.writeYVector(armCmd);
 	
-	_sema.Wait();
-	_outPort.Content() = tmpBottle;
-	_outPort.Write(true);
-	_sema.Post();
+	if ( _enabled ) {
+		_sema.Wait();
+		_outPort.Content() = tmpBottle;
+		_outPort.Write(true);
+		_sema.Post();
+	}
   
 }
 
