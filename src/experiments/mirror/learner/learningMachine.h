@@ -8,6 +8,7 @@
 #include <fstream>
 #include <cmath>
 #include <string>
+#include <limits>
 
 using namespace std;
 
@@ -66,9 +67,13 @@ public:
 	virtual const bool load( void );
 	// normalising
 	void evalStats( void );
-	void normalise( double*, const double, const double );
-	void unNormalise( double*, const double, const double );
-	void normaliseExamples( void );
+	void normaliseMeanStd( double*, const double, const double );
+	void unNormaliseMeanStd( double*, const double, const double );
+	void normaliseMaxMin( double*, const double, const double );
+	void unNormaliseMaxMin( double*, const double, const double );
+	void normaliseExamplesMeanStd( void );
+	void normaliseExamplesMeanStdDomain( void );
+	void normaliseExamplesMaxMin( void );
 
 	// abstract methods. any concrete learning machine must be able at least
 	// to add an example, train its models and predict a new value given a sample
@@ -94,9 +99,11 @@ protected:
 	// the sample whose value to predict
 	sample* _newSample;
 
-	// the means and stdvs
+	// the means, stdvs, maxs and mins
 	double* _domainMean, * _codomainMean;
 	double* _domainStdv, * _codomainStdv;
+	double* _domainMax,  * _codomainMax;
+	double* _domainMin,  * _codomainMin;
 
 	// file name for saving and loading the machine state
 	string _machineFileName;

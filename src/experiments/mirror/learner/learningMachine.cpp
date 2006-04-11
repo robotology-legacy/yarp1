@@ -37,6 +37,10 @@ LearningMachine::LearningMachine(
 	lMAlloc(_codomainMean, _codomainSize);
 	lMAlloc(_domainStdv, _domainSize);
 	lMAlloc(_codomainStdv, _codomainSize);
+	lMAlloc(_domainMin, _domainSize);
+	lMAlloc(_codomainMin, _codomainSize);
+	lMAlloc(_domainMax, _domainSize);
+	lMAlloc(_codomainMax, _codomainSize);
 
 	// evaluate statistics first time, that is, fill them with a row of 0s
 	evalStats();
@@ -50,6 +54,10 @@ LearningMachine::~LearningMachine()
 	delete[] _domainStdv;
 	delete[] _codomainMean;
 	delete[] _domainMean;
+	delete[] _codomainMin;
+	delete[] _domainMin;
+	delete[] _codomainMax;
+	delete[] _domainMax;
 
 	delete[] _newSample;
 
@@ -80,8 +88,8 @@ void LearningMachine::save( void )
 		return;
 	}
 
-	{ foreach(_domainSize,i) statsOfstream << _domainMean[i] << " " << _domainStdv[i] << endl; }
-	{ foreach(_codomainSize,i) statsOfstream << _codomainMean[i] << " " << _codomainStdv[i] << endl; }
+	{ foreach(_domainSize,i) statsOfstream << _domainMean[i] << " " << _domainStdv[i] << " " << _domainMax[i] << " " << _domainMin[i] << endl; }
+	{ foreach(_codomainSize,i) statsOfstream << _codomainMean[i] << " " << _codomainStdv[i] << " " << _codomainMax[i] << " " << _codomainMin[i] << endl; }
 
 }
 
@@ -96,8 +104,8 @@ const bool LearningMachine::load( void )
 		return false;
 	}
 
-	{ foreach(_domainSize,i) statsIfstream >> _domainMean[i] >> _domainStdv[i]; }
-	{ foreach(_codomainSize,i) statsIfstream >> _codomainMean[i] >> _codomainStdv[i]; }
+	{ foreach(_domainSize,i) statsIfstream >> _domainMean[i] >> _domainStdv[i] >> _domainMax[i] >> _domainMin[i]; }
+	{ foreach(_codomainSize,i) statsIfstream >> _codomainMean[i] >> _codomainStdv[i] >> _codomainMax[i] >> _codomainMin[i]; }
 	
 	return true;
 
@@ -109,8 +117,12 @@ void LearningMachine::evalStats()
 	// clean means and standard deviations
 	{ foreach(_domainSize,i) _domainMean[i] = 0.0; }
 	{ foreach(_domainSize,i) _domainStdv[i] = 0.0; }
+	{ foreach(_domainSize,i) _domainMax[i] = -DBL_MAX; }
+	{ foreach(_domainSize,i) _domainMin[i] = DBL_MAX; }
 	{ foreach(_codomainSize,i) _codomainMean[i] = 0.0; }
 	{ foreach(_codomainSize,i) _codomainStdv[i] = 0.0; }
+	{ foreach(_codomainSize,i) _codomainMax[i] = -DBL_MAX; }
+	{ foreach(_codomainSize,i) _codomainMin[i] = DBL_MAX; }
 
 	// evaluate means
 	{ foreach(_exampleCount,i) {
@@ -130,9 +142,24 @@ void LearningMachine::evalStats()
 	{ foreach(_domainSize,j) _domainStdv[j] = sqrt(_domainStdv[j]/(_exampleCount-1)); }
 	{ foreach(_codomainSize,j) _codomainStdv[j] = sqrt(_codomainStdv[j]/(_exampleCount-1)); }
 
+	// evaluate maxs and mins
+	{ foreach(_exampleCount,i) {
+		{ foreach(_domainSize,j) {
+			if (_domainMax[j]<_sample[i][j].value)
+				_domainMax[j]=_sample[i][j].value;
+			if (_domainMin[j]>_sample[i][j].value)
+				_domainMin[j]=_sample[i][j].value;
+		} }
+		{ foreach(_codomainSize,j) {
+			if (_codomainMax[j]<_value[j][i])
+				_codomainMax[j]=_value[j][i];
+			if (_codomainMin[j]>_value[j][i])
+				_codomainMin[j]=_value[j][i];
+		} }
+	} }
 }
 
-void LearningMachine::normalise( double* value, const double mean, const double stdv )
+void LearningMachine::normaliseMeanStd( double* value, const double mean, const double stdv )
 {
 
 	// normalisation of a value: subtract the mean and divide by the
@@ -144,7 +171,7 @@ void LearningMachine::normalise( double* value, const double mean, const double 
 
 }
 
-void LearningMachine::unNormalise( double* value, const double mean, const double stdv )
+void LearningMachine::unNormaliseMeanStd( double* value, const double mean, const double stdv )
 {
 
 	// un-normalisation of a value: multiply by standard deviation
@@ -156,13 +183,38 @@ void LearningMachine::unNormalise( double* value, const double mean, const doubl
 
 }
 
-void LearningMachine::normaliseExamples()
+void LearningMachine::normaliseMaxMin( double* value, const double max, const double min )
+{
+
+	// normalisation of a value: subtract the min and divide by the
+	// range unless it is zero
+	*value -= min;
+	if ( max != min ) {
+		*value = *value/(max-min)*2-1;
+	}
+
+}
+
+void LearningMachine::unNormaliseMaxMin( double* value, const double max, const double min )
+{
+
+	// un-normalisation of a value: multiply by range
+	// unless it is zero and add the min
+	*value = (*value+1)/2;
+	if ( max != min ) {
+		*value *= (max-min);
+	}
+	*value += min;
+
+}
+
+void LearningMachine::normaliseExamplesMeanStd()
 {
 
 	// un-normalise already normalised examples
 	{ foreach(_normalExampleCount,i) {
-		{ foreach(_domainSize,j) unNormalise( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
-		{ foreach(_codomainSize,j) unNormalise( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
+		{ foreach(_domainSize,j) unNormaliseMeanStd( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
+		{ foreach(_codomainSize,j) unNormaliseMeanStd( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
 	} }
 
 	// evaluate new means and stdvs
@@ -170,8 +222,54 @@ void LearningMachine::normaliseExamples()
 
 	// re-normalise all examples
 	{ foreach(_exampleCount,i) {
-		{ foreach(_domainSize,j) normalise( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
-		{ foreach(_codomainSize,j) normalise( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
+		{ foreach(_domainSize,j) normaliseMeanStd( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
+		{ foreach(_codomainSize,j) normaliseMeanStd( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
+	} }
+
+	// now they are all normalised!
+	_normalExampleCount = _exampleCount;
+
+}
+
+void LearningMachine::normaliseExamplesMeanStdDomain()
+{
+
+	// un-normalise already normalised examples
+	{ foreach(_normalExampleCount,i) {
+		{ foreach(_domainSize,j) unNormaliseMeanStd( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
+		//{ foreach(_codomainSize,j) unNormaliseMeanStd( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
+	} }
+
+	// evaluate new means and stdvs
+	evalStats();
+
+	// re-normalise all examples
+	{ foreach(_exampleCount,i) {
+		{ foreach(_domainSize,j) normaliseMeanStd( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
+		//{ foreach(_codomainSize,j) normaliseMeanStd( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
+	} }
+
+	// now they are all normalised!
+	_normalExampleCount = _exampleCount;
+
+}
+
+void LearningMachine::normaliseExamplesMaxMin()
+{
+
+	// un-normalise already normalised examples
+	{ foreach(_normalExampleCount,i) {
+		{ foreach(_domainSize,j) unNormaliseMaxMin( &_sample[i][j].value, _domainMax[j], _domainMin[j] ); }
+		{ foreach(_codomainSize,j) unNormaliseMaxMin( &_value[j][i], _codomainMax[j], _codomainMin[j] ); }
+	} }
+
+	// evaluate new maxs and mins
+	evalStats();
+
+	// re-normalise all examples
+	{ foreach(_exampleCount,i) {
+		{ foreach(_domainSize,j) normaliseMaxMin( &_sample[i][j].value, _domainMax[j], _domainMin[j] ); }
+		{ foreach(_codomainSize,j) normaliseMaxMin( &_value[j][i], _codomainMax[j], _codomainMin[j] ); }
 	} }
 
 	// now they are all normalised!

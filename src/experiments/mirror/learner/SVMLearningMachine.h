@@ -14,9 +14,12 @@
 class SVMLearningMachine : public LearningMachine {
 public:
 
-	SVMLearningMachine( unsigned int, unsigned int, unsigned int, string& );
+	SVMLearningMachine( bool, unsigned int, unsigned int, unsigned int, string& );
+	SVMLearningMachine( bool, unsigned int, unsigned int, unsigned int, string&, svm_parameter );
 	~SVMLearningMachine( void );
 
+	void changeC( const double );
+	
 	void reset( void );
 	void save( void );
 	const bool load( void );
@@ -26,10 +29,12 @@ public:
 	void predictValue( const double[], double[] );
 
 private:
-
+	
+	// Classification?
+	bool _classification;
 	// one SVM problem for each dimension of the codomain
 	svm_problem* _problem;
-	// svm parameters: for now, common to all problems
+	// svm parameters
 	svm_parameter _param;
 	// one model pointer for each problem (each model is then created by svm_train())
 	svm_model** _model;
@@ -44,7 +49,8 @@ class UniformSVMLearningMachine : public SVMLearningMachine {
 public:
 
 	// constructor and destructor
-	UniformSVMLearningMachine( unsigned int, unsigned int, unsigned int, string&, double[] );
+	UniformSVMLearningMachine( bool, unsigned int, unsigned int, unsigned int, string&, double[] );
+	UniformSVMLearningMachine( bool, unsigned int, unsigned int, unsigned int, string&, double[], svm_parameter );
 	~UniformSVMLearningMachine( void );
 
 	const bool addExample( const double[], const double[] );

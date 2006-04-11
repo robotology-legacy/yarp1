@@ -47,10 +47,12 @@ int numOfExamples;
 
 // if it is a uniform machine
 bool uniformMachine;
+bool classification;
 double* tolerance;
 
 // the learning machine
-LearningMachine* learner;
+//LearningMachine* learner;
+SVMLearningMachine* learner;
 
 // ---------- procedures
 
@@ -120,7 +122,7 @@ void parseCmdLine( int argc, char** argv )
 		cout << "  --dom <domain size> --cod <codomain size>" << endl;
 		cout << "  --ex <number of examples>" << endl;
 		cout << "  [--port <port basename>] [--net <network name>]" << endl;
-		cout << "  [--u <tolerance values>]" << endl;
+		cout << "  [--u <tolerance values>] [--cla]" << endl;
 		exit(YARP_OK);
 	}
 
@@ -166,6 +168,9 @@ void parseCmdLine( int argc, char** argv )
 		}
 	}
 
+	if ( YARPParseParameters::parse(argc, argv, "-cla") )
+		classification=true;
+
 	// show parameters
 	cout << "CMDLINE: port basename is " << portName << "." << endl;
 	cout << "CMDLINE: network name is " << netName << "." << endl;
@@ -175,6 +180,9 @@ void parseCmdLine( int argc, char** argv )
 		{ foreach(domainSize,i) cout << tolerance[i] << " "; }
 		cout << endl;
 	}
+	if ( classification )
+		cout << "CMDLINE: classification machine selected."<<endl;
+
 
 }
 
@@ -189,13 +197,49 @@ int main ( int argc, char** argv )
 	// register ports
 	registerPorts();
 
+	// create the parameters
+	svm_parameter param;
+	if ( classification ) {
+		param.svm_type = NU_SVC;
+		param.kernel_type = RBF;
+		param.degree = 3;
+		param.gamma = 1/(double)domainSize;
+		param.coef0 = 0;
+		param.nu = 0.3;
+		param.cache_size = 10;
+		param.C = 1;
+		param.eps = 1e-3;
+		param.p = 0.1;
+		param.shrinking = 1;
+		param.probability = 0;
+		param.nr_weight = 0;
+		param.weight_label = 0;
+		param.weight = 0;
+	} else {
+		param.svm_type = NU_SVR;
+		param.kernel_type = RBF;
+		param.degree = 3;
+		param.gamma = 1/(double)domainSize;
+		param.coef0 = 0;
+		param.nu = 0.3;
+		param.cache_size = 10;
+		param.C = 30;
+		param.eps = 1e-3;
+		param.p = 0.1;
+		param.shrinking = 1;
+		param.probability = 0;
+		param.nr_weight = 0;
+		param.weight_label = 0;
+		param.weight = 0;
+	}
+
 	// create learning machine according to cmd line
 	if ( uniformMachine ) {
 		string portNameString(portName.c_str());
-		learner = new UniformSVMLearningMachine(domainSize,codomainSize,numOfExamples,portNameString,tolerance);
+		learner = new UniformSVMLearningMachine(classification,domainSize,codomainSize,numOfExamples,portNameString,tolerance,param);
 	} else {
 		string portNameString(portName.c_str());
-		learner = new SVMLearningMachine(domainSize,codomainSize,numOfExamples,portNameString);
+		learner = new SVMLearningMachine(classification,domainSize,codomainSize,numOfExamples,portNameString,param);
 	}
 	if ( learner == 0 ) {
 		cout << "FATAL ERROR: no memory for the learning machine." << endl;
@@ -251,10 +295,19 @@ int main ( int argc, char** argv )
 				data_outport.Write();
 			} else if ( example.Length() == domainSize+codomainSize ) {
 				// a full example: add it
+				// but first try to predict it
 				{ foreach(domainSize,i) x[i] = example[i]; }
+				learner->predictValue(x, y);
+				double errMax=0;
+				{ foreach(codomainSize,i) {
+					double tmp=abs(example[domainSize+i] - y[i]);
+					if (errMax<tmp) errMax=tmp;
+				} }
+				
 				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
 				learner->addExample(x, y);
-				cout << learner->getExampleCount() << "/" << learner->getNumOfExamples() << "     \r";
+
+				cout << learner->getExampleCount() << "/" << learner->getNumOfExamples() << " (errMax="<<errMax<<")     \r";
 				// every now and then, train and save the model
 				if ( learner->getExampleCount() % 20 == 5 ) {
 					learner->train();
@@ -268,6 +321,15 @@ int main ( int argc, char** argv )
 		// ----- any keyboard commands?
 		if ( _kbhit() ) {
 			switch ( _getch() ) {
+			case 'c': // CHANGE C
+				double newC;
+				cout << "Got CHANGE C command." << endl;
+				cout << "Insert new 'C' value";
+				cin>>newC;
+				learner->changeC(newC);
+				learner->train();
+				learner->save();
+				break;
 			case 'r': // RESET
 				cout << "Got RESET command. Resetting machine." << endl;
 				learner->reset();
@@ -279,6 +341,7 @@ int main ( int argc, char** argv )
 			default: // unrecognised keyboard command
 				cout << "Unrecognised keyboard command." << endl;
 				cout << "'r' reset machine" << endl;
+				cout << "'c' change 'C'" << endl;
 				cout << "'q' quit" << endl << endl;
 			}
 		}

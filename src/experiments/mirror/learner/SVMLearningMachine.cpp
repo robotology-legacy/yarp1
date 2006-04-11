@@ -6,9 +6,11 @@
 // ---------------------- SVM learning machine, plain version
 
 SVMLearningMachine::SVMLearningMachine(
-  unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples, string& MachineFileName
+  bool Cla, unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples, string& MachineFileName
  ) : LearningMachine(DomainSize,CodomainSize,NumOfSamples,MachineFileName)
 {
+
+	_classification=Cla;
 
 	// initialise SVM parameters
 	_param.svm_type = EPSILON_SVR;
@@ -27,14 +29,36 @@ SVMLearningMachine::SVMLearningMachine(
 	_param.weight_label = 0;
 	_param.weight = 0;
 
-	// check them. the problem is not required unless we use NU-SVC,
-	// which is never the case for us, so a NULL thing will be OK.
-	const char* error_msg;
-	error_msg = svm_check_parameter( 0, &_param );
-	if ( error_msg != 0 ) {
-		cout << "FATAL ERROR: libsvm parameters are incorrect." << endl;
-		exit(-1);
-	}
+	// allocate SVM problems
+	lMAlloc(_problem, _codomainSize);
+	// allocate and clean svm models pointers
+	lMAlloc(_model, _codomainSize);
+	{ foreach(_codomainSize,i) _model[i] = 0; }
+
+	// initialise SVM problems:
+	// (1) tell them how many _samples we use
+	{ foreach(_codomainSize,i) _problem[i].l = _numOfExamples; }
+	// (2) link their "y" field to values of the LearningMachine
+	{ foreach(_codomainSize,i) _problem[i].y = _value[i]; }
+	// (3) create their "x"'s and link the "x" field to _samples
+	{ foreach(_codomainSize,i) {
+		lMAlloc(_problem[i].x, _numOfExamples+1);
+		foreach(_numOfExamples,j) _problem[i].x[j] = (svm_node*) _sample[j];
+	} }
+	// there you are. from now on you alter _samples[] and _value[], and
+	// really you are touching the SVM problems.
+
+}
+
+SVMLearningMachine::SVMLearningMachine(
+  bool Cla, unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples, string& MachineFileName, svm_parameter SvmParameter
+ ) : LearningMachine(DomainSize,CodomainSize,NumOfSamples,MachineFileName)
+{
+
+	_classification=Cla;
+
+	// initialise SVM parameters
+	_param=SvmParameter;
 
 	// allocate SVM problems
 	lMAlloc(_problem, _codomainSize);
@@ -70,6 +94,13 @@ SVMLearningMachine::~SVMLearningMachine()
 
 }
 
+void SVMLearningMachine::changeC( const double C )
+{
+
+	_param.C = C;
+
+}
+
 const bool SVMLearningMachine::addExample( const double x[], const double y[] )
 {
 
@@ -97,7 +128,24 @@ void SVMLearningMachine::train()
 	{ foreach(_codomainSize,i) if ( _model[i] != 0 ) svm_destroy_model( _model[i] ); }
 
 	// normalise the whole pool of examples
-	normaliseExamples();
+	//normaliseExamplesMaxMin();
+	if (_classification) {
+		normaliseExamplesMeanStdDomain();
+	} else {
+		normaliseExamplesMeanStd();
+	}
+
+	{ foreach(_codomainSize,i) _problem[i].l = _exampleCount; }
+
+	{ foreach(_codomainSize,i) {
+		// check them.
+		const char* error_msg;
+		error_msg = svm_check_parameter( &_problem[i], &_param );
+		if ( error_msg != 0 ) {
+			cout << "FATAL ERROR: libsvm parameters are incorrect." << endl;
+			exit(-1);
+		}
+	} }
 
 	// train new models
 	{ foreach(_codomainSize,i) _model[i] = svm_train( &_problem[i], &_param ); }
@@ -117,15 +165,17 @@ void SVMLearningMachine::predictValue( const double x[], double y[] )
 	{ foreach(_domainSize,i) {
 		_newSample[i].index = i+1;
 		_newSample[i].value = x[i];
-		normalise( &_newSample[i].value, _domainMean[i], _domainStdv[i] );
+		normaliseMeanStd( &_newSample[i].value, _domainMean[i], _domainStdv[i] );
+		//normaliseMaxMin( &_newSample[i].value, _domainMax[i], _domainMin[i] );
 		}
-		_newSample[_domainSize].index = -1;
 	}
+	_newSample[_domainSize].index = -1;
 
 	// and then predict (un-normalise before bailing out)
 	{ foreach(_codomainSize,i) {
 		y[i] = svm_predict(_model[i], (svm_node*)_newSample);
-		unNormalise( &y[i], _codomainMean[i], _codomainStdv[i] );
+		if (!_classification) unNormaliseMeanStd( &y[i], _codomainMean[i], _codomainStdv[i] );
+		//unNormaliseMaxMin( &y[i], _codomainMax[i], _codomainMin[i] );
 	} }
 
 }
@@ -192,9 +242,21 @@ const bool SVMLearningMachine::load( void )
 // ---------------------- SVM learning machine, uniform version
 
 UniformSVMLearningMachine::UniformSVMLearningMachine(
-  unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
+  bool Cla, unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
   string& MachineFileName, double Tolerance[] ) :
-  SVMLearningMachine(DomainSize,CodomainSize,NumOfSamples,MachineFileName)
+  SVMLearningMachine(Cla,DomainSize,CodomainSize,NumOfSamples,MachineFileName)
+{
+
+	// allocate and initialise tolerances array
+	lMAlloc(_tolerance, _domainSize);
+	foreach(_domainSize,i) _tolerance[i] = Tolerance[i];
+
+}
+
+UniformSVMLearningMachine::UniformSVMLearningMachine(
+  bool Cla, unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
+  string& MachineFileName, double Tolerance[], svm_parameter SvmParameter ) :
+  SVMLearningMachine(Cla,DomainSize,CodomainSize,NumOfSamples,MachineFileName,SvmParameter)
 {
 
 	// allocate and initialise tolerances array
@@ -258,7 +320,8 @@ const bool UniformSVMLearningMachine::isExampleWorthAdding( const double x[] )
 	lMAlloc(normal_x, _domainSize);
 	{ foreach(_domainSize,i) {
 		normal_x[i] = x[i];
-		normalise( &normal_x[i], _domainMean[i], _domainStdv[i] );
+		normaliseMeanStd( &normal_x[i], _domainMean[i], _domainStdv[i] );
+		//normaliseMaxMin( &normal_x[i], _domainMax[i], _domainMin[i] );
 	} }
 	{ foreach(_normalExampleCount,i) {
 		closeToMe = true;
