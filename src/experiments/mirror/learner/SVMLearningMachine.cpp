@@ -228,7 +228,7 @@ const bool SVMLearningMachine::load( void )
 		_model[i] = svm_load_model(modelFileName.c_str());
 		if ( _model[i] == 0 ) {
 			cout << "no previously saved model found." << endl;
-			foreach(_codomainSize,j) _model[j] = 0;
+			reset();
 			break;
 		}
 		cout << "loaded model from " << modelFileName << "." << endl;
@@ -236,7 +236,7 @@ const bool SVMLearningMachine::load( void )
 
 	// try and load data
 	if ( LearningMachine::loadData() == false ) {
-		foreach(_codomainSize,j) _model[j] = 0;
+		reset();
 		return false;
 	}
 
