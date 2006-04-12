@@ -128,7 +128,6 @@ void SVMLearningMachine::train()
 	{ foreach(_codomainSize,i) if ( _model[i] != 0 ) svm_destroy_model( _model[i] ); }
 
 	// normalise the whole pool of examples
-	//normaliseExamplesMaxMin();
 	if (_classification) {
 		normaliseExamplesMeanStdDomain();
 	} else {
@@ -166,7 +165,6 @@ void SVMLearningMachine::predictValue( const double x[], double y[] )
 		_newSample[i].index = i+1;
 		_newSample[i].value = x[i];
 		normaliseMeanStd( &_newSample[i].value, _domainMean[i], _domainStdv[i] );
-		//normaliseMaxMin( &_newSample[i].value, _domainMax[i], _domainMin[i] );
 		}
 	}
 	_newSample[_domainSize].index = -1;
@@ -175,7 +173,6 @@ void SVMLearningMachine::predictValue( const double x[], double y[] )
 	{ foreach(_codomainSize,i) {
 		y[i] = svm_predict(_model[i], (svm_node*)_newSample);
 		if (!_classification) unNormaliseMeanStd( &y[i], _codomainMean[i], _codomainStdv[i] );
-		//unNormaliseMaxMin( &y[i], _codomainMax[i], _codomainMin[i] );
 	} }
 
 }
@@ -206,9 +203,11 @@ void SVMLearningMachine::save( void )
 			cout << "ERROR: could not save model." << endl;
 			return;
 		}
+		cout << "saved model to " << modelFileName << "." << endl;
 	} }
 
-	LearningMachine::save();
+	// save data
+	LearningMachine::saveData();
 
 }
 
@@ -224,13 +223,15 @@ const bool SVMLearningMachine::load( void )
 		string modelFileName = _machineFileName + "." + index.str() + ".model";
 		_model[i] = svm_load_model(modelFileName.c_str());
 		if ( _model[i] == 0 ) {
-			cout << "no previous model found." << endl;
+			cout << "no previously saved model found." << endl;
 			foreach(_codomainSize,j) _model[j] = 0;
-			return false;
+			break;
 		}
+		cout << "loaded model from " << modelFileName << "." << endl;
 	} }
 
-	if ( LearningMachine::load() == false ) {
+	// try and load data
+	if ( LearningMachine::loadData() == false ) {
 		foreach(_codomainSize,j) _model[j] = 0;
 		return false;
 	}
@@ -289,8 +290,11 @@ const bool UniformSVMLearningMachine::addExample( const double x[], const double
 			_sample[_exampleCount][_domainSize].index = -1;
 			{ foreach(_codomainSize,i) _value[i][_exampleCount] = y[i]; }
 			_exampleCount++;
+			return true;
+		} else {
+			// no. then return false
+			return false;
 		}
-		return true;
 	}
 
 }
@@ -321,7 +325,6 @@ const bool UniformSVMLearningMachine::isExampleWorthAdding( const double x[] )
 	{ foreach(_domainSize,i) {
 		normal_x[i] = x[i];
 		normaliseMeanStd( &normal_x[i], _domainMean[i], _domainStdv[i] );
-		//normaliseMaxMin( &normal_x[i], _domainMax[i], _domainMin[i] );
 	} }
 	{ foreach(_normalExampleCount,i) {
 		closeToMe = true;

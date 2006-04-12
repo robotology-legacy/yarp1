@@ -77,35 +77,79 @@ void LearningMachine::reset( void )
 
 }
 
-void LearningMachine::save( void )
+void LearningMachine::saveData( void )
 {
 
-	// save means and stdvs
-	string statsFileName = _machineFileName + ".stats";
-	ofstream statsOfstream(statsFileName.c_str());
-	if ( statsOfstream.is_open() == 0 ) {
-		cout << "ERROR: could not save statistics." << endl;
+	string dataFileName = _machineFileName + ".data";
+	ofstream dataOfstream(dataFileName.c_str());
+	if ( dataOfstream.is_open() == 0 ) {
+		cout << "ERROR: could not save data." << endl;
 		return;
 	}
 
-	{ foreach(_domainSize,i) statsOfstream << _domainMean[i] << " " << _domainStdv[i] << " " << _domainMax[i] << " " << _domainMin[i] << endl; }
-	{ foreach(_codomainSize,i) statsOfstream << _codomainMean[i] << " " << _codomainStdv[i] << " " << _codomainMax[i] << " " << _codomainMin[i] << endl; }
+	// file header: domain and codomain size, and HOW MANY data you're going to save
+	dataOfstream << _domainSize << " " << _codomainSize << " " << _exampleCount << endl;
+
+	// saved data must be NON normalised
+	// un-normalise normal ones
+	{ foreach(_normalExampleCount,i) {
+		{ foreach(_domainSize,j) unNormaliseMeanStd( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
+		{ foreach(_codomainSize,j) unNormaliseMeanStd( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
+	} }
+	// save them all
+	{ foreach(_exampleCount,i) {
+		{ foreach(_domainSize,j) dataOfstream << _sample[i][j].value << " "; }
+		{ foreach(_codomainSize,j) dataOfstream << _value[j][i] << " "; }
+		dataOfstream << endl;
+	} }
+	// re-normalise those who have been un-normalised
+	{ foreach(_normalExampleCount,i) {
+		{ foreach(_domainSize,j) normaliseMeanStd( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
+		{ foreach(_codomainSize,j) normaliseMeanStd( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
+	} }
+
+	cout << "saved data to " << dataFileName << "." << endl;
 
 }
 
-const bool LearningMachine::load( void )
+const bool LearningMachine::loadData( void )
 {
 
-	// load means and stdvs
-	string statsFileName = _machineFileName + ".stats";
-	ifstream statsIfstream(statsFileName.c_str());
-	if ( statsIfstream.is_open() == false ) {
-		cout << "no previous statistics found." << endl;
+	string dataFileName = _machineFileName + ".data";
+	ifstream dataIfstream(dataFileName.c_str());
+	if ( dataIfstream.is_open() == false ) {
+		cout << "no previously saved data found." << endl;
 		return false;
 	}
 
-	{ foreach(_domainSize,i) statsIfstream >> _domainMean[i] >> _domainStdv[i] >> _domainMax[i] >> _domainMin[i]; }
-	{ foreach(_codomainSize,i) statsIfstream >> _codomainMean[i] >> _codomainStdv[i] >> _codomainMax[i] >> _codomainMin[i]; }
+	// load file header and check consistency of previously saved data...
+	unsigned int domainSize, codomainSize, exampleCount;
+	dataIfstream >> domainSize >> codomainSize >> exampleCount;
+	// domain and codomain size must match
+	if ( domainSize != _domainSize || codomainSize != _codomainSize ) {
+		cout << "ERROR: previously saved data file does not match. Starting from scratch." << endl;
+		return false;
+	}
+	// number of stored examples can't be bigger than what this machine can hold
+	if ( exampleCount > _numOfExamples ) {
+		cout << "ERROR: more saved data than allowed for this machine. Starting from scratch." << endl;
+		return false;
+	}
+
+	// set new number of examples
+	_exampleCount = exampleCount;
+
+	// load them
+	{ foreach(_exampleCount,i) {
+		{ foreach(_domainSize,j) { dataIfstream >> _sample[i][j].value; _sample[i][j].index = j+1; } }
+		_sample[i][_domainSize].index = -1;
+		{ foreach(_codomainSize,j) dataIfstream >> _value[j][i]; }
+	} }
+	
+	// loaded data are non normalised; then evaluate statistics and normalise
+	normaliseExamplesMeanStd();
+
+	cout << "loaded " << _exampleCount << " data from " << dataFileName << "." << endl;
 	
 	return true;
 

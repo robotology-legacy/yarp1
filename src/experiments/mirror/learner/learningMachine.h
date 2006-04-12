@@ -47,7 +47,7 @@ struct sample {
 // seems excessive to define a new struct/class for an example.
 
 // -------------------------------------------------------
-// a generic (regression) learning machine: a map (R^m -> R^n).
+// a generic learning machine: essentially, a map (R^m -> R^n).
 // it stores examples and can normalise/un-normalise them.
 
 class LearningMachine {
@@ -61,10 +61,10 @@ public:
 	// viewing counters
 	const unsigned int getExampleCount( void ) const { return _exampleCount; }
 	const unsigned int getNumOfExamples( void ) const { return _numOfExamples; }
-	// resetting the machine, loading and saving models and stats
+	// resetting the machine, loading and saving stats and data
 	virtual void reset( void );
-	virtual void save( void );
-	virtual const bool load( void );
+	virtual void saveData( void );
+	virtual const bool loadData( void );
 	// normalising
 	void evalStats( void );
 	void normaliseMeanStd( double*, const double, const double );

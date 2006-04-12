@@ -246,7 +246,7 @@ int main ( int argc, char** argv )
 		exit(YARP_FAIL);
 	}
 
-	// try and load a previously saved model
+	// try and load previously model and data
 	learner->load();
 
 	// vectors and arrays of double to interact with the machine
@@ -305,13 +305,13 @@ int main ( int argc, char** argv )
 				} }
 				
 				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
-				learner->addExample(x, y);
-
-				cout << learner->getExampleCount() << "/" << learner->getNumOfExamples() << " (errMax="<<errMax<<")     \r";
-				// every now and then, train and save the model
-				if ( learner->getExampleCount() % 20 == 5 ) {
-					learner->train();
-					learner->save();
+				if ( learner->addExample(x, y) ) {
+					cout << learner->getExampleCount() << "/" << learner->getNumOfExamples() << " (errMax="<<errMax<<")     \r";
+					// every now and then, train and save the model
+					if ( learner->getExampleCount() % 20 == 5 ) {
+						learner->train();
+						learner->save();
+					}
 				}
 			} else {
 				cout << "ERROR: got sample/example of the wrong size." << endl;

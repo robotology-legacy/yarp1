@@ -80,6 +80,11 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 libYARP_mathd.lib libYARP_sigd.lib libYARP_OSd.lib libYARP_devd.lib libYARP_robotd.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\..\lib\winnt"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Installing...
+PostBuild_Cmds=copy .\Release\*.exe ..\..\..\..\bin\winnt
+# End Special Build Tool
 
 !ENDIF 
 
