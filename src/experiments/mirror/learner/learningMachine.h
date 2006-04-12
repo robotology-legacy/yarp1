@@ -55,7 +55,7 @@ public:
 
 	// initialise with the domain size, the codomain size,
 	// the maximum number of examples it can hold and the file name
-	LearningMachine( unsigned int, unsigned int, unsigned int, string& );
+	LearningMachine( unsigned int, unsigned int, unsigned int, string&, bool );
 	~LearningMachine( void );
 
 	// viewing counters
@@ -107,6 +107,9 @@ protected:
 
 	// file name for saving and loading the machine state
 	string _machineFileName;
+
+	// do we actually want to have normalisation?
+	bool _normalise;
 
 };
 

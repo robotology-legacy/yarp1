@@ -6,8 +6,10 @@
 // ---------------------- SVM learning machine, plain version
 
 SVMLearningMachine::SVMLearningMachine(
-  bool Cla, unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples, string& MachineFileName
- ) : LearningMachine(DomainSize,CodomainSize,NumOfSamples,MachineFileName)
+  bool Cla, bool normalise,
+  unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
+  string& MachineFileName
+ ) : LearningMachine(DomainSize,CodomainSize,NumOfSamples,MachineFileName,normalise)
 {
 
 	_classification=Cla;
@@ -51,8 +53,10 @@ SVMLearningMachine::SVMLearningMachine(
 }
 
 SVMLearningMachine::SVMLearningMachine(
-  bool Cla, unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples, string& MachineFileName, svm_parameter SvmParameter
- ) : LearningMachine(DomainSize,CodomainSize,NumOfSamples,MachineFileName)
+  bool Cla, bool normalise,
+  unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
+  string& MachineFileName, svm_parameter SvmParameter
+ ) : LearningMachine(DomainSize,CodomainSize,NumOfSamples,MachineFileName,normalise)
 {
 
 	_classification=Cla;
@@ -243,9 +247,10 @@ const bool SVMLearningMachine::load( void )
 // ---------------------- SVM learning machine, uniform version
 
 UniformSVMLearningMachine::UniformSVMLearningMachine(
-  bool Cla, unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
+  bool Cla, bool normalise,
+  unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
   string& MachineFileName, double Tolerance[] ) :
-  SVMLearningMachine(Cla,DomainSize,CodomainSize,NumOfSamples,MachineFileName)
+  SVMLearningMachine(Cla,normalise,DomainSize,CodomainSize,NumOfSamples,MachineFileName)
 {
 
 	// allocate and initialise tolerances array
@@ -255,9 +260,10 @@ UniformSVMLearningMachine::UniformSVMLearningMachine(
 }
 
 UniformSVMLearningMachine::UniformSVMLearningMachine(
-  bool Cla, unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
+  bool Cla, bool normalise,
+  unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
   string& MachineFileName, double Tolerance[], svm_parameter SvmParameter ) :
-  SVMLearningMachine(Cla,DomainSize,CodomainSize,NumOfSamples,MachineFileName,SvmParameter)
+  SVMLearningMachine(Cla,normalise,DomainSize,CodomainSize,NumOfSamples,MachineFileName,SvmParameter)
 {
 
 	// allocate and initialise tolerances array

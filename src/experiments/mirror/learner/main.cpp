@@ -235,11 +235,26 @@ int main ( int argc, char** argv )
 
 	// create learning machine according to cmd line
 	if ( uniformMachine ) {
-		string portNameString(portName.c_str());
-		learner = new UniformSVMLearningMachine(classification,domainSize,codomainSize,numOfExamples,portNameString,tolerance,param);
+		string portNameStr(portName.c_str());
+		learner = new UniformSVMLearningMachine(
+			classification,
+			true,
+			domainSize,
+			codomainSize,
+			numOfExamples,
+			portNameStr,
+			tolerance,
+			param);
 	} else {
-		string portNameString(portName.c_str());
-		learner = new SVMLearningMachine(classification,domainSize,codomainSize,numOfExamples,portNameString,param);
+		string portNameStr(portName.c_str());
+		learner = new SVMLearningMachine(
+			classification,
+			true,
+			domainSize,
+			codomainSize,
+			numOfExamples,
+			portNameStr,
+			param);
 	}
 	if ( learner == 0 ) {
 		cout << "FATAL ERROR: no memory for the learning machine." << endl;

@@ -6,10 +6,12 @@
 // ---------------------- learning machine constructor
 
 LearningMachine::LearningMachine(
-  unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfExamples, string& MachineFileName
+  unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfExamples,
+  string& MachineFileName, bool normalise=true
 ) :
   _domainSize(DomainSize), _codomainSize(CodomainSize), _numOfExamples(NumOfExamples),
-  _machineFileName(MachineFileName), _exampleCount(0), _normalExampleCount(0)
+  _machineFileName(MachineFileName), _normalise(normalise),
+  _exampleCount(0), _normalExampleCount(0)
 {
 
 	// allocate and clean memory for the examples: samples,
@@ -158,6 +160,17 @@ const bool LearningMachine::loadData( void )
 void LearningMachine::evalStats()
 {
 
+	// if this machine has no normalisation,
+	// just set means to zero and stdvs to one
+	if ( _normalise == false ) {
+		{ foreach(_domainSize,i) _domainMean[i] = 0.0; }
+		{ foreach(_domainSize,i) _domainStdv[i] = 1.0; }
+		{ foreach(_codomainSize,i) _codomainMean[i] = 0.0; }
+		{ foreach(_codomainSize,i) _codomainStdv[i] = 1.0; }
+		return;
+	}
+
+	// otherwise, evaluate proper statistics
 	// clean means and standard deviations
 	{ foreach(_domainSize,i) _domainMean[i] = 0.0; }
 	{ foreach(_domainSize,i) _domainStdv[i] = 0.0; }

@@ -14,8 +14,8 @@
 class SVMLearningMachine : public LearningMachine {
 public:
 
-	SVMLearningMachine( bool, unsigned int, unsigned int, unsigned int, string& );
-	SVMLearningMachine( bool, unsigned int, unsigned int, unsigned int, string&, svm_parameter );
+	SVMLearningMachine( bool, bool, unsigned int, unsigned int, unsigned int, string& );
+	SVMLearningMachine( bool, bool, unsigned int, unsigned int, unsigned int, string&, svm_parameter );
 	~SVMLearningMachine( void );
 
 	void changeC( const double );
@@ -49,8 +49,8 @@ class UniformSVMLearningMachine : public SVMLearningMachine {
 public:
 
 	// constructor and destructor
-	UniformSVMLearningMachine( bool, unsigned int, unsigned int, unsigned int, string&, double[] );
-	UniformSVMLearningMachine( bool, unsigned int, unsigned int, unsigned int, string&, double[], svm_parameter );
+	UniformSVMLearningMachine( bool, bool, unsigned int, unsigned int, unsigned int, string&, double[] );
+	UniformSVMLearningMachine( bool, bool, unsigned int, unsigned int, unsigned int, string&, double[], svm_parameter );
 	~UniformSVMLearningMachine( void );
 
 	const bool addExample( const double[], const double[] );
