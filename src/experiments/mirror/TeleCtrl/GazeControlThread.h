@@ -14,6 +14,8 @@
 
 using namespace _logpolarParams;
 
+const unsigned int _gazeSamples = 10;
+
 class GazeControlThread : public ControlThread {
 
 public:
@@ -50,6 +52,11 @@ private:
 	// coordinates of the cross indicating the user's gaze
 	// (normalised wrt the image)
 	LimitLinCalibration _gazeX, _gazeY;
+
+	// gaze tracking and statistics
+	double _gazeXPool[_gazeSamples];
+	double _gazeYPool[_gazeSamples];
+	unsigned int _gazeSampleCount;
 
 };
 

@@ -27,12 +27,42 @@ void GazeControlThread::Body (void)
 		_sema.Post();
 		_LPMapper.Logpolar2Cartesian (_coloredImg, _remappedImg);
 
-		// draw a moving cross on it
-		YarpPixelBGR tmpWhitePixel(255,255,255);
-		YARPSimpleOperations::DrawCross<YarpPixelBGR>(
-			_remappedImg,
-			_gazeX(_data.GTData.pupilX), _gazeY(_data.GTData.pupilY),
-			tmpWhitePixel, 5, 1);
+		// store new gaze sample (circular array)
+		_gazeSampleCount = (_gazeSampleCount==_gazeSamples-1 ? 0 : _gazeSampleCount+1 );
+		_gazeXPool[_gazeSampleCount] = _gazeX(_data.GTData.pupilX);
+		_gazeYPool[_gazeSampleCount] = _gazeY(_data.GTData.pupilY);
+		// evaluate mean and stdv
+		double meanX = 0.0, meanY = 0.0, stdvX = 0.0, stdvY = 0.0;
+		for ( int i=0; i<_gazeSamples; ++i ) {
+			meanX += _gazeXPool[i];
+			meanY += _gazeYPool[i];
+		}
+		meanX /= _gazeSamples;
+		meanY /= _gazeSamples;
+		for ( i=0; i<_gazeSamples; ++i ) {
+			stdvX += (_gazeXPool[i]-meanX)*(_gazeXPool[i]-meanX);
+			stdvY += (_gazeYPool[i]-meanY)*(_gazeYPool[i]-meanY);
+		}
+		stdvX = sqrt(stdvX / ((double)_gazeSamples-1.0));
+		stdvY = sqrt(stdvY / ((double)_gazeSamples-1.0));
+		double stdv = sqrt(stdvX*stdvX+stdvY*stdvY);
+		// draw current mean and stdv (thin, variable red cross)
+		YarpPixelBGR tmpPixel2(255,0,0);
+		YARPSimpleOperations::DrawCross<YarpPixelBGR>(_remappedImg, meanX, meanY, tmpPixel2, stdv, 1);
+		// draw current gaze position. if stdv is below T,
+		// it becomes green; otherwise, it is yellow
+		if ( stdv < 10.0 ) {
+			YarpPixelBGR tmpPixel1(0,255,0);
+			YARPSimpleOperations::DrawCross<YarpPixelBGR>(
+				_remappedImg, 
+				_gazeX(_data.GTData.pupilX), _gazeY(_data.GTData.pupilY),
+				tmpPixel1, 8, 0);
+		} else {
+			YarpPixelBGR tmpPixel1(255,255,0);
+			YARPSimpleOperations::DrawCross<YarpPixelBGR>(_remappedImg, 
+				_gazeX(_data.GTData.pupilX), _gazeY(_data.GTData.pupilY), 
+				tmpPixel1, 8, 0);
+		}
 
 		// send image to camview
 		_imgOutPort.Content().Refer(_remappedImg);
