@@ -29,7 +29,9 @@ void GazeControlThread::Body (void)
 
 		// store new gaze sample (circular array)
 		_gazeSampleCount = (_gazeSampleCount==_gazeSamples-1 ? 0 : _gazeSampleCount+1 );
-
+		if ( _gazeSampleCount == 0 ) {
+			_enableSaccade = true;
+		}
 		_gazeXPool[_gazeSampleCount] = _gazeX(_data.GTData.pupilX);
 		_gazeYPool[_gazeSampleCount] = _gazeY(_data.GTData.pupilY);
 		// evaluate mean and stdv
@@ -48,22 +50,32 @@ void GazeControlThread::Body (void)
 		stdvY = sqrt(stdvY / ((double)_gazeSamples-1.0));
 		double stdv = sqrt(stdvX*stdvX+stdvY*stdvY);
 		// draw current mean and stdv (thin, variable red cross)
-		YarpPixelBGR tmpPixel2(255,0,0);
-		YARPSimpleOperations::DrawCross<YarpPixelBGR>(_remappedImg, meanX, meanY, tmpPixel2, stdv, 1);
+		//		YarpPixelBGR tmpPixel2(255,0,0);
+		//		YARPSimpleOperations::DrawCross<YarpPixelBGR>(_remappedImg, meanX, meanY, tmpPixel2, stdv, 1);
 		// draw current gaze position. if stdv is below T,
 		// it becomes green; otherwise, it is yellow
+		YarpPixelBGR tmpPixel1(255,255,0);
 		if ( stdv < 10.0 ) {
-			YarpPixelBGR tmpPixel1(0,255,0);
-			YARPSimpleOperations::DrawCross<YarpPixelBGR>(
-				_remappedImg, 
-				_gazeX(_data.GTData.pupilX), _gazeY(_data.GTData.pupilY),
-				tmpPixel1, 8, 0);
-		} else {
-			YarpPixelBGR tmpPixel1(255,255,0);
-			YARPSimpleOperations::DrawCross<YarpPixelBGR>(_remappedImg, 
-				_gazeX(_data.GTData.pupilX), _gazeY(_data.GTData.pupilY), 
-				tmpPixel1, 8, 0);
+			tmpPixel1.r = 0;
+			tmpPixel1.g = 255;
+			tmpPixel1.b = 0;
+			// possibly, send a saccade
+			if ( _enableSaccade ) {
+				YARPBottle tmpBottle;
+				tmpBottle.writeInt((int)meanX);
+				tmpBottle.writeInt((int)meanY);
+				if ( _enabled ) {
+					_hs_out.Content() = tmpBottle;
+					_hs_out.Write();
+				}
+				_enableSaccade = false;
+			}
+		
 		}
+		YARPSimpleOperations::DrawCross<YarpPixelBGR>(
+			_remappedImg, 
+			_gazeX(_data.GTData.pupilX), _gazeY(_data.GTData.pupilY), 
+			tmpPixel1, 8, 0);
 
 		// send image to camview
 		_imgOutPort.Content().Refer(_remappedImg);

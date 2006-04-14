@@ -25,7 +25,8 @@ public:
 		YARPSemaphore& sema, bool enabled=true) 
 		: ControlThread(frequency, sema, enabled),
 		  _saccadesOutPort(saccadesOutPort), _imgOutPort(imgOutPort),
-		  _gazeX(0,255), _gazeY(0,255)
+		  _gazeX(0,255), _gazeY(0,255),
+		  _gazeSampleCount(0), _enableSaccade(true)
 	{
 		_remappedImg.Resize (256, 256);
 		_coloredImg.Resize (_stheta, _srho);
@@ -55,6 +56,7 @@ private:
 	LinCalibration _gazeX, _gazeY;
 
 	// gaze tracking and statistics
+	bool _enableSaccade;
 	double _gazeXPool[_gazeSamples];
 	double _gazeYPool[_gazeSamples];
 	unsigned int _gazeSampleCount;

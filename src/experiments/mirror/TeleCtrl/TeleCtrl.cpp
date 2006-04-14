@@ -138,11 +138,11 @@ int main()
 	// acquisition thread
 	acquisitionThread at;
 	// arm control thread
-	ControlThread* act = new ArmControlThread(1./10.,_rep_out,_repeaterSema, false);
+	ControlThread* act = new ArmControlThread(1./10.,_rep_out,_repeaterSema, true);
 	// hand control thread
 	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema, false);
 	// gaze control thread
-	ControlThread* gct = new GazeControlThread(1./10.,_hs_out,_img_out,_imageSema);
+	ControlThread* gct = new GazeControlThread(1./10.,_hs_out,_img_out,_imageSema, true);
 
 	// tell collector to activate the sensors
 	cout << endl << "Initialising collector... "; cout.flush();
