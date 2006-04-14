@@ -51,7 +51,8 @@ private:
 
 	// coordinates of the cross indicating the user's gaze
 	// (normalised wrt the image)
-	LimitLinCalibration _gazeX, _gazeY;
+//	LimitLinCalibration _gazeX, _gazeY;
+	LinCalibration _gazeX, _gazeY;
 
 	// gaze tracking and statistics
 	double _gazeXPool[_gazeSamples];

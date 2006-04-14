@@ -29,6 +29,7 @@ void GazeControlThread::Body (void)
 
 		// store new gaze sample (circular array)
 		_gazeSampleCount = (_gazeSampleCount==_gazeSamples-1 ? 0 : _gazeSampleCount+1 );
+
 		_gazeXPool[_gazeSampleCount] = _gazeX(_data.GTData.pupilX);
 		_gazeYPool[_gazeSampleCount] = _gazeY(_data.GTData.pupilY);
 		// evaluate mean and stdv
@@ -93,7 +94,7 @@ void GazeControlThread::calibrate(void)
 	cout.flush();
 
 	// calibrate accordingly
-	_gazeX.eval(_data.GTData.targetPoints[0], _data.GTData.targetPoints[2]);
+	_gazeX.eval(_data.GTData.targetPoints[2], _data.GTData.targetPoints[0]);
 	_gazeY.eval(_data.GTData.targetPoints[1], _data.GTData.targetPoints[3]);
 
 }
