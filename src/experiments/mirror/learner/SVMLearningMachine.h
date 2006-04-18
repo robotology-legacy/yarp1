@@ -64,4 +64,24 @@ private:
 
 };
 
+// -------------------------------------------------------
+// another (hopefully) better learning machine based upon libsvm.
+// this one tries to sample the domain where the prediction error is high;
+// in other words, it gets some feedback about how good it is so far.
+
+class FBSVMLearningMachine : public SVMLearningMachine {
+public:
+
+	// constructor and destructor
+	FBSVMLearningMachine( bool, bool, unsigned int, unsigned int, unsigned int, string& );
+	FBSVMLearningMachine( bool, bool, unsigned int, unsigned int, unsigned int, string&, svm_parameter );
+	~FBSVMLearningMachine( void );
+
+	const bool addExample( const double[], const double[] );
+	const bool isExampleWorthAdding ( const double[], const double[] );
+
+private:
+
+};
+
 #endif

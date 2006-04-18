@@ -26,15 +26,12 @@ int main( int, char** );
 
 // ---------- global variables
 
-// YARP communication ports: data ports
-YARPOutputPortOf<YVector> data_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-//YARPInputPortOf<YVector> data_inport (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-YARPInputPortOf<YVector> data_inport (YARPInputPort::NO_BUFFERS, YARP_TCP);
-// YARP communication ports: cmd ports.
-// must be NO_BUFFERS, otherwise sequentiality is lost -
-// to improve synchronous communication, then, we force .write(true) on this port
-YARPOutputPortOf<int> cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-YARPInputPortOf<int> cmd_inport (YARPInputPort::NO_BUFFERS, YARP_TCP);
+// data ports
+YARPOutputPortOf<YVector> data_out (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+YARPInputPortOf<YVector> data_in (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+// cmd ports. must be NO_BUFFERS, otherwise sequentiality is lost
+YARPOutputPortOf<int> cmd_out (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+YARPInputPortOf<int> cmd_in (YARPInputPort::NO_BUFFERS, YARP_TCP);
 
 // port basename and network name
 YARPString portName("learner");
@@ -45,71 +42,54 @@ int domainSize;
 int codomainSize;
 int numOfExamples;
 
-// if it is a uniform machine
-bool uniformMachine;
-bool classification;
+// whta kind of machine? (default: plain)
+namespace kindOfMachine {
+	enum {
+		plain = 0,
+		uniform = 1,
+		feedback = 2
+	};
+};
+int machineType = kindOfMachine::plain;
+// in case it is a uniform machine, need array of tolerances
 double* tolerance;
+// are we doing classification or regression?
+bool classification;
 
 // the learning machine
-//LearningMachine* learner;
 SVMLearningMachine* learner;
 
 // ---------- procedures
 
-void registerPorts( void )
+void RegisterPort(YARPPort& port, YARPString& name, YARPString& net)
+{
+
+	if ( port.Register(name.c_str(), net.c_str()) != YARP_OK ) {
+		cout << "FATAL ERROR: could not register port " << name << " on network " << net << endl;
+		exit(YARP_FAIL);
+	}
+
+}
+
+void registerPorts()
 {
 
 	YARPString fullPortName;
 
-	// register data output port
-	cout << "Registering data output port..." << endl;
-	fullPortName = "/" + portName + "/o:vec";
-	if ( data_outport.Register(fullPortName.c_str(),netName.c_str()) != YARP_OK ) {
-		cout << "FATAL ERROR: could not register port " << fullPortName << endl;
-		exit(YARP_FAIL);
-	} else {
-		cout << "done." << endl;
-	}
-	
-	// register data input port
-	cout << "Registering data input port..." << endl;
-	fullPortName = "/" + portName + "/i:vec";
-	if ( data_inport.Register(fullPortName.c_str(),netName.c_str()) != YARP_OK ) {
-		cout << "FATAL ERROR: could not register port " << fullPortName << endl;
-		exit(YARP_FAIL);
-	} else {
-		cout << "done." << endl;
-	}
-	
-	// register cmd output port
-	cout << "Registering command output port..." << endl;
-	fullPortName = "/" + portName + "/o:int";
-	if ( cmd_outport.Register(fullPortName.c_str(),netName.c_str()) != YARP_OK ) {
-		cout << "FATAL ERROR: could not register port " << fullPortName << endl;
-		exit(YARP_FAIL);
-	} else {
-		cout << "done." << endl;
-	}
-	
-	// register cmd input port
-	cout << "Registering command input port..." << endl;
-	fullPortName = "/" + portName + "/i:int";
-	if ( cmd_inport.Register(fullPortName.c_str(),netName.c_str()) != YARP_OK ) {
-		cout << "FATAL ERROR: could not register port " << fullPortName << endl;
-		exit(YARP_FAIL);
-	} else {
-		cout << "done." << endl;
-	}
-	
+	fullPortName = "/" + portName + "/o:vec"; RegisterPort(data_out, fullPortName, netName);
+	fullPortName = "/" + portName + "/i:vec"; RegisterPort(data_in, fullPortName, netName);
+	fullPortName = "/" + portName + "/o:int"; RegisterPort(cmd_out, fullPortName, netName);
+	fullPortName = "/" + portName + "/i:int"; RegisterPort(cmd_in, fullPortName, netName);
+
 }
 
 void unregisterPorts( void )
 {
 
-	cmd_inport.Unregister();
-	cmd_outport.Unregister();
-	data_inport.Unregister();
-	data_outport.Unregister();
+	cmd_in.Unregister();
+	cmd_out.Unregister();
+	data_in.Unregister();
+	data_out.Unregister();
 
 }
 
@@ -122,7 +102,8 @@ void parseCmdLine( int argc, char** argv )
 		cout << "  --dom <domain size> --cod <codomain size>" << endl;
 		cout << "  --ex <number of examples>" << endl;
 		cout << "  [--port <port basename>] [--net <network name>]" << endl;
-		cout << "  [--u <tolerance values>] [--cla]" << endl;
+		cout << "  [--f] [--u <tolerance values>]" << endl;
+		cout << "  [--cla]" << endl;
 		exit(YARP_OK);
 	}
 
@@ -148,7 +129,12 @@ void parseCmdLine( int argc, char** argv )
 
 	// uniform machine required?
 	if ( YARPParseParameters::parse(argc, argv, "-u") ) {
-		uniformMachine = true;
+		if ( machineType != kindOfMachine::plain ) {
+			// can't have both types of machine...
+			cout << "FATAL ERROR: must specify one type only of machine." << endl;
+			exit(YARP_FAIL);
+		}
+		machineType = kindOfMachine::uniform;
 		unsigned int index;
 		{ foreach(argc,i) {
 			YARPString argument(argv[i]);
@@ -168,20 +154,43 @@ void parseCmdLine( int argc, char** argv )
 		}
 	}
 
-	if ( YARPParseParameters::parse(argc, argv, "-cla") )
-		classification=true;
+	// feedback machine required?
+	if ( YARPParseParameters::parse(argc, argv, "-f") ) {
+		if ( machineType != kindOfMachine::plain ) {
+			// can't have both types of machine...
+			cout << "FATAL ERROR: must specify one type only of machine." << endl;
+			exit(YARP_FAIL);
+		}
+		machineType = kindOfMachine::feedback;
+	}
+
+	// classification required?
+	if ( YARPParseParameters::parse(argc, argv, "-cla") ) {
+		classification = true;
+	}
 
 	// show parameters
 	cout << "CMDLINE: port basename is " << portName << "." << endl;
 	cout << "CMDLINE: network name is " << netName << "." << endl;
-	cout << "CMDLINE: mapping R^" << domainSize << " to R^" << codomainSize << ", " << numOfExamples << " examples." << endl;
-	if ( uniformMachine ) {
+	cout << "CMDLINE: domain dim. " << domainSize << ", codomain dim. " << codomainSize << ", " << numOfExamples << " examples." << endl;
+	switch ( machineType ) {
+	case kindOfMachine::plain:
+		cout << "CMDLINE: plain machine selected." << endl;
+		break;
+	case kindOfMachine::uniform:
 		cout << "CMDLINE: uniform machine selected. Tolerances are: ";
 		{ foreach(domainSize,i) cout << tolerance[i] << " "; }
 		cout << endl;
+		break;
+	case kindOfMachine::feedback:
+		cout << "CMDLINE: feedback machine selected." << endl;
+		break;
 	}
-	if ( classification )
-		cout << "CMDLINE: classification machine selected."<<endl;
+	if ( classification ) {
+		cout << "CMDLINE: doing classification."<<endl;
+	} else {
+		cout << "CMDLINE: doing regression."<<endl;
+	}
 
 
 }
@@ -234,8 +243,19 @@ int main ( int argc, char** argv )
 	}
 
 	// create learning machine according to cmd line
-	if ( uniformMachine ) {
-		string portNameStr(portName.c_str());
+	string portNameStr(portName.c_str());
+	switch ( machineType ) {
+	case kindOfMachine::plain:
+		learner = new SVMLearningMachine(
+			classification,
+			true,
+			domainSize,
+			codomainSize,
+			numOfExamples,
+			portNameStr,
+			param);
+		break;
+	case kindOfMachine::uniform:
 		learner = new UniformSVMLearningMachine(
 			classification,
 			true,
@@ -245,9 +265,9 @@ int main ( int argc, char** argv )
 			portNameStr,
 			tolerance,
 			param);
-	} else {
-		string portNameStr(portName.c_str());
-		learner = new SVMLearningMachine(
+		break;
+	case kindOfMachine::feedback:
+		learner = new FBSVMLearningMachine(
 			classification,
 			true,
 			domainSize,
@@ -255,13 +275,14 @@ int main ( int argc, char** argv )
 			numOfExamples,
 			portNameStr,
 			param);
+		break;
 	}
 	if ( learner == 0 ) {
 		cout << "FATAL ERROR: no memory for the learning machine." << endl;
 		exit(YARP_FAIL);
 	}
 
-	// try and load previously model and data
+	// try and load previously saved model and data
 	learner->load();
 
 	// vectors and arrays of double to interact with the machine
@@ -277,51 +298,43 @@ int main ( int argc, char** argv )
 	while ( goOn ) {
 
 		// ----- command thru the network
-		if ( cmd_inport.Read(false) ) {
-			switch ( cmd_inport.Content() ) {
+		if ( cmd_in.Read(false) ) {
+			switch ( cmd_in.Content() ) {
 			case lMCommand::Quit: // QUIT
-				cmd_outport.Content() = lMCommand::Ok;
-				cmd_outport.Write(true);
+				cmd_out.Content() = lMCommand::Ok;
+				cmd_out.Write(true);
 				cout << "Got QUIT command. Bailing out." << endl;
 				goOn = false;
 				break;
 			case lMCommand::Reset: // RESET
 				cout << "Got RESET command. Resetting machine." << endl;
 				learner->reset();
-				cmd_outport.Content() = lMCommand::Ok;
-				cmd_outport.Write(true);
+				cmd_out.Content() = lMCommand::Ok;
+				cmd_out.Write(true);
 				break;
 			default: // unrecognised port command
-				cout << "Unrecognised command from the network " << cmd_inport.Content() << "." << endl;
-				cmd_outport.Content() = lMCommand::Failed;
-				cmd_outport.Write(true);
+				cout << "Unrecognised command from the network " << cmd_in.Content() << "." << endl;
+				cmd_out.Content() = lMCommand::Failed;
+				cmd_out.Write(true);
 			}
 		}
 
 		// ----- read an example or a sample to be predicted
-		if ( data_inport.Read(false) ) {
-			example = data_inport.Content();
+		if ( data_in.Read(false) ) {
+			example = data_in.Content();
 			if ( example.Length() == domainSize ) {
 				// this is just a sample: then predict and send
 				{ foreach(domainSize,i) x[i] = example[i]; }
 				learner->predictValue(x, y);
 				{ foreach(codomainSize,i) prediction[i] = y[i]; } 
-				data_outport.Content() = prediction;
-				data_outport.Write();
+				data_out.Content() = prediction;
+				data_out.Write();
 			} else if ( example.Length() == domainSize+codomainSize ) {
 				// a full example: add it
-				// but first try to predict it
 				{ foreach(domainSize,i) x[i] = example[i]; }
-				learner->predictValue(x, y);
-				double errMax=0;
-				{ foreach(codomainSize,i) {
-					double tmp=abs(example[domainSize+i] - y[i]);
-					if (errMax<tmp) errMax=tmp;
-				} }
-				
 				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
 				if ( learner->addExample(x, y) ) {
-					cout << learner->getExampleCount() << "/" << learner->getNumOfExamples() << " (errMax="<<errMax<<")     \r";
+					cout << learner->getExampleCount() << "/" << learner->getNumOfExamples() << "     \r";
 					// every now and then, train and save the model
 					if ( learner->getExampleCount() % 20 == 5 ) {
 						learner->train();
@@ -368,7 +381,9 @@ int main ( int argc, char** argv )
 
 	cout << "Bailing out." << endl;
 	unregisterPorts();
-	if ( uniformMachine ) delete[] tolerance;
+	if ( machineType == kindOfMachine::uniform ) {
+		delete[] tolerance;
+	}
 	delete[] x;
 	delete[] y;
 	delete learner;

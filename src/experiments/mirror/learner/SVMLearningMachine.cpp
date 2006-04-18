@@ -3,7 +3,9 @@
 
 #include "SVMLearningMachine.h"
 
-// ---------------------- SVM learning machine, plain version
+// ------------------------------------------------------------
+// ----------- SVM learning machine, plain version ------------
+// ------------------------------------------------------------
 
 SVMLearningMachine::SVMLearningMachine(
   bool Cla, bool normalise,
@@ -244,7 +246,9 @@ const bool SVMLearningMachine::load( void )
 
 }
 
-// ---------------------- SVM learning machine, uniform version
+// ------------------------------------------------------------
+// ---------- SVM learning machine, uniform version -----------
+// ------------------------------------------------------------
 
 UniformSVMLearningMachine::UniformSVMLearningMachine(
   bool Cla, bool normalise,
@@ -346,6 +350,92 @@ const bool UniformSVMLearningMachine::isExampleWorthAdding( const double x[] )
 		}
 	} }
 	delete[] normal_x;
+
+	return true;
+
+}
+
+// ------------------------------------------------------------
+// ---------- SVM learning machine, feedback version ----------
+// ------------------------------------------------------------
+
+FBSVMLearningMachine::FBSVMLearningMachine(
+  bool Cla, bool normalise,
+  unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
+  string& MachineFileName ) :
+  SVMLearningMachine(Cla,normalise,DomainSize,CodomainSize,NumOfSamples,MachineFileName)
+{
+
+}
+
+FBSVMLearningMachine::FBSVMLearningMachine(
+  bool Cla, bool normalise,
+  unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
+  string& MachineFileName, svm_parameter SvmParameter ) :
+  SVMLearningMachine(Cla,normalise,DomainSize,CodomainSize,NumOfSamples,MachineFileName,SvmParameter)
+{
+
+}
+
+FBSVMLearningMachine::~FBSVMLearningMachine( void )
+{
+
+}
+
+const bool FBSVMLearningMachine::addExample( const double x[], const double y[] )
+{
+
+	// if the buffer is full, stop.
+	if ( _exampleCount == _numOfExamples ) {
+		return false;
+	} else {
+		// otherwise, is this example worth adding to the current pool?
+		if ( isExampleWorthAdding( x, y ) ) {
+			// yes: then add it and then bail out.
+			foreach(_domainSize,i) {
+				_sample[_exampleCount][i].index = i+1;
+				_sample[_exampleCount][i].value = x[i];
+			}
+			_sample[_exampleCount][_domainSize].index = -1;
+			{ foreach(_codomainSize,i) _value[i][_exampleCount] = y[i]; }
+			_exampleCount++;
+			return true;
+		} else {
+			// no. then return false
+			return false;
+		}
+	}
+
+}
+
+double Distance( const double x[], const double y[], const unsigned int dim )
+{
+
+	double distSquared = 0.0;
+
+	for ( int i=0; i<dim; ++i ) {
+		distSquared += (x[i]-y[i])*(x[i]-y[i]);
+	}
+
+	return sqrt(distSquared);
+
+}
+
+const bool FBSVMLearningMachine::isExampleWorthAdding( const double x[], const double y[] )
+{
+
+	double* predicted_y;
+	lMAlloc(predicted_y, _codomainSize);
+
+	predictValue(x, predicted_y);
+
+	if ( Distance(y, predicted_y, _codomainSize) <= 5 ) {
+		delete[] predicted_y;
+		return false;
+	} else {
+		delete[] predicted_y;
+		return true;
+	}
 
 	return true;
 
