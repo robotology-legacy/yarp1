@@ -424,19 +424,14 @@ double Distance( const double x[], const double y[], const unsigned int dim )
 const bool FBSVMLearningMachine::isExampleWorthAdding( const double x[], const double y[] )
 {
 
-	double* predicted_y;
+	double* predicted_y, error;
 	lMAlloc(predicted_y, _codomainSize);
-
 	predictValue(x, predicted_y);
+	error = Distance(y, predicted_y, _codomainSize);
+	delete[] predicted_y;
 
-	if ( Distance(y, predicted_y, _codomainSize) <= 5 ) {
-		delete[] predicted_y;
-		return false;
-	} else {
-		delete[] predicted_y;
-		return true;
-	}
+cout << getExampleCount() << "/" << getNumOfExamples() << " (d: " << error << ")         \r";
 
-	return true;
+	return (error > 5.0);
 
 }

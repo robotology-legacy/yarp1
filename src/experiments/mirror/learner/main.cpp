@@ -334,7 +334,7 @@ int main ( int argc, char** argv )
 				{ foreach(domainSize,i) x[i] = example[i]; }
 				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
 				if ( learner->addExample(x, y) ) {
-					cout << learner->getExampleCount() << "/" << learner->getNumOfExamples() << "     \r";
+//					cout << learner->getExampleCount() << "/" << learner->getNumOfExamples() << "     \r";
 					// every now and then, train and save the model
 					if ( learner->getExampleCount() % 20 == 5 ) {
 						learner->train();
