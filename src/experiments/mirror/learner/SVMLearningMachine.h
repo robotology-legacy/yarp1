@@ -28,8 +28,12 @@ public:
 	void train( void );
 	void predictValue( const double[], double[] );
 
+	void manageEpoch( void );
+
 private:
 	
+	virtual const bool isExampleWorthAdding ( const double[], const double[] );
+
 	// Classification?
 	bool _classification;
 	// one SVM problem for each dimension of the codomain
@@ -38,6 +42,8 @@ private:
 	svm_parameter _param;
 	// one model pointer for each problem (each model is then created by svm_train())
 	svm_model** _model;
+	// epoch management
+	bool _epoch;
 
 };
 
@@ -53,10 +59,9 @@ public:
 	UniformSVMLearningMachine( bool, bool, unsigned int, unsigned int, unsigned int, string&, double[], svm_parameter );
 	~UniformSVMLearningMachine( void );
 
-	const bool addExample( const double[], const double[] );
-	const bool isExampleWorthAdding ( const double[] );
-
 private:
+
+	const bool isExampleWorthAdding ( const double[], const double[] );
 
 	// for each dimension of the codomain, we set a tolerance:
 	// examples within tolerance of any already-stored example will be rejected
@@ -77,10 +82,9 @@ public:
 	FBSVMLearningMachine( bool, bool, unsigned int, unsigned int, unsigned int, string&, svm_parameter );
 	~FBSVMLearningMachine( void );
 
-	const bool addExample( const double[], const double[] );
-	const bool isExampleWorthAdding ( const double[], const double[] );
-
 private:
+
+	const bool isExampleWorthAdding ( const double[], const double[] );
 
 };
 

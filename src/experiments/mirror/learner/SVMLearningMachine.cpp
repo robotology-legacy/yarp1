@@ -11,7 +11,7 @@ SVMLearningMachine::SVMLearningMachine(
   bool Cla, bool normalise,
   unsigned int DomainSize, unsigned int CodomainSize, unsigned int NumOfSamples,
   string& MachineFileName
- ) : LearningMachine(DomainSize,CodomainSize,NumOfSamples,MachineFileName,normalise)
+ ) : LearningMachine(DomainSize,CodomainSize,NumOfSamples,MachineFileName,normalise), _epoch(true)
 {
 
 	_classification=Cla;
@@ -110,20 +110,58 @@ void SVMLearningMachine::changeC( const double C )
 const bool SVMLearningMachine::addExample( const double x[], const double y[] )
 {
 
-	// unless the buffer is full,
+	// if the buffer is full, stop.
 	if ( _exampleCount == _numOfExamples ) {
+		manageEpoch();
 		return false;
 	} else {
-		// add the new example, update counter and bail out.
-		foreach(_domainSize,i) {
-			_sample[_exampleCount][i].index = i+1;
-			_sample[_exampleCount][i].value = x[i];
+		// otherwise, is this example worth adding to the current pool?
+		if ( isExampleWorthAdding(x, y) ) {
+			// yes: then add it and then bail out.
+			foreach(_domainSize,i) {
+				_sample[_exampleCount][i].index = i+1;
+				_sample[_exampleCount][i].value = x[i];
+			}
+			_sample[_exampleCount][_domainSize].index = -1;
+			{ foreach(_codomainSize,i) _value[i][_exampleCount] = y[i]; }
+			_exampleCount++;
+			return true;
+		} else {
+			// no. then return false
+			return false;
 		}
-		_sample[_exampleCount][_domainSize].index = -1;
-		{ foreach(_codomainSize,i) _value[i][_exampleCount] = y[i]; }
-		_exampleCount++;
-		return true;
 	}
+
+}
+
+void SVMLearningMachine::manageEpoch()
+{
+
+	// manage an "epoch", that is, what happens when the examples buffer is full?
+	if ( _epoch == false ) {
+		// absolutely nothing. the machine gets stuck and becomes a pure
+		// predictor, unless the user calls for a reset()
+	} else {
+		// filter out what is not a support vector and start all over again
+
+		{ foreach(_model[0]->l,i) {
+			const svm_node* p = _model[0]->SV[i];
+			while(p->index != -1) {
+				cout << p->index << ":" << p->value << " ";
+				p++;
+			}
+			cout << endl;
+		} }
+		
+		reset();		
+	}
+
+}
+
+const bool SVMLearningMachine::isExampleWorthAdding( const double x[], const double y[] )
+{
+
+	return true;
 
 }
 
@@ -283,33 +321,7 @@ UniformSVMLearningMachine::~UniformSVMLearningMachine( void )
 
 }
 
-const bool UniformSVMLearningMachine::addExample( const double x[], const double y[] )
-{
-
-	// if the buffer is full, stop.
-	if ( _exampleCount == _numOfExamples ) {
-		return false;
-	} else {
-		// otherwise, is this example worth adding to the current pool?
-		if ( isExampleWorthAdding( x ) ) {
-			// yes: then add it and then bail out.
-			foreach(_domainSize,i) {
-				_sample[_exampleCount][i].index = i+1;
-				_sample[_exampleCount][i].value = x[i];
-			}
-			_sample[_exampleCount][_domainSize].index = -1;
-			{ foreach(_codomainSize,i) _value[i][_exampleCount] = y[i]; }
-			_exampleCount++;
-			return true;
-		} else {
-			// no. then return false
-			return false;
-		}
-	}
-
-}
-
-const bool UniformSVMLearningMachine::isExampleWorthAdding( const double x[] )
+const bool UniformSVMLearningMachine::isExampleWorthAdding( const double x[], const double y[] )
 {
 
 	// so: if the example to be added is "close" to any previous one, don't add it
@@ -382,32 +394,6 @@ FBSVMLearningMachine::~FBSVMLearningMachine( void )
 
 }
 
-const bool FBSVMLearningMachine::addExample( const double x[], const double y[] )
-{
-
-	// if the buffer is full, stop.
-	if ( _exampleCount == _numOfExamples ) {
-		return false;
-	} else {
-		// otherwise, is this example worth adding to the current pool?
-		if ( isExampleWorthAdding( x, y ) ) {
-			// yes: then add it and then bail out.
-			foreach(_domainSize,i) {
-				_sample[_exampleCount][i].index = i+1;
-				_sample[_exampleCount][i].value = x[i];
-			}
-			_sample[_exampleCount][_domainSize].index = -1;
-			{ foreach(_codomainSize,i) _value[i][_exampleCount] = y[i]; }
-			_exampleCount++;
-			return true;
-		} else {
-			// no. then return false
-			return false;
-		}
-	}
-
-}
-
 double Distance( const double x[], const double y[], const unsigned int dim )
 {
 
@@ -430,7 +416,7 @@ const bool FBSVMLearningMachine::isExampleWorthAdding( const double x[], const d
 	error = Distance(y, predicted_y, _codomainSize);
 	delete[] predicted_y;
 
-cout << getExampleCount() << "/" << getNumOfExamples() << " (d: " << error << ")         \r";
+//	cout << getExampleCount() << "/" << getNumOfExamples() << " (d: " << error << ")         \r";
 
 	return (error > 5.0);
 

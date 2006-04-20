@@ -16,8 +16,8 @@ using namespace std;
 
 // little macros for easier (?) handling of for over arrays
 
-#define foreach(limit,index) unsigned int index; for ( index=0; index<limit; ++index )
-#define foreach_s(start,limit,index) unsigned int index; for ( index=start; index<limit; ++index )
+#define foreach(limit,index) unsigned int index; for ( index=0; index<(limit); ++index )
+#define foreach_s(start,limit,index) unsigned int index; for ( index=(start); index<(limit); ++index )
 
 // allocating memory
 
@@ -63,8 +63,8 @@ public:
 	const unsigned int getNumOfExamples( void ) const { return _numOfExamples; }
 	// resetting the machine, loading and saving stats and data
 	virtual void reset( void );
-	virtual void saveData( void );
-	virtual const bool loadData( void );
+	void saveData( void );
+	const bool loadData( void );
 	// normalising
 	void evalStats( void );
 	void normaliseMeanStd( double*, const double, const double );
