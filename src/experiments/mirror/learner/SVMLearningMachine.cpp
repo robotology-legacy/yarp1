@@ -112,7 +112,6 @@ const bool SVMLearningMachine::addExample( const double x[], const double y[] )
 
 	// if the buffer is full, stop.
 	if ( _exampleCount == _numOfExamples ) {
-		manageEpoch();
 		return false;
 	} else {
 		// otherwise, is this example worth adding to the current pool?
@@ -130,30 +129,6 @@ const bool SVMLearningMachine::addExample( const double x[], const double y[] )
 			// no. then return false
 			return false;
 		}
-	}
-
-}
-
-void SVMLearningMachine::manageEpoch()
-{
-
-	// manage an "epoch", that is, what happens when the examples buffer is full?
-	if ( _epoch == false ) {
-		// absolutely nothing. the machine gets stuck and becomes a pure
-		// predictor, unless the user calls for a reset()
-	} else {
-		// filter out what is not a support vector and start all over again
-
-		{ foreach(_model[0]->l,i) {
-			const svm_node* p = _model[0]->SV[i];
-			while(p->index != -1) {
-				cout << p->index << ":" << p->value << " ";
-				p++;
-			}
-			cout << endl;
-		} }
-		
-		reset();		
 	}
 
 }

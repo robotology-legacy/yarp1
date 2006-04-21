@@ -28,8 +28,6 @@ public:
 	void train( void );
 	void predictValue( const double[], double[] );
 
-	void manageEpoch( void );
-
 private:
 	
 	virtual const bool isExampleWorthAdding ( const double[], const double[] );
