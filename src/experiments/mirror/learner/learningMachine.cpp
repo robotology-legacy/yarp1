@@ -94,10 +94,10 @@ void LearningMachine::saveData( void )
 
 	// saved data must be NON normalised
 	// un-normalise normal ones
-//	{ foreach(_normalExampleCount,i) {
-//		{ foreach(_domainSize,j) unNormaliseMeanStd( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
-//		{ foreach(_codomainSize,j) unNormaliseMeanStd( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
-//	} }
+	{ foreach(_normalExampleCount,i) {
+		{ foreach(_domainSize,j) unNormaliseMeanStd( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
+		{ foreach(_codomainSize,j) unNormaliseMeanStd( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
+	} }
 	// save them all
 	{ foreach(_exampleCount,i) {
 		{ foreach(_domainSize,j) dataOfstream << _sample[i][j].value << " "; }
@@ -105,10 +105,10 @@ void LearningMachine::saveData( void )
 		dataOfstream << endl;
 	} }
 	// re-normalise those who have been un-normalised
-//	{ foreach(_normalExampleCount,i) {
-//		{ foreach(_domainSize,j) normaliseMeanStd( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
-//		{ foreach(_codomainSize,j) normaliseMeanStd( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
-//	} }
+	{ foreach(_normalExampleCount,i) {
+		{ foreach(_domainSize,j) normaliseMeanStd( &_sample[i][j].value, _domainMean[j], _domainStdv[j] ); }
+		{ foreach(_codomainSize,j) normaliseMeanStd( &_value[j][i], _codomainMean[j], _codomainStdv[j] ); }
+	} }
 
 	cout << "saved data to " << dataFileName << "." << endl;
 
