@@ -4,112 +4,105 @@
 #ifndef __learningMachineh__
 #define __learningMachineh__
 
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <string>
-#include <limits>
-
-using namespace std;
+#include "dataSet.h"
+#include "normaliser.h"
 
 // -------------------------------------------------------
-
-// little macros for easier (?) handling of for over arrays
-
-#define foreach(limit,index) unsigned int index; for ( index=0; index<(limit); ++index )
-#define foreach_s(start,limit,index) unsigned int index; for ( index=(start); index<(limit); ++index )
-
-// allocating memory
-
-template <class T> void lMAlloc ( T*& base, unsigned int num_elem )
-{
-
-	base = new T[num_elem];
-
-	if ( base == 0 ) {
-		cout << "FATAL ERROR (learningMachine): no memory." << endl;
-		exit(-1);
-	}
-
-}
+// definitions
+// -------------------------------------------------------
+// - LEARNING MACHINE: a map R^m -> R^n, with the notable special case of classification,
+//     in which R^n really consists of labels
+// - INPUT SPACE: the space to map from (e.g., R^m)
+// - OUTPUT SPACE: the space to map to (e.g., R^n)
+// - SAMPLE: element of the input space
+// - VALUE: element of the output space
+// - EXAMPLE: a pair <SAMPLE,VALUE>. examples are used for training, whereas a sample
+//     maps to a value through prediction
+// all numeric values are stored as "real".
 
 // -------------------------------------------------------
-// a sample (borrowed from libsvm). The use of an index for each sample value
-// eases handling of sparse matrices.
-
-struct sample {
-	int index;
-	double value;
-};
-
+// plain learning machine
 // -------------------------------------------------------
-// definition: an "example" is a pair (sample,value) where sample is in R^n and value is in R^m.
-// seems excessive to define a new struct/class for an example.
+// only does data bookkeeping. has two data sets (normalised and
+// non normalised) and a template normaliser. can save and load its own status
 
-// -------------------------------------------------------
-// a generic learning machine: essentially, a map (R^m -> R^n).
-// it stores examples and can normalise/un-normalise them.
-
-class LearningMachine {
+template <class NORMALISER> class LearningMachine {
 public:
+	class paramsType {
+	  public:
+		paramsType(unsigned int capacity, unsigned int domainSize, string name)
+            : _capacity(capacity), _domainSize(domainSize), _name(name) {}
+		paramsType() : _capacity(100), _domainSize(1), _name("learner") {}
+		unsigned int _capacity;
+		unsigned int _domainSize;
+		string _name;
+	};
 
-	// initialise with the domain size, the codomain size,
-	// the maximum number of examples it can hold and the file name
-	LearningMachine( unsigned int, unsigned int, unsigned int, string&, bool );
-	~LearningMachine( void );
+	// initialise with a parameter set
+    LearningMachine( paramsType& params ) : _params(params), _count(0),
+      _rawData(_params._capacity,_params._domainSize),
+      _normalData(_params._capacity,_params._domainSize)
+    {
+        _norm = new NORMALISER(_rawData,_normalData);
+    }
+    // otherwise, use standard params constructor
+    LearningMachine( void ) : _count(0),
+      _rawData(_params._capacity,_params._domainSize),
+      _normalData(_params._capacity,_params._domainSize)
+    {
+        _norm = new NORMALISER(_rawData,_normalData);
+    }
+    ~LearningMachine( void ) { delete _norm; }
 
 	// viewing counters
-	const unsigned int getExampleCount( void ) const { return _exampleCount; }
-	const unsigned int getNumOfExamples( void ) const { return _numOfExamples; }
-	// resetting the machine, loading and saving stats and data
-	virtual void reset( void );
-	void saveData( void );
-	const bool loadData( void );
-	// normalising
-	void evalStats( void );
-	void normaliseMeanStd( double*, const double, const double );
-	void unNormaliseMeanStd( double*, const double, const double );
-	void normaliseMaxMin( double*, const double, const double );
-	void unNormaliseMaxMin( double*, const double, const double );
-	void normaliseExamplesMeanStd( void );
-	void normaliseExamplesMeanStdDomain( void );
-	void normaliseExamplesMaxMin( void );
+	unsigned int getDomainSize( void ) const { return _params._domainSize; }
+	unsigned int getCapacity( void ) const { return _params._capacity; }
+	unsigned int getCount( void ) const { return _count; }
+	// resetting the machine
+    virtual void reset( void ) { _count = 0; }
+    // loading and saving status
+    void save( void ) {
+        // save non-normalised data
+	    string dataFileName = _params._name + ".raw.data";
+        _rawData.save(dataFileName);
+	    cout << "saved raw data to " << dataFileName << "." << endl;
+        // save normalised data
+	    dataFileName = _params._name + ".norm.data";
+        _normalData.save(dataFileName);
+	    cout << "saved raw data to " << dataFileName << "." << endl;
+    }
+    bool load( void ) {
+        // load non-normalised data
+        string dataFileName = _params._name + ".raw.data";
+        if ( _rawData.load(dataFileName) ==  false ) {
+            return false;
+        }
+    	// set new number of examples
+	    _count = _rawData.getCount();
+    	// loaded data are non normalised: normalise
+	    _norm->evalStatistics();
+	    _norm->normaliseAll();
+    	cout << "loaded " << _count << " data from " << dataFileName << "." << endl;
+    	return true;
+    }
 
 	// abstract methods. any concrete learning machine must be able at least
 	// to add an example, train its models and predict a new value given a sample
-	virtual const bool addExample( const double[], const double[] ) = 0;
-	virtual void train( void ) = 0;
-	virtual void predictValue( const double[], double[] ) = 0;
+//	virtual bool addExample( const real[], const real[] ) = 0;
+//	virtual void train( void ) = 0;
+//	virtual void predictValue( const real[], real[] ) = 0;
 
-protected:
-
-	// sizes of the domain and codomain
-	unsigned int _domainSize;
-	unsigned int _codomainSize;
-	// maximum number of samples
-	unsigned int _numOfExamples;
-	// currently stored normalised samples
-	unsigned int _normalExampleCount;
-	// currently stored samples
-	unsigned int _exampleCount;
-
-	// the examples
-	sample** _sample;
-	double** _value;
-	// the sample whose value to predict
-	sample* _newSample;
-
-	// the means, stdvs, maxs and mins
-	double* _domainMean, * _codomainMean;
-	double* _domainStdv, * _codomainStdv;
-	double* _domainMax,  * _codomainMax;
-	double* _domainMin,  * _codomainMin;
-
-	// file name for saving and loading the machine state
-	string _machineFileName;
-
-	// do we actually want to have normalisation?
-	bool _normalise;
+//protected:
+    // must be protected rather than private, since children
+    // classes must be able to access them.
+	paramsType _params;
+    // how many samples considered so far?
+    unsigned int _count;
+    // raw and normalised data
+	dataSet _rawData;
+    dataSet _normalData;
+    // the normaliser
+	Normaliser* _norm;
 
 };
 

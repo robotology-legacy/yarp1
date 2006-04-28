@@ -94,11 +94,7 @@ PostBuild_Cmds=copy .\Release\*.exe ..\..\..\..\bin\winnt
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\learningMachine.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\libsvm.cpp
+SOURCE=.\dataSet.cpp
 # End Source File
 # Begin Source File
 
@@ -106,7 +102,7 @@ SOURCE=.\main.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SVMLearningMachine.cpp
+SOURCE=.\normaliser.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -114,19 +110,19 @@ SOURCE=.\SVMLearningMachine.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\basics.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dataSet.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\learningMachine.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\libsvm.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\lMCommands.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SVMLearningMachine.h
+SOURCE=.\normaliser.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
