@@ -55,8 +55,6 @@ void dataSet::save(string& name)
     	dataOfstream << endl;
     } }
 
-	cout << "saved data to " << name << "." << endl;
-
 }
 
 bool dataSet::load(string& name)
@@ -89,8 +87,6 @@ bool dataSet::load(string& name)
     { foreach(_count,i) { 
         foreach(_size,j) dataIfstream >> (*this)(i,j);
     } }
-	
-	cout << "loaded " << _count << " data from " << name << "." << endl;
 	
 	return true;
 

@@ -28,7 +28,9 @@
 
 template <class NORMALISER> class LearningMachine {
 public:
-	class paramsType {
+
+    // parameters of a learning machine
+    class paramsType {
 	  public:
 		paramsType(unsigned int capacity, unsigned int domainSize, string name)
             : _capacity(capacity), _domainSize(domainSize), _name(name) {}
@@ -38,21 +40,10 @@ public:
 		string _name;
 	};
 
-	// initialise with a parameter set
-    LearningMachine( paramsType& params ) : _params(params), _count(0),
-      _rawData(_params._capacity,_params._domainSize),
-      _normalData(_params._capacity,_params._domainSize)
-    {
-        _norm = new NORMALISER(_rawData,_normalData);
-    }
-    // otherwise, use standard params constructor
-    LearningMachine( void ) : _count(0),
-      _rawData(_params._capacity,_params._domainSize),
-      _normalData(_params._capacity,_params._domainSize)
-    {
-        _norm = new NORMALISER(_rawData,_normalData);
-    }
-    ~LearningMachine( void ) { delete _norm; }
+	// initialise with parameters or use default
+    LearningMachine( paramsType& params );
+    LearningMachine( void );
+    ~LearningMachine( void );
 
 	// viewing counters
 	unsigned int getDomainSize( void ) const { return _params._domainSize; }
@@ -61,30 +52,8 @@ public:
 	// resetting the machine
     virtual void reset( void ) { _count = 0; }
     // loading and saving status
-    void save( void ) {
-        // save non-normalised data
-	    string dataFileName = _params._name + ".raw.data";
-        _rawData.save(dataFileName);
-	    cout << "saved raw data to " << dataFileName << "." << endl;
-        // save normalised data
-	    dataFileName = _params._name + ".norm.data";
-        _normalData.save(dataFileName);
-	    cout << "saved raw data to " << dataFileName << "." << endl;
-    }
-    bool load( void ) {
-        // load non-normalised data
-        string dataFileName = _params._name + ".raw.data";
-        if ( _rawData.load(dataFileName) ==  false ) {
-            return false;
-        }
-    	// set new number of examples
-	    _count = _rawData.getCount();
-    	// loaded data are non normalised: normalise
-	    _norm->evalStatistics();
-	    _norm->normaliseAll();
-    	cout << "loaded " << _count << " data from " << dataFileName << "." << endl;
-    	return true;
-    }
+    void save( void );
+    bool load( void );
 
 	// abstract methods. any concrete learning machine must be able at least
 	// to add an example, train its models and predict a new value given a sample
@@ -105,5 +74,7 @@ public:
 	Normaliser* _norm;
 
 };
+
+#include "learningMachine.cpp"
 
 #endif

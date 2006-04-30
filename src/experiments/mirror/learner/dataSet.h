@@ -13,6 +13,7 @@
 
 class dataSet {
 public:
+
     // initialise with max.capacity and size of the data elements
     dataSet(unsigned int, unsigned int);
     ~dataSet();

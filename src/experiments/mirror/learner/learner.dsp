@@ -98,6 +98,11 @@ SOURCE=.\dataSet.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\learningMachine.cpp
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
 SOURCE=.\main.cpp
 # End Source File
 # Begin Source File
