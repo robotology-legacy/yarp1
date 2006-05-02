@@ -50,21 +50,21 @@ public:
 	unsigned int getCapacity( void ) const { return _params._capacity; }
 	unsigned int getCount( void ) const { return _count; }
 	// resetting the machine
-    virtual void reset( void ) { _count = 0; }
+    void reset( void ) { _count = 0; }
     // loading and saving status
     void save( void );
     bool load( void );
 
 	// abstract methods. any concrete learning machine must be able at least
 	// to add an example, train its models and predict a new value given a sample
-//	virtual bool addExample( const real[], const real[] ) = 0;
-//	virtual void train( void ) = 0;
-//	virtual void predictValue( const real[], real[] ) = 0;
+	virtual bool addExample( const real[], const real ) = 0;
+	virtual void train( void ) = 0;
+	virtual real predict( const real[] ) = 0;
 
-//protected:
-    // must be protected rather than private, since children
-    // classes must be able to access them.
-	paramsType _params;
+protected:
+
+    // the parameters
+    paramsType _params;
     // how many samples considered so far?
     unsigned int _count;
     // raw and normalised data

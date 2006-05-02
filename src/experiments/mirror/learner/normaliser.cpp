@@ -15,14 +15,14 @@ nullNormaliser::~nullNormaliser()
 {
 }
 
-real nullNormaliser::normalise( real value, const real mean, const real stdv )
+real nullNormaliser::normalise( real value, unsigned int index )
 {
 
     return value;
 
 }
 
-real nullNormaliser::unNormalise( real value, const real mean, const real stdv )
+real nullNormaliser::unNormalise( real value, unsigned int index )
 {
 
     return value;
@@ -41,7 +41,7 @@ void nullNormaliser::normaliseAll( void )
 
     { foreach(_source.getCount(),i) {
         { foreach(_source.getSize(),j) {
-            tmpVector[j] = normalise( _source(i,j), 0, 0 );
+            tmpVector[j] = normalise( _source(i,j), 0 );
         } }
         _dest.add(tmpVector);
     } }
@@ -55,7 +55,7 @@ void nullNormaliser::unNormaliseAll( void )
 
     { foreach(_source.getCount(),i) {
         { foreach(_source.getSize(),j) { 
-            _dest(i,j) = unNormalise( _source(i,j), 0, 0 );
+            _dest(i,j) = unNormalise( _source(i,j), 0 );
         } }
     } }
 
@@ -85,27 +85,27 @@ msNormaliser::~msNormaliser()
 
 }
 
-real msNormaliser::normalise( real value, const real mean, const real stdv )
+real msNormaliser::normalise( real value, unsigned int index )
 {
 
     // for each dimension, subtract mean and divide by standard deviation
-    value -= mean;
-	if ( stdv != 0 ) {
-		value /= stdv;
+    value -= _mean[index];
+	if ( _stdv[index] != 0 ) {
+		value /= _stdv[index];
 	}
 
     return value;
 
 }
 
-real msNormaliser::unNormalise( real value, const real mean, const real stdv )
+real msNormaliser::unNormalise( real value, unsigned int index )
 {
 
     // for each dimension, multiply by standard deviation and add mean
-    if ( stdv != 0 ) {
-		value *= stdv;
+    if ( _stdv[index] != 0 ) {
+		value *= _stdv[index];
 	}
-	value += mean;
+	value += _mean[index];
 
     return value;
 
@@ -123,7 +123,7 @@ void msNormaliser::normaliseAll( void )
 
     { foreach(_source.getCount(),i) {
         { foreach(_source.getSize(),j) {
-            tmpVector[j] = normalise( _source(i,j), _mean[j], _stdv[j] );
+            tmpVector[j] = normalise( _source(i,j), j );
         } }
         _dest.add(tmpVector);
     } }
@@ -137,7 +137,7 @@ void msNormaliser::unNormaliseAll( void )
 
     { foreach(_source.getCount(),i) {
         { foreach(_source.getSize(),j) { 
-            _dest(i,j) = unNormalise( _source(i,j), _mean[j], _stdv[j] );
+            _dest(i,j) = unNormalise( _source(i,j), j );
         } }
     } }
 
@@ -188,28 +188,28 @@ mmNormaliser::~mmNormaliser()
 
 }
 
-real mmNormaliser::normalise( real value, const real max, const real min )
+real mmNormaliser::normalise( real value, unsigned int index )
 {
 
 	// subtract min and divide by the range unless it is zero
-	value -= min;
-	if ( max != min ) {
-		value /= (max-min)*2 - 1;
+	value -= _min[index];
+	if ( _max[index] != _min[index] ) {
+		value /= (_max[index]-_min[index])*2 - 1;
 	}
 
     return value;
 
 }
 
-real mmNormaliser::unNormalise( real value, const real max, const real min )
+real mmNormaliser::unNormalise( real value, unsigned int index )
 {
 
 	// multiply by range unless it is zero and add min
     value = (value+1)/2;
-	if ( max != min ) {
-		value *= (max-min);
+	if ( _max[index] != _min[index] ) {
+		value *= (_max[index]-_min[index]);
 	}
-	value += min;
+	value += _min[index];
 
     return value;
 
@@ -227,7 +227,7 @@ void mmNormaliser::normaliseAll( void )
 
     { foreach(_source.getCount(),i) {
         { foreach(_source.getSize(),j) {
-            tmpVector[j] = normalise( _source(i,j), _max[j], _min[j] );
+            tmpVector[j] = normalise( _source(i,j), j );
         } }
         _dest.add(tmpVector);
     } }
@@ -241,7 +241,7 @@ void mmNormaliser::unNormaliseAll( void )
 
     { foreach(_source.getCount(),i) {
         { foreach(_source.getSize(),j) {
-            _dest(i,j) = unNormalise( _source(i,j), _max[j], _min[j] );
+            _dest(i,j) = unNormalise( _source(i,j), j );
         } }
     } }
 

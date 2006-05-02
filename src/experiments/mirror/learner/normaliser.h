@@ -16,8 +16,8 @@ class Normaliser {
 public:
 	Normaliser(dataSet& source, dataSet& dest) : _source(source), _dest(dest) {}
     // (un)normalise a single value
-    virtual real normalise( real, const real, const real ) = 0;
-	virtual real unNormalise( real, const real, const real ) = 0;
+    virtual real normalise( real, unsigned int ) = 0;
+	virtual real unNormalise( real, unsigned int ) = 0;
     // (un)normalise all
     virtual void normaliseAll( void ) = 0;
     virtual void unNormaliseAll( void ) = 0;
@@ -32,8 +32,8 @@ class nullNormaliser : public Normaliser {
 public:
 	nullNormaliser(dataSet&, dataSet&);
     ~nullNormaliser();
-	real normalise( real, const real, const real );
-	real unNormalise( real, const real, const real );
+	real normalise( real, unsigned int );
+	real unNormalise( real, unsigned int );
     void normaliseAll( void );
     void unNormaliseAll( void );
     void evalStatistics( void );
@@ -44,8 +44,8 @@ class msNormaliser : public Normaliser {
 public:
 	msNormaliser(dataSet&, dataSet&);
     ~msNormaliser();
-	real normalise( real, const real, const real );
-	real unNormalise( real, const real, const real );
+	real normalise( real, unsigned int );
+	real unNormalise( real, unsigned int );
     void normaliseAll( void );
     void unNormaliseAll( void );
     void evalStatistics( void );
@@ -58,8 +58,8 @@ class mmNormaliser : public Normaliser {
 public:
 	mmNormaliser(dataSet&, dataSet&);
     ~mmNormaliser();
-	real normalise( real, const real, const real );
-	real unNormalise( real, const real, const real );
+	real normalise( real, unsigned int );
+	real unNormalise( real, unsigned int );
     void normaliseAll( void );
     void unNormaliseAll( void );
     void evalStatistics( void );

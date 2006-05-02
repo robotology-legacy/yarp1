@@ -103,6 +103,15 @@ SOURCE=.\learningMachine.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\libsvm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\libsvmLearningMachine.cpp
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
 SOURCE=.\main.cpp
 # End Source File
 # Begin Source File
@@ -124,6 +133,14 @@ SOURCE=.\dataSet.h
 # Begin Source File
 
 SOURCE=.\learningMachine.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\libsvm.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\libsvmLearningMachine.h
 # End Source File
 # Begin Source File
 
