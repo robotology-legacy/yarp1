@@ -24,10 +24,20 @@ public:
     {
         // allocate machines (with correct constructor)
         lmAlloc(_machine, _codomainSize);
-        { foreach(codomainSize,i) { _machine[i] = new LM(_params); } }
+        { foreach(_codomainSize,i) {
+			LM::paramsType tmpParams(params);
+			char tmp[32];
+			itoa(i, tmp, 10);
+			tmpParams._name = _params._name + "." + tmp;
+			_machine[i] = new LM(tmpParams);
+		} }
         // allocate space for the predicted vector
         lmAlloc(_predicted, _codomainSize);
     }
+	~learner() {
+		delete[] _predicted;
+		delete[] _machine;
+	}
 
 	// viewing counters
 	unsigned int getDomainSize( void ) const { return _params._domainSize; }
@@ -35,32 +45,31 @@ public:
 	unsigned int getCount( void ) const { return _machine[0]->getCount(); }
 	// resetting the machine
     void reset( void ) {
-        { foreach(codomainSize,i) { _machine[i]->reset(); } }
+        { foreach(_codomainSize,i) { _machine[i]->reset(); } }
     }
     // loading and saving status
     void save( void ) {
-        { foreach(codomainSize,i) { _machine[i]->save(); } }
+        { foreach(_codomainSize,i) { _machine[i]->save(); } }
     }
     bool load( void ) {
-        bool res = false;
-        { foreach(codomainSize,i) { 
+        bool res = true;
+        { foreach(_codomainSize,i) { 
             res &= _machine[i]->load();
         } }
         return res;
     }
-
     bool addExample( const real x[], const real y[] ) {
-        bool res = false;
-        { foreach(codomainSize,i) { 
+        bool res = true;
+        { foreach(_codomainSize,i) { 
             res &= _machine[i]->addExample(x,y[i]);
         } }
         return res;
     }
     void train( void ) {
-        { foreach(codomainSize,i) { _machine[i]->train(); } }
+        { foreach(_codomainSize,i) { _machine[i]->train(); } }
     }
     void predict( const real x[] ) {
-        { foreach(codomainSize,i) { _predicted[i] = _machine[i]->predict(x); } }
+        { foreach(_codomainSize,i) { _predicted[i] = _machine[i]->predict(x); } }
     }
 
     real* _predicted;

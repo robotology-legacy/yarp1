@@ -144,6 +144,10 @@ SOURCE=.\libsvmLearningMachine.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\lMCommands.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\normaliser.h
 # End Source File
 # End Group

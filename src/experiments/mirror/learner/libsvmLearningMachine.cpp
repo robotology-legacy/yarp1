@@ -9,7 +9,7 @@
 
 template <class NORMALISER> 
 libsvmLearningMachine<NORMALISER>::libsvmLearningMachine( paramsType& params )
-    : _params(params), _model(0)
+    : LearningMachine<NORMALISER>(params), _params(params), _model(0)
 {
 
     // allocate the problem's x's
@@ -138,7 +138,7 @@ void libsvmLearningMachine<NORMALISER>::train()
 
     // now copy the normalised data set and values into the problem's data structures
     // allocate the problem's x's
-   	{ foreach(_params._capacity,i) {
+   	{ foreach(_count,i) {
 		_problem.y[i] = _normalData(i,0);
         { foreach(_params._domainSize,j) {
 			_problem.x[i][j].value = _normalData(i,j+1);
@@ -169,19 +169,16 @@ real libsvmLearningMachine<NORMALISER>::predict( const real x[] )
     svm_node* tmpSample;
     lmAlloc(tmpSample, _params._domainSize+1);
     { foreach(_params._domainSize,i) {
-    	_norm->normalise( x[i], i );
 		tmpSample[i].index = i+1;
-		tmpSample[i].value = x[i];
+		tmpSample[i].value = _norm->normalise(x[i], i+1);
 		}
 	}
 	tmpSample[_params._domainSize].index = -1;
 
 	// and then predict (un-normalise before bailing out)
 	real y = svm_predict(_model, tmpSample);
-	y = _norm->unNormalise( y, 0 );
     delete[] tmpSample;
-
-    return y;
+    return _norm->unNormalise( y, 0 );
 
 }
 

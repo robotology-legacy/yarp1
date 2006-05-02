@@ -35,6 +35,9 @@ void nullNormaliser::normaliseAll( void )
     // first reset the destination data set
     _dest.reset();
 
+    // then evaluate statistics
+	evalStatistics();
+
     // then add normalised vectors
     real* tmpVector;
     lmAlloc(tmpVector, _source.getSize());
@@ -116,6 +119,9 @@ void msNormaliser::normaliseAll( void )
 
     // first reset the destination data set
     _dest.reset();
+
+    // then evaluate statistics
+	evalStatistics();
 
     // then add normalised vectors
     real* tmpVector;
@@ -220,6 +226,9 @@ void mmNormaliser::normaliseAll( void )
 
     // first reset the destination data set
     _dest.reset();
+
+    // then evaluate statistics
+	evalStatistics();
 
     // then add normalised vectors
     real* tmpVector;

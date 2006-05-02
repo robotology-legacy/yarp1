@@ -10,8 +10,8 @@
 template <class NORMALISER> 
 LearningMachine<NORMALISER>::LearningMachine( paramsType& params )
  : _params(params), _count(0),
-   _rawData(_params._capacity,_params._domainSize),
-   _normalData(_params._capacity,_params._domainSize)
+   _rawData(_params._capacity,_params._domainSize+1),
+   _normalData(_params._capacity,_params._domainSize+1)
 {
 
     _norm = new NORMALISER(_rawData,_normalData);
@@ -21,8 +21,8 @@ LearningMachine<NORMALISER>::LearningMachine( paramsType& params )
 template <class NORMALISER> 
 LearningMachine<NORMALISER>::LearningMachine( void )
  : _count(0),
-   _rawData(_params._capacity,_params._domainSize),
-   _normalData(_params._capacity,_params._domainSize)
+   _rawData(_params._capacity,_params._domainSize+1),
+   _normalData(_params._capacity,_params._domainSize+1)
 {
 
     _norm = new NORMALISER(_rawData,_normalData);

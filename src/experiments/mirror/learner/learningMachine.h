@@ -10,10 +10,10 @@
 // -------------------------------------------------------
 // definitions
 // -------------------------------------------------------
-// - LEARNING MACHINE: a map R^m -> R^n, with the notable special case of classification,
+// - LEARNING MACHINE: a map R^m -> R, with the notable special case of classification,
 //     in which R^n really consists of labels
 // - INPUT SPACE: the space to map from (e.g., R^m)
-// - OUTPUT SPACE: the space to map to (e.g., R^n)
+// - OUTPUT SPACE: the space to map to (R)
 // - SAMPLE: element of the input space
 // - VALUE: element of the output space
 // - EXAMPLE: a pair <SAMPLE,VALUE>. examples are used for training, whereas a sample
@@ -24,7 +24,9 @@
 // plain learning machine
 // -------------------------------------------------------
 // only does data bookkeeping. has two data sets (normalised and
-// non normalised) and a template normaliser. can save and load its own status
+// non normalised) and a template normaliser. can save and load its own status.
+// notice that data set are created of domainSize+1 size, since the first
+// column (0) is the OUTPUT SPACE.
 
 template <class NORMALISER> class LearningMachine {
 public:
