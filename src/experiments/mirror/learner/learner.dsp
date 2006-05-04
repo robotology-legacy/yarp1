@@ -99,7 +99,6 @@ SOURCE=.\dataSet.cpp
 # Begin Source File
 
 SOURCE=.\learningMachine.cpp
-# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
@@ -108,7 +107,6 @@ SOURCE=.\libsvm.cpp
 # Begin Source File
 
 SOURCE=.\libsvmLearningMachine.cpp
-# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 

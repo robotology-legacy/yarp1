@@ -1,15 +1,14 @@
 // libsvmLearningMachine.cpp : behaviour of libsvm-based SVM learning machines
 //
 
-// #include "libsvmLearningMachine.h"
+#include "libsvmLearningMachine.h"
 
 // -------------------------------------------------------
 // libsvm learning machine
 // -------------------------------------------------------
 
-template <class NORMALISER> 
-libsvmLearningMachine<NORMALISER>::libsvmLearningMachine( paramsType& params )
-    : LearningMachine<NORMALISER>(params), _params(params), _model(0)
+libsvmLearningMachine::libsvmLearningMachine( Normaliser* norm, params& params )
+    : LearningMachine(norm, params), _params(params), _model(0)
 {
 
     // allocate the problem's x's
@@ -27,8 +26,7 @@ libsvmLearningMachine<NORMALISER>::libsvmLearningMachine( paramsType& params )
 
 }
     
-template <class NORMALISER> 
-libsvmLearningMachine<NORMALISER>::~libsvmLearningMachine()
+libsvmLearningMachine::~libsvmLearningMachine()
 {
 
     // destroy problem's y's
@@ -43,20 +41,18 @@ libsvmLearningMachine<NORMALISER>::~libsvmLearningMachine()
 
 }
 
-template <class NORMALISER> 
-void libsvmLearningMachine<NORMALISER>::reset()
+void libsvmLearningMachine::reset()
 {
 
 	// destroy models and reset them to 0
 	if ( _model != 0 ) svm_destroy_model( _model );
 	_model = 0;
 
-	LearningMachine<NORMALISER>::reset();
+	LearningMachine::reset();
 
 }
 
-template <class NORMALISER> 
-void libsvmLearningMachine<NORMALISER>::save()
+void libsvmLearningMachine::save()
 {
 
 	// save model
@@ -68,12 +64,12 @@ void libsvmLearningMachine<NORMALISER>::save()
 	cout << "saved model to " << modelFileName << "." << endl;
 
 	// save data
-	LearningMachine<NORMALISER>::save();
+	LearningMachine::save();
 
 }
 
-template <class NORMALISER>
-bool libsvmLearningMachine<NORMALISER>::load()
+
+bool libsvmLearningMachine::load()
 {
 
 	// load a previously saved model
@@ -87,7 +83,7 @@ bool libsvmLearningMachine<NORMALISER>::load()
 	cout << "loaded model from " << modelFileName << "." << endl;
 
 	// try and load data
-	if ( LearningMachine<NORMALISER>::load() == false ) {
+	if ( LearningMachine::load() == false ) {
 		reset();
 		return false;
 	}
@@ -96,8 +92,14 @@ bool libsvmLearningMachine<NORMALISER>::load()
 
 }
 
-template <class NORMALISER>
-bool libsvmLearningMachine<NORMALISER>::addExample( const real x[], const real y )
+void libsvmLearningMachine::setC( const double C )
+{
+
+	_params._svmparams.C = C;
+
+}
+
+bool libsvmLearningMachine::addExample( const real x[], const real y )
 {
 
 	// if the buffer is full, stop
@@ -123,8 +125,8 @@ bool libsvmLearningMachine<NORMALISER>::addExample( const real x[], const real y
 
 }
 
-template <class NORMALISER>
-void libsvmLearningMachine<NORMALISER>::train()
+
+void libsvmLearningMachine::train()
 {
 
 	// destroy old model
@@ -156,8 +158,8 @@ void libsvmLearningMachine<NORMALISER>::train()
 
 }
 
-template <class NORMALISER>
-real libsvmLearningMachine<NORMALISER>::predict( const real x[] )
+
+real libsvmLearningMachine::predict( const real x[] )
 {
 
 	// if model is void, do not even try to predict, but return zeroes
@@ -182,41 +184,68 @@ real libsvmLearningMachine<NORMALISER>::predict( const real x[] )
 
 }
 
-template <class NORMALISER>
-bool libsvmLearningMachine<NORMALISER>::isExampleWorthAdding ( const real x[], const real y )
+
+bool libsvmLearningMachine::isExampleWorthAdding ( const real x[], const real y )
 {
 
     return true;
 
 }
 
-/*void SVMLearningMachine::train()
+// -------------------------------------------------------
+// libsvm uniform learning machine
+// -------------------------------------------------------
+
+libsvmUniLearningMachine::libsvmUniLearningMachine( Normaliser* norm, params& params, real* tol) 
+  : libsvmLearningMachine(norm, params)
 {
 
-	// destroy old models
-	{ foreach(_codomainSize,i) if ( _model[i] != 0 ) svm_destroy_model( _model[i] ); }
+	lmAlloc(_tolerance, _params._domainSize);
+	{ foreach(_params._domainSize,i) { _tolerance[i] = tol[i]; } }
 
-	// normalise the whole pool of examples
-	if (_classification) {
-		normaliseExamplesMeanStdDomain();
-	} else {
-		normaliseExamplesMeanStd();
-	}
+}
 
-	{ foreach(_codomainSize,i) _problem[i].l = _exampleCount; }
+libsvmUniLearningMachine::~libsvmUniLearningMachine( void )
+{
 
-	{ foreach(_codomainSize,i) {
-		// check them.
-		const char* error_msg;
-		error_msg = svm_check_parameter( &_problem[i], &_param );
-		if ( error_msg != 0 ) {
-			cout << "FATAL ERROR: libsvm parameters are incorrect." << endl;
-			exit(-1);
+	delete[] _tolerance;
+
+}
+
+bool libsvmUniLearningMachine::isExampleWorthAdding ( const real x[], const real y )
+{
+
+	bool closeToMe;
+
+	// so: if the example to be added is "close" to any previous one, don't add it
+	{ foreach(_count,i) {
+		closeToMe = true;
+		foreach(_params._domainSize,j) {
+			if ( abs(x[j]-_rawData(i,j+1)) > _tolerance[j] ) {
+				closeToMe = false;
+				break;
+			}
+		}
+		if ( closeToMe ) {
+			return false;
 		}
 	} }
 
-	// train new models
-	{ foreach(_codomainSize,i) _model[i] = svm_train( &_problem[i], &_param ); }
+	return true;
 
 }
-*/
+
+// -------------------------------------------------------
+// libsvm feedback learning machine
+// -------------------------------------------------------
+
+bool libsvmFBLearningMachine::isExampleWorthAdding ( const real x[], const real y )
+{
+
+	if ( fabs(predict(x)-y) > _threshold ) {
+		return true;
+	} else {
+		return false;
+	}
+
+}

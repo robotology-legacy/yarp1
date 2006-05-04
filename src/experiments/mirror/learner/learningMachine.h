@@ -24,28 +24,40 @@
 // plain learning machine
 // -------------------------------------------------------
 // only does data bookkeeping. has two data sets (normalised and
-// non normalised) and a template normaliser. can save and load its own status.
+// non normalised) and a template pointer. can save and load its own status.
 // notice that data set are created of domainSize+1 size, since the first
 // column (0) is the OUTPUT SPACE.
 
-template <class NORMALISER> class LearningMachine {
+class LearningMachine {
 public:
 
     // parameters of a learning machine
-    class paramsType {
+    class params {
 	  public:
-		paramsType(unsigned int capacity, unsigned int domainSize, string name)
+		params(unsigned int capacity, unsigned int domainSize, string name)
             : _capacity(capacity), _domainSize(domainSize), _name(name) {}
-		paramsType() : _capacity(100), _domainSize(1), _name("learner") {}
+		params() : _capacity(100), _domainSize(1), _name("learner") {}
 		unsigned int _capacity;
 		unsigned int _domainSize;
 		string _name;
 	};
 
 	// initialise with parameters or use default
-    LearningMachine( paramsType& params );
-    LearningMachine( void );
-    ~LearningMachine( void );
+    LearningMachine( Normaliser* norm, params& params )
+	 : _params(params), _count(0), _rawData(_params._capacity,_params._domainSize+1),
+       _normalData(_params._capacity,_params._domainSize+1),
+	   _norm(norm)
+	{
+		_norm->setDataSets(&_rawData,&_normalData);
+	}
+    LearningMachine( Normaliser* norm )
+	 : _count(0), _rawData(_params._capacity,_params._domainSize+1),
+       _normalData(_params._capacity,_params._domainSize+1),
+	   _norm(norm)
+	{
+		_norm->setDataSets(&_rawData,&_normalData);
+	}
+    ~LearningMachine( void ) {}
 
 	// viewing counters
 	unsigned int getDomainSize( void ) const { return _params._domainSize; }
@@ -66,7 +78,7 @@ public:
 protected:
 
     // the parameters
-    paramsType _params;
+    params _params;
     // how many samples considered so far?
     unsigned int _count;
     // raw and normalised data
@@ -76,7 +88,5 @@ protected:
 	Normaliser* _norm;
 
 };
-
-#include "learningMachine.cpp"
 
 #endif

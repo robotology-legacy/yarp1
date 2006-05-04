@@ -14,7 +14,8 @@
 
 class Normaliser {
 public:
-	Normaliser(dataSet& source, dataSet& dest) : _source(source), _dest(dest) {}
+    // set up the data sets
+	void setDataSets(dataSet* source, dataSet* dest) { _source = source, _dest = dest; }
     // (un)normalise a single value
     virtual real normalise( real, unsigned int ) = 0;
 	virtual real unNormalise( real, unsigned int ) = 0;
@@ -23,26 +24,38 @@ public:
     virtual void unNormaliseAll( void ) = 0;
     virtual void evalStatistics( void ) = 0;
 protected:
-	dataSet& _source;
-    dataSet& _dest;
+	dataSet* _source;
+    dataSet* _dest;
 };
 
 // null normaliser (does nothing)
 class nullNormaliser : public Normaliser {
 public:
-	nullNormaliser(dataSet&, dataSet&);
-    ~nullNormaliser();
 	real normalise( real, unsigned int );
 	real unNormalise( real, unsigned int );
     void normaliseAll( void );
     void unNormaliseAll( void );
-    void evalStatistics( void );
+    void evalStatistics( void ) {}
 };
 
-// mean/standard deviation normaliser
+// fixed statistics normaliser (pass them to the constructor)
+class fixNormaliser : public Normaliser {
+public:
+	fixNormaliser(real mean, real stdv)	: _mean(mean), _stdv(stdv) {}
+    ~fixNormaliser() {}
+	real normalise( real, unsigned int );
+	real unNormalise( real, unsigned int );
+    void normaliseAll( void );
+    void unNormaliseAll( void );
+    void evalStatistics( void ) {}
+private:
+	real _mean, _stdv;
+};
+
+// mean/standard deviation normaliser (evaluates them on-the-fly)
 class msNormaliser : public Normaliser {
 public:
-	msNormaliser(dataSet&, dataSet&);
+	msNormaliser(unsigned int);
     ~msNormaliser();
 	real normalise( real, unsigned int );
 	real unNormalise( real, unsigned int );
@@ -56,7 +69,7 @@ private:
 // max/min normaliser
 class mmNormaliser : public Normaliser {
 public:
-	mmNormaliser(dataSet&, dataSet&);
+	mmNormaliser(unsigned int);
     ~mmNormaliser();
 	real normalise( real, unsigned int );
 	real unNormalise( real, unsigned int );

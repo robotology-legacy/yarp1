@@ -11,18 +11,17 @@
 // libsvm learning machine
 // -------------------------------------------------------
 
-template <class NORMALISER>
-class libsvmLearningMachine : public LearningMachine<NORMALISER> {
+class libsvmLearningMachine : public LearningMachine {
 public:
 
-    class paramsType : public LearningMachine<NORMALISER>::paramsType {
+    class params : public LearningMachine::params {
     public:
-        paramsType() {
+        params() {
 	        // default libsvm parameters
     	    _svmparams.svm_type = EPSILON_SVR;
         	_svmparams.kernel_type = RBF;
 	        _svmparams.degree = 3;
-	        _svmparams.gamma = 1/(double)_domainSize;
+	        _svmparams.gamma = 1/(real)_domainSize;
 	        _svmparams.coef0 = 0;
 	        _svmparams.nu = 0.5;
 	        _svmparams.cache_size = 10;
@@ -39,15 +38,13 @@ public:
         svm_parameter _svmparams;
     };
 
-//  libsvmLearningMachine( void ) {}
-//	libsvmLearningMachine( unsigned int capacity, unsigned int domainSize, string name )
-//        : LearningMachine<class NORMALISER>(capacity, domainSize, name) {}
-	libsvmLearningMachine( paramsType& );
+	libsvmLearningMachine( Normaliser*, params& );
 	~libsvmLearningMachine( void );
 
 	void reset( void );
 	void save( void );
 	bool load( void );
+	void setC( const double );
 
 	bool addExample( const real[], const real );
 	void train( void );
@@ -55,10 +52,13 @@ public:
 
 	virtual bool isExampleWorthAdding ( const real[], const real );
 
-private:
+protected:
 
     // libsvm parameters
-	paramsType _params;
+	params _params;
+
+private:
+
 	// libsvm "problem"
 	svm_problem _problem;
 	// libsvm model pointer
@@ -66,6 +66,47 @@ private:
 
 };
 
-#include "libsvmLearningMachine.cpp"
+// -------------------------------------------------------
+// libsvm uniform learning machine
+// -------------------------------------------------------
+// this one samples according to set of a tolerance values -
+// avoids taking samples which are too close to one another
+
+class libsvmUniLearningMachine : public libsvmLearningMachine {
+public:
+
+	libsvmUniLearningMachine( Normaliser*, params&, real* );
+	~libsvmUniLearningMachine( void );
+
+	bool isExampleWorthAdding ( const real[], const real );
+
+private:
+
+	// array of tolerances
+	real* _tolerance;
+
+};
+
+// -------------------------------------------------------
+// libsvm feedback learning machine
+// -------------------------------------------------------
+// variant: this one compares the predicted value of a sample with the
+// value of the example, and only accepts the new sample if the error is "big"
+
+class libsvmFBLearningMachine : public libsvmLearningMachine {
+public:
+
+	libsvmFBLearningMachine( Normaliser* norm, params& params, real thr ) 
+		: libsvmLearningMachine(norm, params), _threshold(thr) {}
+	~libsvmFBLearningMachine( void ) {}
+
+	bool isExampleWorthAdding ( const real[], const real );
+
+private:
+
+	// error threshold: error less than -> don't sample
+	real _threshold;
+
+};
 
 #endif

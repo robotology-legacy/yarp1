@@ -1,44 +1,13 @@
 // learningMachine.cpp : behaviour of learning machines
 //
 
-// #include "learningMachine.h"
+#include "learningMachine.h"
 
 // -------------------------------------------------------
 // plain learning machine
 // -------------------------------------------------------
 
-template <class NORMALISER> 
-LearningMachine<NORMALISER>::LearningMachine( paramsType& params )
- : _params(params), _count(0),
-   _rawData(_params._capacity,_params._domainSize+1),
-   _normalData(_params._capacity,_params._domainSize+1)
-{
-
-    _norm = new NORMALISER(_rawData,_normalData);
-    
-}
-
-template <class NORMALISER> 
-LearningMachine<NORMALISER>::LearningMachine( void )
- : _count(0),
-   _rawData(_params._capacity,_params._domainSize+1),
-   _normalData(_params._capacity,_params._domainSize+1)
-{
-
-    _norm = new NORMALISER(_rawData,_normalData);
-
-}
-
-template <class NORMALISER> 
-LearningMachine<NORMALISER>::~LearningMachine( void )
-{
-    
-    delete _norm;
-
-}
-
-template <class NORMALISER> 
-void LearningMachine<NORMALISER>::save( void )
+void LearningMachine::save( void )
 {
 
     // save non-normalised data
@@ -52,8 +21,8 @@ void LearningMachine<NORMALISER>::save( void )
 
 }
 
-template <class NORMALISER> 
-bool LearningMachine<NORMALISER>::load( void )
+ 
+bool LearningMachine::load( void )
 {
 
     // load non-normalised data

@@ -1,7 +1,9 @@
 // main.cpp : a learner application
 //
 
-// ---------- headers
+// -------------------------------------------------------
+// preliminaries
+// -------------------------------------------------------
 
 #include<conio.h>
 
@@ -16,26 +18,95 @@
 
 using namespace std;
 
-// ---------- a class enforcing multiple-output learning machines
-template <class LM> class learner {
+// ---------- prototypes
+
+void registerPort( void );
+void registerAllPorts( void );
+void unregisterAllPorts( void );
+void parseCmdLine( int, char** );
+int main( int, char** );
+
+// -------------------------------------------------------
+// globals
+// -------------------------------------------------------
+
+// data ports
+YARPOutputPortOf<YVector> data_out (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+YARPInputPortOf<YVector> data_in (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+// cmd ports. must be NO_BUFFERS, otherwise sequentiality is lost
+YARPOutputPortOf<int> cmd_out (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+YARPInputPortOf<int> cmd_in (YARPInputPort::NO_BUFFERS, YARP_TCP);
+
+// port basename and network name
+YARPString portName("learner");
+YARPString netName("default");
+
+// domain and codomain size and number of examples
+int domainSize;
+int codomainSize;
+int capacity;
+// what kind of machines? (default: plain)
+namespace typeOfMachine {
+	enum {
+		plain = 0,
+		uniform = 1,
+		feedback = 2
+	};
+};
+int machineType = typeOfMachine::plain;
+// in case it is a uniform machine, need array of tolerances
+real* tolerance;
+// in case it is a feedback machine, need error threshold
+real threshold = 0.5;
+// are we doing classification or regression?
+bool classification;
+
+// -------------------------------------------------------
+// a class enforcing multiple-output learning machines
+// -------------------------------------------------------
+
+class libsvmLearner {
 public:
-    learner(unsigned int codomainSize, LM::paramsType params)
-        : _codomainSize(codomainSize), _params(params)
+    libsvmLearner(int typeOfMachine, unsigned int codomainSize, libsvmLearningMachine::params& params)
+        : _machineType(typeOfMachine), _codomainSize(codomainSize), _params(params)
     {
-        // allocate machines (with correct constructor)
+		// create learning machines according to cmd line
         lmAlloc(_machine, _codomainSize);
-        { foreach(_codomainSize,i) {
-			LM::paramsType tmpParams(params);
-			char tmp[32];
-			itoa(i, tmp, 10);
-			tmpParams._name = _params._name + "." + tmp;
-			_machine[i] = new LM(tmpParams);
-		} }
+        lmAlloc(_norm, _codomainSize);
+		switch ( _machineType ) {
+		case typeOfMachine::plain:
+			// create normaliser
+	        { foreach(_codomainSize,i) {
+				_norm[i] = new msNormaliser(_params._domainSize+1);
+				libsvmLearningMachine::params tmpParams(params);
+				char tmp[32]; itoa(i,tmp,10); tmpParams._name = _params._name + "." + tmp;
+				_machine[i] = new libsvmLearningMachine(_norm[i], tmpParams);
+			} }
+		break;
+		case typeOfMachine::uniform:
+	        { foreach(_codomainSize,i) {
+				_norm[i] = new msNormaliser(_params._domainSize+1);
+				libsvmUniLearningMachine::params tmpParams(params);
+				char tmp[32]; itoa(i,tmp,10); tmpParams._name = _params._name + "." + tmp;
+				_machine[i] = new libsvmUniLearningMachine(_norm[i], tmpParams, tolerance);
+			} }
+		break;
+		case typeOfMachine::feedback:
+	        { foreach(_codomainSize,i) {
+				_norm[i] = new msNormaliser(_params._domainSize+1);
+				libsvmFBLearningMachine::params tmpParams(params);
+				char tmp[32]; itoa(i,tmp,10); tmpParams._name = _params._name + "." + tmp;
+				_machine[i] = new libsvmFBLearningMachine(_norm[i], tmpParams, threshold);
+			} }
+		break;
+		}
+	
         // allocate space for the predicted vector
         lmAlloc(_predicted, _codomainSize);
     }
-	~learner() {
+	~libsvmLearner() {
 		delete[] _predicted;
+		delete[] _norm;
 		delete[] _machine;
 	}
 
@@ -58,6 +129,9 @@ public:
         } }
         return res;
     }
+    void setC( const double C ) {
+        { foreach(_codomainSize,i) { ((libsvmLearningMachine*)_machine[i])->setC(C); } }
+    }
     bool addExample( const real x[], const real y[] ) {
         bool res = true;
         { foreach(_codomainSize,i) { 
@@ -75,52 +149,20 @@ public:
     real* _predicted;
 
 private:
-    LM** _machine;
+	// what kind of machines do we use?
+	int _machineType;
+	// normalisers and machines
+	Normaliser** _norm;
+    LearningMachine** _machine;
+	// size of the codomain
     unsigned int _codomainSize;
-    LM::paramsType _params;
+	// machines parameters (all the same)
+    libsvmLearningMachine::params _params;
 };
 
-// ---------- prototypes
-
-void registerPort( void );
-void registerAllPorts( void );
-void unregisterAllPorts( void );
-void parseCmdLine( int, char** );
-int main( int, char** );
-
-// ---------- global variables
-
-// data ports
-YARPOutputPortOf<YVector> data_out (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-YARPInputPortOf<YVector> data_in (YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-// cmd ports. must be NO_BUFFERS, otherwise sequentiality is lost
-YARPOutputPortOf<int> cmd_out (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-YARPInputPortOf<int> cmd_in (YARPInputPort::NO_BUFFERS, YARP_TCP);
-
-// port basename and network name
-YARPString portName("learner");
-YARPString netName("default");
-
-// domain and codomain size and number of examples
-int domainSize;
-int codomainSize;
-int capacity;
-
-// what kind of machine? (default: plain)
-namespace kindOfMachine {
-	enum {
-		plain = 0,
-		uniform = 1,
-		feedback = 2
-	};
-};
-int machineType = kindOfMachine::plain;
-// in case it is a uniform machine, need array of tolerances
-double* tolerance;
-// are we doing classification or regression?
-bool classification;
-
-// ---------- procedures
+// -------------------------------------------------------
+// helper procedures
+// -------------------------------------------------------
 
 void registerPort(YARPPort& port, YARPString& name, YARPString& net)
 {
@@ -190,20 +232,20 @@ void parseCmdLine( int argc, char** argv )
 
 	// uniform machine required?
 	if ( YARPParseParameters::parse(argc, argv, "-u") ) {
-		if ( machineType != kindOfMachine::plain ) {
+		if ( machineType != typeOfMachine::plain ) {
 			// can't have both types of machine...
 			cout << "FATAL ERROR: must specify one type only of machine." << endl;
 			exit(YARP_FAIL);
 		}
-		machineType = kindOfMachine::uniform;
+		machineType = typeOfMachine::uniform;
 		unsigned int index;
 		{ foreach(argc,i) {
 			YARPString argument(argv[i]);
 			if ( argument == "--u" ) { index = i; break; }
 		} }
-		// must be followed by domainSize doubles...
+		// must be followed by domainSize reals...
 		if ( argc-index < domainSize ) {
-			cout << "FATAL ERROR: must specify " << domainSize << " tolerance arguments." << endl;
+			cout << "FATAL ERROR: must specify " << domainSize << " tolerances after --u." << endl;
 			exit(YARP_FAIL);
 		}
 		lmAlloc(tolerance, domainSize);
@@ -217,16 +259,30 @@ void parseCmdLine( int argc, char** argv )
 
 	// feedback machine required?
 	if ( YARPParseParameters::parse(argc, argv, "-f") ) {
-		if ( machineType != kindOfMachine::plain ) {
+		if ( machineType != typeOfMachine::plain ) {
 			// can't have both types of machine...
 			cout << "FATAL ERROR: must specify one type only of machine." << endl;
 			exit(YARP_FAIL);
 		}
-		machineType = kindOfMachine::feedback;
+		machineType = typeOfMachine::feedback;
+		unsigned int index;
+		{ foreach(argc,i) {
+			YARPString argument(argv[i]);
+			if ( argument == "--f" ) { index = i; break; }
+		} }
+		// must be followed by a real
+		if ( argc-index <= 1 ) {
+			cout << "FATAL ERROR: must specify threshold after --f." << endl;
+			exit(YARP_FAIL);
+		}
+		if ( sscanf(argv[index+1], "%lf", &threshold) != 1 ) {
+			cout << "FATAL ERROR: invalid threshold value." << endl;
+			exit(YARP_FAIL);
+		}
 	}
 
 	// classification required?
-	if ( YARPParseParameters::parse(argc, argv, "-cla") ) {
+	if ( YARPParseParameters::parse(argc, argv, "-cl") ) {
 		classification = true;
 	}
 
@@ -235,16 +291,16 @@ void parseCmdLine( int argc, char** argv )
 	cout << "CMDLINE: network name is " << netName << "." << endl;
 	cout << "CMDLINE: domain dim. " << domainSize << ", codomain dim. " << codomainSize << ", " << capacity << " examples." << endl;
 	switch ( machineType ) {
-	case kindOfMachine::plain:
+	case typeOfMachine::plain:
 		cout << "CMDLINE: plain machine selected." << endl;
 		break;
-	case kindOfMachine::uniform:
-		cout << "CMDLINE: uniform machine selected. Tolerances are: ";
+	case typeOfMachine::uniform:
+		cout << "CMDLINE: uniform machine selected. Tolerances are ";
 		{ foreach(domainSize,i) cout << tolerance[i] << " "; }
 		cout << endl;
 		break;
-	case kindOfMachine::feedback:
-		cout << "CMDLINE: feedback machine selected." << endl;
+	case typeOfMachine::feedback:
+		cout << "CMDLINE: feedback machine selected. Threshold is " << threshold << endl;
 		break;
 	}
 	if ( classification ) {
@@ -256,7 +312,9 @@ void parseCmdLine( int argc, char** argv )
 
 }
 
-// ---------- main
+// -------------------------------------------------------
+// main routine
+// -------------------------------------------------------
 
 int main ( int argc, char** argv )
 {
@@ -268,7 +326,7 @@ int main ( int argc, char** argv )
 	registerAllPorts();
 
 	// create the parameters
-    libsvmLearningMachine<msNormaliser>::paramsType params;
+    libsvmLearningMachine::params params;
     params._capacity = capacity;
     params._domainSize = domainSize;
 	string name(portName.c_str());
@@ -277,7 +335,7 @@ int main ( int argc, char** argv )
 		params._svmparams.svm_type = NU_SVC;
 		params._svmparams.kernel_type = RBF;
 		params._svmparams.degree = 3;
-		params._svmparams.gamma = 1/(double)params._domainSize;
+		params._svmparams.gamma = 1/(real)params._domainSize;
 		params._svmparams.coef0 = 0;
 		params._svmparams.nu = 0.3;
 		params._svmparams.cache_size = 10;
@@ -293,7 +351,7 @@ int main ( int argc, char** argv )
 		params._svmparams.svm_type = NU_SVR;
 		params._svmparams.kernel_type = RBF;
 		params._svmparams.degree = 3;
-		params._svmparams.gamma = 1/(double)params._domainSize;
+		params._svmparams.gamma = 1/(real)params._domainSize;
 		params._svmparams.coef0 = 0;
 		params._svmparams.nu = 0.3;
 		params._svmparams.cache_size = 10;
@@ -307,33 +365,15 @@ int main ( int argc, char** argv )
 		params._svmparams.weight = 0;
 	}
 
-	// create learning machine according to cmd line
-    learner<libsvmLearningMachine<msNormaliser> > myLearner(4,params);
-
-//	switch ( machineType ) {
-//	case kindOfMachine::plain:
-  //      { foreach(codomainSize,i) {
-//            learner[i] = new libsvmLearningMachine<msNormaliser>(param);
-//        	if ( learner[i] == 0 ) {
-//		        cout << "FATAL ERROR: no memory for the learning machine." << endl;
-//		        exit(YARP_FAIL);
-//	        }
-  //      } }
-//		break;
-//	case kindOfMachine::uniform:
-//		learner = new UniformSVMLearningMachine(param);
-//		break;
-//	case kindOfMachine::feedback:
-//		learner = new FBSVMLearningMachine(param);
-//		break;
-//	}
+	// create learner (pool of learning machines)
+	libsvmLearner learner(machineType,4,params);
 
 	// try and load previously saved model and data
-	myLearner.load();
+	learner.load();
 
-	// vectors and arrays of double to interact with the machine
+	// vectors and arrays of reals to interact with the machine
 	YVector example, prediction(codomainSize);
-	double* x, * y;
+	real* x, * y;
 	lmAlloc(x,domainSize);
 	lmAlloc(y,codomainSize);
 
@@ -354,7 +394,7 @@ int main ( int argc, char** argv )
 				break;
 			case lMCommand::Reset: // RESET
 				cout << "Got RESET command. Resetting machine." << endl;
-				myLearner.reset();
+				learner.reset();
 				cmd_out.Content() = lMCommand::Ok;
 				cmd_out.Write(true);
 				break;
@@ -371,20 +411,20 @@ int main ( int argc, char** argv )
 			if ( example.Length() == domainSize ) {
 				// this is just a sample: then predict and send
 				{ foreach(domainSize,i) x[i] = example[i]; }
-				myLearner.predict(x);
-				{ foreach(codomainSize,i) prediction[i] = myLearner._predicted[i]; } 
+				learner.predict(x);
+				{ foreach(codomainSize,i) prediction[i] = learner._predicted[i]; } 
 				data_out.Content() = prediction;
 				data_out.Write();
 			} else if ( example.Length() == domainSize+codomainSize ) {
 				// a full example: add it
 				{ foreach(domainSize,i) x[i] = example[i]; }
 				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
-				if ( myLearner.addExample(x, y) ) {
-					cout << myLearner.getCount() << "/" << myLearner.getCapacity() << "     \r";
+				if ( learner.addExample(x, y) ) {
+					cout << learner.getCount() << "/" << learner.getCapacity() << "     \r";
 					// every now and then, train and save the model
-					if ( myLearner.getCount() % 20 == 5 ) {
-						myLearner.train();
-						myLearner.save();
+					if ( learner.getCount() % 20 == 5 ) {
+						learner.train();
+						learner.save();
 					}
 				}
 			} else {
@@ -397,7 +437,16 @@ int main ( int argc, char** argv )
 			switch ( _getch() ) {
 			case 'r': // RESET
 				cout << "Got RESET command. Resetting machine." << endl;
-				myLearner.reset();
+				learner.reset();
+				break;
+			case 'c': // CHANGE C
+				double newC;
+				cout << "Got CHANGE-C command." << endl;
+				cout << "Insert new 'C' value";
+				cin >> newC;
+				learner.setC(newC);
+				learner.train();
+				learner.save();
 				break;
 			case 'q': // QUIT
 				cout << "Got QUIT command. Bailing out." << endl;
@@ -406,6 +455,7 @@ int main ( int argc, char** argv )
 			default: // unrecognised keyboard command
 				cout << "Unrecognised keyboard command." << endl;
 				cout << "'r' reset machine" << endl;
+				cout << "'c' change 'C' coefficient" << endl;
 				cout << "'q' quit" << endl << endl;
 			}
 		}
@@ -417,7 +467,7 @@ int main ( int argc, char** argv )
 
 	cout << "Bailing out." << endl;
 	unregisterAllPorts();
-	if ( machineType == kindOfMachine::uniform ) {
+	if ( machineType == typeOfMachine::uniform ) {
 		delete[] tolerance;
 	}
 	delete[] x;
