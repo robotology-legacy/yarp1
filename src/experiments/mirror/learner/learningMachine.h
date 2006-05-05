@@ -64,7 +64,7 @@ public:
 	unsigned int getCapacity( void ) const { return _params._capacity; }
 	unsigned int getCount( void ) const { return _count; }
 	// resetting the machine
-    void reset( void ) { _count = 0; }
+    void reset( void ) { _count = 0; _rawData.reset(); _normalData.reset(); }
     // loading and saving status
     void save( void );
     bool load( void );

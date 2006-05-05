@@ -16,7 +16,7 @@ public:
 
     class params : public LearningMachine::params {
     public:
-        params() {
+        params() : _filter(false) {
 	        // default libsvm parameters
     	    _svmparams.svm_type = EPSILON_SVR;
         	_svmparams.kernel_type = RBF;
@@ -36,6 +36,8 @@ public:
         }
         // parameters of the libsvm SVM machine
         svm_parameter _svmparams;
+		// non-SVs filtering
+		bool _filter;
     };
 
 	libsvmLearningMachine( Normaliser*, params& );
@@ -51,6 +53,7 @@ public:
 	real predict( const real[] );
 
 	virtual bool isExampleWorthAdding ( const real[], const real );
+	void filterSVs( void );
 
 protected:
 

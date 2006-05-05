@@ -59,7 +59,9 @@ real* tolerance;
 // in case it is a feedback machine, need error threshold
 real threshold = 0.5;
 // are we doing classification or regression?
-bool classification;
+bool classification = false;
+// do we want non-SVs filtering?
+bool filter = false;
 
 // -------------------------------------------------------
 // a class enforcing multiple-output learning machines
@@ -112,8 +114,16 @@ public:
 
 	// viewing counters
 	unsigned int getDomainSize( void ) const { return _params._domainSize; }
-	unsigned int getCapacity( void ) const { return _params._capacity; }
-	unsigned int getCount( void ) const { return _machine[0]->getCount(); }
+	unsigned int getCapacity( void ) const {
+		unsigned int totalCapacity = 0;
+		{ foreach(_codomainSize,i) totalCapacity += _machine[i]->getCapacity(); }
+		return totalCapacity;
+	}
+	unsigned int getCount( void ) const {
+		unsigned int totalCount = 0;
+		{ foreach(_codomainSize,i) totalCount += _machine[i]->getCount(); }
+		return totalCount;
+	}
 	// resetting the machine
     void reset( void ) {
         { foreach(_codomainSize,i) { _machine[i]->reset(); } }
@@ -130,7 +140,7 @@ public:
         return res;
     }
     void setC( const double C ) {
-        { foreach(_codomainSize,i) { ((libsvmLearningMachine*)_machine[i])->setC(C); } }
+        { foreach(_codomainSize,i) { _machine[i]->setC(C); } }
     }
     bool addExample( const real x[], const real y[] ) {
         bool res = true;
@@ -145,7 +155,9 @@ public:
     void predict( const real x[] ) {
         { foreach(_codomainSize,i) { _predicted[i] = _machine[i]->predict(x); } }
     }
-
+	void filterSVs( void) {
+        { foreach(_codomainSize,i) { _machine[i]->filterSVs(); } }
+	}
     real* _predicted;
 
 private:
@@ -153,7 +165,7 @@ private:
 	int _machineType;
 	// normalisers and machines
 	Normaliser** _norm;
-    LearningMachine** _machine;
+    libsvmLearningMachine** _machine;
 	// size of the codomain
     unsigned int _codomainSize;
 	// machines parameters (all the same)
@@ -286,6 +298,11 @@ void parseCmdLine( int argc, char** argv )
 		classification = true;
 	}
 
+	// filter out non-SVs?
+	if ( YARPParseParameters::parse(argc, argv, "-filter") ) {
+		filter = true;
+	}
+
 	// show parameters
 	cout << "CMDLINE: port basename is " << portName << "." << endl;
 	cout << "CMDLINE: network name is " << netName << "." << endl;
@@ -308,7 +325,11 @@ void parseCmdLine( int argc, char** argv )
 	} else {
 		cout << "CMDLINE: doing regression."<<endl;
 	}
-
+	if ( filter ) {
+		cout << "CMDLINE: non-SVs filtering: ON."<<endl;
+	} else {
+		cout << "CMDLINE: non-SVs filtering: OFF."<<endl;
+	}
 
 }
 
@@ -364,6 +385,7 @@ int main ( int argc, char** argv )
 		params._svmparams.weight_label = 0;
 		params._svmparams.weight = 0;
 	}
+    params._filter = filter;
 
 	// create learner (pool of learning machines)
 	libsvmLearner learner(machineType,4,params);
@@ -421,9 +443,12 @@ int main ( int argc, char** argv )
 				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
 				if ( learner.addExample(x, y) ) {
 					cout << learner.getCount() << "/" << learner.getCapacity() << "     \r";
-					// every now and then, train and save the model
-					if ( learner.getCount() % 20 == 5 ) {
+					// every now and then, train the machines and save
+					if ( learner.getCount() % 80 > 75 ) {
 						learner.train();
+						if ( filter ) {
+							learner.filterSVs();
+						}
 						learner.save();
 					}
 				}

@@ -125,6 +125,51 @@ bool libsvmLearningMachine::addExample( const real x[], const real y )
 
 }
 
+void libsvmLearningMachine::filterSVs( void )
+{
+
+	// create a data set for the SV-only data set
+	dataSet svDataSet(_params._capacity,_params._domainSize+1);
+
+	unsigned int svCount = 0;
+	// doing epoch management? then scan support vectors array
+	{ foreach(_model->l,i) {
+		// find the SV in the normalised data set
+		{ foreach(_count,j) {
+			// is this datum a support vector?
+			bool isASV = true;
+			{ foreach(_params._domainSize,k) {
+				if ( _normalData(j,k+1) != _model->SV[i][k].value ) {
+					isASV = false;
+					break;
+				}
+			} }
+			if ( isASV ) {
+				// if so, copy the corresponding non-normal vector
+				// to the new normalised data set
+				{ foreach(_params._domainSize+1,k) {
+					svDataSet(svCount,k) = _rawData(j,k);
+				} }
+				svCount++;
+				break;
+			} else {
+				// otherwise check next datum
+				continue;
+			}
+		} }
+	} }
+	// now svDataSet contains the non-normal SVs; copy them to _rawData and go ahead
+	_rawData.reset();
+	{ foreach(svCount,i) { 
+		{ foreach(_params._domainSize,j) {
+			_rawData(i,j) = svDataSet(i,j);
+		} }
+	} }
+	_rawData.setCount(svCount);
+	cout << "filtered out " << _count-svCount << " non-SV data." << endl;
+	_count = svCount;
+
+}
 
 void libsvmLearningMachine::train()
 {
