@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.13 2006-02-15 09:44:22 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.14 2006-05-15 10:51:01 babybot Exp $
 ///
 ///
 
@@ -171,9 +171,12 @@ protected:
 	int getTorqueLimits (void *cmd);
 	int getErrorStatus (void *cmd);
 	int checkMotionDone (void *cmd);
+    int checkMotionDoneSingle (void *cmd);
 	int setCurrentLimit (void *cmd);
 	int setCurrentLimits (void *cmd);
-	
+	int getControlMode (void *cmd);
+    int startCalibration (void *cmd);
+
 	int setBCastMessages (void *cmd);
 	int getBCastPositions (void *cmd);
 	int getBCastPosition (void *cmd);

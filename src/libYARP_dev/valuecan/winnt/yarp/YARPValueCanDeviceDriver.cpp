@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.22 2005-04-17 15:41:55 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.23 2006-05-15 10:51:01 babybot Exp $
 ///
 ///
 
@@ -371,7 +371,7 @@ YARPValueCanDeviceDriver::YARPValueCanDeviceDriver(void)
 	m_cmds[CMDControllerRun] = &YARPValueCanDeviceDriver::controllerRun;
 
 	m_cmds[CMDVMove] = &YARPValueCanDeviceDriver::velocityMove;
-	m_cmds[CMDSafeVMove] = &YARPValueCanDeviceDriver::velocityMove;
+//	m_cmds[CMDSafeVMove] = &YARPValueCanDeviceDriver::velocityMove;
 
 	m_cmds[CMDSetCommand] = &YARPValueCanDeviceDriver::setCommand;
 	m_cmds[CMDSetCommands] = &YARPValueCanDeviceDriver::setCommands;

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDeviceDriver.cpp,v 1.2 2006-02-21 16:32:30 gmetta Exp $
+/// $Id: YARPEsdDeviceDriver.cpp,v 1.3 2006-05-15 10:51:01 babybot Exp $
 ///
 ///
 
@@ -98,13 +98,13 @@ public:
 ///
 ///
 ///
-class EsdCanResources
+class EsdResources
 {
 public:
-	EsdCanResources ();
-	~EsdCanResources ();
+	EsdResources ();
+	~EsdResources ();
 
-	int initialize (const EsdCanOpenParameters& parms);
+	int initialize (const EsdOpenParameters& parms);
 	int uninitialize ();
 	int read ();
 	bool error (const CMSG& m);
@@ -143,19 +143,18 @@ public:
 	BCastBufferElement *_bcastRecvBuffer;		/// local storage for bcast messages.
 
 	unsigned char _my_address;					/// 
-	unsigned char _destinations[ESD_MAX_CARDS];	/// list of connected cards (and their addresses).
+	unsigned char _destinations[EsdOpenParameters::ESD_MAX_CARDS];	/// list of connected cards (and their addresses).
 	int _njoints;								/// number of joints (ncards * 2).
 
 	int _error_status;							/// error status of the last packet.
 
 	PV _p;										///	pointer to a printf type function
 												/// used to spy on can messages.
-	int _filter;								/// don't print filtered messages.
 	
 	char _printBuffer[16384];
 };
 
-EsdCanResources::EsdCanResources ()
+EsdResources::EsdResources ()
 {
 	_handle = ACE_INVALID_HANDLE;
 	_timeout = ESD_TIMEOUT;
@@ -167,7 +166,7 @@ EsdCanResources::EsdCanResources ()
 	memset (_writeBuffer, 0, sizeof(CMSG)*BUF_SIZE);
 	memset (_replyBuffer, 0, sizeof(CMSG)*BUF_SIZE);
 
-	memset (_destinations, 0, sizeof(unsigned char) * ESD_MAX_CARDS);
+	memset (_destinations, 0, sizeof(unsigned char) * EsdOpenParameters::ESD_MAX_CARDS);
 
 	_my_address = 0;
 	_njoints = 0;
@@ -181,12 +180,12 @@ EsdCanResources::EsdCanResources ()
 	_error_status = YARP_OK;
 }
 
-EsdCanResources::~EsdCanResources () 
+EsdResources::~EsdResources () 
 { 
 	uninitialize(); 
 }
 
-int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
+int EsdResources::initialize (const EsdOpenParameters& parms)
 {
 	if (_handle != ACE_INVALID_HANDLE)
 		return YARP_FAIL;
@@ -201,13 +200,12 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 	_msg_lost = 0;
 	_error_status = YARP_OK;
 
-	memcpy (_destinations, parms._destinations, sizeof(unsigned char)*ESD_MAX_CARDS);
+	memcpy (_destinations, parms._destinations, sizeof(unsigned char)*EsdOpenParameters::ESD_MAX_CARDS);
 	_my_address = parms._my_address;
 	_polling_interval = parms._polling_interval;
 	_timeout = parms._timeout;
 	_njoints = parms._njoints;	
 	_p = parms._p;
-	_filter = -1;
 
 	_txQueueSize = parms._txQueueSize;
 	_rxQueueSize = parms._rxQueueSize;
@@ -239,11 +237,8 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 	for (i = 0; i < 0xff; i++)
 		canIdAdd (_handle, i);
 	
-
 	for (i = 0x100; i < 0x1ff; i++)
-
 		canIdAdd (_handle, i);
-
 
 	//canIdAdd (_handle, 0x1bc);
 	//canIdAdd (_handle, 0x1cb);
@@ -252,9 +247,13 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 }
 
 
-int EsdCanResources::uninitialize ()
+int EsdResources::uninitialize ()
 {
-	if (_bcastRecvBuffer != NULL) delete[] _bcastRecvBuffer;
+	if (_bcastRecvBuffer != NULL) 
+    {
+        delete[] _bcastRecvBuffer;
+        _bcastRecvBuffer = NULL;
+    }
 
 	if (_handle != ACE_INVALID_HANDLE)
 	{
@@ -268,7 +267,7 @@ int EsdCanResources::uninitialize ()
 }
 
 
-int EsdCanResources::read ()
+int EsdResources::read ()
 {
 	long messages = BUF_SIZE;
 
@@ -280,13 +279,13 @@ int EsdCanResources::read ()
 	return YARP_OK;
 }
 
-int EsdCanResources::startPacket ()
+int EsdResources::startPacket ()
 {
 	_writeMessages = 0;
 	return YARP_OK;
 }
 
-int EsdCanResources::addMessage (int msg_id, int joint)
+int EsdResources::addMessage (int msg_id, int joint)
 {
 	CMSG x;
 	memset (&x, 0, sizeof(CMSG));
@@ -305,7 +304,7 @@ int EsdCanResources::addMessage (int msg_id, int joint)
 	return YARP_OK;
 }
 
-int EsdCanResources::writePacket ()
+int EsdResources::writePacket ()
 {
 	if (_writeMessages < 1)
 		return YARP_FAIL;
@@ -319,7 +318,7 @@ int EsdCanResources::writePacket ()
 	return YARP_OK;
 }
 
-int EsdCanResources::printMessage (const CMSG& m)
+int EsdResources::printMessage (const CMSG& m)
 {
 	if (!_p)
 		return YARP_FAIL;
@@ -353,7 +352,7 @@ int EsdCanResources::printMessage (const CMSG& m)
 }
 
 
-int EsdCanResources::dumpBuffers (void)
+int EsdResources::dumpBuffers (void)
 {
 	if (!_p) return YARP_FAIL;
 
@@ -376,7 +375,7 @@ int EsdCanResources::dumpBuffers (void)
 	return YARP_OK;
 }
 
-bool EsdCanResources::error (const CMSG& m)
+bool EsdResources::error (const CMSG& m)
 {
 	if (m.len & NTCAN_NO_DATA) return true;
 	if (m.msg_lost != 0) { _msg_lost = m.msg_lost; return true; }
@@ -387,79 +386,33 @@ bool EsdCanResources::error (const CMSG& m)
 ///
 ///
 ///
-inline EsdCanResources& RES(void *res) { return *(EsdCanResources *)res; }
+inline EsdResources& RES(void *res) { return *(EsdResources *)res; }
 
 
 YARPEsdDeviceDriver::YARPEsdDeviceDriver(void) 
 	: YARPDeviceDriver<YARPNullSemaphore, YARPEsdDeviceDriver>(CBNCmds), _mutex(1), _done(0)
 {
-	system_resources = (void *) new EsdCanResources;
+	system_resources = (void *) new EsdResources;
 	ACE_ASSERT (system_resources != NULL);
 
 	/// for the IOCtl call.
 	m_cmds[CMDGetPosition] = &YARPEsdDeviceDriver::getBCastPosition;
 	m_cmds[CMDGetPositions] = &YARPEsdDeviceDriver::getBCastPositions;
-	m_cmds[CMDGetRefPosition] = &YARPEsdDeviceDriver::getRefPosition;
-	m_cmds[CMDGetRefPositions] = &YARPEsdDeviceDriver::getRefPositions;
-	m_cmds[CMDSetPosition] = &YARPEsdDeviceDriver::setPosition;
-	m_cmds[CMDSetPositions] = &YARPEsdDeviceDriver::setPositions;
-	m_cmds[CMDGetPIDError] = &YARPEsdDeviceDriver::getPidError;
-	m_cmds[CMDSetSpeed] = &YARPEsdDeviceDriver::setSpeed;
-	m_cmds[CMDSetSpeeds] = &YARPEsdDeviceDriver::setSpeeds;
 	m_cmds[CMDGetSpeeds] = &YARPEsdDeviceDriver::getBCastVelocities;
-	m_cmds[CMDGetRefSpeeds] = &YARPEsdDeviceDriver::getRefSpeeds;
 	m_cmds[CMDGetAccelerations] = &YARPEsdDeviceDriver::getBCastAccelerations;
-	m_cmds[CMDSetAcceleration] = &YARPEsdDeviceDriver::setAcceleration;
-	m_cmds[CMDSetAccelerations] = &YARPEsdDeviceDriver::setAccelerations;
-	m_cmds[CMDGetRefAccelerations] = &YARPEsdDeviceDriver::getRefAccelerations;
-	m_cmds[CMDSetOffset] = &YARPEsdDeviceDriver::setOffset;
-	m_cmds[CMDSetOffsets] = &YARPEsdDeviceDriver::setOffsets;
-	m_cmds[CMDSetPID] = &YARPEsdDeviceDriver::setPid;
-	m_cmds[CMDGetPID] = &YARPEsdDeviceDriver::getPid;
-	m_cmds[CMDSetIntegratorLimit] = &YARPEsdDeviceDriver::setIntegratorLimit;
-	m_cmds[CMDSetIntegratorLimits] = &YARPEsdDeviceDriver::setIntegratorLimits;
-	m_cmds[CMDDefinePosition] = &YARPEsdDeviceDriver::definePosition;
-	m_cmds[CMDDefinePositions] = &YARPEsdDeviceDriver::definePositions;
-	m_cmds[CMDDisableAmp] = &YARPEsdDeviceDriver::disableAmp;
-	m_cmds[CMDEnableAmp] = &YARPEsdDeviceDriver::enableAmp;
-	m_cmds[CMDControllerIdle] = &YARPEsdDeviceDriver::controllerIdle;
-	m_cmds[CMDControllerRun] = &YARPEsdDeviceDriver::controllerRun;
-	m_cmds[CMDVMove] = &YARPEsdDeviceDriver::velocityMove;
-	m_cmds[CMDSetCommand] = &YARPEsdDeviceDriver::setCommand;
-	m_cmds[CMDSetCommands] = &YARPEsdDeviceDriver::setCommands;
-	m_cmds[CMDCheckMotionDone] = &YARPEsdDeviceDriver::checkMotionDone;
 	m_cmds[CMDGetTorque] = &YARPEsdDeviceDriver::getBCastCurrent;
 	m_cmds[CMDGetTorques] = &YARPEsdDeviceDriver::getBCastCurrents;
-	m_cmds[CMDLoadBootMemory] = &YARPEsdDeviceDriver::readBootMemory;
-	m_cmds[CMDSaveBootMemory] = &YARPEsdDeviceDriver::writeBootMemory;
-	m_cmds[CMDSetSWPositiveLimit] = &YARPEsdDeviceDriver::setSwPositiveLimit;
-	m_cmds[CMDSetSWNegativeLimit] = &YARPEsdDeviceDriver::setSwNegativeLimit;
-	m_cmds[CMDGetSWPositiveLimit] = &YARPEsdDeviceDriver::getSwPositiveLimit;
-	m_cmds[CMDGetSWNegativeLimit] = &YARPEsdDeviceDriver::getSwNegativeLimit;
-	m_cmds[CMDGetTorqueLimit] = &YARPEsdDeviceDriver::getTorqueLimit;
-	m_cmds[CMDGetTorqueLimits] = &YARPEsdDeviceDriver::getTorqueLimits;
-	m_cmds[CMDSetTorqueLimit] = &YARPEsdDeviceDriver::setTorqueLimit;
-	m_cmds[CMDSetTorqueLimits] = &YARPEsdDeviceDriver::setTorqueLimits;
-	m_cmds[CMDSetCurrentLimit] = &YARPEsdDeviceDriver::setCurrentLimit;
-	m_cmds[CMDSetCurrentLimits] = &YARPEsdDeviceDriver::setCurrentLimits;
 	m_cmds[CMDGetAnalogChannel] = &YARPEsdDeviceDriver::getBCastCurrent;
 	m_cmds[CMDGetAnalogChannels] = &YARPEsdDeviceDriver::getBCastCurrents;
-	//m_cmds[CMDGetFault] = &YARPEsdDeviceDriver::getBCastFault;
 	m_cmds[CMDGetFaults] = &YARPEsdDeviceDriver::getBCastFaults;
-	m_cmds[CMDSetDebugMessageFilter] = &YARPEsdDeviceDriver::setDebugMessageFilter;
 	m_cmds[CMDSetDebugPrintFunction] = &YARPEsdDeviceDriver::setDebugPrintFunction;
-	m_cmds[CMDGetErrorStatus] = &YARPEsdDeviceDriver::getErrorStatus;
-
-	_ref_positions = NULL;		
-	_ref_speeds = NULL;
-	_ref_accs = NULL;
 }
 
 
 YARPEsdDeviceDriver::~YARPEsdDeviceDriver ()
 {
 	if (system_resources != NULL)
-		delete (EsdCanResources *)system_resources;
+		delete (EsdResources *)system_resources;
 	system_resources = NULL;
 }
 
@@ -471,8 +424,8 @@ int YARPEsdDeviceDriver::open (void *p)
 
 	_mutex.Wait();
 
-	EsdCanOpenParameters& parms = *(EsdCanOpenParameters *)p;
-	EsdCanResources& r = RES (system_resources);
+	EsdOpenParameters& parms = *(EsdOpenParameters *)p;
+	EsdResources& r = RES (system_resources);
 	
 	if (r.initialize (parms) != YARP_OK)
 	{
@@ -485,19 +438,10 @@ int YARPEsdDeviceDriver::open (void *p)
 
 	/// used for printing debug messages.
 	_p = parms._p;
-	_filter = -1;
 	_writerequested = false;
 	_noreply = false;
 
-	/// temporary variables used by the ddriver.
-	_ref_positions = new double [r.getJoints()];		
-	_ref_speeds = new double [r.getJoints()];
-	_ref_accs = new double [r.getJoints()];
-	ACE_ASSERT (_ref_positions != NULL && _ref_speeds != NULL && _ref_accs != NULL);
-
-
 	_mutex.Post ();
-
 
 	/// default initialization for this device driver.
 	int i;
@@ -515,11 +459,11 @@ int YARPEsdDeviceDriver::open (void *p)
 
 int YARPEsdDeviceDriver::close (void)
 {
-	EsdCanResources& d = RES(system_resources);
+	EsdResources& d = RES(system_resources);
 
     if (YARPThread::running)
     {
-	    /// default initialization for this device driver.
+#if 0
 	    int i;
 	    for(i = 0; i < d.getJoints(); i++)
 	    {
@@ -529,13 +473,10 @@ int YARPEsdDeviceDriver::close (void)
 		    cmd.parameters = &tmp;
 		    setBCastMessages(&cmd);	
 	    }
+#endif
     }
 
 	End ();	/// stops the thread first (joins too).
-
-	if (_ref_positions != NULL) delete[] _ref_positions;
-	if (_ref_speeds != NULL) delete[] _ref_speeds;
-	if (_ref_accs != NULL) delete[] _ref_accs;
 
 	int ret = d.uninitialize ();
 
@@ -548,7 +489,7 @@ int YARPEsdDeviceDriver::close (void)
 ///
 void YARPEsdDeviceDriver::Body (void)
 {
-	EsdCanResources& r = RES (system_resources);
+	EsdResources& r = RES (system_resources);
 
 	/// init part.
 	bool messagePending = false;
@@ -599,7 +540,7 @@ void YARPEsdDeviceDriver::Body (void)
 
 				const int addr = ((m.id & 0x0f0) >> 4);
 				int j;
-				for (j = 0; j < ESD_MAX_CARDS; j++)
+				for (j = 0; j < EsdOpenParameters::ESD_MAX_CARDS; j++)
 				{
 					if (r._destinations[j] == addr)
 						break;
@@ -690,8 +631,7 @@ void YARPEsdDeviceDriver::Body (void)
 					}
 
 				if (((m.id &0x700) == 0) && 
-					((m.data[0] & 0x7f) != _filter) &&
-					 (m.data[0] & 0x7f) < CAN_GET_ACTIVE_ENCODER_POSITION)
+					((m.data[0] & 0x7f) < NUM_OF_MESSAGES))
 					r.printMessage (m);
 
 				if (!noreply) /// this requires a reply.
@@ -792,8 +732,7 @@ AckMessageLoop:
 							int j;
 							for (j = 0; j < r._writeMessages; j++)
 							{
-								if ((r._writeBuffer[j].data[0] & 0x7f) != _filter)
-									r.printMessage (r._writeBuffer[j]);
+								r.printMessage (r._writeBuffer[j]);
 							}
 						}
 					}
@@ -820,23 +759,10 @@ AckMessageLoop:
 }
 
 
-///
-///
-/// specific messages that change the driver behavior.
-int YARPEsdDeviceDriver::setDebugMessageFilter (void *cmd)
-{
-	_mutex.Wait();
-	EsdCanResources& r = RES(system_resources);
-	_filter = *(int *)cmd;
-	_mutex.Post();
-
-	return YARP_OK;
-}
-
 int YARPEsdDeviceDriver::setDebugPrintFunction (void *cmd)
 {
 	_mutex.Wait();
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	_p = (int (*) (const char *fmt, ...))cmd;
 	_mutex.Post();
 
@@ -848,756 +774,10 @@ int YARPEsdDeviceDriver::setDebugPrintFunction (void *cmd)
 /// 
 /// control card commands.
 ///
-
-/// cmd is an array of double
-int YARPEsdDeviceDriver::getPositions (void *cmd)
-{
-	return _readDWordArray (CAN_GET_ENCODER_POSITION, (double *)cmd);
-}
-
-/// cmd is a SingleAxisParameters pointer with double arg
-int YARPEsdDeviceDriver::getPosition (void *cmd)
-{
-	/// prepare can message.
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-
-	int value;
-	if (_readDWord (CAN_GET_ENCODER_POSITION, axis, value) == YARP_OK)
-	{
-		*((double *)tmp->parameters) = double(value);
-		return YARP_OK;
-	}
-	
-	*((double *)tmp->parameters) = 0;
-	return YARP_FAIL;
-}
-
-/// cmd is an array of double (njoints long)
-int YARPEsdDeviceDriver::setPositions (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-	int i;
-
-	_mutex.Wait();
-	r.startPacket();
-
-	for (i = 0; i < r.getJoints (); i++)
-	{
-		if (ENABLED(i))
-		{
-			//SingleAxisParameters x;
-			//x.axis = i;
-			//x.parameters = tmp+i;	
-
-			r.addMessage (CAN_POSITION_MOVE, i);
-			const int j = r._writeMessages - 1;
-			_ref_positions[i] = tmp[i];
-			*((int*)(r._writeBuffer[j].data+1)) = S_32(_ref_positions[i]);		/// pos
-			*((short*)(r._writeBuffer[j].data+5)) = S_16(_ref_speeds[i]);		/// speed
-			r._writeBuffer[j].len = 7;
-		}
-		else
-		{
-			_ref_positions[i] = tmp[i];
-		}
-	}
-
-	_writerequested = true;
-	_noreply = true;
-	
-	_mutex.Post();
-
-	/// syncing.
-	_done.Wait();
-
-	return YARP_OK;
-}
-
 inline bool YARPEsdDeviceDriver::ENABLED (int axis)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	return ((r._destinations[axis/2] & ESD_CAN_SKIP_ADDR) == 0) ? true : false;
-}
-
-///
-///
-/// cmd is a SingleAxisParameters pointer to a double argument
-int YARPEsdDeviceDriver::setPosition (void *cmd)
-{
-	/// prepare can message.
-	EsdCanResources& r = RES(system_resources);
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-
-	if (!ENABLED (axis))
-	{
-		// still fills the _ref_position structure.
-		_ref_positions[axis] = *((double *)tmp->parameters);
-		return YARP_OK;
-	}
-
-	_mutex.Wait();
-
-	r.startPacket();
-	r.addMessage (CAN_POSITION_MOVE, axis);
-
-	_ref_positions[axis] = *((double *)tmp->parameters);
-	*((int*)(r._writeBuffer[0].data+1)) = S_32(_ref_positions[axis]);		/// pos
-	*((short*)(r._writeBuffer[0].data+5)) = S_16(_ref_speeds[axis]);			/// speed
-	r._writeBuffer[0].len = 7;
-		
-	_writerequested = true;
-	_noreply = true;
-	
-	_mutex.Post();
-
-	/// syncing.
-	_done.Wait();
-
-	return YARP_OK;
-}
-
-/// cmd is an array of double of length njoints specifying speed 
-/// for each axis
-int YARPEsdDeviceDriver::velocityMove (void *cmd)
-{
-	/// prepare can message.
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-	int i;
-
-	_mutex.Wait();
-	r.startPacket();
-
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		if (ENABLED (i))
-		{
-			r.addMessage (CAN_VELOCITY_MOVE, i);
-			const int j = r._writeMessages - 1;
-			_ref_speeds[i] = tmp[i];
-			*((short*)(r._writeBuffer[j].data+1)) = S_16(_ref_speeds[i]);	/// speed
-			*((short*)(r._writeBuffer[j].data+3)) = S_16(_ref_accs[i]);		/// accel
-			r._writeBuffer[j].len = 5;
-		}
-		else
-		{
-			_ref_speeds[i] = tmp[i];
-		}
-	}
-
-	_writerequested = true;
-	_noreply = true;
-
-	_mutex.Post();
-
-	_done.Wait();
-
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxis poitner with 1 double arg
-int YARPEsdDeviceDriver::definePosition (void *cmd)
-{
-	/// prepare can message.
-
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	return _writeDWord (CAN_SET_ENCODER_POSITION, axis, S_32(*((double *)tmp->parameters)));
-}
-
-/// cmd is an array of double
-int YARPEsdDeviceDriver::definePositions (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-
-	int i;
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		if (_writeDWord (CAN_SET_ENCODER_POSITION, i, S_32(tmp[i])) != YARP_OK)
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxis poitner with 1 double arg
-int YARPEsdDeviceDriver::setCommand (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	return _writeDWord (CAN_SET_COMMAND_POSITION, axis, S_32(*((double *)tmp->parameters)));
-}
-
-/// cmd is an array of double (LATER: to be optimized).
-int YARPEsdDeviceDriver::setCommands (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-
-	int i;
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		if (_writeDWord (CAN_SET_COMMAND_POSITION, i, S_32(tmp[i])) != YARP_OK)
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is an array of double
-int YARPEsdDeviceDriver::getRefPositions (void *cmd)
-{
-	return _readDWordArray (CAN_GET_DESIRED_POSITION, (double *)cmd);
-}
-
-/// cmd is a SingleAxis pointer with double arg
-int YARPEsdDeviceDriver::getRefPosition (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	int value = 0;
-	if (_readDWord (CAN_GET_DESIRED_POSITION, axis, value) == YARP_OK)
-		*((double *)(tmp->parameters)) = double (value);
-	else
-		return YARP_FAIL;
-
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxis pointer with double arg
-int YARPEsdDeviceDriver::setSpeed (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	_ref_speeds[axis] = *((double *)(tmp->parameters));
-	//const short s = S_16(_ref_speeds[axis]);
-	//return _writeWord16 (CAN_SET_DESIRED_VELOCITY, axis, s);
-	return YARP_OK;
-}
-
-/// cmd is an array of double
-int YARPEsdDeviceDriver::setSpeeds (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-
-	int i;
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		_ref_speeds[i] = tmp[i];
-		//if (_writeWord16 (CAN_SET_DESIRED_VELOCITY, i, S_16(tmp[i])) != YARP_OK)
-		//	return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-
-/// cmd is an array of double
-int YARPEsdDeviceDriver::getSpeeds (void *cmd)
-{
-	return _readWord16Array (CAN_GET_DESIRED_VELOCITY, (double *)cmd);
-}
-
-/// cmd is an array of double (LATER: to be optimized).
-int YARPEsdDeviceDriver::getRefSpeeds (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *out = (double *) cmd;
-	int i;
-	short value = 0;
-
-	for(i = 0; i < r.getJoints(); i++)
-	{
-		if (_readWord16 (CAN_GET_DESIRED_VELOCITY, i, value) == YARP_OK)
-			_ref_speeds[i] = out[i] = double (value);
-		else
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxis pointer with a double arg
-int YARPEsdDeviceDriver::setAcceleration (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-
-	_ref_accs[axis] = *((double *)tmp->parameters);
-	const short s = S_16(_ref_accs[axis]);
-	
-	return _writeWord16 (CAN_SET_DESIRED_ACCELER, axis, s);
-}
-
-/// cmd is an array of double (LATER: to be optimized, WARNING: doesn't skip disabled joints).
-int YARPEsdDeviceDriver::setAccelerations (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-
-	int i;
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		_ref_accs[i] = tmp[i];
-		if (_writeWord16 (CAN_SET_DESIRED_ACCELER, i, S_16(_ref_accs[i])) != YARP_OK)
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is an array of double (LATER: to be optimized).
-int YARPEsdDeviceDriver::getRefAccelerations (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *out = (double *) cmd;
-	int i;
-	short value = 0;
-
-	for(i = 0; i < r.getJoints(); i++)
-	{
-		if (_readWord16 (CAN_GET_DESIRED_ACCELER, i, value) == YARP_OK)
-			_ref_accs[i] = out[i] = double (value);
-		else
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is a SigleAxis pointer with 1 double arg
-int YARPEsdDeviceDriver::setOffset (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	const short s = S_16(*((double *)tmp->parameters));
-	
-	return _writeWord16 (CAN_SET_OFFSET, axis, s);
-}
-
-/// cmd is an array of double (LATER: to be optimized).
-int YARPEsdDeviceDriver::setOffsets (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-
-	int i;
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		if (_writeWord16 (CAN_SET_OFFSET, i, S_16(tmp[i])) != YARP_OK)
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxis pointer with 1 double arg
-int YARPEsdDeviceDriver::setIntegratorLimit (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	const short s = S_16(*((double *)tmp->parameters));
-	
-	return _writeWord16 (CAN_SET_ILIM_GAIN, axis, s);
-}
-
-/// cmd is an array of double (LATER: to be optimized, WARNING: doesn't check disabled cards).
-int YARPEsdDeviceDriver::setIntegratorLimits (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-
-	int i;
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		if (_writeWord16 (CAN_SET_ILIM_GAIN, i, S_16(tmp[i])) != YARP_OK)
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxis pointer with a LowLevelPID argument pointer
-/// LATER: can be optimized.
-int YARPEsdDeviceDriver::setPid (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
-
-	_writeWord16 (CAN_SET_P_GAIN, axis, S_16(pid->KP));
-	_writeWord16 (CAN_SET_D_GAIN, axis, S_16(pid->KD));
-	_writeWord16 (CAN_SET_I_GAIN, axis, S_16(pid->KI));
-	_writeWord16 (CAN_SET_ILIM_GAIN, axis, S_16(pid->I_LIMIT));
-	_writeWord16 (CAN_SET_OFFSET, axis, S_16(pid->OFFSET));
-	_writeWord16 (CAN_SET_SCALE, axis, S_16(pid->SHIFT));
-	_writeWord16 (CAN_SET_TLIM, axis, S_16(pid->T_LIMIT));
-
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxis pointer with a LowLevelPID argument pointer
-int YARPEsdDeviceDriver::getPid (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
-	short s;
-
-	_readWord16 (CAN_GET_P_GAIN, axis, s); pid->KP = double(s);
-	_readWord16 (CAN_GET_D_GAIN, axis, s); pid->KD = double(s);
-	_readWord16 (CAN_GET_I_GAIN, axis, s); pid->KI = double(s);
-	_readWord16 (CAN_GET_ILIM_GAIN, axis, s); pid->I_LIMIT = double(s);
-	_readWord16 (CAN_GET_OFFSET, axis, s); pid->OFFSET = double(s);
-	_readWord16 (CAN_GET_SCALE, axis, s); pid->SHIFT = double(s);
-	_readWord16 (CAN_GET_TLIM, axis, s); pid->T_LIMIT = double(s);
-
-	return YARP_OK;
-}
-
-/// cmd is an int *
-int YARPEsdDeviceDriver::enableAmp (void *cmd)
-{
-	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	return _writeNone (CAN_ENABLE_PWM_PAD, axis);
-}
-
-/// cmd is an int *
-int YARPEsdDeviceDriver::disableAmp (void *cmd)
-{
-	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	return _writeNone (CAN_DISABLE_PWM_PAD, axis);
-}
-
-/// cmd is an int *
-int YARPEsdDeviceDriver::controllerRun (void *cmd)
-{
-	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	return _writeNone (CAN_CONTROLLER_RUN, axis);
-}
-
-/// cmd is an int *
-int YARPEsdDeviceDriver::controllerIdle (void *cmd)
-{
-	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	return _writeNone (CAN_CONTROLLER_IDLE, axis);
-}
-
-/// cmd is an array of double
-/// LATER: can be optimized, we can also be reading current back.
-int YARPEsdDeviceDriver::getTorques (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *out = (double *) cmd;
-	int i;
-	short value = 0;
-
-	for(i = 0; i < r.getJoints(); i++)
-	{
-		if (_readWord16 (CAN_GET_PID_OUTPUT, i, value) == YARP_OK)
-			out[i] = double (value);
-		else
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxisParameters struct with a double argument.
-int YARPEsdDeviceDriver::getTorque (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	short value;
-
-	if (_readWord16 (CAN_GET_PID_OUTPUT, axis, value) != YARP_OK)
-	{
-		*((double *)tmp->parameters) = 0;
-		return YARP_FAIL;
-	}
-
-	*((double *)tmp->parameters) = double(value);
-	return YARP_OK;
-}
-
-
-/// cmd is a SingleAxisParameters struct with a double argument.
-int YARPEsdDeviceDriver::getPidError (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	short value;
-
-	if (_readWord16 (CAN_GET_PID_ERROR, axis, value) != YARP_OK)
-	{
-		*((double *)tmp->parameters) = 0;
-		return YARP_FAIL;
-	}
-
-	*((double *)tmp->parameters) = double(value);
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxis poitner with 1 double arg
-int YARPEsdDeviceDriver::setCurrentLimit (void *cmd)
-{
-	/// prepare can message.
-
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	return _writeDWord (CAN_SET_CURRENT_LIMIT, axis, S_32(*((double *)tmp->parameters)));
-}
-
-/// cmd is an array of double
-/// LATER: can be optimized.
-int YARPEsdDeviceDriver::setCurrentLimits (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-
-	int i;
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		if (_writeDWord (CAN_SET_CURRENT_LIMIT, i, S_32(tmp[i])) != YARP_OK)
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is a pointer to SingleAxisParameters struct with no argument.
-int YARPEsdDeviceDriver::readBootMemory (void *cmd)
-{
-	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-
-	return _writeNone (CAN_READ_FLASH_MEM, axis);
-}
-
-/// cmd is a pointer to an integer (axis number).
-int YARPEsdDeviceDriver::writeBootMemory (void *cmd)
-{
-	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-
-	return _writeNone (CAN_WRITE_FLASH_MEM, axis);
-}
-
-/// cmd is a pointer to an integer (axis number).
-int YARPEsdDeviceDriver::setSwPositiveLimit (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	return _writeDWord (CAN_SET_MAX_POSITION, axis, S_32(*((double *)tmp->parameters)));
-}
-
-/// cmd is a pointer to SingleAxisParameters struct with a single double arg.
-int YARPEsdDeviceDriver::setSwNegativeLimit (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	
-	return _writeDWord (CAN_SET_MIN_POSITION, axis, S_32(*((double *)tmp->parameters)));
-}
-
-/// cmd is a SingleAxis pointer with double arg
-int YARPEsdDeviceDriver::getSwNegativeLimit (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	int value;
-
-	_readDWord (CAN_GET_MIN_POSITION, axis, value);
-	*((double *)tmp->parameters) = double(value);
-
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxis pointer with double arg
-int YARPEsdDeviceDriver::getSwPositiveLimit (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	int value;
-
-	_readDWord (CAN_GET_MAX_POSITION, axis, value);
-	*((double *)tmp->parameters) = double(value);
-
-	return YARP_OK;
-}
-
-
-/// cmd is a SingleAxis pointer with double arg
-int YARPEsdDeviceDriver::setTorqueLimit (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	const short s = S_16(*((double *)tmp->parameters));
-	
-	return _writeWord16 (CAN_SET_TLIM, axis, s);
-}
-
-/// cmd is an array of double
-/// LATER: can be optimized.
-int YARPEsdDeviceDriver::setTorqueLimits (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-
-	int i;
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		if (_writeWord16 (CAN_SET_TLIM, i, S_16(tmp[i])) != YARP_OK)
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is a SingleAxis pointer with double arg
-int YARPEsdDeviceDriver::getTorqueLimit (void *cmd)
-{
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
-	short value;
-
-	_readWord16 (CAN_GET_TLIM, axis, value);
-	*((double *)tmp->parameters) = double(value);
-
-	return YARP_OK;
-}
-
-/// cmd is an array of double
-/// LATER: can be optimized.
-int YARPEsdDeviceDriver::getTorqueLimits (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	double *out = (double *) cmd;
-	int i;
-	short value = 0;
-
-	for(i = 0; i < r.getJoints(); i++)
-	{
-		if (_readWord16 (CAN_GET_TLIM, i, value) == YARP_OK)
-			out[i] = double (value);
-		else
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
-}
-
-/// cmd is a pointer to an integer
-int YARPEsdDeviceDriver::getErrorStatus (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	int *out = (int *) cmd;
-	short value = 0;
-
-	/// the axis is irrelevant.
-	/// MSB of the word is 0!
-	if (_readWord16 (CAN_GET_ERROR_STATUS, 0, value) == YARP_OK)
-		*out = int(value);
-	else
-		return YARP_FAIL;
-
-	return YARP_OK;
-}
-
-/// cmd is a pointer to a bool
-int YARPEsdDeviceDriver::checkMotionDone (void *cmd)
-{
-	EsdCanResources& r = RES(system_resources);
-	int i;
-	short value;
-	bool *out = (bool *) cmd;
-
-	_mutex.Wait();
-	r.startPacket();
-
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		if (ENABLED(i))
-		{
-			r.addMessage (CAN_MOTION_DONE, i);
-		}
-	}
-
-	if (r._writeMessages < 1)
-		return YARP_FAIL;
-
-	_writerequested = true;
-	_noreply = false;
-	_mutex.Post();
-
-	_done.Wait();
-
-	if (r.getErrorStatus() != YARP_OK)
-	{
-		*out = false;
-		return YARP_FAIL;
-	}
-
-	int j;
-	for (i = 0, j = 0; i < r.getJoints(); i++)
-	{
-		if (ENABLED(i))
-		{
-			CMSG& m = r._replyBuffer[j];
-			if (m.id != 0xffff)
-			{
-				value = *((short *)(m.data+1));
-				if (!value)
-				{
-					*out = false;
-					return YARP_OK;
-				}
-			}
-			j++;
-		}
-	}
-
-	*out = true;
-	return YARP_OK;
 }
 
 
@@ -1610,7 +790,7 @@ int YARPEsdDeviceDriver::setBCastMessages (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (EsdOpenParameters::ESD_MAX_CARDS-1)*2);
 
 	return _writeDWord (CAN_SET_BCAST_POLICY, axis, S_32(*((double *)tmp->parameters)));
 }
@@ -1621,102 +801,118 @@ int YARPEsdDeviceDriver::setBCastMessages (void *cmd)
 ///
 int YARPEsdDeviceDriver::getBCastPosition (void *cmd)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
 	ACE_ASSERT (axis >= 0 && axis <= r.getJoints());
-	
+
+    _mutex.Wait();
 	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._position);
+    _mutex.Post();
 
 	return YARP_OK;
 }
 
 int YARPEsdDeviceDriver::getBCastPositions (void *cmd)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	int i;
 	double *tmp = (double *)cmd;
+    _mutex.Wait();
 	for (i = 0; i < r.getJoints(); i++)
 	{
 		tmp[i] = double(r._bcastRecvBuffer[i]._position);
 	}
+    _mutex.Post();
 	return YARP_OK;
 }
 
 int YARPEsdDeviceDriver::getBCastVelocities (void *cmd)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	int i;
 	double *tmp = (double *)cmd;
+    _mutex.Wait();
 	for (i = 0; i < r.getJoints(); i++)
 	{
 		tmp[i] = double(r._bcastRecvBuffer[i]._velocity);
 	}
+    _mutex.Post();
 	return YARP_OK;
 }
 
 int YARPEsdDeviceDriver::getBCastAccelerations (void *cmd)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	int i;
 	double *tmp = (double *)cmd;
+    _mutex.Wait();
 	for (i = 0; i < r.getJoints(); i++)
 	{
 		tmp[i] = double(r._bcastRecvBuffer[i]._acceleration);
 	}
+    _mutex.Post();
 	return YARP_OK;
 }
 
 int YARPEsdDeviceDriver::getBCastCurrent (void *cmd)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
 	ACE_ASSERT (axis >= 0 && axis <= r.getJoints());
 	
+    _mutex.Wait();
 	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._current);
+    _mutex.Post();
 
 	return YARP_OK;
 }
 
 int YARPEsdDeviceDriver::getBCastCurrents (void *cmd)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	int i;
 	double *tmp = (double *)cmd;
+
+    _mutex.Wait();
 	for (i = 0; i < r.getJoints(); i++)
 	{
 		tmp[i] = double(r._bcastRecvBuffer[i]._current);
 	}
+    _mutex.Post();
+
 	return YARP_OK;
 }
 
 int YARPEsdDeviceDriver::getBCastFaults (void *cmd)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	int i;
 	short *tmp = (short *)cmd;
 
+    _mutex.Wait();
 	for (i = 0; i < r.getJoints(); i++)
 	{
 		tmp[i] = short(r._bcastRecvBuffer[i]._fault);
 	}
+    _mutex.Post();
 
 	return YARP_OK;
 }
 
-
-
 int YARPEsdDeviceDriver::getBCastControlValues (void *cmd)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	int i;
 	int *tmp = (int *)cmd;
 
+    _mutex.Wait();
 	for (i = 0; i < r.getJoints(); i++)
 	{
 		tmp[i] = int(r._bcastRecvBuffer[i]._controlvalue);
 	}
+    _mutex.Post();
 
 	return YARP_OK;
 }
@@ -1731,8 +927,8 @@ int YARPEsdDeviceDriver::getBCastControlValues (void *cmd)
 /// sends a message without parameters
 int YARPEsdDeviceDriver::_writeNone (int msg, int axis)
 {
-	EsdCanResources& r = RES(system_resources);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	EsdResources& r = RES(system_resources);
+	ACE_ASSERT (axis >= 0 && axis <= (EsdOpenParameters::ESD_MAX_CARDS-1)*2);
 
 	if (!ENABLED(axis))
 	{
@@ -1757,8 +953,8 @@ int YARPEsdDeviceDriver::_writeNone (int msg, int axis)
 
 int YARPEsdDeviceDriver::_readWord16 (int msg, int axis, short& value)
 {
-	EsdCanResources& r = RES(system_resources);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	EsdResources& r = RES(system_resources);
+	ACE_ASSERT (axis >= 0 && axis <= (EsdOpenParameters::ESD_MAX_CARDS-1)*2);
 
 	if (!ENABLED(axis))
 	{
@@ -1792,7 +988,7 @@ int YARPEsdDeviceDriver::_readWord16 (int msg, int axis, short& value)
 /// reads an array.
 int YARPEsdDeviceDriver::_readWord16Array (int msg, double *out)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	int i;
 	short value = 0;
 
@@ -1816,7 +1012,6 @@ int YARPEsdDeviceDriver::_readWord16Array (int msg, double *out)
 		_mutex.Post();
 		return YARP_FAIL;
 	}
-
 
 	_writerequested = true;
 	_noreply = false;
@@ -1851,8 +1046,8 @@ int YARPEsdDeviceDriver::_readWord16Array (int msg, double *out)
 int YARPEsdDeviceDriver::_writeWord16 (int msg, int axis, short s)
 {
 	/// prepare Can message.
-	EsdCanResources& r = RES(system_resources);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	EsdResources& r = RES(system_resources);
+	ACE_ASSERT (axis >= 0 && axis <= (EsdOpenParameters::ESD_MAX_CARDS-1)*2);
 	
 	if (!ENABLED(axis))
 		return YARP_OK;
@@ -1880,8 +1075,8 @@ int YARPEsdDeviceDriver::_writeWord16 (int msg, int axis, short s)
 /// write a DWord
 int YARPEsdDeviceDriver::_writeDWord (int msg, int axis, int value)
 {
-	EsdCanResources& r = RES(system_resources);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	EsdResources& r = RES(system_resources);
+	ACE_ASSERT (axis >= 0 && axis <= (EsdOpenParameters::ESD_MAX_CARDS-1)*2);
 
 	if (!ENABLED(axis))
 		return YARP_OK;
@@ -1909,9 +1104,9 @@ int YARPEsdDeviceDriver::_writeDWord (int msg, int axis, int value)
 int YARPEsdDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short s2)
 {
 	/// prepare Can message.
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (EsdOpenParameters::ESD_MAX_CARDS-1)*2);
 	ACE_ASSERT ((axis % 2) == 0);	/// axis is even.
 
 	if (!ENABLED(axis))
@@ -1943,8 +1138,8 @@ int YARPEsdDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short s2)
 /// 
 int YARPEsdDeviceDriver::_readDWord (int msg, int axis, int& value)
 {
-	EsdCanResources& r = RES(system_resources);
-	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	EsdResources& r = RES(system_resources);
+	ACE_ASSERT (axis >= 0 && axis <= (EsdOpenParameters::ESD_MAX_CARDS-1)*2);
 
 	if (!ENABLED(axis))
 	{
@@ -1977,7 +1172,7 @@ int YARPEsdDeviceDriver::_readDWord (int msg, int axis, int& value)
 /// reads an array of double words.
 int YARPEsdDeviceDriver::_readDWordArray (int msg, double *out)
 {
-	EsdCanResources& r = RES(system_resources);
+	EsdResources& r = RES(system_resources);
 	int i, value = 0;
 
 	_mutex.Wait();

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.5 2006-01-27 18:16:27 gmetta Exp $
+/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.6 2006-05-15 10:51:01 babybot Exp $
 ///
 ///
 
@@ -750,9 +750,7 @@ int YARPEsdDaqDeviceDriver::_readWord16Array (int msg, short *out)
 		}
 
 		val >>= 1;
-
 	}
-
 
 	if (r._writeMessages < 1)
 	{

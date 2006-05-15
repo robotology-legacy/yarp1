@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.30 2006-02-15 09:44:22 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.31 2006-05-15 10:51:01 babybot Exp $
 ///
 ///
 
@@ -1032,53 +1032,27 @@ public:
 	  return YARP_OK;
 	}
 
-
 	/**
-
 	 * Gets the fault messages.
-
 	 * @data is a vector of 16bit values with fault bits. If 0 no faults are detected.
-
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
-
 	 */
-
 	int getFaults (short *data)
-
 	{
-
 		_lock();
-
 		if (_adapter.IOCtl (CMDGetFaults, _temp_short) != YARP_OK)
-
 		{
-
 			_unlock();
-
 			return YARP_FAIL;
-
 		}
-
-
 
 		for (int i = 0; i < _parameters._nj; i++)
-
 		{
-
 			data[_parameters._inv_axis_map[i]] = _temp_short[i];	
-
-			
-
 		}
-
 		_unlock();
-
 		return YARP_OK;
-
 	}
-
-
-
 
 	/**
 	 * Set the PID error limit (the actual behavior of the PID when 
@@ -1089,27 +1063,27 @@ public:
 	 * @return YARP_OK on success.
 	 */
 	int setErrorLimit(int i, double limit)
-	  {
+	{
 	    _lock();
 	    if (i >= 0 && i < _parameters._nj)
-	      {
-		SingleAxisParameters cmd;
-		cmd.axis = _parameters._axis_map[i];
-		limit = angleToEncoder(limit,
-				       _parameters._encoderToAngles[i],
-				       0.0,
-				       0); // always positive
-		cmd.parameters = &limit;
-			
-		_adapter.IOCtl(CMDErrorLimit, &cmd);
-		_unlock();
+	    {
+		    SingleAxisParameters cmd;
+		    cmd.axis = _parameters._axis_map[i];
+		    limit = angleToEncoder(limit,
+				           _parameters._encoderToAngles[i],
+				           0.0,
+				           0); // always positive
+		    cmd.parameters = &limit;
+			    
+		    _adapter.IOCtl(CMDErrorLimit, &cmd);
+		    _unlock();
 
-		return YARP_OK;
-	      }
+		    return YARP_OK;
+	    }
 
 	    _unlock ();
 	    return YARP_FAIL;
-	  }
+	}
 
 
 	/**

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDeviceDriver.h,v 1.3 2006-02-21 16:34:06 gmetta Exp $
+/// $Id: YARPEsdDeviceDriver.h,v 1.4 2006-05-15 10:51:01 babybot Exp $
 ///
 ///
 
@@ -50,15 +50,19 @@
  */
 struct EsdOpenParameters
 {
+	enum { ESD_MAX_CARDS=16 };
+
 	/**
 	 * Constructor.
 	 */
 	EsdOpenParameters (void)
 	{
 		_networkN = 0;
+		memset (_destinations, 0, sizeof(unsigned char) * ESD_MAX_CARDS);
 		_my_address = 0;
 		_polling_interval = 10;
 		_timeout = 20;
+		_njoints = 0;
 		_p = NULL;
 
 		_txQueueSize = 2047;					/** max len of the buffer for the esd driver */
@@ -73,6 +77,8 @@ struct EsdOpenParameters
 	long int _rxTimeout;
 
 	int _networkN;								/** network number */
+	int _njoints;								/** number of joints (cards * 2) */
+	unsigned char _destinations[ESD_MAX_CARDS];		/** destination addresses */
 	unsigned char _my_address;					/** my address */
 	int _polling_interval;						/** thread polling interval [ms] */
 	int _timeout;								/** number of cycles before timing out */
@@ -118,52 +124,6 @@ public:
 	virtual int close(void);
 
 protected:
-	int getPosition(void *cmd);
-	int getPositions(void *cmd);
-	int getRefPosition (void *cmd);
-	int getRefPositions(void *cmd);
-	int setPosition(void *cmd);
-	int setPositions(void *cmd);
-	int getPidError(void *cmd);
-	int setSpeed(void *cmd);
-	int setSpeeds(void *cmd);
-	int getSpeeds(void *cmd);
-	int getRefSpeeds(void *cmd);
-	int setAcceleration(void *cmd);
-	int setAccelerations(void *cmd);
-	int getRefAccelerations(void *cmd);
-	int setOffset(void *cmd);
-	int setOffsets(void *cmd);
-	int setPid(void *cmd);
-	int getPid(void *cmd);
-	int setIntegratorLimit(void *cmd);
-	int setIntegratorLimits(void *cmd);
-	int definePosition(void *cmd);
-	int definePositions(void *cmd);
-	int enableAmp(void *cmd);
-	int disableAmp(void *cmd);
-	int controllerIdle(void *cmd);
-	int controllerRun(void *cmd);
-	int velocityMove(void *cmd);
-	int setCommand(void *cmd);
-	int setCommands(void *cmd);
-	int getTorque(void *cmd);
-	int getTorques(void *cmd);
-	int readBootMemory(void *cmd);
-	int writeBootMemory(void *cmd);
-	int setSwPositiveLimit(void *cmd);
-	int setSwNegativeLimit(void *cmd);
-	int getSwPositiveLimit(void *cmd);
-	int getSwNegativeLimit(void *cmd);
-	int setTorqueLimit (void *cmd);
-	int setTorqueLimits (void *cmd);
-	int getTorqueLimit (void *cmd);
-	int getTorqueLimits (void *cmd);
-	int getErrorStatus (void *cmd);
-	int checkMotionDone (void *cmd);
-	int setCurrentLimit (void *cmd);
-	int setCurrentLimits (void *cmd);
-	
 	int setBCastMessages (void *cmd);
 	int getBCastPositions (void *cmd);
 	int getBCastPosition (void *cmd);
@@ -174,7 +134,6 @@ protected:
 	int getBCastFaults (void *cmd);
 	int getBCastControlValues (void *cmd);
 
-	int setDebugMessageFilter (void *cmd);
 	int setDebugPrintFunction (void *cmd);
 
 protected:
@@ -184,16 +143,6 @@ protected:
 
 	bool _writerequested;
 	bool _noreply;
-	
-	/**
-	 * pointer to the function printing the device debug information.
-	 */
-	int (*_p) (const char *fmt, ...);
-
-	/**
-	 * filter for recurrent messages.
-	 */
-	int _filter;
 
 	/**
 	 * helper function to check whether the enabled flag is on or off.
@@ -202,6 +151,11 @@ protected:
 	 * can in fact continue.
 	 */
 	inline bool ENABLED (int axis);
+
+	/**
+	 * pointer to the function printing the device debug information.
+	 */
+	int (*_p) (const char *fmt, ...);
 
 	virtual void Body(void);
 
@@ -214,11 +168,6 @@ protected:
 	int _readDWordArray (int msg, double *out);
 	int _writeDWord (int msg, int axis, int value);
 	int _writeNone (int msg, int axis);
-
-	/// internal stuff.
-	double *_ref_speeds;
-	double *_ref_accs;
-	double *_ref_positions;
 
 	enum { MAX_SHORT = 32767, MIN_SHORT = -32768, MAX_INT = 0x7fffffff, MIN_INT = 0x80000000 };
 	enum { ESD_CAN_SKIP_ADDR = 0x80 };

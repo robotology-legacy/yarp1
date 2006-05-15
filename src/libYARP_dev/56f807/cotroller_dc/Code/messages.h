@@ -31,6 +31,10 @@
 	if (_control_mode[i] == MODE_IDLE) \
 	{ \
 		_control_mode[i] = MODE_POSITION; \
+		_desired[i] = _position[i]; \
+		_integral[i] = 0; \
+		_set_point[i] = _position[i]; \
+		init_trajectory (i, _position[i], _position[i], 1); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -57,9 +61,15 @@
 #define CAN_CALIBRATE_ENCODER_HANDLER(x) \
 { \
 	if (CHANNEL(CAN_DATA[0]) == 0) \
-		calibrate (0); \
+	{ \
+		calibrate (0, BYTE_W(CAN_DATA[1], CAN_DATA[2])); \
+		_calibrated[0] = false; \
+	} \
 	else \
-		calibrate (1); \
+	{ \
+		calibrate (1, BYTE_W(CAN_DATA[1], CAN_DATA[2])); \
+		_calibrated[1] = false; \
+	} \
 	_general_board_error = ERROR_NONE; \
 }
 
@@ -67,25 +77,23 @@
 { \
 	if (CHANNEL(CAN_DATA[0]) == 0) \
 	{ \
-		if (_calibrated[0]) \
-		{ \
-			PWMC0_outputPadEnable(); \
-			_pad_enabled[0] = true; \
-			_general_board_error = ERROR_NONE; \
-		} \
-		else \
-			_general_board_error = ERROR_MODE; \
+		PWMC0_outputPadEnable(); \
+		_pad_enabled[0] = true; \
+		_integral[0] = 0; \
+		_desired[0] = _position[0]; \
+		_set_point[0] = _position[0]; \
+		init_trajectory (0, _position[0], _position[0], 1); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 	{ \
-		if (_calibrated[1]) \
-		{ \
-			PWMC1_outputPadEnable(); \
-			_pad_enabled[1] = true; \
-			_general_board_error = ERROR_NONE; \
-		} \
-		else \
-			_general_board_error = ERROR_MODE; \
+		PWMC1_outputPadEnable(); \
+		_pad_enabled[1] = true; \
+		_integral[1] = 0; \
+		_desired[1] = _position[1]; \
+		_set_point[1] = _position[1]; \
+		init_trajectory (1, _position[1], _position[1], 1); \
+		_general_board_error = ERROR_NONE; \
 	} \
 }
 
@@ -93,25 +101,15 @@
 { \
 	if (CHANNEL(CAN_DATA[0]) == 0) \
 	{ \
-		if (_calibrated[0]) \
-		{ \
-			PWMC0_outputPadDisable(); \
-			_pad_enabled[0] = false; \
-			_general_board_error = ERROR_NONE; \
-		} \
-		else \
-			_general_board_error = ERROR_MODE; \
+		PWMC0_outputPadDisable(); \
+		_pad_enabled[0] = false; \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 	{ \
-		if (_calibrated[1]) \
-		{ \
-			PWMC1_outputPadDisable(); \
-			_pad_enabled[1] = false; \
-			_general_board_error = ERROR_NONE; \
-		} \
-		else \
-			_general_board_error = ERROR_MODE; \
+		PWMC1_outputPadDisable(); \
+		_pad_enabled[1] = false; \
+		_general_board_error = ERROR_NONE; \
 	} \
 }
 

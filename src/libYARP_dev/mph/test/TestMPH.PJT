@@ -32,6 +32,12 @@ AdditionalOptionString=
 
 [Opened Files]
 1=Y:\src\libYARP_dev\mph\test\TestMPH.c
-2=
-3=Y:\src\libYARP_dev\mph\test\can-18F248.c
-4=
+2=Y:\src\libYARP_dev\mph\test\TestMPH.h
+3=C:\Program Files\PICC\devices\18F448.h
+4=Y:\src\libYARP_dev\mph\test\can-18F248.c
+5=Y:\src\libYARP_dev\mph\test\can-18F248.h
+6=C:\Program Files\PICC\drivers\stdlib.h
+7=C:\Program Files\PICC\drivers\stddef.h
+8=C:\Program Files\PICC\drivers\string.h
+9=C:\Program Files\PICC\drivers\ctype.h
+10=

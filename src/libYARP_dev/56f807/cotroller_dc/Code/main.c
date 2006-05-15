@@ -43,62 +43,74 @@ bool _verbose = false;
 #define INPOSITION_THRESHOLD 150
 #else
 /* digital encoder feedback */
-#define INPOSITION_THRESHOLD 60
+#define INPOSITION_THRESHOLD 			60
 #endif
+#define INPOSITION_CALIB_THRESHOLD 		 1
 bool _in_position[JN] = { true, true };
 
 byte _control_mode[JN] = { MODE_IDLE, MODE_IDLE };
-										/* control mode (e.g. position, velocity, etc.) */
+											/* control mode (e.g. position, velocity, etc.) */
 
-Int32 _position[JN] = { 0, 0 };			/* encoder position */
-Int32 _position_old[JN] = { 0, 0 };		/* do I need to add bits for taking into account multiple rotations */
-Int32 _speed[JN] = { 0, 0 };			/* encoder speed */
+Int16 _abs_position[JN] = { 0, 0 };			/* absolute position sensor position*/
+Int32 _abs_position_old[JN] = { 0, 0 };		/* scaled absolute position at previous time step*/
+Int32 _abs_pos_calibration[JN] = {0,0};		/* absolute position to be reached during calibration*/
+Int32 _filt_abs_pos[JN] = { 0, 0 };			/* filtered absolute position sensor position*/
+Int32 _filt_abs_pos_old[JN] = { 0, 0 };		/* filtered absolute position at previous time step*/
+Int32 _position[JN] = { 0, 0 };				/* encoder position */
+Int32 _position_old[JN] = { 0, 0 };			/* do I need to add bits for taking into account multiple rotations */
+Int32 _speed[JN] = { 0, 0 };				/* encoder speed */
 
-Int32 _desired[JN] = { 0, 0 };			/* PID ref value, computed by the trajectory generator */
-Int32 _set_point[JN] = { 0, 0 };		/* set point for position [user specified] */
+Int32 _desired[JN] = { 0, 0 };				/* PID ref value, computed by the trajectory generator */
+Int16 _desired_absolute[JN] = { 0, 0 };		/* PD ref value for the calibration */
+Int32 _set_point[JN] = { 0, 0 };			/* set point for position [user specified] */
 
 Int32 _min_position[JN] = { -DEFAULT_MAX_POSITION, -DEFAULT_MAX_POSITION };
 Int32 _max_position[JN] = { DEFAULT_MAX_POSITION, DEFAULT_MAX_POSITION };
-										/* software position limits */
+											/* software position limits */
 										
-Int16  _desired_vel[JN] = { 0, 0 };		/* speed reference value, computed by the trajectory gen. */
+Int16  _desired_vel[JN] = { 0, 0 };			/* speed reference value, computed by the trajectory gen. */
 Int16  _set_vel[JN] = { DEFAULT_VELOCITY, DEFAULT_VELOCITY };	
-										/* set point for velocity [user specified] */
+											/* set point for velocity [user specified] */
 Int16  _max_vel[JN] = { DEFAULT_MAX_VELOCITY, DEFAULT_MAX_VELOCITY };
-										/* assume this limit is symmetric */
+											/* assume this limit is symmetric */
 										
 Int16  _set_acc[JN] = { DEFAULT_ACCELERATION, DEFAULT_ACCELERATION };
-										/* set point for acceleration [too low!] */
-Int32  _integral[JN] = { 0, 0 };		/* store the sum of the integral component */
+											/* set point for acceleration [too low!] */
+Int32  _integral[JN] = { 0, 0 };			/* store the sum of the integral component */
 Int16  _integral_limit[JN] = { 0x7fff, 0x7fff };
 
-Int16  _error[JN] = { 0, 0 };			/* actual feedback error */
-Int16  _error_old[JN] = { 0, 0 };		/* error at t-1 */
-Int16  _fault[JN] = { 0, 0 };			/* amp fault memory */
+Int16  _error[JN] = { 0, 0 };				/* actual feedback error */
+Int16  _error_old[JN] = { 0, 0 };			/* error at t-1 */
+Int16  _absolute_error[JN] = { 0, 0 };		/* actual feedback error from absolute sensors*/
+Int16  _absolute_error_old[JN] = { 0, 0 };	/* error at t-1 */
+Int16  _fault[JN] = { 0, 0 };				/* amp fault memory */
 
-Int16  _pid[JN] = { 0, 0 };				/* pid result */
-Int16  _pid_limit[JN] = { 100, 100 };	/* pid limit */
-Int32  _pd[JN] = { 0, 0 };              /* pd portion of the pid*/
+Int16  _pid[JN] = { 0, 0 };					/* pid result */
+Int16  _pid_limit[JN] = { 0, 0 };			/* pid limit */
+Int16  _pwm_calibration[JN] = { 0, 0 };		/* pid value during calibration with hard stops */
+Int32  _pd[JN] = { 0, 0 };              	/* pd portion of the pid*/
 
-Int16  _kp[JN] = { 10, 10 };			/* PID gain */
+Int16  _kp[JN] = { 10, 10 };				/* PID gain */
 Int16  _kd[JN] = { 40, 40 };
 Int16  _ki[JN] = { 0, 0 };
-Int16  _ko[JN] = { 0, 0 };				/* offset */
-Int16  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
+Int16  _ko[JN] = { 0, 0 };					/* offset */
+Int16  _kr[JN] = { 3, 3 };					/* scale factor (negative power of two) */
 
-Int16 _counter = 0;						/* used to count cycles, it resets now and then */
-										/* to generate periodic events */
+Int16 _counter = 0;							/* used to count cycles, it resets now and then */
+											/* to generate periodic events */
+Int16 _counter_calib = 0;					/* used in calibration to count the number of cycles*/											
+											
 Int16 _flash_addr = 0;
-byte _write_buffer = 0;					/* the current CAN bus buffer, buffers alternate */
+byte _write_buffer = 0;						/* the current CAN bus buffer, buffers alternate */
 
-word _current[JN] = { 0, 0 };			/* current through the transistors*/
-word _current_old[JN] = { 0, 0 };		/* current at t-1*/
-dword _filt_current[JN] = { 0, 0 };     /* filtered current through the transistors*/
-dword _filt_current_old[JN] = { 0, 0 }; /* filtered current at t-1*/
+word _current[JN] = { 0, 0 };				/* current through the transistors*/
+word _current_old[JN] = { 0, 0 };			/* current at t-1*/
+dword _filt_current[JN] = { 0, 0 };     	/* filtered current through the transistors*/
+dword _filt_current_old[JN] = { 0, 0 }; 	/* filtered current at t-1*/
 dword _limit_current[JN] = { 4000000, 4000000 }; 
-										/* limit on the current in micro-ampere*/
+											/* limit on the current in micro-ampere*/
 										
-dword _broadcast_mask = 0;				/* specifies which broadcast messages are to be sent */
+dword _broadcast_mask = 0;					/* specifies which broadcast messages are to be sent */
 
 float _conversion_factor[JN] = { 0f, 0f };	/* limit on the current as set by the interface (later converted into the filter parameter) */
 
@@ -141,11 +153,20 @@ extern bool _ended[];					/* trajectory completed flag */
 #define IS_DONE(jj) (_ended[jj])
 
 /* Local prototypes */
+Int32 compute_pwm(byte j);
 Int32 compute_pid2(byte j);
+Int32 compute_pid_abs(byte j);
 void compute_desired(byte j);
 void print_version(void);
+void check_current(byte j);
 void compute_filtcurr(byte j);
+void compute_filt_pos(byte j);
 void set_can_masks(void);
+void check_in_position_calib(byte j);
+void check_in_position(byte j);
+void get_postion(byte jnt);
+void get_abs_postion(byte jnt);
+void decouple_positions(void);
 
 //#if VERSION == 0x0113
 //void can_send_request(void);
@@ -190,6 +211,40 @@ void set_can_masks()
 	CAN1_setAcceptanceCode (acceptance_code, acceptance_code2);
 #endif	
 }
+
+/*
+ * compute PWM in different modalities
+ */
+Int32 compute_pwm(byte j)
+{
+	Int32 PWMoutput;
+		
+	switch (_control_mode[j])
+	{
+	case MODE_POSITION:
+	case MODE_VELOCITY:
+	case MODE_CALIB_ABS_POS_SENS:
+		compute_desired(j);
+		PWMoutput = compute_pid2(j);
+		break;
+			
+	case MODE_CALIB_HARD_STOPS:
+		PWMoutput = _pwm_calibration[j];
+		_counter_calib +=1;		
+		break;
+			
+	case MODE_HANDLE_HARD_STOPS:
+	    _pad_enabled[j] = false;
+	    if (j == 0)
+			PWMC0_outputPadDisable();
+	    else
+	    	PWMC1_outputPadDisable();
+		_control_mode[j] = MODE_IDLE;
+		break;			
+	}
+	return PWMoutput;
+}
+
 
 /*
  * compute PID control (integral is not yet implemented).
@@ -240,6 +295,36 @@ Int32 compute_pid2(byte j)
 	return PIDoutput;
 }
 
+
+/* 
+ * Compute PD for calibrating with the absolute postion sensors
+ */
+   
+Int32 compute_pid_abs(byte j)
+{
+	Int32 ProportionalPortion, DerivativePortion;
+	Int32 PIDoutput;
+	Int16 InputError;
+	Int16 Kp = 1;
+	Int16 Kd = 10;
+		
+	/* the error @ previous cycle */
+	_absolute_error_old[j] = _absolute_error[j];
+	/* the errore @ current cycle */
+	_absolute_error[j] = _desired_absolute[j] - extract_h(_filt_abs_pos[j]);
+	//_absolute_error[j] = 0x5a0 - extract_h(_filt_abs_pos[j]);	
+
+	/* Proportional */
+	ProportionalPortion = _absolute_error[j] * Kp;
+	/* Derivative */	
+	DerivativePortion = (_absolute_error[j]-_absolute_error_old[j]) * Kd;
+	
+	PIDoutput = (ProportionalPortion + DerivativePortion);
+	//AS1_printDWordAsCharsDec (PIDoutput/70);		
+	return (PIDoutput >> 1);
+}
+
+
 //void enforce_PIDlimits(byte j, Int32 PIDoutput)
 #define ENFORCE_LIMITS(j, PID) \
 { \
@@ -282,6 +367,15 @@ Int32 compute_pid2(byte j)
 		_pid[j] =  -_pid_limit[j]; \
 	else \
 		_pid[j] = (Int16)(PID); \
+	}\
+	/* Control hard limit reached ? i.e. abnormal high current ? */ \
+	if (_control_mode[j] == MODE_POSITION) \
+	{\
+		if (_filt_current[j] > _limit_current[j]/4) \
+		{\
+			AS1_printStringEx ("R"); \
+			_control_mode[j] = MODE_HANDLE_HARD_STOPS; \
+		}\
 	}\
 }
 
@@ -461,6 +555,23 @@ void compute_desired(byte i)
 			_desired[i] = step_trajectory (i);
 			break;
 			
+		case MODE_CALIB_ABS_POS_SENS:
+		
+			_desired_absolute[i] = step_trajectory (i);
+			
+			/* The following lines handle two possible situations:
+				(1) the absolute position sensor increseas 
+					when the encoder increases
+				(2) the absolute position sensor increseas 
+					when the encoder increases */
+				
+			if (VERSION == 0x0112 && i == 0)
+				_desired[i] = _desired[i] - compute_pid_abs (i);
+			else
+				_desired[i] = _desired[i] + compute_pid_abs (i);
+			
+			break;
+							
 		case MODE_VELOCITY:
 			_desired[i] = step_velocity (i);
 			if (_desired[i] < _min_position[i] && (_desired[i] - cd) < 0) 
@@ -486,26 +597,22 @@ void generatePwm (byte i)
 {
 	if (_control_mode[i] != MODE_IDLE)
 	{
-				
 		/* set PWM, _pid becomes the PWM value */
-		if (_calibrated[i])
+		if (_pid[i] >= 0)
 		{
-			if (_pid[i] >= 0)
-			{
-				DUTYCYCLE (i, 0, (unsigned char)(_pid[i] & 0x7fff));
-				DUTYCYCLE (i, 2, 0);
-				DUTYCYCLE (i, 4, 0);
-			}
-			else
-			{
-				_pid[i] = -_pid[i];
-				DUTYCYCLE (i, 0, 0);
-				DUTYCYCLE (i, 2, (unsigned char)(_pid[i] & 0x7fff));
-				DUTYCYCLE (i, 4, 0);
-			}
-			
-			LOADDUTYCYCLE(i);
+			DUTYCYCLE (i, 0, (unsigned char)(_pid[i] & 0x7fff));
+			DUTYCYCLE (i, 2, 0);
+			DUTYCYCLE (i, 4, 0);
 		}
+		else
+		{
+			_pid[i] = -_pid[i];
+			DUTYCYCLE (i, 0, 0);
+			DUTYCYCLE (i, 2, (unsigned char)(_pid[i] & 0x7fff));
+			DUTYCYCLE (i, 4, 0);
+		}
+		
+		LOADDUTYCYCLE(i);
 	} /* end of !IDLE */
 	else
 	{
@@ -691,7 +798,7 @@ byte channel = 0;
 void main(void)
 {
 //	Int32 acceptance_code = 0x0, acceptance_code2 = 0x0;
-	Int32 PIDoutput1, PIDoutput0;
+	Int32 PWMoutput1, PWMoutput0;
 	word temporary;
 	
 	/* gets the address of flash memory from the linker */
@@ -741,6 +848,8 @@ void main(void)
 	//PWMC1_enable ();  
 	QD0_initPosition ();
 	QD1_initPosition ();
+	_calibrated[0] = false;
+	_calibrated[1] = false;
 
 	/* reads the PID parameters from flash memory */
 	//readFromFlash (_flash_addr);
@@ -748,10 +857,6 @@ void main(void)
 	/* CAN masks/filters init, note the reverse order of mask comparison (see manual) */
 	set_can_masks ();
 	
-	/* reset encoders, LATER: should do something more than this */
-	calibrate(0);
-	calibrate(1);
-
 	/* reset trajectory generation */
 	abort_trajectory (0, 0);
 	abort_trajectory (1, 0);
@@ -775,127 +880,68 @@ void main(void)
 		/* read encoders, 32 bit values */
 		_position_old[0] = _position[0];
 		_position_old[1] = _position[1];
-#if VERSION == 0x0114
-		AD_getChannel16A (2, &temporary);
-		_position[0] = L_deposit_l(temporary)-HALL_EFFECT_SENS_ZERO;
-		AD_getChannel16B (2, &temporary);
-		_position[1] = L_deposit_l(temporary)-HALL_EFFECT_SENS_ZERO;
-#else
-		QD0_getPosition ((dword *)_position);
-		QD1_getPosition ((dword *)(_position+1));
-#endif
-
+		
+		get_postion(0);
+		get_postion(1);
+		
+		/* read absolute position sensors*/
 #if VERSION == 0x0112
-		/* (de)couple encoder readings */
-		_position[0] = L_sub(_position[0], _position[1]);
-		
-#ifdef DEBUG_TRAJECTORY
-		if (_verbose && _counter == 0)
-		{
-			AS1_printDWordAsCharsDec (_position[0]);
-			AS1_printStringEx (" ");
-			AS1_printDWordAsCharsDec (_position[1]);
-			AS1_printStringEx ("\r\n");
-		}
-#endif
-
+		get_abs_postion(0);
+		get_abs_postion(1);
 #elif VERSION == 0x0113
-//#ifdef DEBUG_TRAJECTORY
-		if (_verbose && _counter == 0)
-		{
-			AS1_printDWordAsCharsDec (_position[0]);
-			AS1_printStringEx (" ");
-			AS1_printDWordAsCharsDec (_adjustment[0]);
-			AS1_printStringEx (" ");
-			AS1_printDWordAsCharsDec (_adjustment[1]);
-			AS1_printStringEx ("\r\n");
-		}
-//#endif
-		
-		/* beware of the first cycle when _old has no meaning */		
-		_position[0] = L_add(_position[0], _adjustment[0] >> 1);
-		_position[0] = L_sub(_position[0], _adjustment[0] / 7);
-		_position[0] = L_sub(_position[0], _adjustment[1] >> 2);  // last >>2 must be 11/41
-				
-		_adjustment[0] = L_add(_adjustment[0], _delta_adj[0]);
-		_adjustment[1] = L_add(_adjustment[1], _delta_adj[1]);
-		
-#elif VERSION == 0x0115
-		_position[0] = _position[0] - _position[1];
-		_position[1] = _position[0] + 2*_position[1];	
+		get_abs_postion(0);
 #endif
-
+		/* decouple position*/
+		decouple_positions();
+		
 		/* this can be useful to estimate speed later on */
-		_speed[0] = _position[0] - _position_old[0]; /// divide by CONTROLLER_PERIOD
+		_speed[0] = _position[0] - _position_old[0];
 		_speed[1] = _position[1] - _position_old[1];
 		
 		/* in position? */
-		if (__abs(_position[0] - _set_point[0]) < INPOSITION_THRESHOLD && _ended[0])
-			_in_position[0] = true;
-		else
-			_in_position[0] = false;
-			
-		if (__abs(_position[1] - _set_point[1]) < INPOSITION_THRESHOLD && _ended[1])
-			_in_position[1] = true;
-		else
-			_in_position[1] = false;
-
-		/* computes PID control */
-		compute_desired(0);
-		compute_desired(1);
-		 
-		PIDoutput0 = compute_pid2(0);
-		PIDoutput1 = compute_pid2(1);
+		check_in_position(0); 
+		check_in_position(1);
 		
+		/* in reference configuration for calibration? */
+		check_in_position_calib(0); 
+		check_in_position_calib(1);
+				
+			
+		/* computes controls */
+		PWMoutput0 = compute_pwm(0);
+		PWMoutput1 = compute_pwm(1);
+		
+		/*couple controls*/
 #if VERSION == 0x0115
 
-		PIDoutput0 = (PIDoutput0 + PIDoutput1) >> 1;
-		PIDoutput1 = PIDoutput0 - PIDoutput1;	
-		PIDoutput1 = -PIDoutput1;
+		PWMoutput0 = (PWMoutput0 + PWMoutput1) >> 1;
+		PWMoutput1 = PWMoutput0 - PWMoutput1;	
+		PWMoutput1 = -PWMoutput1;
+		
+		if (_control_mode[1] == MODE_IDLE || _control_mode[0] == MODE_IDLE)
+		{
+			PWMoutput0 = 0;
+			PWMoutput1 = 0;
+		}
+			
 
 		_pd[0] = (_pd[0] + _pd[1]) >> 1;
 		_pd[1] = _pd[0] - _pd[1];	
-		_pd[1] = -_pd[1];
-	
+		_pd[1] = -_pd[1];	
 #endif
-
-		ENFORCE_LIMITS(0,PIDoutput0);
-		ENFORCE_LIMITS(1,PIDoutput1);
 		
+		/* saturates controls if necessary */
+		ENFORCE_LIMITS(0,PWMoutput0);
+		ENFORCE_LIMITS(1,PWMoutput1);
+		
+		/* set PWM duty cycle */
 		generatePwm (0);
 		generatePwm (1);
 		
-		/* Current limit management */
+		/* Check Current value */
+		check_current(0);
+		check_current(1);		
 
-		/* First joint */
-		AD_getChannel16A (1, &temporary);
-		_current_old[0] = _current[0];
-		_current[0] = temporary * _conversion_factor[0];
-		
-		compute_filtcurr(0);
-		if (_filt_current[0] > _limit_current[0])
-		{
-			PWMC0_outputPadDisable();
-			if (_verbose)
-			{
-				AS1_printStringEx ("Current threshold channel 0 exceeded!");
-			}
-		}
-				
-		/* Second joint */
-		AD_getChannel16B (1, &temporary);
-		_current_old[1] = _current[1];
-		_current[1] = temporary * _conversion_factor[1];
-		
-		compute_filtcurr(1);
-		if (_filt_current[1] > _limit_current[1])
-		{
-			PWMC1_outputPadDisable();
-			if (_verbose)
-			{
-				AS1_printStringEx ("Current threshold channel 1 exceeded!");
-			}
-		}
 
 		/* do extra functions, communicate, etc. */
 		/* LATER */
@@ -907,7 +953,167 @@ void main(void)
 	} /* end for(;;) */
 }
 
-/* this function filters the current */
+
+/* 
+ * this function reads the current _position which will be used in 
+ * the PID. Measurament is given by the enocder or by an analog signal
+ * depending on the the firmware version.
+ */
+
+void get_postion(byte jnt)
+{
+	word temporary;
+
+#if VERSION == 0x0114
+	if (jnt == 0)
+		AD_getChannel16A (2, &temporary);
+	else
+		AD_getChannel16B (2, &temporary);
+	_position[jnt] = L_deposit_l(temporary)-HALL_EFFECT_SENS_ZERO;
+#else
+	if (jnt == 0)
+		QD0_getPosition ((dword *)_position);
+	else
+		QD1_getPosition ((dword *)(_position+1));
+#endif
+
+#ifdef DEBUG_TRAJECTORY
+		if (_verbose && _counter == 0)
+		{
+			AS1_printDWordAsCharsDec (_position[0]);
+			AS1_printStringEx (" ");
+			AS1_printDWordAsCharsDec (_position[1]);
+			AS1_printStringEx ("\r\n");
+		}
+#endif
+}
+
+/* 
+ * this function reads the absolute position sensors.
+ */
+
+void get_abs_postion(byte jnt)
+{
+	word temporary;
+
+	/* read absolute position sensors ... */
+	if (jnt == 0)
+		AD_getChannel16A (2, &temporary);
+	else
+		AD_getChannel16B (2, &temporary);
+	_abs_position[jnt] = temporary >> 3;
+	
+	/*... and filter the measured value*/
+	compute_filt_pos(jnt);
+	
+#ifdef DEBUG_CALIBRATION
+	if (_verbose && _counter == 0)
+	{	
+		AS1_printWord16AsChars(_abs_position[0]);
+		AS1_printStringEx (" ");
+		AS1_printWord16AsChars(extract_h(_filt_abs_pos[0]));
+		AS1_printStringEx ("\r\n");
+		AS1_printWord16AsChars(_abs_position[1]);
+		AS1_printStringEx (" ");
+		AS1_printWord16AsChars(extract_h(_filt_abs_pos[1]));
+		AS1_printStringEx ("\r\n");
+	}
+#endif
+
+}
+
+/* 
+ * this function decouple encoders
+ */
+
+
+void decouple_positions(void)
+{
+
+#if VERSION == 0x0112
+		/* (de)couple encoder readings */
+		_position[0] = L_sub(_position[0], _position[1]);
+				
+		
+#elif VERSION == 0x0113		
+		/* beware of the first cycle when _old has no meaning */		
+		_position[0] = L_add(_position[0], _adjustment[0] >> 1);
+		_position[0] = L_sub(_position[0], _adjustment[0] / 7);
+		_position[0] = L_sub(_position[0], _adjustment[1] >> 2);  // last >>2 must be 11/41
+				
+		_adjustment[0] = L_add(_adjustment[0], _delta_adj[0]);
+		_adjustment[1] = L_add(_adjustment[1], _delta_adj[1]);
+				
+#elif VERSION == 0x0115
+		_position[0] = _position[0] - _position[1];
+		_position[1] = _position[0] + 2*_position[1];	
+#endif
+
+#ifdef DEBUG_TRAJECTORY
+		if (_verbose && _counter == 0)
+		{
+			AS1_printDWordAsCharsDec (_position[0]);
+			AS1_printStringEx (" ");
+			AS1_printDWordAsCharsDec (_adjustment[0]);
+			AS1_printStringEx (" ");
+			AS1_printDWordAsCharsDec (_adjustment[1]);
+			AS1_printStringEx ("\r\n");*/
+		}
+#endif
+}
+
+
+/* 
+ * this function checks if current has exceeded is threshold
+ * for a long period (200 ms) using a filtered verion of the current
+ */
+
+void check_current(byte jnt)
+{
+	word temporary;
+
+	if (jnt==0)
+		AD_getChannel16A (1, &temporary);
+	else
+		AD_getChannel16B (1, &temporary);
+	
+	_current_old[jnt] = _current[jnt];
+	_current[jnt] = temporary * _conversion_factor[jnt];
+
+
+#ifdef DEBUG_CURRENT
+	if (_verbose && _counter == 0)
+	{
+		AS1_printDWordAsChars (_filt_current[1]);
+		AS1_printStringEx (" ");
+		AS1_printWord16AsChars (_current[1]);
+		AS1_printStringEx ("\r\n");
+	}
+#endif
+		
+	compute_filtcurr(jnt);
+	if (_filt_current[jnt] > _limit_current[jnt])
+	{
+		_control_mode[jnt] = MODE_IDLE;
+		if (jnt ==0)
+		{
+			_pad_enabled[0] = false;
+			PWMC0_outputPadDisable();
+			AS1_printStringEx ("Big current ch-0!");
+		}
+		else
+		{
+			_pad_enabled[1] = false;
+			PWMC1_outputPadDisable();
+			AS1_printStringEx ("Big current ch-1!");
+		}			
+	}
+}
+
+
+/* 
+ * this function filters the current
+ */
 
 void compute_filtcurr(byte jnt)
 {
@@ -931,31 +1137,163 @@ void compute_filtcurr(byte jnt)
 	_filt_current[jnt] = 0.9886 * _filt_current_old[jnt] + 5.7 * (_current_old[jnt] + _current[jnt]);
 }
 
-/* this function might not be required */
-byte calibrate (byte jnt)
+
+/* 
+ * this function checks if calibration is terminated
+ * and if calibration is terminated resets the encoder
+ */
+
+void check_in_position_calib(byte jnt)
 {
-	if (jnt == 0)
-	{
-		_desired[0] = 0;
-		_set_point[0] = 0;
-		if (QD0_initPosition() == ERR_OK)
-			_calibrated[0] = true;
-		else
-			_calibrated[0] = false;
-		return ERR_OK;
-	}
-	else
-	if (jnt == 1)
-	{
-		_desired[1] = 0;
-		_set_point[1] = 0;
-		if (QD1_initPosition() == ERR_OK)
-			_calibrated[1] = true;
-		else
-			_calibrated[1] = false;
-		return ERR_OK;
-	}
+	Int32 temporary_long;
+	bool temporary_cond1;
+	bool temporary_cond2; 
 	
+	/* final consideration reached? and ... */
+	temporary_long = (Int32) extract_h(_filt_abs_pos[jnt]);
+	temporary_cond1 = (__abs( temporary_long - _abs_pos_calibration[jnt]) < INPOSITION_CALIB_THRESHOLD);
+	temporary_cond2 = (_position[jnt] == _position_old[jnt]);
+	/* ... control mode is calibration? and ... */
+	temporary_cond1 = temporary_cond1 && (_control_mode[jnt] == MODE_CALIB_ABS_POS_SENS);
+	temporary_cond2 = temporary_cond2 && (_control_mode[jnt] == MODE_CALIB_HARD_STOPS);
+	/* ... trajecotry ended? */
+	temporary_cond1 = temporary_cond1 && _ended[jnt];
+	temporary_cond2 = temporary_cond2 && (_counter_calib > 1000);
+		
+	if (temporary_cond1 | temporary_cond2)
+	{
+		
+		AS1_printStringEx ("Calibration sequence terminated \r\n");
+		_control_mode[jnt] = MODE_POSITION;
+		//Reset the encoder
+		if (jnt == 0)
+			QD0_setPosition (0);
+		else
+			QD1_setPosition (0);
+		_position[jnt] = 0;
+		_position_old[jnt] = 0;
+		_integral[jnt] = 0;
+		//Keep the system in the current configuration
+		_set_point[jnt] = _position[jnt];
+		init_trajectory (jnt, _position[jnt], _position[jnt], 1);
+		_calibrated[jnt] = true;
+	}
+}
+
+/* 
+ * this function checks if trajectory is terminated
+ * and if trajectory is terminated sets the variable _in_position
+ */
+
+void check_in_position(byte jnt)
+{
+	if (_control_mode[jnt] == MODE_POSITION)
+	{
+		if (__abs(_position[jnt] - _set_point[jnt]) < INPOSITION_THRESHOLD && _ended[jnt])
+			_in_position[jnt] = true;
+		else
+			_in_position[jnt] = false;
+	}				
+}
+
+/* this function filters the position
+   from the absolute postion sensor */
+
+void compute_filt_pos(byte jnt)
+{
+	/*
+	The filter is the following:
+
+	_filt_abs_pos =  K * (position + position_old) + a_1 * _filt_abs_pos_old
+
+	Parameter a_1 is computed to filter out the noise which affect the
+	signal. In the current filter we filter out all frequencies greater than 
+	5Hz. This choice is related to the fact that the sensor is already designed
+	with a (hardware) low pass filter whose crossover freqeuncy is at 5Hz. All 
+	residual frequencies are therefore caused by transmission noises.
+	
+	Specifically we have:
+	a_1 = 32427*2^(-15).
+	K	= 11186546*2^(-31)
+	Variables are represented as follows:
+	a_1							Int16		16 bit with 15 fractional bits
+	K							Int32		32 bit with 31 fractional bits
+	_abs_pos					Int16		16 bit with 15 fractional bits
+	K * _abs_pos_old			Int32		32 bit with 31 fractional bits
+	_filt_abs_pos				Int32		32 bit with 31 fractional bits
+	_filt_abs_pos_old			Int32		32 bit with 31 fractional bits
+
+	NOTE: The variable _abs_pos_old will contain the numerical vaulue of
+	the product _abs_pos[t-1]*K. A more suitable name for the variable would
+	be _K_times_abs_pos_old; this name is not used being too long.
+	*/
+
+	Int16 a_1 = 0x7EAB;
+	Int32 K   = 0x00AAB172;
+	Int32 tmp;
+	Int32 tmp2;
+	
+	
+	tmp = L_mult_ls(K, _abs_position[jnt]);
+	tmp2 = L_mult_ls(_filt_abs_pos_old[jnt], a_1);
+	tmp2 = L_add(tmp2, _abs_position_old[jnt]);
+	_filt_abs_pos[jnt] = L_add(tmp, tmp2);
+
+	_abs_position_old[jnt] = tmp;
+	_filt_abs_pos_old[jnt] = _filt_abs_pos[jnt];
+}
+
+/* LATER: conditional compilation here */
+byte calibrate (byte channel, Int16 param)
+{
+#if VERSION == 0x0113
+	if (_control_mode[channel] != MODE_IDLE && IS_DONE(channel))
+	{
+		if (channel == 0)
+		{
+			_control_mode[channel] = MODE_CALIB_ABS_POS_SENS;
+			_abs_pos_calibration[channel] = param;
+			
+			_set_point[channel] = _abs_pos_calibration[channel];
+			_set_vel[channel] = 1;
+			init_trajectory (channel, (Int32) extract_h(_filt_abs_pos[channel]), _set_point[channel], _set_vel[channel]);	
+		}
+		else
+		{
+			_control_mode[channel] = MODE_CALIB_HARD_STOPS;
+			
+			_counter_calib = 0;
+			_pwm_calibration[channel] = param;
+		}
+
+		AS1_printStringEx ("Calibration sequence started \r\n");
+	}
+
+#elif VERSION == 0x0112
+	if (_control_mode[channel] != MODE_IDLE && IS_DONE(channel))
+	{
+		_control_mode[channel] = MODE_CALIB_ABS_POS_SENS;
+		_abs_pos_calibration[channel] = param;
+		
+		_set_point[channel] = _abs_pos_calibration[channel];
+		_set_vel[channel] = 1;
+		init_trajectory (channel, (Int32) extract_h(_filt_abs_pos[channel]), _set_point[channel], _set_vel[channel]);	
+
+		AS1_printStringEx ("Calibration sequence started \r\n");
+	}
+#else
+	if (_control_mode[channel] != MODE_IDLE && IS_DONE(channel))
+	{
+		_control_mode[channel] = MODE_CALIB_HARD_STOPS;
+			
+		_counter_calib = 0;
+		_pwm_calibration[channel] = param;
+		
+		AS1_printStringEx ("Calibration sequence started \r\n");
+	}
+#endif
+
+
 	/* need to change this return val */
 	return ERR_SPEED;
 }
@@ -1328,13 +1666,11 @@ byte serial_interface (void)
 			if (_control_mode[channel] == MODE_IDLE)
 			{
 				_control_mode[channel] = MODE_POSITION;
-				_calibrated[channel] = true;
 				AS1_printStringEx ("mode = position\r\n");
 			}
 			else
 			{
 				_control_mode[channel] = MODE_IDLE;
-				_calibrated[channel] = false;
 				AS1_printStringEx ("mode = idle\r\n");
 			}
 			c = 0;

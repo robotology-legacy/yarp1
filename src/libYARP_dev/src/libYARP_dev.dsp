@@ -330,5 +330,17 @@ SOURCE=..\esddaq\winnt\yarp\YARPEsdDaqDeviceDriver.cpp
 SOURCE=..\esddaq\winnt\yarp\YARPEsdDaqDeviceDriver.h
 # End Source File
 # End Group
+# Begin Group "esd"
+
+# PROP Default_Filter "cpp;h"
+# Begin Source File
+
+SOURCE=..\esd\winnt\yarp\YARPEsdDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\esd\winnt\yarp\YARPEsdDeviceDriver.h
+# End Source File
+# End Group
 # End Target
 # End Project

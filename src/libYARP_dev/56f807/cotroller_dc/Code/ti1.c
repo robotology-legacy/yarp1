@@ -62,8 +62,8 @@ void TI1_init (void)
 void TI1_interrupt (void)
 {
 	clrRegBit (TMRA0_SCR, TCF);            /* Reset interrupt request flag */
-	//if (!_wait)
-	//	AS1_sendCharSafe ('%');
+	if (!_wait)
+		AS1_sendCharSafe ('%');
 	_wait = false;
 	//TI1_OnInterrupt();                   /* Invoke user event */
 }

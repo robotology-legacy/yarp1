@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.18 2006-02-20 12:45:09 gmetta Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.19 2006-05-15 10:51:01 babybot Exp $
 ///
 ///
 
@@ -61,7 +61,7 @@ enum ControlBoardCmd
 	CMDGetPositions 		= 8,	// see above, all axes.
 	CMDSetSpeed				= 0,	// set the reference speed for position control.
 	CMDSetSpeeds 			= 5,	// see above, all axes.
-	CMDGetSpeed				= 87,	// istantaneous speed, read from encoder (single joint)
+	CMDGetSpeed				= 20,	// istantaneous speed, read from encoder (single joint)
 	CMDGetSpeeds			= 21,	// istantaneous speed, read from encoders.
 	// CMDGetAcceleration	=	,	// istantaneous acceleration of a single axis.
 	CMDGetAccelerations		= 90,   // istantaneous acceleration for all axes.
@@ -110,6 +110,7 @@ enum ControlBoardCmd
 	CMDSetPositionRelative	= 91,   // peform relative motion on a single axis.
 	CMDSetPositionsRelative = 92,   // perform relative motion on multiple axis (LATER: name to be standardized!).
 	CMDCheckMotionDone 		= 48,	// check for motion done - if the previous command required trajectory generation.
+    CMDCheckMotionDoneSingle = 15,  // checl for motion done on a single axis.
 	CMDWaitForMotionDone 	= 49,	// wait (loop with sleep) - polling at a certain rate.
 	// CMDStopAxis			=   ,	// issues a stop command to a single axis.
 	CMDStopAxes				= 18,	// issues a stop command to all axes.
@@ -161,12 +162,14 @@ enum ControlBoardCmd
 	CMDSetPositionControlMode = 86,   // set position mode.
 	CMDSetForceControlMode	  = 87,	  // set force control mode.
 	// CMDSetVelocityControlMode = ,
-	CMDSetHomingBehavior	= 52,	// sets the homing behavior during calibration (search what, index, etc.)
+    CMDStartCalibration     = 104,  // start calibration (homing procedure) of a single joint.
+    CMDSetHomingBehavior	= 52,	// sets the homing behavior during calibration (search what, index, etc.)
 									// it's doubtful whether this command is to be maintained.
 	CMDResetController 		= 57,	// reset the controller.
 	CMDGetErrorStatus		= 74,	// gets the error status of the control card.
-	CMDGetFault				= 102,  // gets fault events for a single axis.
+	CMDGetFault				= 101,  // gets fault events for a single axis.
 	CMDGetFaults			= 103,  // gets fault events for all axes.
+    CMDGetControlMode       = 14,   // gets the control mode (velocity, position, etc). 
 	CMDLoadBootMemory		= 72,	// loads control values from permanent storage.
 	CMDSaveBootMemory		= 73,	// saves important parameters to permanent storage.
 
@@ -179,7 +182,7 @@ enum ControlBoardCmd
 	//
 	// Make sure the CBNCmds is always up to date.
 	//
-	CBNCmds 				= 104 	// required! tells the total number of commands
+	CBNCmds 				= 105 	// required! tells the total number of commands
 };
 
 

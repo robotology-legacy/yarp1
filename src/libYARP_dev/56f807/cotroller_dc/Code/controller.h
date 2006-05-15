@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.34 2006-03-14 17:16:23 babybot Exp $
+/// $Id: controller.h,v 1.35 2006-05-15 10:51:01 babybot Exp $
 ///
 ///
 
@@ -54,23 +54,30 @@
 //#define VERSION 0x0111   				/* standard/basic implementation */
 //#define VERSION 0x0112				/* decouples shoulder first two joints */
 //#define VERSION 0x0113			   	/* decouples the third joint of the shoulder */
-#define VERSION 0x0114		    	/* feedback from the AD */
-//#define VERSION 0x0115		    		/* coordinated control of the eyes */
+//#define VERSION 0x0114		    	/* feedback from the AD */
+#define VERSION 0x0115		    	/* coordinated control of the eyes */
 
 //#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
 //#define DEBUG_TRAJECTORY 		1		/* print encoder/joint position */
 #define DEBUG_SERIAL			1		/* for debugging through terminal */
-//#define EMERGENCY_DISABLED		1	/* emergency fault signal disabled */
+//#define DEBUG_CURRENT			1		/* for debugging current through terminal */
+//#define DEBUG_CALIBRATION		1		/* for calibration debugging through terminal */
+//#define EMERGENCY_DISABLED	1		/* emergency fault signal disabled */
+
 
 #define DEFAULT_BOARD_ID	15		/* default ID for receiving messages (4 bit field) */
 #define SMALL_BUFFER_SIZE 	10		/* for serial I/O */
 #define CONTROLLER_PERIOD 	1		/* espressed in ms */
-#define JN 2						/* number of axes, can't be changed anyway */
+#define JN 					2		/* number of axes, can't be changed anyway */
 
-#define MODE_IDLE		0
-#define MODE_POSITION 	1
-#define MODE_VELOCITY	2
+#define MODE_IDLE					0
+#define MODE_POSITION 				1
+#define MODE_VELOCITY				2
+#define MODE_TORQUE					3
+#define MODE_CALIB_ABS_POS_SENS		0x10
+#define MODE_CALIB_HARD_STOPS		0x20
+#define MODE_HANDLE_HARD_STOPS		0x30
 
 #define DEFAULT_VELOCITY 10
 #define DEFAULT_ACCELERATION 10
@@ -231,7 +238,7 @@ Int16 abort_trajectory (byte jj, Int32 limit);
 /* prototypes from controller.c */
 byte serial_interface (void);
 byte can_interface (void);
-byte calibrate (byte jnt);
+byte calibrate (byte channel, Int16 param);
 byte writeToFlash (word addr);
 byte readFromFlash (word addr);
 void generatePwm (byte i);

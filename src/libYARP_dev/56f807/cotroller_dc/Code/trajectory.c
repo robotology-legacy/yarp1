@@ -56,7 +56,7 @@ Int16 init_trajectory (byte jj, Int32 current, Int32 final, Int16 speed)
 	_xf[jj] = final;
 	
 	_distance[jj] = _xf[jj] - _x0[jj];
-	_tf[jj] = __labs (_distance[jj]) / speedf;
+	_tf[jj] = 100 *__labs (_distance[jj]) / speedf;
 	_tf[jj] /= (float)_period;
 	_stepf[jj] = 1 / _tf[jj];
 	
