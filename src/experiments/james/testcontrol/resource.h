@@ -56,25 +56,43 @@
 #define IDC_BUTTON_J4                   1026
 #define IDC_BUTTON_NECKPAN              1027
 #define IDC_BUTTON_ROLLTILT             1028
+#define IDC_BUTTON_J5                   1029
+#define IDC_BUTTON_A_J0                 1029
 #define IDC_EDIT_MIN                    1030
 #define IDC_BUTTON_CALIBRATEHEAD        1030
+#define IDC_BUTTON_A_J1                 1030
 #define IDC_EDIT_MAX                    1031
 #define IDC_BUTTON_STORE_CURRENT        1031
+#define IDC_BUTTON_A_J2                 1031
 #define IDC_BUTTON_SETMINMAX            1032
 #define IDC_BUTTON_0ENCODERS            1032
+#define IDC_BUTTON_A_J3                 1032
 #define IDC_EDIT_PA1                    1033
+#define IDC_BUTTON_A_J4                 1033
 #define IDC_EDIT_PA2                    1034
+#define IDC_BUTTON_A_J5                 1034
 #define IDC_EDIT_PA3                    1035
+#define IDC_BUTTON_A_J6                 1035
 #define IDC_EDIT_PA4                    1036
+#define IDC_BUTTON_A_J7                 1036
 #define IDC_EDIT_PA5                    1037
+#define IDC_BUTTON_A_J8                 1037
 #define IDC_EDIT_PA6                    1038
+#define IDC_BUTTON_A_J9                 1038
 #define IDC_EDIT_PA7                    1039
+#define IDC_BUTTON_A_J10                1039
 #define IDC_EDIT_PA8                    1040
+#define IDC_BUTTON_A_J11                1040
 #define IDC_EDIT_PA9                    1041
+#define IDC_BUTTON_A_J12                1041
 #define IDC_EDIT_PA10                   1042
+#define IDC_BUTTON_A_J13                1042
 #define IDC_EDIT_PA11                   1043
+#define IDC_BUTTON_A_J14                1043
 #define IDC_EDIT_PA12                   1044
+#define IDC_BUTTON_H_CAL                1044
 #define IDC_EDIT_PA13                   1045
+#define IDC_BUTTON_A_CAL                1045
 #define IDC_EDIT_PA14                   1046
 #define IDC_EDIT_PA15                   1047
 #define IDC_EDIT_VA1                    1048
@@ -173,6 +191,7 @@
 #define IDC_EDIT_FAULT                  1248
 #define IDC_EDIT_C4                     1249
 #define IDC_EDIT_FAULTARM               1249
+#define IDC_BUTTON2                     1249
 #define IDC_EDIT_C5                     1250
 #define IDC_EDIT_C6                     1251
 #define IDC_EDIT_C7                     1252
@@ -216,14 +235,15 @@
 #define ID_FILE_SAVESEQUENCE            32784
 #define ID_INTERFACE_SHOWHALLEFFECT     32785
 #define ID_INTERFACE_HIDEHALLEFFECT     32786
+#define ID_INTERFACE_CALIBRATIONPANEL   32787
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        142
-#define _APS_NEXT_COMMAND_VALUE         32787
-#define _APS_NEXT_CONTROL_VALUE         1249
+#define _APS_NEXT_COMMAND_VALUE         32788
+#define _APS_NEXT_CONTROL_VALUE         1250
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

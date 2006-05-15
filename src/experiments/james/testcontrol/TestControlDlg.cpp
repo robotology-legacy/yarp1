@@ -291,7 +291,6 @@ void CTestControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_GO_ARM, m_go_ctrl_arm);
 	DDX_Control(pDX, IDC_BUTTON_0ENCODERS_ARM, m_0encoders_ctrl_arm);
 	DDX_Control(pDX, IDC_BUTTON_0ENCODERS, m_0encoders_ctrl);
-	DDX_Control(pDX, IDC_BUTTON_CALIBRATEHEAD, m_calibratehead_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_STORE_CURRENT, m_storecurrent_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_GO, m_go_ctrl);
 	DDX_Control(pDX, IDC_COMBO_ENTRY, m_entry_ctrl);
@@ -332,7 +331,6 @@ BEGIN_MESSAGE_MAP(CTestControlDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(ID_FILE_LOADPOSTURES, OnUpdateFileLoadpostures)
 	ON_COMMAND(ID_FILE_SAVEPOSTURES, OnFileSavepostures)
 	ON_UPDATE_COMMAND_UI(ID_FILE_SAVEPOSTURES, OnUpdateFileSavepostures)
-	ON_BN_CLICKED(IDC_BUTTON_CALIBRATEHEAD, OnButtonCalibratehead)
 	ON_BN_CLICKED(IDC_BUTTON_0ENCODERS, OnButton0encoders)
 	ON_BN_CLICKED(IDC_BUTTON_0ENCODERS_ARM, OnButton0encodersArm)
 	ON_BN_CLICKED(IDC_BUTTON_GO_ARM, OnButtonGoArm)
@@ -356,6 +354,8 @@ BEGIN_MESSAGE_MAP(CTestControlDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(ID_INTERFACE_SHOWHALLEFFECT, OnUpdateInterfaceShowhalleffect)
 	ON_UPDATE_COMMAND_UI(ID_INTERFACE_HIDEGAIN, OnUpdateInterfaceHidegain)
 	ON_UPDATE_COMMAND_UI(ID_INTERFACE_SHOWGAIN, OnUpdateInterfaceShowgain)
+	ON_COMMAND(ID_INTERFACE_CALIBRATIONPANEL, OnInterfaceCalibrationpanel)
+	ON_UPDATE_COMMAND_UI(ID_INTERFACE_CALIBRATIONPANEL, OnUpdateInterfaceCalibrationpanel)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -536,9 +536,11 @@ void CTestControlDlg::EnableGUI ()
 	SetTimer (TIMER_ID, GUI_REFRESH_INTERVAL, NULL); 
 
 	_gaincontroldlg.EnableInterface();
-	_calibrationdlg.EnableInterface();
 	_sequencedlg.EnableInterface();
 	_touchdlg.EnableInterface();
+
+    if (_headrunning && _armrunning)
+	    _calibrationdlg.EnableInterface();
 
 	if (_headinitialized)
 	{
@@ -556,7 +558,6 @@ void CTestControlDlg::EnableGUI ()
 			m_v_ctrl[i].EnableWindow();
 		}
 
-		m_calibratehead_ctrl.EnableWindow();
 		m_0encoders_ctrl.EnableWindow();
 		m_edit_fault.EnableWindow();
 	}
@@ -606,7 +607,6 @@ void CTestControlDlg::DisableGUI ()
 		m_v_ctrl[i].EnableWindow(FALSE);
 	}
 
-	m_calibratehead_ctrl.EnableWindow(FALSE);
 	m_0encoders_ctrl.EnableWindow(FALSE);
 	m_edit_fault.EnableWindow(FALSE);
 	m_edit_faultarm.EnableWindow(FALSE);
@@ -862,12 +862,9 @@ void CTestControlDlg::OnInterfaceStop()
 	
 	if (_touchinitialized)
 	{
-
 		touch.close ();
 		_touchrunning = false;
-
 		_touchinitialized = false;
-
 	}
 
 	DisableGUI ();
@@ -921,25 +918,39 @@ void CTestControlDlg::OnInterfaceHidegain()
 void CTestControlDlg::OnButtonRun() 
 {
 	if (head.activatePID (false) == YARP_OK)
+    {
 		_headrunning = true;
+        if (_armrunning)
+            _calibrationdlg.EnableInterface();
+    }
 }
 
 void CTestControlDlg::OnButtonRunArm() 
 {
 	if (arm.activatePID (false) == YARP_OK)
+    {
 		_armrunning = true;
+        if (_headrunning)
+            _calibrationdlg.EnableInterface();
+    }
 }
 
 void CTestControlDlg::OnButtonIdle() 
 {
 	if (head.idleMode () == YARP_OK)
+    {
 		_headrunning = false;
+        _calibrationdlg.DisableInterface();
+    }
 }
 
 void CTestControlDlg::OnButtonIdleArm() 
 {
 	if (arm.idleMode () == YARP_OK)
+    {
 		_armrunning = false;
+        _calibrationdlg.DisableInterface();
+    }
 }
 
 void CTestControlDlg::OnTimer(UINT nIDEvent) 
@@ -1296,17 +1307,10 @@ void CTestControlDlg::OnUpdateFileSavepostures(CCmdUI* pCmdUI)
 	pCmdUI->Enable (_headinitialized || _arminitialized);
 }
 
-void CTestControlDlg::OnButtonCalibratehead() 
-{
-	if (_headrunning)
-		_calibrationdlg.ShowWindow (SW_SHOW);	
-	else
-		MessageBox ("The controller must be running before calibrating", "Error!");
-}
-
 void CTestControlDlg::OnButton0encoders() 
 {
 	// safely disables amplifiers first!
+    _calibrationdlg.DisableInterface();
 	head.idleMode ();
 	head.resetEncoders ();
 	_headrunning = false;
@@ -1317,6 +1321,7 @@ void CTestControlDlg::OnButton0encoders()
 void CTestControlDlg::OnButton0encodersArm() 
 {
 	// safely disables amplifiers first!
+    _calibrationdlg.DisableInterface();
 	arm.idleMode ();
 	arm.resetEncoders ();
 	_armrunning = false;
@@ -1464,4 +1469,14 @@ void CTestControlDlg::OnUpdateInterfaceHidegain(CCmdUI* pCmdUI)
 void CTestControlDlg::OnUpdateInterfaceShowgain(CCmdUI* pCmdUI) 
 {
 	pCmdUI->Enable (!_gaincontroldlg.IsWindowVisible());
+}
+
+void CTestControlDlg::OnInterfaceCalibrationpanel() 
+{
+    _calibrationdlg.ShowWindow (SW_SHOW);
+}
+
+void CTestControlDlg::OnUpdateInterfaceCalibrationpanel(CCmdUI* pCmdUI) 
+{
+    pCmdUI->Enable (_headrunning && _armrunning);	
 }

@@ -7,6 +7,10 @@
 // CalibrationDlg.h : header file
 //
 
+#ifndef MAX_ARM_JNTS
+#define MAX_ARM_JNTS 15
+#endif
+
 /////////////////////////////////////////////////////////////////////////////
 // CCalibrationDlg dialog
 
@@ -21,6 +25,8 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CCalibrationDlg)
 	enum { IDD = IDD_DIALOG_CALIBRATION };
+	CButton	m_button_acal;
+	CButton	m_button_hcal;
 	CButton	m_rolltilt_ctrl;
 	CButton	m_neckpan_ctrl;
 	CButton	m_j4_ctrl;
@@ -28,6 +34,7 @@ public:
 	CButton	m_j2_ctrl;
 	CButton	m_j1_ctrl;
 	//}}AFX_DATA
+	CButton	m_button_aj[MAX_ARM_JNTS];
 
 
 // Overrides
@@ -47,6 +54,23 @@ protected:
 	afx_msg void OnButtonJ2();
 	afx_msg void OnButtonJ3();
 	afx_msg void OnButtonJ4();
+	afx_msg void OnButtonAJ0();
+	afx_msg void OnButtonAJ1();
+	afx_msg void OnButtonAJ2();
+	afx_msg void OnButtonAJ3();
+	afx_msg void OnButtonAJ4();
+	afx_msg void OnButtonAJ5();
+	afx_msg void OnButtonAJ6();
+	afx_msg void OnButtonAJ7();
+	afx_msg void OnButtonAJ8();
+	afx_msg void OnButtonAJ9();
+	afx_msg void OnButtonAJ10();
+	afx_msg void OnButtonAJ11();
+	afx_msg void OnButtonAJ12();
+	afx_msg void OnButtonAJ13();
+	afx_msg void OnButtonAJ14();
+	afx_msg void OnButtonACal();
+	afx_msg void OnButtonHCal();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -39,6 +39,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "collector"=.\collector\collector.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "drivertest"=.\drivertest\drivertest.dsp - Package Owner=<4>
 
 Package=<5>

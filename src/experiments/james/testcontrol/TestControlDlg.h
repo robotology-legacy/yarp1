@@ -94,7 +94,6 @@ public:
 	CButton	m_go_ctrl_arm;
 	CButton	m_0encoders_ctrl_arm;
 	CButton	m_0encoders_ctrl;
-	CButton	m_calibratehead_ctrl;
 	CButton	m_storecurrent_ctrl;
 	CButton	m_go_ctrl;
 	CComboBox	m_entry_ctrl;
@@ -145,7 +144,6 @@ protected:
 	afx_msg void OnUpdateFileLoadpostures(CCmdUI* pCmdUI);
 	afx_msg void OnFileSavepostures();
 	afx_msg void OnUpdateFileSavepostures(CCmdUI* pCmdUI);
-	afx_msg void OnButtonCalibratehead();
 	afx_msg void OnButton0encoders();
 	afx_msg void OnButton0encodersArm();
 	afx_msg void OnButtonGoArm();
@@ -169,6 +167,8 @@ protected:
 	afx_msg void OnUpdateInterfaceShowhalleffect(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateInterfaceHidegain(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateInterfaceShowgain(CCmdUI* pCmdUI);
+	afx_msg void OnInterfaceCalibrationpanel();
+	afx_msg void OnUpdateInterfaceCalibrationpanel(CCmdUI* pCmdUI);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
