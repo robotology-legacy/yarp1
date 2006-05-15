@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.3 2006-05-15 15:31:49 babybot Exp $
+/// $Id: main.cpp,v 1.4 2006-05-15 17:00:39 gmetta Exp $
 ///		Collects broadcast messages and dump them to file.
 ///
 ///
@@ -45,6 +45,8 @@
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/log_msg.h>
+#include <ace/Time_Value.h>
+#include <ace/High_Res_Timer.h>
 
 #include <yarp/YARPControlBoardUtils.h>
 #include <yarp/YARPADCUtils.h>
@@ -145,6 +147,77 @@ const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0e, 0x0d, 0x0c, 0x0b,
 YARPEsdDeviceDriver head;
 YARPEsdDeviceDriver arm;
 YARPEsdDaqDeviceDriver touch;
+
+class MyThread : public YARPThread
+{
+public:
+	int period;
+	int steps;
+
+	MyThread ()
+	{
+		period = 10;
+		steps = 50;
+	}
+
+public:
+	virtual void Body (void)
+	{
+		double before = YARPTime::GetTimeAsSeconds(), now = 0.0;
+		double beginning = before;
+
+		ACE_High_Res_Timer	thread_timer;	  // timer to estimate thread time
+		ACE_High_Res_Timer	measure_timer;	  // timer to estimate thread time
+		ACE_Time_Value		est_time;		  // thread time
+		ACE_Time_Value		sleep_period;	  // thread sleep
+		ACE_Time_Value		xtime;
+
+		ACE_Time_Value		lperiod;
+		lperiod.set(0, period * 1000); // period here is usec
+		double acc = 0;
+
+		int cycle;
+		for (cycle = 0; cycle < steps; cycle++)
+		{
+			measure_timer.stop();
+			measure_timer.elapsed_time(xtime);
+			measure_timer.start();
+			acc += (double(xtime.sec()) + double(xtime.usec()) * 1e-6);
+			ACE_OS::printf ("%lf %lf abs: %lf\n", double(xtime.sec()), double(xtime.usec())*1e-6, acc);
+
+			thread_timer.start();
+			
+			/// wait.
+//			now = YARPTime::GetTimeAsSeconds();
+//			ACE_OS::printf ("%lf %lf abs: %lf\n", now, before, now-beginning);
+#if 0
+			if ((now - before)*1000 < sampling_period)
+			{
+				//ACE_OS::printf("%d: time: %f %f\n", cycle, now, before);
+				double k = double(sampling_period)/1000.0-(now-before);
+				YARPTime::DelayInSeconds(k);
+				before = now + k;
+			}
+			else 
+			{
+				//ACE_OS::printf("%d: Thread can't poll fast enough (time: %f)\n", cycle, now-before);
+				ACE_OS::printf("*");
+				before = now;
+			}
+#endif
+			thread_timer.stop();
+			thread_timer.elapsed_time(est_time);
+
+			sleep_period = lperiod - est_time;
+			if (sleep_period.usec() < 0 || sleep_period.sec() < 0)
+				sleep_period.set(0,0);
+
+			ACE_OS::sleep(sleep_period);
+		}
+	}
+
+};
+
 
 ///
 ///
@@ -358,7 +431,8 @@ int main (int argc, char *argv[])
         ACE_OS::printf ("troubles reading from the arm config file\n");
     }
 
-    double before = YARPTime::GetTimeAsSeconds(), now = 0.0;
+
+    double before = YARPTime::GetTimeAsSecondsHr(), now = 0.0;
     double beginning = before;
 
 	int cycle;
@@ -404,7 +478,7 @@ int main (int argc, char *argv[])
 #endif
 
 		/// wait.
-		now = YARPTime::GetTimeAsSeconds();
+		now = YARPTime::GetTimeAsSecondsHr();
         ACE_OS::printf ("%lf %lf abs: %lf\n", now, before, now-beginning);
 #if 0
         if ((now - before)*1000 < sampling_period)

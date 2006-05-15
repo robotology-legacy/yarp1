@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPTime.h,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: YARPTime.h,v 2.1 2006-05-15 17:00:04 gmetta Exp $
 ///
 ///
 /*
@@ -91,6 +91,12 @@ public:
 	 * @param delay_in_seconds is the requested wait time.
 	 */
 	static void DelayInSeconds (double delay_in_seconds);
+
+	/**
+	 * Gets the current system time.
+	 * @return the current system time as a double precision value from a high-res timer.
+	 */
+	static double GetTimeAsSecondsHr (void);
 };
 
 #endif

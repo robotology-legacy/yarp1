@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPTime.cpp,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: YARPTime.cpp,v 2.1 2006-05-15 17:00:04 gmetta Exp $
 ///
 ///
 
@@ -70,6 +70,7 @@
 
 #include <ace/config.h>
 #include <ace/OS.h>
+#include <ace/High_Res_Timer.h>
 
 #include <yarp/YARPTime.h>
 
@@ -79,6 +80,15 @@ double YARPTime::GetTimeAsSeconds()
 
 	ACE_Time_Value timev = ACE_OS::gettimeofday ();
 	return double(timev.sec()) + timev.usec() * 1e-6; 
+}
+
+/// hi-res version.
+double YARPTime::GetTimeAsSecondsHr()
+{
+	ACE_Time_Value t;
+	t = ACE_High_Res_Timer::gettimeofday_hr();
+
+	return double(t.sec()) + t.usec() * 1e-6; 
 }
 
 ///
