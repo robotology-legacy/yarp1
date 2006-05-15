@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesArmAdapter.h,v 1.7 2006-02-20 17:39:12 babybot Exp $
+/// $Id: YARPCanOnJamesArmAdapter.h,v 1.8 2006-05-15 12:27:57 babybot Exp $
 ///
 ///
 
@@ -103,9 +103,11 @@ namespace _JamesArm
 	const int _axis_map[_nj]			= { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
 	const double _signs[_nj]			= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-//	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 	const double _currentLimits[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    const double _calibration[_nj]      = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    const double _zero_calibration[_nj] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    const double _vel_calibration[_nj]  = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
 	const int CANBUS_DEVICE_NUM			= 1; ///1;	[must be 1 if two cards are present]
 	const int CANBUS_MY_ADDRESS			= 0;
@@ -113,8 +115,8 @@ namespace _JamesArm
 	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
 	const int CANBUS_MAXCARDS			= 16;			/// because of the structure of the protocol.
 
-	const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
-														   0x0b, 0x0a, 0x09, 0x08,
+	const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0e, 0x0d, 0x0c, 0x0b, 
+														   0x0a, 0x09, 0x08, 0x07,
 														   0x80, 0x80, 0x80, 0x80,
 														   0x80, 0x80, 0x80, 0x80 };
 }; // namespace
@@ -151,12 +153,14 @@ public:
 		_axis_map = NULL;
 		_inv_axis_map = NULL;
 		_encoderToAngles = NULL;
-//		_stiffPID = NULL;
 		_maxDAC = NULL;
 		_limitsMax = NULL;
 		_limitsMin = NULL;
 		_destinations = NULL;
 		_currentLimits = NULL;
+        _calibration = NULL;
+        _zero_calibration = NULL;
+        _vel_calibration = NULL;
 
 		_nj = _JamesArm::_nj;
 		_realloc(_nj);
@@ -168,10 +172,12 @@ public:
 		// signs should be int or bool?
 		ACE_OS::memcpy (_signs, _JamesArm::_signs, sizeof(double) * _nj);
 		ACE_OS::memcpy (_encoderToAngles, _JamesArm::_encoderToAngles, sizeof(double) * _nj);
-//		ACE_OS::memcpy (_stiffPID, _JamesArm::_stiffPID, sizeof(int) * _nj);
 		ACE_OS::memcpy (_maxDAC, _JamesArm::_maxDAC, sizeof(double) * _nj);
 		ACE_OS::memcpy (_destinations, _JamesArm::_destinations, sizeof(unsigned char) * _JamesArm::CANBUS_MAXCARDS);
 		ACE_OS::memcpy (_currentLimits, _JamesArm::_currentLimits, sizeof(double) * _nj);
+        ACE_OS::memcpy (_calibration, _JamesArm::_calibration, sizeof(double) * _nj);
+        ACE_OS::memcpy (_zero_calibration, _JamesArm::_zero_calibration, sizeof(double) * _nj);
+        ACE_OS::memcpy (_vel_calibration, _JamesArm::_vel_calibration, sizeof(double) * _nj);
 
 		// invert the axis map.
 		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
@@ -205,12 +211,14 @@ public:
 		if (_axis_map != NULL) delete [] _axis_map;
 		if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL) delete [] _encoderToAngles;
-//		if (_stiffPID != NULL) delete [] _stiffPID;
 		if (_maxDAC != NULL) delete [] _maxDAC;
 		if (_limitsMax != NULL) delete [] _limitsMax;
 		if (_limitsMin != NULL) delete [] _limitsMin;
 		if (_destinations != NULL) delete[] _destinations;
 		if (_currentLimits != NULL) delete[] _currentLimits;
+        if (_calibration != NULL) delete[] _calibration;
+        if (_zero_calibration != NULL) delete[] _zero_calibration;
+        if (_vel_calibration != NULL) delete[] _vel_calibration;
 	}
 
 	/**
@@ -274,9 +282,13 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "MaxDAC", _maxDAC, _nj) == YARP_FAIL)
 			return YARP_FAIL;
-//		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
-//			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "CurrentLimits", _currentLimits, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "Calibration", _calibration, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "ZeroCalibration", _zero_calibration, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "ZeroVelocity", _vel_calibration, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
 		int tmp[_JamesArm::CANBUS_MAXCARDS];
@@ -328,12 +340,14 @@ public:
 			ACE_OS::memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
 			ACE_OS::memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
 			ACE_OS::memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
-//			ACE_OS::memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
 			ACE_OS::memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
 			ACE_OS::memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
 			ACE_OS::memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
 			ACE_OS::memcpy (_destinations, peer._destinations, sizeof(unsigned char) * _JamesArm::CANBUS_MAXCARDS);
 			ACE_OS::memcpy (_currentLimits, peer._currentLimits, sizeof(double) * _nj);
+			ACE_OS::memcpy (_calibration, peer._calibration, sizeof(double) * _nj);
+			ACE_OS::memcpy (_zero_calibration, peer._zero_calibration, sizeof(double) * _nj);
+			ACE_OS::memcpy (_vel_calibration, peer._vel_calibration, sizeof(double) * _nj);
 			_p = peer._p;
 			_message_filter = peer._message_filter;
 		}
@@ -346,12 +360,14 @@ public:
 			if (_axis_map != NULL) delete [] _axis_map;
 			if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 			if (_encoderToAngles != NULL) delete [] _encoderToAngles;
-//			if (_stiffPID != NULL) delete [] _stiffPID;
 			if (_maxDAC != NULL) delete [] _maxDAC;
 			if (_limitsMax != NULL) delete [] _limitsMax;
 			if (_limitsMin != NULL) delete [] _limitsMin;
 			if (_destinations != NULL) delete[] _destinations;
 			if (_currentLimits != NULL) delete[] _currentLimits;
+            if (_calibration != NULL) delete[] _calibration;
+            if (_zero_calibration != NULL) delete[] _zero_calibration;
+            if (_vel_calibration != NULL) delete[] _vel_calibration;
 
 			_highPIDs = NULL;
 			_lowPIDs = NULL;
@@ -360,12 +376,14 @@ public:
 			_axis_map = NULL;
 			_inv_axis_map = NULL;
 			_encoderToAngles = NULL;
-//			_stiffPID = NULL;
 			_maxDAC = NULL;
 			_limitsMax = NULL;
 			_limitsMin = NULL;
 			_destinations = NULL;
 			_currentLimits = NULL;
+            _calibration = NULL;
+            _zero_calibration = NULL;
+            _vel_calibration = NULL;
 
 			_p = peer._p;
 			_message_filter = peer._message_filter;
@@ -388,12 +406,14 @@ private:
 		if (_axis_map != NULL) delete [] _axis_map;
 		if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL) delete [] _encoderToAngles;
-//		if (_stiffPID != NULL) delete [] _stiffPID;
 		if (_maxDAC != NULL) delete [] _maxDAC;
 		if (_limitsMax != NULL) delete [] _limitsMax;
 		if (_limitsMin != NULL) delete [] _limitsMin;
 		if (_destinations != NULL) delete[] _destinations;
 		if (_currentLimits != NULL) delete[] _currentLimits;
+        if (_calibration != NULL) delete[] _calibration;
+        if (_zero_calibration != NULL) delete[] _zero_calibration;
+        if (_vel_calibration != NULL) delete[] _vel_calibration;
 
 		_highPIDs = new LowLevelPID [nj];
 		_lowPIDs = new LowLevelPID [nj];
@@ -404,10 +424,12 @@ private:
 		_encoderToAngles = new double [nj];
 		_limitsMax = new double [nj];
 		_limitsMin = new double [nj];
-//		_stiffPID = new int [nj];
 		_maxDAC = new double [nj];
 		_destinations = new unsigned char[_JamesArm::CANBUS_MAXCARDS];
 		_currentLimits = new double [nj];
+        _calibration = new double [nj];
+        _zero_calibration = new double [nj];
+        _vel_calibration = new double [nj];
 
 		// LATER: add missing check on memory allocation.
 	}
@@ -422,12 +444,14 @@ public:
 	int				*_axis_map;
 	int				*_inv_axis_map;
 	double			*_encoderToAngles;
-//	int				*_stiffPID;
 	double			*_maxDAC;
 	double			*_limitsMax;
 	double			*_limitsMin;
 	unsigned char	*_destinations;
 	double			*_currentLimits;
+    double          *_calibration;
+    double          *_zero_calibration;
+    double          *_vel_calibration;
 
 	int (* _p) (const char *fmt, ...);
 	int _message_filter;
@@ -723,50 +747,222 @@ public:
 	}
 
 	/**
+	 * Move to the zero position after calibration.
+	 * @param joint is the joint to be calibrated.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+    int goToZero (int joint)
+    {
+//        int zero_position[15] = { -50000, 0, 0, 0, -50000, 100000, -40000, 0, 0, 0, 0, 0, 0, 0, 0};
+//        int zero_speed[15] = { 1000, 0, 0, 0, 1000, 1000, 1000, 0, 1000, 0, 0, 0, 0, 0, 0 };
+        int calibration_axis = _parameters->_axis_map[joint];
+        
+        bool finished = false;
+        if (_parameters->_vel_calibration[joint] == 0)
+            return YARP_OK;
+
+        // set speed.
+		SingleAxisParameters cmd;
+		cmd.axis = calibration_axis;
+
+        double vel;
+		if (_parameters->_signs[joint] == 1)
+			vel = -(_parameters->_vel_calibration[joint] * 
+					_parameters->_encoderToAngles[joint]) / 360.0 + 
+					_parameters->_zeros[joint];
+		else
+			vel = (_parameters->_vel_calibration[joint] * 
+					_parameters->_encoderToAngles[joint]) / 360.0 + 
+					_parameters->_zeros[joint];
+        
+		cmd.parameters = &vel;
+        IOCtl(CMDSetSpeed, &cmd);
+
+        // set position.
+		double pos;
+		if (_parameters->_signs[joint] == 1)
+			pos = -(_parameters->_zero_calibration[joint] * 
+					_parameters->_encoderToAngles[joint]) / 360.0 + 
+					_parameters->_zeros[joint];
+		else
+			pos = (_parameters->_zero_calibration[joint] * 
+					_parameters->_encoderToAngles[joint]) / 360.0 + 
+					_parameters->_zeros[joint];
+
+		cmd.parameters = &pos;
+		IOCtl(CMDSetPosition, &cmd);
+
+        YARPTime::DelayInSeconds (0.3);
+
+        // wait.
+        int timeout = 0;
+        while (!finished)
+        {
+            double fin = 0;
+            cmd.parameters = &fin;
+    		IOCtl(CMDCheckMotionDoneSingle, &cmd);
+            finished = bool(fin);
+
+            YARPTime::DelayInSeconds (0.5);
+            timeout ++;
+            if (timeout >= 50)
+                finished = true;
+        }
+
+        return YARP_OK;
+    }
+
+	/**
 	 * Just a generic calibration helper function. WARNING: errors are not handled!
 	 * @param joint is the joint to be calibrated.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
-	int genericCalibrate (int joint)
+	int genericCalibrate (int joint, short parameter)
 	{
-		const double DESIRED_ACC = 2;
-		const double DESIRED_SPEED = 40;
-		const double THRESHOLD = 100;
-		const double MARGIN = 500;
+        int calibration_axis = _parameters->_axis_map[joint];
+        const int timeout = 60;
+        // LATER: to be moved to conf file.
 
-		double max_position = 0;
-		double min_position = 0;
+        switch (joint)
+        {
+        case 0:
+            {
+                int j = _parameters->_axis_map[2];
+			    IOCtl(CMDControllerIdle, &j);
+			    IOCtl(CMDDisableAmp, &j);
 
-		max_position = speedMove (joint, DESIRED_SPEED, DESIRED_ACC, THRESHOLD);
-		min_position = speedMove (joint, -DESIRED_SPEED, DESIRED_ACC, THRESHOLD);
+		        SingleAxisParameters cmd;
+		        cmd.axis = calibration_axis;
+		        double tmp = 0.0;
+		        cmd.parameters = &tmp;
 
-		const double center = (max_position+min_position)/2;
+				IOCtl(CMDDefinePosition, &cmd);
+			    IOCtl(CMDControllerRun, &calibration_axis);
+			    IOCtl(CMDEnableAmp, &calibration_axis);
+			    IOCtl(CMDClearStop, &calibration_axis);
 
-		SingleAxisParameters cmd;
-		cmd.axis = joint;
-		double tmp = 0;
-		cmd.parameters = &tmp;
+                tmp = parameter;
+		        IOCtl(CMDStartCalibration, &cmd);
 
-		tmp = DESIRED_SPEED;
-		IOCtl(CMDSetSpeed, &cmd);
+                int i;
+                for (i = 0; i < timeout; i++)
+                {
+                    IOCtl(CMDGetControlMode, &cmd);
+                    if (!(((short)tmp) & 0xf0))
+                        break;
+                    YARPTime::DelayInSeconds(1.0);
+                }
+                if (i == timeout)
+                    return YARP_FAIL;   // don't move anywhere.
 
-		tmp = center;
-		IOCtl(CMDSetPosition, &cmd);
-		
-		// should wait for movement completion instead.
-		YARPTime::DelayInSeconds (0.5);
+                //goToZero (joint);
+                return YARP_OK;
+            }
+            break;
 
-		// zero encoder here.
-		tmp = 0;
-		IOCtl(CMDDefinePosition, &cmd);
+        case 1:
+            {
+			    int j = _parameters->_axis_map[0];
+			    IOCtl(CMDControllerIdle, &j);
+			    IOCtl(CMDDisableAmp, &j);
+			    j = _parameters->_axis_map[2];
+			    IOCtl(CMDControllerIdle, &j);
+			    IOCtl(CMDDisableAmp, &j);
 
-		// can set limits, right?
-		tmp = (max_position-min_position)/2 - MARGIN;
-		IOCtl(CMDSetSWPositiveLimit, &cmd);
-		tmp = -(max_position-min_position)/2 + MARGIN;
-		IOCtl(CMDSetSWNegativeLimit, &cmd);
+		        SingleAxisParameters cmd;
+		        cmd.axis = calibration_axis;
+		        double tmp = parameter;
+		        cmd.parameters = &tmp;
 
-		return YARP_OK;
+		        IOCtl(CMDStartCalibration, &cmd);
+
+                int i;
+                for (i = 0; i < timeout; i++)
+                {
+                    IOCtl(CMDGetControlMode, &cmd);
+                    if (!(((short)tmp) & 0xf0))
+                        break;
+                    YARPTime::DelayInSeconds(1.0);
+                }
+                if (i == timeout)
+                    return YARP_FAIL;
+
+                //goToZero (joint);
+                return YARP_OK;
+            }
+            break;
+
+        case 2:
+            {
+		        SingleAxisParameters cmd;
+		        cmd.axis = calibration_axis;
+		        double tmp = 0.0;
+		        cmd.parameters = &tmp;
+
+				IOCtl(CMDDefinePosition, &cmd);
+			    IOCtl(CMDControllerRun, &calibration_axis);
+			    IOCtl(CMDEnableAmp, &calibration_axis);
+			    IOCtl(CMDClearStop, &calibration_axis);
+
+                tmp = parameter;
+		        IOCtl(CMDStartCalibration, &cmd);
+
+                int i;
+                for (i = 0; i < timeout; i++)
+                {
+                    IOCtl(CMDGetControlMode, &cmd);
+                    if (!(((short)tmp) & 0xf0))
+                        break;
+                    YARPTime::DelayInSeconds(1.0);
+                }
+                if (i == timeout)
+                    return YARP_FAIL;
+
+                goToZero (0);
+                goToZero (1);
+                goToZero (2);
+                return YARP_OK;
+            }
+            break;
+
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+            {
+		        SingleAxisParameters cmd;
+		        cmd.axis = calibration_axis;
+		        double tmp = parameter;
+		        cmd.parameters = &tmp;
+		        IOCtl(CMDStartCalibration, &cmd);
+
+                int i;
+                for (i = 0; i < timeout; i++)
+                {
+                    IOCtl(CMDGetControlMode, &cmd);
+                    if (!(((short)tmp) & 0xf0))
+                        break;
+                    YARPTime::DelayInSeconds(1.0);
+                }
+                if (i == timeout)
+                    return YARP_FAIL;
+
+                goToZero (joint);
+                return YARP_OK;
+            }
+            break;
+
+        default:
+            break;
+        }
+
+        return YARP_FAIL;
 	}
 
 	/**
@@ -787,7 +983,22 @@ public:
 			ACE_OS::printf("..done!\n");
 			return YARP_OK;
 
-		// LATER: to be completed.
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+            return genericCalibrate(joint, _parameters->_calibration[joint]);
+
+		    // LATER: to be completed.
 		}
 
 		return YARP_OK;
