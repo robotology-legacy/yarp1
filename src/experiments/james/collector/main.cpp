@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.2 2006-05-15 15:27:24 babybot Exp $
+/// $Id: main.cpp,v 1.3 2006-05-15 15:31:49 babybot Exp $
 ///		Collects broadcast messages and dump them to file.
 ///
 ///
