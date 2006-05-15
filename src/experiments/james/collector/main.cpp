@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2006-05-15 10:49:13 babybot Exp $
+/// $Id: main.cpp,v 1.2 2006-05-15 15:27:24 babybot Exp $
 ///		Collects broadcast messages and dump them to file.
 ///
 ///
@@ -188,6 +188,7 @@ int main (int argc, char *argv[])
 	PRINTLOG ("Log started\n");
 	FLUSHLOG();
 
+#if 0
 	/// head (bus 1).
 	EsdOpenParameters op_par1;
 	ACE_OS::memcpy (op_par1._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
@@ -335,6 +336,7 @@ int main (int argc, char *argv[])
     }
 
     ACE_OS::fprintf (fp, "logging started\n");
+#endif
 
     int head_axis_map[MAX_HEAD_JNTS];
     int arm_axis_map[MAX_ARM_JNTS];
@@ -357,6 +359,7 @@ int main (int argc, char *argv[])
     }
 
     double before = YARPTime::GetTimeAsSeconds(), now = 0.0;
+    double beginning = before;
 
 	int cycle;
     for (cycle = 0; cycle < max_steps; cycle++)
@@ -369,6 +372,7 @@ int main (int argc, char *argv[])
             ACE_OS::printf ("cycle; %d\n", cycle);
         }
 
+#if 0
 		ret = head.IOCtl(CMDGetPositions, _headjointstore[cycle]);
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading head joint pos\n");
@@ -384,7 +388,9 @@ int main (int argc, char *argv[])
         ret = arm.IOCtl(CMDGetTorques, _armjointstore[cycle]);
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading arm torques\n");
+#endif
 
+#if 0
         if (!(cycle % 2))
         {
 		    ret = touch.IOCtl(CMDAIReadScan, (void *)_analogstore[cycle]);
@@ -395,23 +401,32 @@ int main (int argc, char *argv[])
         {
             ACE_OS::memcpy (_analogstore[cycle], _analogstore[cycle-1], sizeof(short) * _maxanalogchannels);
         }
+#endif
 
 		/// wait.
 		now = YARPTime::GetTimeAsSeconds();
+        ACE_OS::printf ("%lf %lf abs: %lf\n", now, before, now-beginning);
+#if 0
         if ((now - before)*1000 < sampling_period)
 		{
             //ACE_OS::printf("%d: time: %f %f\n", cycle, now, before);
-			YARPTime::DelayInSeconds(double(sampling_period)/1000.0-(now-before));
+            double k = double(sampling_period)/1000.0-(now-before);
+			YARPTime::DelayInSeconds(k);
+            before = now + k;
 		}
 		else 
 		{
-            ACE_OS::printf("%d: Thread can't poll fast enough (time: %f)\n", cycle, now-before);
+            //ACE_OS::printf("%d: Thread can't poll fast enough (time: %f)\n", cycle, now-before);
+            ACE_OS::printf("*");
+            before = now;
 		}
-		before = now;
+#endif
+        YARPTime::DelayInSeconds(double(sampling_period)/1000.0);
 
 		FLUSHLOG();
 	}
 
+#if 0
     // saving file
     int i;
     for (cycle = 0; cycle < max_steps; cycle++)
@@ -484,7 +499,7 @@ int main (int argc, char *argv[])
             delete[] _armjointstore;
         }
 	}
-
+#endif
 	CLOSELOG();
 
 	return 0;
