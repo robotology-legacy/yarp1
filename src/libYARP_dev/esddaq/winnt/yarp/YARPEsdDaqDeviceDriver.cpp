@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.7 2006-05-16 00:19:50 babybot Exp $
+/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.8 2006-05-16 22:59:43 babybot Exp $
 ///
 ///
 
@@ -49,6 +49,25 @@ const int BUF_SIZE = 2047;
 const int MAX_CHANNELS = 32;
 
 typedef int (*PV) (const char *fmt, ...);
+
+
+//
+// a buffer element.
+//
+class BCastBufferElement
+{
+public:
+	short _value;
+	double _update;
+
+	BCastBufferElement () { zero (); }
+
+	void zero (void)
+	{
+		_value = 0;
+		_update = .0;
+    }
+};
 
 ///
 ///
@@ -94,6 +113,8 @@ public:
 	CMSG _writeBuffer[BUF_SIZE];				/// write buffer.
 	CMSG _replyBuffer[BUF_SIZE];				/// reply buffer.
 	int _scanSequence;							/// the sequence of channel to sample (bitmap).
+    bool _broadcast;                            /// whether to broadcast replies.
+	BCastBufferElement _bcastRecvBuffer[MAX_CHANNELS];		/// local storage for bcast reply messages.
 
 	unsigned char _my_address;					/// local can bus address.
 	unsigned char _remote_address;				/// remote can bus address.
@@ -120,6 +141,7 @@ EsdDaqResources::EsdDaqResources ()
 
 	_my_address = 0;
 	_remote_address = 0;
+    _broadcast = false;
 	_p = NULL;
 
 	_readMessages = 0;
@@ -155,6 +177,7 @@ int EsdDaqResources::initialize (const EsdDaqOpenParameters& parms)
 	_timeout = parms._timeout;
 	_p = parms._p;
 	_scanSequence = parms._scanSequence;
+    _broadcast = parms._broadcast;
 
 	_txQueueSize = parms._txQueueSize;
 	_rxQueueSize = parms._rxQueueSize;
@@ -165,6 +188,8 @@ int EsdDaqResources::initialize (const EsdDaqOpenParameters& parms)
 	memset (_readBuffer, 0, sizeof(CMSG)*BUF_SIZE);
 	memset (_writeBuffer, 0, sizeof(CMSG)*BUF_SIZE);
 	memset (_replyBuffer, 0, sizeof(CMSG)*BUF_SIZE);
+
+    ACE_OS::memset (_bcastRecvBuffer, 0, sizeof(BCastBufferElement) * MAX_CHANNELS);
 
 	/// open the device.
 	int res = canOpen (_networkN, 0, _txQueueSize, _rxQueueSize, _txTimeout, _rxTimeout, &_handle);
@@ -229,7 +254,6 @@ int EsdDaqResources::addMessage (int msg_id)
 {
 	CMSG x;
 	memset (&x, 0, sizeof(CMSG));
-
 
 	x.id = 0x200;
 	x.id |= (_my_address << 4);
@@ -346,10 +370,6 @@ YARPEsdDaqDeviceDriver::YARPEsdDaqDeviceDriver(void)
 	CMDAISetDebugPrintFunction = 6,	// sets the debug print function.
 	*/
 
-	/*
-	m_cmds[CMDAIVReadScan] = &YARPEsdDaqDeviceDriver::aivReadScan;
-	*/
-
 	m_cmds[CMDScanSetup] = &YARPEsdDaqDeviceDriver::scanSetup;
 	m_cmds[CMDAIReadScan] = &YARPEsdDaqDeviceDriver::aiReadScan;
 	m_cmds[CMDAIReadChannel] = &YARPEsdDaqDeviceDriver::aiReadChannel;
@@ -391,6 +411,9 @@ int YARPEsdDaqDeviceDriver::open (void *p)
 	_noreply = false;
 
 	_mutex.Post ();
+
+    if (r._broadcast)
+        scanSetup (&r._scanSequence);
 
 	return YARP_OK;
 }
@@ -440,6 +463,59 @@ void YARPEsdDaqDeviceDriver::Body (void)
 			if (r._p) 
 				(*r._p) ("CAN: read failed\n");
 
+        //
+        // broadcast messages.
+        //
+		for (i = 0; i < r._readMessages; i++)
+		{
+			CMSG& m = r._readBuffer[i];
+			if (m.len & NTCAN_NO_DATA)
+				if (r._p) 
+				{
+					(*r._p) ("CAN: error in message %x len: %d type: %x: %x\n", 
+						m.id, m.len, m.data[0], m.msg_lost);
+					
+					continue;
+				}
+
+                // class = 2, remote was addressed earlier, message is a broadcast [48, 48+32).
+                // broadcast flag must be true.
+                //
+			    if ((m.id & 0x700) == 0x200 && (((m.id & 0x0f0) >> 4) == r._remote_address) &&
+                    (m.data[0] >= MPH_BCAST_CHANNEL_0 && m.data[0] < MPH_BCAST_CHANNEL_0 + MAX_CHANNELS) &&
+                    r._broadcast == true) 
+			    {
+				    // 4 next bits = source address, next 4 bits = dest address (alw. 0).
+                    // data[0] = channel number + 0x30.
+				    // need an array here for storing the messages on a per-channel basis.
+
+                    int j = m.data[0] - MPH_BCAST_CHANNEL_0;
+                    if (j >= 0 && j < MAX_CHANNELS)
+                    {
+                        if (m.len == 7 && j <= MAX_CHANNELS-3)
+                        {
+					        r._bcastRecvBuffer[j]._value = *((short *)(m.data+1));
+					        r._bcastRecvBuffer[j]._update = before;
+					        r._bcastRecvBuffer[j+1]._value = *((short *)(m.data+3));
+					        r._bcastRecvBuffer[j+1]._update = before;
+					        r._bcastRecvBuffer[j+2]._value = *((short *)(m.data+5));
+					        r._bcastRecvBuffer[j+2]._update = before;
+                        }
+                        else
+                        if (m.len == 5 && j >= 30)
+                        {
+					        r._bcastRecvBuffer[j]._value = *((short *)(m.data+1));
+					        r._bcastRecvBuffer[j]._update = before;
+					        r._bcastRecvBuffer[j+1]._value = *((short *)(m.data+3));
+					        r._bcastRecvBuffer[j+1]._update = before;
+                        }
+                    }
+                }
+        }
+
+        //
+        // other messages, non-broadcast.
+        //
 		if (messagePending)
 		{
 			for (i = 0; i < r._readMessages; i++)
@@ -461,7 +537,8 @@ void YARPEsdDaqDeviceDriver::Body (void)
 				{
 					if (((m.id & 0x700) == 0x200) &&
 						((m.id & 0x00f) == r._my_address) &&
-						(((m.id & 0x0f0) >> 4) == r._remote_address)
+						(((m.id & 0x0f0) >> 4) == r._remote_address) &&
+                        (m.data[0] < MPH_BCAST_CHANNEL_0)
 					   )
 					{
 						/// legitimate message directed here, checks whether replies to any message.
@@ -614,25 +691,38 @@ int YARPEsdDaqDeviceDriver::scanSetup (void *cmd)
 	_mutex.Wait();
 	EsdDaqResources& r = RES(system_resources);
 	r._scanSequence = *((int *)cmd);
-	_mutex.Post();
+
+    if (r._broadcast)
+    {
+        _mutex.Post();
+        if (_writeDWord (MPH_SET_SEQUENCE, 0, *((int *)cmd)) != YARP_OK)
+	    {
+		    return YARP_FAIL;
+	    }
+    }
+    else
+        _mutex.Post();
 
 	return YARP_OK;
-
-/*
-	// LATER: must handles a firmware message.
-	if (_writeDWord (MPH_SET_SEQUENCE, 0, *((int *)cmd)) == YARP_OK)
-	{
-		return YARP_OK;
-	}
-
-	return YARP_FAIL;
-*/
 }
 
 /// cmd is an array of double (LATER: verify this).
 int YARPEsdDaqDeviceDriver::aiReadScan (void *cmd)
 {
-	return _readWord16Array (MPH_READ_CHANNEL_0, (short *)cmd);
+    EsdDaqResources& r = RES(system_resources);
+    if (!r._broadcast)
+    	return _readWord16Array (MPH_READ_CHANNEL_0, (short *)cmd);
+
+    // bcast version.
+	int i;
+	short *tmp = (short *)cmd;
+    _mutex.Wait();
+	for (i = 0; i < MAX_CHANNELS; i++)
+	{
+		tmp[i] = short(r._bcastRecvBuffer[i]._value);
+	}
+    _mutex.Post();
+	return YARP_OK;
 
 	/// rationale:
 	/// - sends a single packet to start the acquisition

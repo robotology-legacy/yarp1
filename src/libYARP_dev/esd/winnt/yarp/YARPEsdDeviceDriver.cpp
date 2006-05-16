@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDeviceDriver.cpp,v 1.4 2006-05-16 00:19:50 babybot Exp $
+/// $Id: YARPEsdDeviceDriver.cpp,v 1.5 2006-05-16 22:59:43 babybot Exp $
 ///
 ///
 
@@ -443,41 +443,13 @@ int YARPEsdDeviceDriver::open (void *p)
 
 	_mutex.Post ();
 
-	/// default initialization for this device driver.
-	int i;
-	for(i = 0; i < r.getJoints(); i++)
-	{
-		SingleAxisParameters cmd;
-		cmd.axis = i;
-		double tmp = double(0x1A);	/// 0x1A activates position and current consumption broadcast + fault events.
-		cmd.parameters = &tmp;
-		setBCastMessages(&cmd);	
-	}
-
 	return YARP_OK;
 }
 
 int YARPEsdDeviceDriver::close (void)
 {
 	EsdResources& d = RES(system_resources);
-
-    if (YARPThread::running)
-    {
-#if 0
-	    int i;
-	    for(i = 0; i < d.getJoints(); i++)
-	    {
-		    SingleAxisParameters cmd;
-		    cmd.axis = i;
-		    double tmp = double(0x00);
-		    cmd.parameters = &tmp;
-		    setBCastMessages(&cmd);	
-	    }
-#endif
-    }
-
 	End ();	/// stops the thread first (joins too).
-
 	int ret = d.uninitialize ();
 
 	return ret;

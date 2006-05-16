@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.h,v 1.2 2006-01-11 14:07:11 gmetta Exp $
+/// $Id: YARPEsdDaqDeviceDriver.h,v 1.3 2006-05-16 22:59:43 babybot Exp $
 ///
 ///
 
@@ -52,6 +52,7 @@ enum
 	MPH_SET_SEQUENCE = 32,
 	MPH_GET_SEQUENCE = 33,
 	MPH_GET_MAX_CHANNELS = 34,
+    MPH_BCAST_CHANNEL_0 = 48,
 
 	MPH_LAST_MESSAGE = 0xff,
 };
@@ -86,6 +87,7 @@ struct EsdDaqOpenParameters
 	long int _rxTimeout;
 
 	int _networkN;								/** network number */
+    bool _broadcast;                            /** broadcast messages */
 	unsigned char _remote_address;				/** destination address */
 	unsigned char _my_address;					/** my address */
 	int _polling_interval;						/** thread polling interval [ms] */
