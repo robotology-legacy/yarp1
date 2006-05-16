@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.5 2006-05-15 17:19:36 babybot Exp $
+/// $Id: main.cpp,v 1.6 2006-05-16 23:00:52 babybot Exp $
 ///		Collects broadcast messages and dump them to file.
 ///
 ///
@@ -148,58 +148,6 @@ YARPEsdDeviceDriver head;
 YARPEsdDeviceDriver arm;
 YARPEsdDaqDeviceDriver touch;
 
-class MyThread : public YARPThread
-{
-public:
-	int period;
-	int steps;
-
-	MyThread ()
-	{
-		period = 10;
-		steps = 50;
-	}
-
-public:
-	virtual void Body (void)
-	{
-		double before = YARPTime::GetTimeAsSeconds(), now = 0.0;
-		double beginning = before;
-
-		ACE_High_Res_Timer	thread_timer;	  // timer to estimate thread time
-		ACE_High_Res_Timer	measure_timer;	  // timer to estimate thread time
-		ACE_Time_Value		est_time;		  // thread time
-		ACE_Time_Value		sleep_period;	  // thread sleep
-		ACE_Time_Value		xtime;
-
-		ACE_Time_Value		lperiod;
-		lperiod.set(0, period * 1000); // period here is usec
-		double acc = 0;
-
-		int cycle;
-		for (cycle = 0; cycle < steps; cycle++)
-		{
-			measure_timer.stop();
-			measure_timer.elapsed_time(xtime);
-			measure_timer.start();
-			acc += (double(xtime.sec()) + double(xtime.usec()) * 1e-6);
-			ACE_OS::printf ("%lf %lf abs: %lf\n", double(xtime.sec()), double(xtime.usec())*1e-6, acc);
-
-			thread_timer.start();
-            //
-			thread_timer.stop();
-			thread_timer.elapsed_time(est_time);
-
-			sleep_period = lperiod - est_time;
-			if (sleep_period.usec() < 0 || sleep_period.sec() < 0)
-				sleep_period.set(0,0);
-
-			ACE_OS::sleep(sleep_period);
-		}
-	}
-
-};
-
 
 ///
 ///
@@ -211,6 +159,7 @@ int main (int argc, char *argv[])
     YARPString filename ("localdump.txt");
     int max_steps = 50;
     int sampling_period = 10; /// ms.
+    bool verbose = false;
 
     if (argc >= 2)
     {
@@ -222,12 +171,14 @@ int main (int argc, char *argv[])
             sampling_period = CANBUS_POLLING_INTERVAL;
             ACE_OS::printf ("Setting period to the minimun allowed %d\n", sampling_period);
         }
+        verbose = YARPParseParameters::parse (argc, argv, "-verbose");
     }
 
     ACE_OS::printf("Running with:\n");
     ACE_OS::printf("filename: %s\n", filename.c_str());
     ACE_OS::printf("number of steps: %d\n", max_steps);
     ACE_OS::printf("period: %d\n", sampling_period);
+    ACE_OS::printf("verbose: %d\n", verbose);
 
 	bool _headinitialized = false;
 	bool _arminitialized = false;
@@ -291,6 +242,7 @@ int main (int argc, char *argv[])
 	op_par3._polling_interval = CANBUS_POLLING_INTERVAL;
 	op_par3._timeout = CANBUS_TIMEOUT;			
 	op_par3._scanSequence = 0xffffffff;			// first two channels.
+    op_par3._broadcast = true;
 
 	if (touch.open ((void *)&op_par3) < 0)
 	{
@@ -442,18 +394,16 @@ int main (int argc, char *argv[])
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading arm torques\n");
 
-#if 0
-        if (!(cycle % 10))
+	    ret = touch.IOCtl(CMDAIReadScan, (void *)_analogstore[cycle]);
+	    if (ret != YARP_OK)
+		    ACE_OS::printf ("troubles reading from daq card\n");
+
+        if (verbose)
         {
-		    ret = touch.IOCtl(CMDAIReadScan, (void *)_analogstore[cycle]);
-		    if (ret != YARP_OK)
-			    ACE_OS::printf ("troubles reading from daq card\n");
+            for (int k = 0; k < _maxanalogchannels; k++)
+                ACE_OS::printf ("%d ", _analogstore[cycle][k]);
+            ACE_OS::printf ("\n");
         }
-        else
-        {
-            ACE_OS::memcpy (_analogstore[cycle], _analogstore[cycle-1], sizeof(short) * _maxanalogchannels);
-        }
-#endif
 
 		/// wait.
 		now = YARPTime::GetTimeAsSecondsHr();

@@ -801,8 +801,8 @@ void CTestControlDlg::OnInterfaceStart()
 	op_par._polling_interval = 10;
 	op_par._timeout = 10;			
 	op_par._scanSequence = 0xffffffff; //0x03ffefff; // first 7 channels not connected.
+    op_par._broadcast = true;
 	_touchdlg.SetMask (op_par._scanSequence);
-
 
 	if (touch.open ((void *)&op_par) != YARP_OK)
 	{
