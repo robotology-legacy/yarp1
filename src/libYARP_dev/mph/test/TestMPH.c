@@ -20,12 +20,17 @@ reads the channel <channel> and sends the value back on the CAN bus:
 #include "can-18F248.c"
 #include "stdlib.h"
 
+// 16MHz clock.
+#use delay(clock=16000000)
+
 #define MPH_CLK  PIN_C3		// signal SCLK
 #define MPH_SYNC PIN_C2		// signal SYNC
 #define MPH_DIN  PIN_C5		// signal DIN
 
 #define ID_BASE 0x200
 #define MAX_CHANNELS 32    // max ADC channels
+
+volatile int1 _wait = 0;
 
 #int_AD
 AD_isr()
@@ -100,6 +105,18 @@ int16 read_analog(int channel)
                         // and returns the value.
 }
 
+// This isr is used to enable sending messages on the can bus, it is
+// called every 4ms.
+//
+// period = reg_val * clock / (4 * divisor)
+//
+#INT_TIMER1
+void timer1_isr()
+{
+   set_timer1(65536-5000);
+   _wait = 1;
+}
+
 /*
 void read_all_analog (int16 *buffer)
 {
@@ -129,7 +146,7 @@ void main()
    // bitmap, expanded to 8 bit (needed?)
    int8 sequence[MAX_CHANNELS];
    int32 val;
-   
+
    int i;
    for (i = 0; i < MAX_CHANNELS; i++)
       sequence[i] = MAX_CHANNELS;
@@ -140,7 +157,11 @@ void main()
    setup_spi(FALSE);
    setup_wdt(WDT_OFF);
    setup_timer_0(RTCC_INTERNAL);
+
    setup_timer_1(T1_DISABLED);
+   //setup_timer_1(T1_INTERNAL|T1_DIV_BY_1);
+   //set_timer1(16000);
+
    setup_timer_2(T2_DISABLED,0,1);
    setup_timer_3(T3_DISABLED|T3_DIV_BY_1);
 
@@ -149,12 +170,85 @@ void main()
    can_init();
    adc_init();
 
+   enable_interrupts(INT_TIMER1);
    enable_interrupts(GLOBAL);
 
    while(TRUE)
    {
-      if ( can_kbhit() )   // wait for a message on the CAN bus
+      if (can_kbhit() || _wait)   // wait for a message on the CAN bus
       {
+         // handles timer message
+         if (_wait)
+         {
+            _wait = 0;
+
+            for (i = 0; i <= MAX_CHANNELS-3; i+=3)
+            {
+               if (sequence[i] < MAX_CHANNELS)
+                  tmp = read_analog(i);
+               else
+                  tmp = 0;
+               
+               out_data[1] = (int8)(tmp);
+               out_data[2] = (int8)(tmp>>8);
+   
+               if (sequence[i+1] < MAX_CHANNELS)
+                  tmp = read_analog(i+1);
+               else
+                  tmp = 0;
+                                 
+               out_data[3] = (int8)(tmp);
+               out_data[4] = (int8)(tmp>>8);
+
+               if (sequence[i+2] < MAX_CHANNELS)
+                  tmp = read_analog(i+2);
+               else
+                  tmp = 0;
+               
+               out_data[5] = (int8)(tmp);
+               out_data[6] = (int8)(tmp>>8);
+
+               while (!can_tbe()) ;
+   
+               tx_id = ID_BASE;
+               tx_id |= ((_board_ID) << 4);
+               //tx_id |= ((0 & 0x00f0) >> 4);
+   
+               out_data[0] = 0x30+i;
+               tx_len = 7;
+   
+               can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);
+            }
+            
+            // last message.
+            if (sequence[30] < MAX_CHANNELS)
+               tmp = read_analog(30);
+            else
+               tmp = 0;
+            
+            out_data[1] = (int8)(tmp);
+            out_data[2] = (int8)(tmp>>8);
+
+            if (sequence[31] < MAX_CHANNELS)
+               tmp = read_analog(31);
+            else
+               tmp = 0;
+            
+            out_data[3] = (int8)(tmp);
+            out_data[4] = (int8)(tmp>>8);
+
+            while (!can_tbe()) ;
+
+            tx_id = ID_BASE;
+            tx_id |= ((_board_ID) << 4);
+            //tx_id |= ((0 & 0x00f0) >> 4);
+
+            out_data[0] = 0x30+30;
+            tx_len = 5;
+
+            can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);          
+         }
+
          if (can_getd(rx_id, &in_data[0], rx_len, rxstat))
          {
             // handles message for the analog channel
@@ -178,7 +272,7 @@ void main()
             }
             // handles message to prepare a sequence.
             else
-            if ((rx_len == 5) && ((rx_id & 0x700) == 0x200) && (in_data[0] == 32))
+            if ((rx_len == 5) && ((rx_id & 0x700) == 0x200) && (in_data[0] == MAX_CHANNELS))
             {
                for (i = 0; i < MAX_CHANNELS; i++)
                {
@@ -187,11 +281,15 @@ void main()
                   {
                      sequence[MAX_CHANNELS-1-i] = MAX_CHANNELS-1-i;
                   }
+                  else
+                  {
+                     sequence[MAX_CHANNELS-1-i] = MAX_CHANNELS;
+                  }
                   val >>= 1;
                }
 
                // perhaps this is not needed.
-               // LATER: check the driver.               
+               // LATER: check the driver.
                while (!can_tbe()) ;
 
                tx_id = ID_BASE;
@@ -200,6 +298,17 @@ void main()
 
                out_data[0] = in_data[0];
 			      tx_len = 1;
+
+               val = *((int32 *)(&in_data[1]));
+               if (val == 0)
+               {
+                  setup_timer_1(T1_DISABLED);   
+               }
+               else
+               {
+                  setup_timer_1(T1_INTERNAL|T1_DIV_BY_8);
+                  set_timer1(65536-5000);
+               }
 
                // replies to message.
                can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);
