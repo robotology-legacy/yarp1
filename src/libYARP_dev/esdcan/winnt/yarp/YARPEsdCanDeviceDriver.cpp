@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.22 2006-05-15 10:51:01 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.23 2006-05-16 00:19:50 babybot Exp $
 ///
 ///
 
@@ -566,7 +566,7 @@ void YARPEsdCanDeviceDriver::Body (void)
 
 	while (!IsTerminated() || messagePending)
 	{
-		before = YARPTime::GetTimeAsSeconds();
+		before = YARPTime::GetTimeAsSecondsHr();
 
 		_mutex.Wait ();
 		if (r.read () != YARP_OK)
@@ -801,16 +801,18 @@ AckMessageLoop:
 		_mutex.Post ();
 
 		/// wait.
-		now = YARPTime::GetTimeAsSeconds();
+		now = YARPTime::GetTimeAsSecondsHr();
 		if ((now - before)*1000 < r._polling_interval)
 		{
-			YARPTime::DelayInSeconds(double(r._polling_interval)/1000.0-(now-before));
+            double k = double(r._polling_interval)/1000.0-(now-before);
+			YARPTime::DelayInSeconds(k);
+            //before = now + k;
 		}
 		else 
 		{
 			if (r._p) (*r._p)("CAN: thread can't poll fast enough (time: %f)\n", now-before);
+    		//before = now;
 		}
-		before = now;
 	}
 
 	///

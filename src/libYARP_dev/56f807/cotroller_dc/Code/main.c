@@ -918,7 +918,7 @@ void main(void)
 		PWMoutput1 = PWMoutput0 - PWMoutput1;	
 		PWMoutput1 = -PWMoutput1;
 		
-		if (_control_mode[1] == MODE_IDLE || _control_mode[0] == MODE_IDLE)
+		if (_control_mode[0] == MODE_IDLE || _control_mode[1] == MODE_IDLE)
 		{
 			PWMoutput0 = 0;
 			PWMoutput1 = 0;
