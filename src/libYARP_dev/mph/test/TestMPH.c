@@ -108,7 +108,8 @@ int16 read_analog(int channel)
 // This isr is used to enable sending messages on the can bus, it is
 // called every 4ms.
 //
-// period = reg_val * clock / (4 * divisor)
+// reg_val = 65636 - period / ((1/clock) * (4 * divisor))
+// reg_val = 65536 - 10 * 10^-3 / (1/16 * 10^-6 * 4 * 8) = 65536 - 5000
 //
 #INT_TIMER1
 void timer1_isr()
@@ -188,15 +189,15 @@ void main()
                   tmp = read_analog(i);
                else
                   tmp = 0;
-               
+
                out_data[1] = (int8)(tmp);
                out_data[2] = (int8)(tmp>>8);
-   
+
                if (sequence[i+1] < MAX_CHANNELS)
                   tmp = read_analog(i+1);
                else
                   tmp = 0;
-                                 
+
                out_data[3] = (int8)(tmp);
                out_data[4] = (int8)(tmp>>8);
 
@@ -204,28 +205,28 @@ void main()
                   tmp = read_analog(i+2);
                else
                   tmp = 0;
-               
+
                out_data[5] = (int8)(tmp);
                out_data[6] = (int8)(tmp>>8);
 
                while (!can_tbe()) ;
-   
+
                tx_id = ID_BASE;
                tx_id |= ((_board_ID) << 4);
                //tx_id |= ((0 & 0x00f0) >> 4);
-   
+
                out_data[0] = 0x30+i;
                tx_len = 7;
-   
+
                can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);
             }
-            
+
             // last message.
             if (sequence[30] < MAX_CHANNELS)
                tmp = read_analog(30);
             else
                tmp = 0;
-            
+
             out_data[1] = (int8)(tmp);
             out_data[2] = (int8)(tmp>>8);
 
@@ -233,7 +234,7 @@ void main()
                tmp = read_analog(31);
             else
                tmp = 0;
-            
+
             out_data[3] = (int8)(tmp);
             out_data[4] = (int8)(tmp>>8);
 
@@ -246,7 +247,7 @@ void main()
             out_data[0] = 0x30+30;
             tx_len = 5;
 
-            can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);          
+            can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);
          }
 
          if (can_getd(rx_id, &in_data[0], rx_len, rxstat))
@@ -270,9 +271,31 @@ void main()
                // replies to message.
                can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);
             }
-            // handles message to prepare a sequence.
+            // handles message to prepare a sequence (32).
             else
             if ((rx_len == 5) && ((rx_id & 0x700) == 0x200) && (in_data[0] == MAX_CHANNELS))
+            {
+               for (i = 0; i < MAX_CHANNELS; i++)
+                  sequence[i] = MAX_CHANNELS;
+
+               // perhaps this is not needed.
+               while (!can_tbe()) ;
+
+               tx_id = ID_BASE;
+               tx_id |= ((_board_ID) << 4);
+               tx_id |= ((rx_id & 0x00f0) >> 4);
+
+               out_data[0] = in_data[0];
+			      tx_len = 1;
+
+               setup_timer_1(T1_DISABLED);
+
+               // replies to message.
+               can_putd(tx_id, out_data, tx_len, tx_pri, tx_ext, tx_rtr);
+            }
+            // handles message to prepare a broadcast sequence (33).
+            else
+            if ((rx_len == 5) && ((rx_id & 0x700) == 0x200) && (in_data[0] == MAX_CHANNELS+1))
             {
                for (i = 0; i < MAX_CHANNELS; i++)
                {
@@ -302,7 +325,7 @@ void main()
                val = *((int32 *)(&in_data[1]));
                if (val == 0)
                {
-                  setup_timer_1(T1_DISABLED);   
+                  setup_timer_1(T1_DISABLED);
                }
                else
                {
