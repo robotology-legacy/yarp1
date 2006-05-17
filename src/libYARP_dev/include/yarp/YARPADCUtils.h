@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPADCUtils.h,v 1.3 2006-01-11 14:07:11 gmetta Exp $
+/// $Id: YARPADCUtils.h,v 1.4 2006-05-17 21:42:00 babybot Exp $
 ///
 ///
 
@@ -44,7 +44,8 @@ enum ADCCmd
 	CMDAIReadChannel = 4,
 	CMDAISetDebugPrintFunction = 5,
 	CMDGetMaxChannels = 6,
-	ADCCmds = 7, // required! tells the total number of commands
+    CMDBroadcastSetup = 7,
+	ADCCmds = 8, // required! tells the total number of commands
 };
 
 #endif

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.h,v 1.3 2006-05-16 22:59:43 babybot Exp $
+/// $Id: YARPEsdDaqDeviceDriver.h,v 1.4 2006-05-17 21:42:00 babybot Exp $
 ///
 ///
 
@@ -49,9 +49,12 @@ enum
 {
 	MPH_READ_CHANNEL_0 = 0,
 	/* + channel no. */
-	MPH_SET_SEQUENCE = 32,
-	MPH_GET_SEQUENCE = 33,
+	
+    MPH_SET_SEQUENCE = 32,
+    MPH_SET_BCAST_SEQUENCE = 33,
 	MPH_GET_MAX_CHANNELS = 34,
+    
+    /* + channel no., return broadcast messages */
     MPH_BCAST_CHANNEL_0 = 48,
 
 	MPH_LAST_MESSAGE = 0xff,
@@ -87,7 +90,6 @@ struct EsdDaqOpenParameters
 	long int _rxTimeout;
 
 	int _networkN;								/** network number */
-    bool _broadcast;                            /** broadcast messages */
 	unsigned char _remote_address;				/** destination address */
 	unsigned char _my_address;					/** my address */
 	int _polling_interval;						/** thread polling interval [ms] */
@@ -136,6 +138,7 @@ public:
 
 protected:
 	int scanSetup (void *cmd);
+	int broadcastSetup (void *cmd);
 	int getMaxChannels (void *cmd);
 	int aivReadScan (void *cmd);
 	int aiReadScan (void *cmd);

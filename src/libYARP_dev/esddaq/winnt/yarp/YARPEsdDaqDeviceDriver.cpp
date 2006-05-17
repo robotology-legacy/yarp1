@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.8 2006-05-16 22:59:43 babybot Exp $
+/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.9 2006-05-17 21:42:00 babybot Exp $
 ///
 ///
 
@@ -177,7 +177,6 @@ int EsdDaqResources::initialize (const EsdDaqOpenParameters& parms)
 	_timeout = parms._timeout;
 	_p = parms._p;
 	_scanSequence = parms._scanSequence;
-    _broadcast = parms._broadcast;
 
 	_txQueueSize = parms._txQueueSize;
 	_rxQueueSize = parms._rxQueueSize;
@@ -208,9 +207,6 @@ int EsdDaqResources::initialize (const EsdDaqOpenParameters& parms)
 	for (i = 0x200; i < 0x2ff; i++)
 		canIdAdd (_handle, i);
 	
-	//canIdAdd (_handle, 0x1bc);
-	//canIdAdd (_handle, 0x1cb);
-
 	return YARP_OK;
 }
 
@@ -359,18 +355,8 @@ YARPEsdDaqDeviceDriver::YARPEsdDaqDeviceDriver(void)
 	system_resources = (void *) new EsdDaqResources;
 	ACE_ASSERT (system_resources != NULL);
 
-	/// for the IOCtl call.
-	/*
-	CMDAIConfigure = 0,
-	CMDScanSetup = 1,
-	CMDAIVReadScan = 2,
-	CMDAIReadScan = 3,
-	CMDAIReadChannel = 4,
-	CMDAISetDebugMessageFilter = 5,	// sets the debug message filter.
-	CMDAISetDebugPrintFunction = 6,	// sets the debug print function.
-	*/
-
 	m_cmds[CMDScanSetup] = &YARPEsdDaqDeviceDriver::scanSetup;
+	m_cmds[CMDBroadcastSetup] = &YARPEsdDaqDeviceDriver::broadcastSetup;
 	m_cmds[CMDAIReadScan] = &YARPEsdDaqDeviceDriver::aiReadScan;
 	m_cmds[CMDAIReadChannel] = &YARPEsdDaqDeviceDriver::aiReadChannel;
 	m_cmds[CMDGetMaxChannels] = &YARPEsdDaqDeviceDriver::getMaxChannels;
@@ -412,8 +398,7 @@ int YARPEsdDaqDeviceDriver::open (void *p)
 
 	_mutex.Post ();
 
-    if (r._broadcast)
-        scanSetup (&r._scanSequence);
+    scanSetup (&r._scanSequence);
 
 	return YARP_OK;
 }
@@ -425,7 +410,6 @@ int YARPEsdDaqDeviceDriver::close (void)
 	End ();	/// stops the thread first (joins too).
 
 	int ret = d.uninitialize ();
-
 	return ret;
 }
 
@@ -690,21 +674,36 @@ int YARPEsdDaqDeviceDriver::scanSetup (void *cmd)
 {
 	_mutex.Wait();
 	EsdDaqResources& r = RES(system_resources);
+    r._broadcast = false;
 	r._scanSequence = *((int *)cmd);
+    _mutex.Post();
 
-    if (r._broadcast)
-    {
-        _mutex.Post();
-        if (_writeDWord (MPH_SET_SEQUENCE, 0, *((int *)cmd)) != YARP_OK)
-	    {
-		    return YARP_FAIL;
-	    }
+    if (_writeDWord (MPH_SET_SEQUENCE, 0, *((int *)cmd)) != YARP_OK)
+	{
+		return YARP_FAIL;
     }
-    else
-        _mutex.Post();
 
 	return YARP_OK;
 }
+
+
+/// cmd is a pointer to a 32-bit map (1- read, 0- don't read channel).
+int YARPEsdDaqDeviceDriver::broadcastSetup (void *cmd)
+{
+	_mutex.Wait();
+	EsdDaqResources& r = RES(system_resources);
+	r._scanSequence = *((int *)cmd);
+    r._broadcast = true;
+    _mutex.Post();
+
+    if (_writeDWord (MPH_SET_BCAST_SEQUENCE, 0, *((int *)cmd)) != YARP_OK)
+	{
+		return YARP_FAIL;
+	}
+
+	return YARP_OK;
+}
+
 
 /// cmd is an array of double (LATER: verify this).
 int YARPEsdDaqDeviceDriver::aiReadScan (void *cmd)
@@ -728,12 +727,6 @@ int YARPEsdDaqDeviceDriver::aiReadScan (void *cmd)
 	/// - sends a single packet to start the acquisition
 	/// - replies multiple messages (each containing 3 channels)
 	/// 
-	///	- send is simple, in Body sets the appropriate loop/msg/wait
-	///	- recv must wait for Body to complete receiving (as usual)
-	///
-	/// Body must be changed.
-
-	///return YARP_FAIL;
 }
 
 /// returns the maximum number of channels.
