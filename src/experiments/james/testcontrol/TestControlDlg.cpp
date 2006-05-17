@@ -801,7 +801,7 @@ void CTestControlDlg::OnInterfaceStart()
 	op_par._polling_interval = 10;
 	op_par._timeout = 10;			
 	op_par._scanSequence = 0xffffffff; //0x03ffefff; // first 7 channels not connected.
-    op_par._broadcast = true;
+    //op_par._broadcast = true;
 	_touchdlg.SetMask (op_par._scanSequence);
 
 	if (touch.open ((void *)&op_par) != YARP_OK)
@@ -826,6 +826,7 @@ void CTestControlDlg::OnInterfaceStart()
 		}
 		*/
 
+        touch.IOCtl (CMDBroadcastSetup, &op_par._scanSequence);
 		_touchrunning = true;
 	}	
 
@@ -862,6 +863,10 @@ void CTestControlDlg::OnInterfaceStop()
 	
 	if (_touchinitialized)
 	{
+        // stop broadcast.
+        int x = 0;
+        touch.IOCtl (CMDScanSetup, &x);
+
 		touch.close ();
 		_touchrunning = false;
 		_touchinitialized = false;

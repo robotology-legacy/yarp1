@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.6 2006-05-16 23:00:52 babybot Exp $
+/// $Id: main.cpp,v 1.7 2006-05-17 21:42:40 babybot Exp $
 ///		Collects broadcast messages and dump them to file.
 ///
 ///
@@ -185,7 +185,9 @@ int main (int argc, char *argv[])
     bool _touchinitialized = false;
 
 	double **_headjointstore = NULL;
+    double **_headcurrentstore = NULL;
 	double **_armjointstore = NULL;
+    double **_armcurrentstore = NULL;
     short **_analogstore = NULL;
 	int _maxanalogchannels = 0;
 
@@ -242,7 +244,6 @@ int main (int argc, char *argv[])
 	op_par3._polling_interval = CANBUS_POLLING_INTERVAL;
 	op_par3._timeout = CANBUS_TIMEOUT;			
 	op_par3._scanSequence = 0xffffffff;			// first two channels.
-    op_par3._broadcast = true;
 
 	if (touch.open ((void *)&op_par3) < 0)
 	{
@@ -269,6 +270,9 @@ int main (int argc, char *argv[])
 
 			ACE_OS::memset (_analogstore[0], 0, sizeof(short) * max_steps * _maxanalogchannels);
 		}
+
+        // ret = touch.IOCtl (CMDBroadcastSetup, &op_par3._scanSequence);
+        // deferred to TestControl.
 	}
 
     // just pause a bit before proceeding with sensors' reading.
@@ -284,22 +288,33 @@ int main (int argc, char *argv[])
 	if (_headinitialized)
 	{
         _headjointstore = new double *[max_steps];
-        ACE_ASSERT (_headjointstore != NULL);
+        _headcurrentstore = new double *[max_steps];
+        ACE_ASSERT (_headjointstore != NULL && _headcurrentstore != NULL);
 		_headjointstore[0] = new double[MAX_HEAD_JNTS*max_steps];
-		ACE_ASSERT (_headjointstore[0] != NULL);
+        _headcurrentstore[0] = new double[MAX_HEAD_JNTS*max_steps];
+		ACE_ASSERT (_headjointstore[0] != NULL && _headcurrentstore[0] != NULL);
 
         for (int j = 1; j < max_steps; j++)
+        {
             _headjointstore[j] = _headjointstore[j-1]+MAX_HEAD_JNTS;
+            _headcurrentstore[j] = _headcurrentstore[j-1]+MAX_HEAD_JNTS;
+        }
 	}
+
 	if (_arminitialized)
 	{
         _armjointstore = new double *[max_steps];
-        ACE_ASSERT (_armjointstore != NULL);
+        _armcurrentstore = new double *[max_steps];
+        ACE_ASSERT (_armjointstore != NULL && _armcurrentstore != NULL);
 		_armjointstore[0] = new double[MAX_ARM_JNTS*max_steps];
-		ACE_ASSERT (_armjointstore[0] != NULL);
+		_armcurrentstore[0] = new double[MAX_ARM_JNTS*max_steps];
+		ACE_ASSERT (_armjointstore[0] != NULL && _armcurrentstore[0] != NULL);
 
         for (int j = 1; j < max_steps; j++)
+        {
             _armjointstore[j] = _armjointstore[j-1]+MAX_ARM_JNTS;
+            _armcurrentstore[j] = _armcurrentstore[j-1]+MAX_ARM_JNTS;
+        }
 	}
 
 	ACE_OS::printf ("Running!\n");
@@ -326,6 +341,12 @@ int main (int argc, char *argv[])
                 delete[] _headjointstore[0];
                 delete[] _headjointstore;
             }
+		    
+            if (_headcurrentstore != NULL && _headcurrentstore[0] != NULL) 
+            {
+                delete[] _headcurrentstore[0];
+                delete[] _headcurrentstore;
+            }
 	    }
 
 	    if (_arminitialized)
@@ -336,12 +357,32 @@ int main (int argc, char *argv[])
                 delete[] _armjointstore[0];
                 delete[] _armjointstore;
             }
+
+            if (_armcurrentstore != NULL && _armcurrentstore[0] != NULL) 
+            {
+                delete[] _armcurrentstore[0];
+                delete[] _armcurrentstore;
+            }
 	    }
 
         ACE_OS::exit(-1);
     }
 
-    ACE_OS::fprintf (fp, "logging started\n");
+    //
+    //
+    //
+    int i;
+    for (i = 0; i < MAX_HEAD_JNTS; i++)
+        ACE_OS::fprintf (fp, "p_head%d ", i);
+    for (i = 0; i < MAX_HEAD_JNTS; i++)
+        ACE_OS::fprintf (fp, "i_head%d ", i);
+    for (i = 0; i < MAX_ARM_JNTS; i++)
+        ACE_OS::fprintf (fp, "p_arm%d ", i);
+    for (i = 0; i < MAX_ARM_JNTS; i++)
+        ACE_OS::fprintf (fp, "i_arm%d ", i);
+    for (i = 0; i < _maxanalogchannels; i++)
+        ACE_OS::fprintf (fp, "analog%d ", i);
+    ACE_OS::fprintf (fp, "\n");
 
     int head_axis_map[MAX_HEAD_JNTS];
     int arm_axis_map[MAX_ARM_JNTS];
@@ -382,7 +423,7 @@ int main (int argc, char *argv[])
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading head joint pos\n");
 
-		ret = head.IOCtl(CMDGetTorques, _headjointstore[cycle]);
+		ret = head.IOCtl(CMDGetTorques, _headcurrentstore[cycle]);
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading head joint torques\n");
 
@@ -390,7 +431,7 @@ int main (int argc, char *argv[])
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading arm joint pos\n");
 
-        ret = arm.IOCtl(CMDGetTorques, _armjointstore[cycle]);
+        ret = arm.IOCtl(CMDGetTorques, _armcurrentstore[cycle]);
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading arm torques\n");
 
@@ -423,38 +464,32 @@ int main (int argc, char *argv[])
 	}
 
     // saving file
-    int i;
     for (cycle = 0; cycle < max_steps; cycle++)
     {
-        ACE_OS::fprintf (fp, "p: ");
 		for (i = 0; i < MAX_HEAD_JNTS; i++)
 		{
             int j = head_axis_map[i];
 			ACE_OS::fprintf (fp, "%.2f ", _headjointstore[cycle][j]);
 		}
 
-        ACE_OS::fprintf (fp, "t: ");
 		for (i = 0; i < MAX_HEAD_JNTS; i++)
 		{
             int j = head_axis_map[i];
-			ACE_OS::fprintf (fp, "%.2f ", _headjointstore[cycle][j]);
+			ACE_OS::fprintf (fp, "%.2f ", _headcurrentstore[cycle][j]);
 		}
 
-        ACE_OS::fprintf (fp, "p: ");
 		for (i = 0; i < MAX_ARM_JNTS; i++)
 		{
             int j = arm_axis_map[i];
 			ACE_OS::fprintf (fp, "%.2f ", _armjointstore[cycle][j]);
 		}
 
-        ACE_OS::fprintf (fp, "t: ");
 		for (i = 0; i < MAX_ARM_JNTS; i++)
 		{
             int j = arm_axis_map[i];
-			ACE_OS::fprintf (fp, "%.2f ", _armjointstore[cycle][j]);
+			ACE_OS::fprintf (fp, "%.2f ", _armcurrentstore[cycle][j]);
 		}
 
-		ACE_OS::fprintf (fp, "c: ");
 		for (i = 0; i < _maxanalogchannels; i++)
 			ACE_OS::fprintf (fp, "%.2f ", double(_analogstore[cycle][i]));
 
@@ -483,6 +518,12 @@ int main (int argc, char *argv[])
             delete[] _headjointstore[0];
             delete[] _headjointstore;
         }
+
+        if (_headcurrentstore != NULL && _headcurrentstore[0] != NULL) 
+        {
+            delete[] _headcurrentstore[0];
+            delete[] _headcurrentstore;
+        }
 	}
 
 	if (_arminitialized)
@@ -492,6 +533,12 @@ int main (int argc, char *argv[])
         {
             delete[] _armjointstore[0];
             delete[] _armjointstore;
+        }
+
+        if (_armcurrentstore != NULL && _armcurrentstore[0] != NULL) 
+        {
+            delete[] _armcurrentstore[0];
+            delete[] _armcurrentstore;
         }
 	}
 
