@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.7 2006-05-17 21:42:40 babybot Exp $
+/// $Id: main.cpp,v 1.8 2006-05-18 14:11:35 babybot Exp $
 ///		Collects broadcast messages and dump them to file.
 ///
 ///
@@ -186,8 +186,10 @@ int main (int argc, char *argv[])
 
 	double **_headjointstore = NULL;
     double **_headcurrentstore = NULL;
+    double **_headerrorstore = NULL;
 	double **_armjointstore = NULL;
     double **_armcurrentstore = NULL;
+    double **_armerrorstore = NULL;
     short **_analogstore = NULL;
 	int _maxanalogchannels = 0;
 
@@ -243,7 +245,7 @@ int main (int argc, char *argv[])
 	op_par3._my_address = CANBUS_MY_ADDRESS;	// this is the second instance to the same driver (we can even use a different ID).
 	op_par3._polling_interval = CANBUS_POLLING_INTERVAL;
 	op_par3._timeout = CANBUS_TIMEOUT;			
-	op_par3._scanSequence = 0xffffffff;			// first two channels.
+    op_par3._broadcast = true;
 
 	if (touch.open ((void *)&op_par3) < 0)
 	{
@@ -289,15 +291,22 @@ int main (int argc, char *argv[])
 	{
         _headjointstore = new double *[max_steps];
         _headcurrentstore = new double *[max_steps];
-        ACE_ASSERT (_headjointstore != NULL && _headcurrentstore != NULL);
+        _headerrorstore = new double *[max_steps];
+        ACE_ASSERT (_headjointstore != NULL && 
+                    _headcurrentstore != NULL && 
+                    _headerrorstore != NULL);
 		_headjointstore[0] = new double[MAX_HEAD_JNTS*max_steps];
         _headcurrentstore[0] = new double[MAX_HEAD_JNTS*max_steps];
-		ACE_ASSERT (_headjointstore[0] != NULL && _headcurrentstore[0] != NULL);
+        _headerrorstore[0] = new double[MAX_HEAD_JNTS*max_steps];
+		ACE_ASSERT (_headjointstore[0] != NULL && 
+                    _headcurrentstore[0] != NULL &&
+                    _headerrorstore[0] != NULL);
 
         for (int j = 1; j < max_steps; j++)
         {
             _headjointstore[j] = _headjointstore[j-1]+MAX_HEAD_JNTS;
             _headcurrentstore[j] = _headcurrentstore[j-1]+MAX_HEAD_JNTS;
+            _headerrorstore[j] = _headerrorstore[j-1]+MAX_HEAD_JNTS;
         }
 	}
 
@@ -305,15 +314,22 @@ int main (int argc, char *argv[])
 	{
         _armjointstore = new double *[max_steps];
         _armcurrentstore = new double *[max_steps];
-        ACE_ASSERT (_armjointstore != NULL && _armcurrentstore != NULL);
+        _armerrorstore = new double *[max_steps];
+        ACE_ASSERT (_armjointstore != NULL && 
+                    _armcurrentstore != NULL &&
+                    _armerrorstore != NULL);
 		_armjointstore[0] = new double[MAX_ARM_JNTS*max_steps];
 		_armcurrentstore[0] = new double[MAX_ARM_JNTS*max_steps];
-		ACE_ASSERT (_armjointstore[0] != NULL && _armcurrentstore[0] != NULL);
+		_armerrorstore[0] = new double[MAX_ARM_JNTS*max_steps];
+		ACE_ASSERT (_armjointstore[0] != NULL && 
+                    _armcurrentstore[0] != NULL &&
+                    _armerrorstore[0] != NULL);
 
         for (int j = 1; j < max_steps; j++)
         {
             _armjointstore[j] = _armjointstore[j-1]+MAX_ARM_JNTS;
             _armcurrentstore[j] = _armcurrentstore[j-1]+MAX_ARM_JNTS;
+            _armerrorstore[j] = _armerrorstore[j-1]+MAX_ARM_JNTS;
         }
 	}
 
@@ -347,6 +363,12 @@ int main (int argc, char *argv[])
                 delete[] _headcurrentstore[0];
                 delete[] _headcurrentstore;
             }
+
+            if (_headerrorstore != NULL && _headerrorstore[0] != NULL) 
+            {
+                delete[] _headerrorstore[0];
+                delete[] _headerrorstore;
+            }
 	    }
 
 	    if (_arminitialized)
@@ -363,6 +385,12 @@ int main (int argc, char *argv[])
                 delete[] _armcurrentstore[0];
                 delete[] _armcurrentstore;
             }
+
+            if (_armerrorstore != NULL && _armerrorstore[0] != NULL) 
+            {
+                delete[] _armerrorstore[0];
+                delete[] _armerrorstore;
+            }
 	    }
 
         ACE_OS::exit(-1);
@@ -376,10 +404,14 @@ int main (int argc, char *argv[])
         ACE_OS::fprintf (fp, "p_head%d ", i);
     for (i = 0; i < MAX_HEAD_JNTS; i++)
         ACE_OS::fprintf (fp, "i_head%d ", i);
+    for (i = 0; i < MAX_HEAD_JNTS; i++)
+        ACE_OS::fprintf (fp, "e_head%d ", i);
     for (i = 0; i < MAX_ARM_JNTS; i++)
         ACE_OS::fprintf (fp, "p_arm%d ", i);
     for (i = 0; i < MAX_ARM_JNTS; i++)
         ACE_OS::fprintf (fp, "i_arm%d ", i);
+    for (i = 0; i < MAX_ARM_JNTS; i++)
+        ACE_OS::fprintf (fp, "e_arm%d ", i);
     for (i = 0; i < _maxanalogchannels; i++)
         ACE_OS::fprintf (fp, "analog%d ", i);
     ACE_OS::fprintf (fp, "\n");
@@ -427,6 +459,10 @@ int main (int argc, char *argv[])
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading head joint torques\n");
 
+		ret = head.IOCtl(CMDGetPIDErrors, _headerrorstore[cycle]);
+		if (ret != YARP_OK)
+			ACE_OS::printf ("troubles reading head joint errors\n");
+
         ret = arm.IOCtl(CMDGetPositions, _armjointstore[cycle]);
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading arm joint pos\n");
@@ -435,7 +471,11 @@ int main (int argc, char *argv[])
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading arm torques\n");
 
-	    ret = touch.IOCtl(CMDAIReadScan, (void *)_analogstore[cycle]);
+        ret = arm.IOCtl(CMDGetPIDErrors, _armerrorstore[cycle]);
+		if (ret != YARP_OK)
+			ACE_OS::printf ("troubles reading arm errors\n");
+
+        ret = touch.IOCtl(CMDAIReadScan, (void *)_analogstore[cycle]);
 	    if (ret != YARP_OK)
 		    ACE_OS::printf ("troubles reading from daq card\n");
 
@@ -478,6 +518,12 @@ int main (int argc, char *argv[])
 			ACE_OS::fprintf (fp, "%.2f ", _headcurrentstore[cycle][j]);
 		}
 
+        for (i = 0; i < MAX_HEAD_JNTS; i++)
+		{
+            int j = head_axis_map[i];
+			ACE_OS::fprintf (fp, "%.2f ", _headerrorstore[cycle][j]);
+		}
+
 		for (i = 0; i < MAX_ARM_JNTS; i++)
 		{
             int j = arm_axis_map[i];
@@ -490,7 +536,13 @@ int main (int argc, char *argv[])
 			ACE_OS::fprintf (fp, "%.2f ", _armcurrentstore[cycle][j]);
 		}
 
-		for (i = 0; i < _maxanalogchannels; i++)
+		for (i = 0; i < MAX_ARM_JNTS; i++)
+		{
+            int j = arm_axis_map[i];
+			ACE_OS::fprintf (fp, "%.2f ", _armerrorstore[cycle][j]);
+		}
+
+        for (i = 0; i < _maxanalogchannels; i++)
 			ACE_OS::fprintf (fp, "%.2f ", double(_analogstore[cycle][i]));
 
         ACE_OS::fprintf (fp, "\n");
@@ -524,6 +576,12 @@ int main (int argc, char *argv[])
             delete[] _headcurrentstore[0];
             delete[] _headcurrentstore;
         }
+
+        if (_headerrorstore != NULL && _headerrorstore[0] != NULL) 
+        {
+            delete[] _headerrorstore[0];
+            delete[] _headerrorstore;
+        }
 	}
 
 	if (_arminitialized)
@@ -539,6 +597,12 @@ int main (int argc, char *argv[])
         {
             delete[] _armcurrentstore[0];
             delete[] _armcurrentstore;
+        }
+
+        if (_armerrorstore != NULL && _armerrorstore[0] != NULL) 
+        {
+            delete[] _armerrorstore[0];
+            delete[] _armerrorstore;
         }
 	}
 

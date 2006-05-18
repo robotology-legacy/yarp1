@@ -800,9 +800,10 @@ void CTestControlDlg::OnInterfaceStart()
 	op_par._my_address = 0;				// this is the second instance to the same driver (we can even use a different ID).
 	op_par._polling_interval = 10;
 	op_par._timeout = 10;			
-	op_par._scanSequence = 0xffffffff; //0x03ffefff; // first 7 channels not connected.
+	//op_par._scanSequence = 0xffffffff; //0x03ffefff; // first 7 channels not connected.
     //op_par._broadcast = true;
-	_touchdlg.SetMask (op_par._scanSequence);
+    int scansequence = 0xffffffff;
+	_touchdlg.SetMask (scansequence);
 
 	if (touch.open ((void *)&op_par) != YARP_OK)
 	{
@@ -826,7 +827,7 @@ void CTestControlDlg::OnInterfaceStart()
 		}
 		*/
 
-        touch.IOCtl (CMDBroadcastSetup, &op_par._scanSequence);
+        touch.IOCtl (CMDBroadcastSetup, &scansequence);
 		_touchrunning = true;
 	}	
 
