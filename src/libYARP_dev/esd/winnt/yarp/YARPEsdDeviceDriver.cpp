@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDeviceDriver.cpp,v 1.5 2006-05-16 22:59:43 babybot Exp $
+/// $Id: YARPEsdDeviceDriver.cpp,v 1.6 2006-05-18 14:10:10 babybot Exp $
 ///
 ///
 
@@ -405,6 +405,8 @@ YARPEsdDeviceDriver::YARPEsdDeviceDriver(void)
 	m_cmds[CMDGetAnalogChannel] = &YARPEsdDeviceDriver::getBCastCurrent;
 	m_cmds[CMDGetAnalogChannels] = &YARPEsdDeviceDriver::getBCastCurrents;
 	m_cmds[CMDGetFaults] = &YARPEsdDeviceDriver::getBCastFaults;
+	m_cmds[CMDGetPIDError] = &YARPEsdDeviceDriver::getBCastControlValue;
+	m_cmds[CMDGetPIDErrors] = &YARPEsdDeviceDriver::getBCastControlValues;
 	m_cmds[CMDSetDebugPrintFunction] = &YARPEsdDeviceDriver::setDebugPrintFunction;
 }
 
@@ -564,14 +566,12 @@ void YARPEsdDeviceDriver::Body (void)
 				case CAN_BCAST_CURRENT:
 					// also receives the control values.
 					r._bcastRecvBuffer[j]._current = *((short *)(m.data));
-
 					r._bcastRecvBuffer[j]._controlvalue = *((short *)(m.data+4));
 					r._bcastRecvBuffer[j]._update_c = before;
 					j++;
 					if (j < r.getJoints())
 					{
 						r._bcastRecvBuffer[j]._current = *((short *)(m.data+2));
-
 						r._bcastRecvBuffer[j]._controlvalue = *((short *)(m.data+6));
 						r._bcastRecvBuffer[j]._update_c = before;
 					}
@@ -875,16 +875,31 @@ int YARPEsdDeviceDriver::getBCastFaults (void *cmd)
 	return YARP_OK;
 }
 
+int YARPEsdDeviceDriver::getBCastControlValue (void *cmd)
+{
+	EsdResources& r = RES(system_resources);
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= r.getJoints());
+	
+    _mutex.Wait();
+	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._controlvalue);
+    _mutex.Post();
+
+	return YARP_OK;
+}
+
+
 int YARPEsdDeviceDriver::getBCastControlValues (void *cmd)
 {
 	EsdResources& r = RES(system_resources);
 	int i;
-	int *tmp = (int *)cmd;
+	double *tmp = (double *)cmd;
 
     _mutex.Wait();
 	for (i = 0; i < r.getJoints(); i++)
 	{
-		tmp[i] = int(r._bcastRecvBuffer[i]._controlvalue);
+		tmp[i] = double(r._bcastRecvBuffer[i]._controlvalue);
 	}
     _mutex.Post();
 

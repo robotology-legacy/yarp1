@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDeviceDriver.h,v 1.4 2006-05-15 10:51:01 babybot Exp $
+/// $Id: YARPEsdDeviceDriver.h,v 1.5 2006-05-18 14:10:10 babybot Exp $
 ///
 ///
 
@@ -132,6 +132,7 @@ protected:
 	int getBCastCurrent (void *cmd);
 	int getBCastCurrents (void *cmd);
 	int getBCastFaults (void *cmd);
+	int getBCastControlValue (void *cmd);
 	int getBCastControlValues (void *cmd);
 
 	int setDebugPrintFunction (void *cmd);

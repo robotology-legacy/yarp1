@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.23 2006-05-16 00:19:50 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.24 2006-05-18 14:10:10 babybot Exp $
 ///
 ///
 
@@ -216,6 +216,8 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 
 	_bcastRecvBuffer = new BCastBufferElement[_njoints];
 	ACE_ASSERT (_bcastRecvBuffer != NULL);
+    /// suspect an issue with allocation of array of classes.
+    /// it requires further investigation.
 
 	/// clean up buffers.
 	memset (_readBuffer, 0, sizeof(CMSG)*BUF_SIZE);
@@ -239,14 +241,8 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 	for (i = 0; i < 0xff; i++)
 		canIdAdd (_handle, i);
 	
-
 	for (i = 0x100; i < 0x1ff; i++)
-
 		canIdAdd (_handle, i);
-
-
-	//canIdAdd (_handle, 0x1bc);
-	//canIdAdd (_handle, 0x1cb);
 
 	return YARP_OK;
 }
@@ -403,7 +399,8 @@ YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void)
 	m_cmds[CMDGetRefPositions] = &YARPEsdCanDeviceDriver::getRefPositions;
 	m_cmds[CMDSetPosition] = &YARPEsdCanDeviceDriver::setPosition;
 	m_cmds[CMDSetPositions] = &YARPEsdCanDeviceDriver::setPositions;
-	m_cmds[CMDGetPIDError] = &YARPEsdCanDeviceDriver::getPidError;
+	m_cmds[CMDGetPIDError] = &YARPEsdCanDeviceDriver::getBCastControlValue;
+	m_cmds[CMDGetPIDErrors] = &YARPEsdCanDeviceDriver::getBCastControlValues;
 	m_cmds[CMDSetSpeed] = &YARPEsdCanDeviceDriver::setSpeed;
 	m_cmds[CMDSetSpeeds] = &YARPEsdCanDeviceDriver::setSpeeds;
 	m_cmds[CMDGetSpeeds] = &YARPEsdCanDeviceDriver::getBCastVelocities;
@@ -1772,16 +1769,30 @@ int YARPEsdCanDeviceDriver::getBCastFaults (void *cmd)
 	return YARP_OK;
 }
 
+int YARPEsdCanDeviceDriver::getBCastControlValue (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= r.getJoints());
+	
+    _mutex.Wait();
+	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._controlvalue);
+    _mutex.Post();
+
+	return YARP_OK;
+}
+
 int YARPEsdCanDeviceDriver::getBCastControlValues (void *cmd)
 {
 	EsdCanResources& r = RES(system_resources);
 	int i;
-	int *tmp = (int *)cmd;
+	double *tmp = (double *)cmd;
 
     _mutex.Wait();
 	for (i = 0; i < r.getJoints(); i++)
 	{
-		tmp[i] = int(r._bcastRecvBuffer[i]._controlvalue);
+		tmp[i] = double(r._bcastRecvBuffer[i]._controlvalue);
 	}
     _mutex.Post();
 

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.h,v 1.4 2006-05-17 21:42:00 babybot Exp $
+/// $Id: YARPEsdDaqDeviceDriver.h,v 1.5 2006-05-18 14:10:10 babybot Exp $
 ///
 ///
 
@@ -75,7 +75,7 @@ struct EsdDaqOpenParameters
 		_my_address = 0;
 		_polling_interval = 10;
 		_timeout = 20;
-		_scanSequence = 0;
+		_broadcast = false;
 		_p = NULL;
 
 		_txQueueSize = 2047;					/** max len of the buffer for the esd driver */
@@ -94,7 +94,7 @@ struct EsdDaqOpenParameters
 	unsigned char _my_address;					/** my address */
 	int _polling_interval;						/** thread polling interval [ms] */
 	int _timeout;								/** number of cycles before timing out */
-	int _scanSequence;							/** a bitmap representing the channel scan sequence */
+    bool _broadcast;                            /** tells the driver to start in broadcast mode (listener only) */
 	int (*_p) (const char *fmt, ...);			/** printf-like function for spying messages */
 };
 

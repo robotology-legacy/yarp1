@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.9 2006-05-17 21:42:00 babybot Exp $
+/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.10 2006-05-18 14:10:10 babybot Exp $
 ///
 ///
 
@@ -176,7 +176,7 @@ int EsdDaqResources::initialize (const EsdDaqOpenParameters& parms)
 	_polling_interval = parms._polling_interval;
 	_timeout = parms._timeout;
 	_p = parms._p;
-	_scanSequence = parms._scanSequence;
+	_broadcast = parms._broadcast;
 
 	_txQueueSize = parms._txQueueSize;
 	_rxQueueSize = parms._rxQueueSize;
@@ -398,7 +398,7 @@ int YARPEsdDaqDeviceDriver::open (void *p)
 
 	_mutex.Post ();
 
-    scanSetup (&r._scanSequence);
+    //scanSetup (&r._scanSequence);
 
 	return YARP_OK;
 }

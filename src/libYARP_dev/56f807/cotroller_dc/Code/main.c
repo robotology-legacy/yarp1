@@ -111,7 +111,6 @@ dword _limit_current[JN] = { 4000000, 4000000 };
 											/* limit on the current in micro-ampere*/
 										
 dword _broadcast_mask = 0;					/* specifies which broadcast messages are to be sent */
-
 float _conversion_factor[JN] = { 0f, 0f };	/* limit on the current as set by the interface (later converted into the filter parameter) */
 
 /*
@@ -167,10 +166,6 @@ void check_in_position(byte j);
 void get_postion(byte jnt);
 void get_abs_postion(byte jnt);
 void decouple_positions(void);
-
-//#if VERSION == 0x0113
-//void can_send_request(void);
-//#endif
 
 void set_can_masks()
 {
@@ -299,7 +294,6 @@ Int32 compute_pid2(byte j)
 /* 
  * Compute PD for calibrating with the absolute postion sensors
  */
-   
 Int32 compute_pid_abs(byte j)
 {
 	Int32 ProportionalPortion, DerivativePortion;
@@ -380,7 +374,7 @@ Int32 compute_pid_abs(byte j)
 }
 
 /*
- * 
+ * a step in the trajectory generation for velocity control. 
  */
 Int32 step_velocity (byte jj)
 {
@@ -538,8 +532,6 @@ dword BYTE_C(byte x4, byte x3, byte x2, byte x1)
 /*
  * helper function to generate desired position.
  */
-
- 
 void compute_desired(byte i)
 {		
  	Int32 cd;
@@ -590,6 +582,7 @@ void compute_desired(byte i)
 	
 	}
 }
+
 /*
  * helper function to generate PWM values according to controller status.
  */
@@ -624,6 +617,9 @@ void generatePwm (byte i)
 	}
 }
 
+/*
+ * prints the version number of the firmware to the serial port.
+ */
 void print_version(void)
 {
 	AS1_printStringEx ("\r\n\n");
@@ -644,8 +640,15 @@ void print_version(void)
 	AS1_printStringEx ("\r\n");
 }
 
-
-/* send broadcast messages according to mask */
+/* 
+ * send broadcast messages according to mask 
+ * bit 1: position
+ * bit 2: velocity + acceleration (not yet implemented)
+ * bit 3: fault bits
+ * bit 4: e.g. PWMA_PMFSA register
+ * bit 5: current feedback + position error
+ *
+ */
 void can_send_broadcast(void)
 {
 	int iretval; 
@@ -766,8 +769,12 @@ void can_send_broadcast(void)
 		_canmsg.CAN_data[2] = BYTE_H(_current[1]);
 		_canmsg.CAN_data[3] = BYTE_L(_current[1]);
 		
+		_canmsg.CAN_data[4] = BYTE_H(_error[0]);
+		_canmsg.CAN_data[5] = BYTE_L(_error[0]);
+		_canmsg.CAN_data[6] = BYTE_H(_error[1]);
+		_canmsg.CAN_data[7] = BYTE_L(_error[1]);
 			
-		_canmsg.CAN_length = 4;
+		_canmsg.CAN_length = 8;
 		_canmsg.CAN_frameType = DATA_FRAME;
 		if (CAN1_sendFrame (1, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data) != ERR_OK)
 			AS1_printStringEx("send err\r\n");		
@@ -844,8 +851,6 @@ void main(void)
 	AS1_printStringEx ("\r\n");
 	
 	/* initialization */
-	//PWMC0_enable ();
-	//PWMC1_enable ();  
 	QD0_initPosition ();
 	QD1_initPosition ();
 	_calibrated[0] = false;
@@ -905,8 +910,7 @@ void main(void)
 		/* in reference configuration for calibration? */
 		check_in_position_calib(0); 
 		check_in_position_calib(1);
-				
-			
+					
 		/* computes controls */
 		PWMoutput0 = compute_pwm(0);
 		PWMoutput1 = compute_pwm(1);
@@ -924,7 +928,6 @@ void main(void)
 			PWMoutput1 = 0;
 		}
 			
-
 		_pd[0] = (_pd[0] + _pd[1]) >> 1;
 		_pd[1] = _pd[0] - _pd[1];	
 		_pd[1] = -_pd[1];	
@@ -942,7 +945,6 @@ void main(void)
 		check_current(0);
 		check_current(1);		
 
-
 		/* do extra functions, communicate, etc. */
 		/* LATER */
 		can_send_broadcast();
@@ -959,7 +961,6 @@ void main(void)
  * the PID. Measurament is given by the enocder or by an analog signal
  * depending on the the firmware version.
  */
-
 void get_postion(byte jnt)
 {
 	word temporary;
@@ -1019,17 +1020,13 @@ void get_abs_postion(byte jnt)
 		AS1_printStringEx ("\r\n");
 	}
 #endif
-
 }
 
 /* 
- * this function decouple encoders
+ * this function decouple encoder readings.
  */
-
-
 void decouple_positions(void)
 {
-
 #if VERSION == 0x0112
 		/* (de)couple encoder readings */
 		_position[0] = L_sub(_position[0], _position[1]);
@@ -1064,10 +1061,9 @@ void decouple_positions(void)
 
 
 /* 
- * this function checks if current has exceeded is threshold
- * for a long period (200 ms) using a filtered verion of the current
+ * this function checks if the current consumption has exceeded a threshold
+ * for more than 200 ms using a filtered verion of the current reading.
  */
-
 void check_current(byte jnt)
 {
 	word temporary;
@@ -1112,9 +1108,8 @@ void check_current(byte jnt)
 
 
 /* 
- * this function filters the current
+ * this function filters the current (AD value).
  */
-
 void compute_filtcurr(byte jnt)
 {
 	/*
@@ -1139,10 +1134,9 @@ void compute_filtcurr(byte jnt)
 
 
 /* 
- * this function checks if calibration is terminated
+ * this function checks if the calibration is terminated
  * and if calibration is terminated resets the encoder
  */
-
 void check_in_position_calib(byte jnt)
 {
 	Int32 temporary_long;
@@ -1181,10 +1175,9 @@ void check_in_position_calib(byte jnt)
 }
 
 /* 
- * this function checks if trajectory is terminated
+ * this function checks if the trajectory is terminated
  * and if trajectory is terminated sets the variable _in_position
  */
-
 void check_in_position(byte jnt)
 {
 	if (_control_mode[jnt] == MODE_POSITION)
@@ -1196,9 +1189,10 @@ void check_in_position(byte jnt)
 	}				
 }
 
-/* this function filters the position
-   from the absolute postion sensor */
-
+/* 
+ * this function filters the output
+ * of the absolute postion sensor 
+ */
 void compute_filt_pos(byte jnt)
 {
 	/*
@@ -1232,8 +1226,7 @@ void compute_filt_pos(byte jnt)
 	Int32 K   = 0x00AAB172;
 	Int32 tmp;
 	Int32 tmp2;
-	
-	
+		
 	tmp = L_mult_ls(K, _abs_position[jnt]);
 	tmp2 = L_mult_ls(_filt_abs_pos_old[jnt], a_1);
 	tmp2 = L_add(tmp2, _abs_position_old[jnt]);
@@ -1243,7 +1236,9 @@ void compute_filt_pos(byte jnt)
 	_filt_abs_pos_old[jnt] = _filt_abs_pos[jnt];
 }
 
-/* LATER: conditional compilation here */
+/* 
+ * calibration procedure, depends on the firmware version.
+ */
 byte calibrate (byte channel, Int16 param)
 {
 #if VERSION == 0x0113
