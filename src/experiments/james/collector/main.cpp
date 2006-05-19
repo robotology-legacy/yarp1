@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.8 2006-05-18 14:11:35 babybot Exp $
+/// $Id: main.cpp,v 1.9 2006-05-19 11:40:06 babybot Exp $
 ///		Collects broadcast messages and dump them to file.
 ///
 ///
@@ -401,17 +401,17 @@ int main (int argc, char *argv[])
     //
     int i;
     for (i = 0; i < MAX_HEAD_JNTS; i++)
-        ACE_OS::fprintf (fp, "p_head%d ", i);
+        ACE_OS::fprintf (fp, "p-head%d ", i);
     for (i = 0; i < MAX_HEAD_JNTS; i++)
-        ACE_OS::fprintf (fp, "i_head%d ", i);
+        ACE_OS::fprintf (fp, "i-head%d ", i);
     for (i = 0; i < MAX_HEAD_JNTS; i++)
-        ACE_OS::fprintf (fp, "e_head%d ", i);
+        ACE_OS::fprintf (fp, "u-head%d ", i);
     for (i = 0; i < MAX_ARM_JNTS; i++)
-        ACE_OS::fprintf (fp, "p_arm%d ", i);
+        ACE_OS::fprintf (fp, "p-arm%d ", i);
     for (i = 0; i < MAX_ARM_JNTS; i++)
-        ACE_OS::fprintf (fp, "i_arm%d ", i);
+        ACE_OS::fprintf (fp, "i-arm%d ", i);
     for (i = 0; i < MAX_ARM_JNTS; i++)
-        ACE_OS::fprintf (fp, "e_arm%d ", i);
+        ACE_OS::fprintf (fp, "u-arm%d ", i);
     for (i = 0; i < _maxanalogchannels; i++)
         ACE_OS::fprintf (fp, "analog%d ", i);
     ACE_OS::fprintf (fp, "\n");
@@ -436,7 +436,6 @@ int main (int argc, char *argv[])
         ACE_OS::printf ("troubles reading from the arm config file\n");
     }
 
-
     double before = YARPTime::GetTimeAsSecondsHr(), now = 0.0;
     double beginning = before;
 
@@ -459,7 +458,8 @@ int main (int argc, char *argv[])
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading head joint torques\n");
 
-		ret = head.IOCtl(CMDGetPIDErrors, _headerrorstore[cycle]);
+//		ret = head.IOCtl(CMDGetPIDErrors, _headerrorstore[cycle]);
+		ret = head.IOCtl(CMDGetPWMs, _headerrorstore[cycle]);
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading head joint errors\n");
 
@@ -471,7 +471,8 @@ int main (int argc, char *argv[])
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading arm torques\n");
 
-        ret = arm.IOCtl(CMDGetPIDErrors, _armerrorstore[cycle]);
+//        ret = arm.IOCtl(CMDGetPIDErrors, _armerrorstore[cycle]);
+        ret = arm.IOCtl(CMDGetPWMs, _armerrorstore[cycle]);
 		if (ret != YARP_OK)
 			ACE_OS::printf ("troubles reading arm errors\n");
 

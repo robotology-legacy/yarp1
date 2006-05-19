@@ -62,10 +62,6 @@ end
 
 
 if Flag == 1
-%    for i = Columns
-%        index = find(Columns==i);
-%        Leg(index) = strcat(num2str(i), ': ', NameOfSignals(index));
-%    end
     figure
     hold on
     for i = Columns
@@ -74,8 +70,13 @@ if Flag == 1
         pos_x = ceil(index*NumberOfSamples/length(Columns));
         text(Ts*pos_x, Signals(pos_x, index), str);
     end
-    plot((0:length(Signals)-1).*Ts, Signals)
+    [m, n] = size(Signals);
+    plot((0:m-1).*Ts, Signals)
     %legend(Leg)
+    for i = Columns
+        index = find(Columns==i);
+        NameOfSignals(index) = strcat(num2str(i), ': ', NameOfSignals(index));
+    end 
 end
 
 fclose(fid);

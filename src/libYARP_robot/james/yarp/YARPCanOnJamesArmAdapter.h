@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesArmAdapter.h,v 1.8 2006-05-15 12:27:57 babybot Exp $
+/// $Id: YARPCanOnJamesArmAdapter.h,v 1.9 2006-05-19 11:40:06 babybot Exp $
 ///
 ///
 
@@ -520,7 +520,6 @@ public:
 			return YARP_FAIL;
 		}
 
-
 		// filters out certain messages.
 		int msg = _parameters->_message_filter;
 		IOCtl(CMDSetDebugMessageFilter, (void *)&msg);
@@ -567,7 +566,6 @@ public:
 			cmd.parameters = &pos;
 			IOCtl(CMDDefinePosition, &cmd);
 			IOCtl(CMDSetCommand, &cmd);
-
 
 			// and set the limits too from the data in the initialization file.
 			double min, max;

@@ -599,9 +599,8 @@ void generatePwm (byte i)
 		}
 		else
 		{
-			_pid[i] = -_pid[i];
 			DUTYCYCLE (i, 0, 0);
-			DUTYCYCLE (i, 2, (unsigned char)(_pid[i] & 0x7fff));
+			DUTYCYCLE (i, 2, (unsigned char)((-_pid[i]) & 0x7fff));
 			DUTYCYCLE (i, 4, 0);
 		}
 		
@@ -680,16 +679,16 @@ void can_send_broadcast(void)
 
 	if ((_broadcast_mask & 0x04) && _counter == 1)
 	{
-		/* LATER: add acceleration to the same message */
+		/* CHANGED: send PID (control) value */
 		_canmsg.CAN_messID = 0x100;
 		_canmsg.CAN_messID |= (_board_ID) << 4;
-		_canmsg.CAN_messID |= CAN_BCAST_VELOCITY;
+		_canmsg.CAN_messID |= CAN_BCAST_PID_VAL;
 
-		_canmsg.CAN_data[0] = BYTE_H(_speed[0]);
-		_canmsg.CAN_data[1] = BYTE_L(_speed[0]);
-		_canmsg.CAN_data[2] = BYTE_H(_speed[1]);
-		_canmsg.CAN_data[3] = BYTE_L(_speed[1]);
-			
+		_canmsg.CAN_data[0] = BYTE_H(_pid[0]);
+		_canmsg.CAN_data[1] = BYTE_L(_pid[0]);
+		_canmsg.CAN_data[2] = BYTE_H(_pid[1]);
+		_canmsg.CAN_data[3] = BYTE_L(_pid[1]);
+		
 		_canmsg.CAN_length = 4;
 		_canmsg.CAN_frameType = DATA_FRAME;
 		if (CAN1_sendFrame (1, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data) != ERR_OK)

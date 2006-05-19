@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDeviceDriver.cpp,v 1.6 2006-05-18 14:10:10 babybot Exp $
+/// $Id: YARPEsdDeviceDriver.cpp,v 1.7 2006-05-19 11:40:06 babybot Exp $
 ///
 ///
 
@@ -62,9 +62,8 @@ public:
 	double _update_p;
 
 	// msg 2
-	short _velocity;
+	short _pid_value;
 	double _update_v;
-	short _acceleration;
 
 	// msg 3
 	short _fault;
@@ -72,7 +71,7 @@ public:
 
 	// msg 4
 	short _current;
-	short _controlvalue;
+	short _position_error;
 	double _update_c;
 
 	BCastBufferElement () { zero (); }
@@ -80,15 +79,13 @@ public:
 	void zero (void)
 	{
 		_position = 0;
-		_velocity = 0;
-		_acceleration = 0;
+		_pid_value = 0;
 		_current = 0;
 		_fault = 0;
-		_controlvalue = 0;
+		_position_error = 0;
 
 		_update_p = .0;
 		_update_v = .0;
-
 		_update_e = .0;
 		_update_c = .0;
 	}
@@ -398,15 +395,15 @@ YARPEsdDeviceDriver::YARPEsdDeviceDriver(void)
 	/// for the IOCtl call.
 	m_cmds[CMDGetPosition] = &YARPEsdDeviceDriver::getBCastPosition;
 	m_cmds[CMDGetPositions] = &YARPEsdDeviceDriver::getBCastPositions;
-	m_cmds[CMDGetSpeeds] = &YARPEsdDeviceDriver::getBCastVelocities;
-	m_cmds[CMDGetAccelerations] = &YARPEsdDeviceDriver::getBCastAccelerations;
 	m_cmds[CMDGetTorque] = &YARPEsdDeviceDriver::getBCastCurrent;
 	m_cmds[CMDGetTorques] = &YARPEsdDeviceDriver::getBCastCurrents;
 	m_cmds[CMDGetAnalogChannel] = &YARPEsdDeviceDriver::getBCastCurrent;
 	m_cmds[CMDGetAnalogChannels] = &YARPEsdDeviceDriver::getBCastCurrents;
 	m_cmds[CMDGetFaults] = &YARPEsdDeviceDriver::getBCastFaults;
-	m_cmds[CMDGetPIDError] = &YARPEsdDeviceDriver::getBCastControlValue;
-	m_cmds[CMDGetPIDErrors] = &YARPEsdDeviceDriver::getBCastControlValues;
+	m_cmds[CMDGetPIDError] = &YARPEsdDeviceDriver::getBCastPositionError;
+	m_cmds[CMDGetPIDErrors] = &YARPEsdDeviceDriver::getBCastPositionErrors;
+	m_cmds[CMDGetPWM] = &YARPEsdDeviceDriver::getBCastPIDOutput;
+	m_cmds[CMDGetPWMs] = &YARPEsdDeviceDriver::getBCastPIDOutputs;
 	m_cmds[CMDSetDebugPrintFunction] = &YARPEsdDeviceDriver::setDebugPrintFunction;
 }
 
@@ -536,17 +533,15 @@ void YARPEsdDeviceDriver::Body (void)
 					}
 					break;
 
-				case CAN_BCAST_VELOCITY:
-					r._bcastRecvBuffer[j]._velocity = *((short *)(m.data));
+				case CAN_BCAST_PID_VAL:
+					r._bcastRecvBuffer[j]._pid_value = *((short *)(m.data));
 					r._bcastRecvBuffer[j]._update_v = before;
-					r._bcastRecvBuffer[j]._acceleration = *((short *)(m.data+4));
 
 					j++;
 					if (j < r.getJoints())
 					{
-						r._bcastRecvBuffer[j]._velocity = *((short *)(m.data+2));
+						r._bcastRecvBuffer[j]._pid_value = *((short *)(m.data+2));
 						r._bcastRecvBuffer[j]._update_v = before;
-						r._bcastRecvBuffer[j]._acceleration = *((short *)(m.data+6));
 					}
 					break;
 
@@ -566,13 +561,13 @@ void YARPEsdDeviceDriver::Body (void)
 				case CAN_BCAST_CURRENT:
 					// also receives the control values.
 					r._bcastRecvBuffer[j]._current = *((short *)(m.data));
-					r._bcastRecvBuffer[j]._controlvalue = *((short *)(m.data+4));
+					r._bcastRecvBuffer[j]._position_error = *((short *)(m.data+4));
 					r._bcastRecvBuffer[j]._update_c = before;
 					j++;
 					if (j < r.getJoints())
 					{
 						r._bcastRecvBuffer[j]._current = *((short *)(m.data+2));
-						r._bcastRecvBuffer[j]._controlvalue = *((short *)(m.data+6));
+						r._bcastRecvBuffer[j]._position_error = *((short *)(m.data+6));
 						r._bcastRecvBuffer[j]._update_c = before;
 					}
 					break;
@@ -801,21 +796,21 @@ int YARPEsdDeviceDriver::getBCastPositions (void *cmd)
 	return YARP_OK;
 }
 
-int YARPEsdDeviceDriver::getBCastVelocities (void *cmd)
+int YARPEsdDeviceDriver::getBCastPIDOutput (void *cmd)
 {
 	EsdResources& r = RES(system_resources);
-	int i;
-	double *tmp = (double *)cmd;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= r.getJoints());
+	
     _mutex.Wait();
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		tmp[i] = double(r._bcastRecvBuffer[i]._velocity);
-	}
+	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._pid_value);
     _mutex.Post();
+
 	return YARP_OK;
 }
 
-int YARPEsdDeviceDriver::getBCastAccelerations (void *cmd)
+int YARPEsdDeviceDriver::getBCastPIDOutputs (void *cmd)
 {
 	EsdResources& r = RES(system_resources);
 	int i;
@@ -823,7 +818,7 @@ int YARPEsdDeviceDriver::getBCastAccelerations (void *cmd)
     _mutex.Wait();
 	for (i = 0; i < r.getJoints(); i++)
 	{
-		tmp[i] = double(r._bcastRecvBuffer[i]._acceleration);
+		tmp[i] = double(r._bcastRecvBuffer[i]._pid_value);
 	}
     _mutex.Post();
 	return YARP_OK;
@@ -875,7 +870,7 @@ int YARPEsdDeviceDriver::getBCastFaults (void *cmd)
 	return YARP_OK;
 }
 
-int YARPEsdDeviceDriver::getBCastControlValue (void *cmd)
+int YARPEsdDeviceDriver::getBCastPositionError (void *cmd)
 {
 	EsdResources& r = RES(system_resources);
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
@@ -883,14 +878,14 @@ int YARPEsdDeviceDriver::getBCastControlValue (void *cmd)
 	ACE_ASSERT (axis >= 0 && axis <= r.getJoints());
 	
     _mutex.Wait();
-	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._controlvalue);
+	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._position_error);
     _mutex.Post();
 
 	return YARP_OK;
 }
 
 
-int YARPEsdDeviceDriver::getBCastControlValues (void *cmd)
+int YARPEsdDeviceDriver::getBCastPositionErrors (void *cmd)
 {
 	EsdResources& r = RES(system_resources);
 	int i;
@@ -899,7 +894,7 @@ int YARPEsdDeviceDriver::getBCastControlValues (void *cmd)
     _mutex.Wait();
 	for (i = 0; i < r.getJoints(); i++)
 	{
-		tmp[i] = double(r._bcastRecvBuffer[i]._controlvalue);
+		tmp[i] = double(r._bcastRecvBuffer[i]._position_error);
 	}
     _mutex.Post();
 
