@@ -473,6 +473,10 @@ void CTestControlDlg::OnHelpAbout()
 	dlgAbout.DoModal();
 }
 
+void CTestControlDlg::OnOK() 
+{
+}
+
 void CTestControlDlg::OnFileExit() 
 {
 	PostMessage (WM_CLOSE);	

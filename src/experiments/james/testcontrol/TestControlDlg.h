@@ -169,6 +169,7 @@ protected:
 	afx_msg void OnUpdateInterfaceShowgain(CCmdUI* pCmdUI);
 	afx_msg void OnInterfaceCalibrationpanel();
 	afx_msg void OnUpdateInterfaceCalibrationpanel(CCmdUI* pCmdUI);
+    afx_msg void OnOK();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
