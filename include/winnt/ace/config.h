@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: config.h,v 1.1 2004-07-09 13:42:55 gmetta Exp $
+/// $Id: config.h,v 1.2 2006-05-20 23:55:13 gmetta Exp $
 ///
 ///
 
@@ -49,5 +49,7 @@
 
 // to ensure the object manager is static
 #undef ACE_HAS_NONSTATIC_OBJECT_MANAGER
+
+#pragma warning(disable:4996)
 
 #endif
