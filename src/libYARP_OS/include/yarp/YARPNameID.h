@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 2.1 2006-05-20 23:48:44 gmetta Exp $
+/// $Id: YARPNameID.h,v 2.2 2006-05-20 23:52:09 gmetta Exp $
 ///
 ///
 /*
@@ -539,6 +539,7 @@ public:
 		return YARP_OK; 
 	}
 	
+	//
 	// I'm not sure this would work with other versions (e.g. .net 2003).
 #if defined(__DARWIN__) || (defined(__WIN32__) && (_MSC_VER < 1400)) || defined(__QNX__)
 	// Minor variant on other setPorts method
