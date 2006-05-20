@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPList.h,v 2.1 2005-11-12 18:48:58 eshuy Exp $
+/// $Id: YARPList.h,v 2.2 2006-05-20 23:48:44 gmetta Exp $
 ///
 ///
 
@@ -275,7 +275,7 @@ public:
 	 * De-references the iterator.
 	 * @return a reference to the item pointed by the iterator.
 	 */
-	const T& operator *() const { ACE_ASSERT (_owner.size() != 0 && _it >= 0 && _it < _owner.size()); return _owner[_it]; }
+	const T& operator *() const { ACE_ASSERT (_owner.size() != 0 && _it >= 0 && _it < (int)_owner.size()); return _owner[_it]; }
 
 	/**
 	 * Increment operator.
