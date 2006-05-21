@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageFile.cpp,v 1.2 2004-07-13 15:41:55 eshuy Exp $
+/// $Id: YARPImageFile.cpp,v 1.3 2006-05-21 00:07:23 gmetta Exp $
 ///
 ///
 
@@ -400,7 +400,7 @@ int YARPImageFile::Read(const char *src, YARPGenericImage& dest, int format)
 		    ww = curr;
 		  }
 		buf[idx] = '\0';
-		flt(curr-1,hh-1) = atof(buf);
+		flt(curr-1,hh-1) = float(atof(buf));
 		idx = 0;
 	      }
 	    blank = 1;
