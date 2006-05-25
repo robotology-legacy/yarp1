@@ -68,7 +68,7 @@ if Flag == 1
         index = find(Columns==i);
         str = strcat(num2str(i), ': ', NameOfSignals(index));
         pos_x = ceil(index*NumberOfSamples/length(Columns));
-        text(Ts*pos_x, Signals(pos_x, index), str);
+        text(Ts*(pos_x-1), Signals(pos_x, index), str);
     end
     [m, n] = size(Signals);
     plot((0:m-1).*Ts, Signals)

@@ -212,7 +212,7 @@ void set_can_masks()
  */
 Int32 compute_pwm(byte j)
 {
-	Int32 PWMoutput;
+	Int32 PWMoutput = 0;
 		
 	switch (_control_mode[j])
 	{
@@ -341,23 +341,23 @@ Int32 compute_pid_abs(byte j)
 		} \
 	}\
 	/* Accumulator saturation */ \
-	if (_integral[j] >= _integral_limit[j]) \
+	if (_integral[j] >= (Int32)_integral_limit[j]) \
     { \
 		_integral[j] = (Int32) _integral_limit[j]; \
 	} \
 	else \
 	{ \
-		if (_integral[j] < -_integral_limit[j]) \
+		if (_integral[j] < - ((Int32)_integral_limit[j])) \
 		{ \
-			_integral[j] = (Int32) -_integral_limit[j]; \
+			_integral[j] = - ((Int32)_integral_limit[j]); \
 		} \
 	} \
 	/* Control saturation */ \
-	if (PID > _pid_limit[j]) \
+	if (PID > (Int32) _pid_limit[j]) \
     	_pid[j] = _pid_limit[j]; \
 	else \
 	{\
-	if (PID < -_pid_limit[j]) \
+	if ( PID < - ((Int32) _pid_limit[j])) \
 		_pid[j] =  -_pid_limit[j]; \
 	else \
 		_pid[j] = (Int16)(PID); \
@@ -367,8 +367,18 @@ Int32 compute_pid_abs(byte j)
 	{\
 		if (_filt_current[j] > _limit_current[j]/4) \
 		{\
-			AS1_printStringEx ("R"); \
+			AS1_printStringEx ("R: "); \
 			_control_mode[j] = MODE_HANDLE_HARD_STOPS; \
+			AS1_printWord16AsChars(_pid[j]); \
+			_pid[j] = 0; \
+			if (j == 0)\
+			{\
+				PWMoutput0 = 0;\
+			}\
+			else\
+			{\
+				PWMoutput1 = 0;\
+			}\
 		}\
 	}\
 }
