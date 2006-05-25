@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPSVD.cpp,v 1.4 2005-10-07 14:55:13 natta Exp $
+/// $Id: YARPSVD.cpp,v 1.5 2006-05-25 21:25:34 gmetta Exp $
 ///
 ///
 
@@ -57,10 +57,10 @@
 // 
 //
 //
-static float at,bt,ct;
+static double at,bt,ct;
 #define PYTHAG(a,b) ((at=fabs(a)) > (bt=fabs(b)) ? (ct=bt/at,at*sqrt(1.0+ct*ct)) : (bt ? (ct=at/bt,bt*sqrt(1.0+ct*ct)): 0.0))
 
-static float maxarg1,maxarg2;
+static double maxarg1,maxarg2;
 #define MYMAX(a,b) (maxarg1=(a),maxarg2=(b),(maxarg1) > (maxarg2) ?	(maxarg1) : (maxarg2))
 
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
@@ -335,7 +335,7 @@ void SvdSolve(const YMatrix& u,
     int n = u.NCols ();
         
 	int jj,j,i;
-	float s;
+	double s;
 
     YVector tmp (n);
 
