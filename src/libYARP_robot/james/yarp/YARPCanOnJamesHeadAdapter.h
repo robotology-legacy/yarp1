@@ -2,7 +2,7 @@
 ///                                                                   ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-///                    #pasa#				                          ///
+///                    #pasa#				              ///
 ///                                                                   ///
 ///     "Licensed under the Academic Free License Version 1.0"        ///
 ///                                                                   ///
@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.11 2006-02-20 17:39:12 babybot Exp $
+/// $Id: YARPCanOnJamesHeadAdapter.h,v 1.12 2006-05-26 23:10:12 babybot Exp $
 ///
 ///
 
@@ -36,7 +36,7 @@
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
-#include <ace/log_msg.h>
+//#include <ace/log_msg.h>
 
 #include <yarp/YARPEsdCanDeviceDriver.h>
 #include <yarp/YARPConfigFile.h>
@@ -902,3 +902,4 @@ private:
 };
 
 #endif	// .h
+

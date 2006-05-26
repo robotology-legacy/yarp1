@@ -2,7 +2,7 @@
 ///                                                                   ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-///                    #pasa#				                          ///
+///                    #pasa#				              ///
 ///                                                                   ///
 ///     "Licensed under the Academic Free License Version 1.0"        ///
 ///                                                                   ///
@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnJamesArmAdapter.h,v 1.9 2006-05-19 11:40:06 babybot Exp $
+/// $Id: YARPCanOnJamesArmAdapter.h,v 1.10 2006-05-26 23:10:12 babybot Exp $
 ///
 ///
 
@@ -36,7 +36,7 @@
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
-#include <ace/log_msg.h>
+//#include <ace/log_msg.h>
 
 #include <yarp/YARPEsdCanDeviceDriver.h>
 #include <yarp/YARPConfigFile.h>
@@ -994,7 +994,7 @@ public:
         case 11:
         case 12:
         case 13:
-            return genericCalibrate(joint, _parameters->_calibration[joint]);
+            return genericCalibrate(joint, (short)_parameters->_calibration[joint]);
 
 		    // LATER: to be completed.
 		}

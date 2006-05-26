@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.3 2006-02-03 00:00:08 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.4 2006-05-26 23:10:12 babybot Exp $
 ///
 ///
 
@@ -134,7 +134,7 @@ protected:
 	int getRefPositions(void *cmd);
 	int setPosition(void *cmd);
 	int setPositions(void *cmd);
-	int getError(void *cmd);
+	int getPidError(void *cmd);
 	int setSpeed(void *cmd);
 	int setSpeeds(void *cmd);
 	int getSpeeds(void *cmd);
@@ -171,8 +171,22 @@ protected:
 	int getTorqueLimits (void *cmd);
 	int getErrorStatus (void *cmd);
 	int checkMotionDone (void *cmd);
+    int checkMotionDoneSingle (void *cmd);
 	int setCurrentLimit (void *cmd);
 	int setCurrentLimits (void *cmd);
+	int getControlMode (void *cmd);
+    int startCalibration (void *cmd);
+
+	int setBCastMessages (void *cmd);
+	int getBCastPositions (void *cmd);
+	int getBCastPosition (void *cmd);
+	int getBCastPIDOutput (void *cmd);
+	int getBCastPIDOutputs (void *cmd);
+	int getBCastCurrent (void *cmd);
+	int getBCastCurrents (void *cmd);
+	int getBCastFaults (void *cmd);
+	int getBCastPositionError (void *cmd);
+	int getBCastPositionErrors (void *cmd);
 
 	int setDebugMessageFilter (void *cmd);
 	int setDebugPrintFunction (void *cmd);
@@ -249,5 +263,4 @@ protected:
 
 
 #endif
-
 

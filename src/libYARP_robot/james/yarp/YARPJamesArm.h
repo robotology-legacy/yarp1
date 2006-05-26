@@ -2,7 +2,7 @@
 ///                                                                   ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-///                    #pasa#				                          ///
+///                    #pasa#				              ///
 ///                                                                   ///
 ///     "Licensed under the Academic Free License Version 1.0"        ///
 ///                                                                   ///
@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPJamesArm.h,v 1.1 2005-11-23 15:23:50 babybot Exp $
+///  $Id: YARPJamesArm.h,v 1.2 2006-05-26 23:10:12 babybot Exp $
 ///
 ///
 
@@ -107,3 +107,4 @@ public:
 };
 
 #endif
+

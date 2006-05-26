@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.3 2006-02-03 00:00:07 gmetta Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.4 2006-05-26 23:10:12 babybot Exp $
 ///
 ///
 
@@ -50,6 +50,47 @@
 #define BUF_SIZE 2047
 
 typedef int (*PV) (const char *fmt, ...);
+
+///
+///
+///
+class BCastBufferElement
+{
+public:
+	// msg 1
+	int _position;
+	double _update_p;
+
+	// msg 2
+	short _pid_value;
+	double _update_v;
+
+	// msg 3
+	short _fault;
+	double _update_e;
+
+	// msg 4
+	short _current;
+	short _position_error;
+	double _update_c;
+
+	BCastBufferElement () { zero (); }
+
+	void zero (void)
+	{
+		_position = 0;
+		_pid_value = 0;
+		_current = 0;
+		_fault = 0;
+		_position_error = 0;
+
+		_update_p = .0;
+		_update_v = .0;
+		_update_e = .0;
+		_update_c = .0;
+	}
+};
+
 
 ///
 ///
@@ -96,6 +137,8 @@ public:
 	CMSG _writeBuffer[BUF_SIZE];				/// write buffer.
 	CMSG _replyBuffer[BUF_SIZE];				/// reply buffer.
 
+	BCastBufferElement *_bcastRecvBuffer;		/// local storage for bcast messages.
+
 	unsigned char _my_address;					/// 
 	unsigned char _destinations[ESD_MAX_CARDS];	/// list of connected cards (and their addresses).
 	int _njoints;								/// number of joints (ncards * 2).
@@ -130,6 +173,8 @@ EsdCanResources::EsdCanResources ()
 	_readMessages = 0;
 	_msg_lost = 0;
 	_writeMessages = 0;
+	_bcastRecvBuffer = NULL;
+
 	_error_status = YARP_OK;
 }
 
@@ -166,6 +211,11 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 	_txTimeout = parms._txTimeout;
 	_rxTimeout = parms._rxTimeout;
 
+	_bcastRecvBuffer = new BCastBufferElement[_njoints];
+	ACE_ASSERT (_bcastRecvBuffer != NULL);
+    /// suspect an issue with allocation of array of classes.
+    /// it requires further investigation.
+
 	/// clean up buffers.
 	memset (_readBuffer, 0, sizeof(CMSG)*BUF_SIZE);
 	memset (_writeBuffer, 0, sizeof(CMSG)*BUF_SIZE);
@@ -183,13 +233,13 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 		return YARP_FAIL;
 	}
 
-	/// sets all message ID's.
+	/// sets all message ID's for class 0 and 1.
 	int i;
 	for (i = 0; i < 0xff; i++)
 		canIdAdd (_handle, i);
 	
-	//canIdAdd (_handle, 0x1bc);
-	//canIdAdd (_handle, 0x1cb);
+	for (i = 0x100; i < 0x1ff; i++)
+		canIdAdd (_handle, i);
 
 	return YARP_OK;
 }
@@ -197,6 +247,8 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 
 int EsdCanResources::uninitialize ()
 {
+	if (_bcastRecvBuffer != NULL) delete[] _bcastRecvBuffer;
+
 	if (_handle != ACE_INVALID_HANDLE)
 	{
 		int res = canClose (_handle);
@@ -338,65 +390,63 @@ YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void)
 	ACE_ASSERT (system_resources != NULL);
 
 	/// for the IOCtl call.
-	m_cmds[CMDGetPosition] = &YARPEsdCanDeviceDriver::getPosition;
-	m_cmds[CMDGetPositions] = &YARPEsdCanDeviceDriver::getPositions;
+	m_cmds[CMDGetPosition] = &YARPEsdCanDeviceDriver::getBCastPosition;
+	m_cmds[CMDGetPositions] = &YARPEsdCanDeviceDriver::getBCastPositions;
 	m_cmds[CMDGetRefPosition] = &YARPEsdCanDeviceDriver::getRefPosition;
 	m_cmds[CMDGetRefPositions] = &YARPEsdCanDeviceDriver::getRefPositions;
 	m_cmds[CMDSetPosition] = &YARPEsdCanDeviceDriver::setPosition;
 	m_cmds[CMDSetPositions] = &YARPEsdCanDeviceDriver::setPositions;
-	m_cmds[CMDGetPIDError] = &YARPEsdCanDeviceDriver::getError;
-
+	m_cmds[CMDGetPIDError] = &YARPEsdCanDeviceDriver::getBCastPositionError;
+	m_cmds[CMDGetPIDErrors] = &YARPEsdCanDeviceDriver::getBCastPositionErrors;
+	m_cmds[CMDGetPWM] = &YARPEsdCanDeviceDriver::getBCastPIDOutput;
+	m_cmds[CMDGetPWMs] = &YARPEsdCanDeviceDriver::getBCastPIDOutputs;
 	m_cmds[CMDSetSpeed] = &YARPEsdCanDeviceDriver::setSpeed;
 	m_cmds[CMDSetSpeeds] = &YARPEsdCanDeviceDriver::setSpeeds;
 	m_cmds[CMDGetSpeeds] = &YARPEsdCanDeviceDriver::getSpeeds;
 	m_cmds[CMDGetRefSpeeds] = &YARPEsdCanDeviceDriver::getRefSpeeds;
+	//m_cmds[CMDGetAccelerations] = &YARPEsdCanDeviceDriver::getBCastAccelerations;
 	m_cmds[CMDSetAcceleration] = &YARPEsdCanDeviceDriver::setAcceleration;
 	m_cmds[CMDSetAccelerations] = &YARPEsdCanDeviceDriver::setAccelerations;
 	m_cmds[CMDGetRefAccelerations] = &YARPEsdCanDeviceDriver::getRefAccelerations;
-
 	m_cmds[CMDSetOffset] = &YARPEsdCanDeviceDriver::setOffset;
 	m_cmds[CMDSetOffsets] = &YARPEsdCanDeviceDriver::setOffsets;
-
 	m_cmds[CMDSetPID] = &YARPEsdCanDeviceDriver::setPid;
 	m_cmds[CMDGetPID] = &YARPEsdCanDeviceDriver::getPid;
-
 	m_cmds[CMDSetIntegratorLimit] = &YARPEsdCanDeviceDriver::setIntegratorLimit;
 	m_cmds[CMDSetIntegratorLimits] = &YARPEsdCanDeviceDriver::setIntegratorLimits;
-
 	m_cmds[CMDDefinePosition] = &YARPEsdCanDeviceDriver::definePosition;
 	m_cmds[CMDDefinePositions] = &YARPEsdCanDeviceDriver::definePositions;
 	m_cmds[CMDDisableAmp] = &YARPEsdCanDeviceDriver::disableAmp;
 	m_cmds[CMDEnableAmp] = &YARPEsdCanDeviceDriver::enableAmp;
 	m_cmds[CMDControllerIdle] = &YARPEsdCanDeviceDriver::controllerIdle;
 	m_cmds[CMDControllerRun] = &YARPEsdCanDeviceDriver::controllerRun;
-
 	m_cmds[CMDVMove] = &YARPEsdCanDeviceDriver::velocityMove;
-	m_cmds[CMDSafeVMove] = &YARPEsdCanDeviceDriver::velocityMove;
-
 	m_cmds[CMDSetCommand] = &YARPEsdCanDeviceDriver::setCommand;
 	m_cmds[CMDSetCommands] = &YARPEsdCanDeviceDriver::setCommands;
 	m_cmds[CMDCheckMotionDone] = &YARPEsdCanDeviceDriver::checkMotionDone;
-
-	m_cmds[CMDGetTorque] = &YARPEsdCanDeviceDriver::getTorque;
-	m_cmds[CMDGetTorques] = &YARPEsdCanDeviceDriver::getTorques;
+    m_cmds[CMDCheckMotionDoneSingle] = &YARPEsdCanDeviceDriver::checkMotionDoneSingle;
+	m_cmds[CMDGetTorque] = &YARPEsdCanDeviceDriver::getBCastCurrent;
+	m_cmds[CMDGetTorques] = &YARPEsdCanDeviceDriver::getBCastCurrents;
 	m_cmds[CMDLoadBootMemory] = &YARPEsdCanDeviceDriver::readBootMemory;
 	m_cmds[CMDSaveBootMemory] = &YARPEsdCanDeviceDriver::writeBootMemory;
-
 	m_cmds[CMDSetSWPositiveLimit] = &YARPEsdCanDeviceDriver::setSwPositiveLimit;
 	m_cmds[CMDSetSWNegativeLimit] = &YARPEsdCanDeviceDriver::setSwNegativeLimit;
 	m_cmds[CMDGetSWPositiveLimit] = &YARPEsdCanDeviceDriver::getSwPositiveLimit;
 	m_cmds[CMDGetSWNegativeLimit] = &YARPEsdCanDeviceDriver::getSwNegativeLimit;
-	
 	m_cmds[CMDGetTorqueLimit] = &YARPEsdCanDeviceDriver::getTorqueLimit;
 	m_cmds[CMDGetTorqueLimits] = &YARPEsdCanDeviceDriver::getTorqueLimits;
 	m_cmds[CMDSetTorqueLimit] = &YARPEsdCanDeviceDriver::setTorqueLimit;
 	m_cmds[CMDSetTorqueLimits] = &YARPEsdCanDeviceDriver::setTorqueLimits;
 	m_cmds[CMDSetCurrentLimit] = &YARPEsdCanDeviceDriver::setCurrentLimit;
 	m_cmds[CMDSetCurrentLimits] = &YARPEsdCanDeviceDriver::setCurrentLimits;
-
+	m_cmds[CMDGetAnalogChannel] = &YARPEsdCanDeviceDriver::getBCastCurrent;
+	m_cmds[CMDGetAnalogChannels] = &YARPEsdCanDeviceDriver::getBCastCurrents;
+	//m_cmds[CMDGetFault] = &YARPEsdCanDeviceDriver::getBCastFault;
+	m_cmds[CMDGetFaults] = &YARPEsdCanDeviceDriver::getBCastFaults;
+    m_cmds[CMDStartCalibration] = &YARPEsdCanDeviceDriver::startCalibration;
+    m_cmds[CMDGetControlMode] = &YARPEsdCanDeviceDriver::getControlMode;
 	m_cmds[CMDSetDebugMessageFilter] = &YARPEsdCanDeviceDriver::setDebugMessageFilter;
 	m_cmds[CMDSetDebugPrintFunction] = &YARPEsdCanDeviceDriver::setDebugPrintFunction;
-
 	m_cmds[CMDGetErrorStatus] = &YARPEsdCanDeviceDriver::getErrorStatus;
 }
 
@@ -442,12 +492,37 @@ int YARPEsdCanDeviceDriver::open (void *p)
 
 	_mutex.Post ();
 
+	/// default initialization for this device driver.
+	int i;
+	for(i = 0; i < r.getJoints(); i++)
+	{
+		SingleAxisParameters cmd;
+		cmd.axis = i;
+		double tmp = double(0x1E);	/// 0x1A activates position and current consumption broadcast + fault events.
+		cmd.parameters = &tmp;
+		setBCastMessages(&cmd);	
+	}
+
 	return YARP_OK;
 }
 
 int YARPEsdCanDeviceDriver::close (void)
 {
 	EsdCanResources& d = RES(system_resources);
+
+    if (YARPThread::running)
+    {
+	    /// default initialization for this device driver.
+	    int i;
+	    for(i = 0; i < d.getJoints(); i++)
+	    {
+		    SingleAxisParameters cmd;
+		    cmd.axis = i;
+		    double tmp = double(0x00);
+		    cmd.parameters = &tmp;
+		    setBCastMessages(&cmd);	
+	    }
+    }
 
 	End ();	/// stops the thread first (joins too).
 
@@ -487,13 +562,110 @@ void YARPEsdCanDeviceDriver::Body (void)
 
 	while (!IsTerminated() || messagePending)
 	{
-		before = YARPTime::GetTimeAsSeconds();
+		before = YARPTime::GetTimeAsSecondsHr();
 
 		_mutex.Wait ();
 		if (r.read () != YARP_OK)
 			if (r._p) 
 				(*r._p) ("CAN: read failed\n");
 
+		// handle broadcast messages.
+		// (class 1, 8 bits of the ID used to define the message type and source address).
+		//
+		for (i = 0; i < r._readMessages; i++)
+		{
+			CMSG& m = r._readBuffer[i];
+			if (m.len & NTCAN_NO_DATA)
+				if (r._p)
+				{
+					(*r._p) ("CAN: error in message %x len: %d type: %x: %x\n",
+							m.id, m.len, m.data[0], m.msg_lost);
+						continue;
+				}
+
+			if ((m.id & 0x700) == 0x100) // class = 1.
+			{
+				// 4 next bits = source address, next 4 bits = msg type
+				// this allows sending two 32-bit numbers is a single CAN message.
+				//
+				// need an array here for storing the messages on a per-joint basis.
+
+				const int addr = ((m.id & 0x0f0) >> 4);
+				int j;
+				for (j = 0; j < ESD_MAX_CARDS; j++)
+				{
+					if (r._destinations[j] == addr)
+						break;
+				}
+
+				j *= 2;
+
+				/* less sign nibble specifies msg type */
+				switch (m.id & 0x00f)
+				{
+				case CAN_BCAST_POSITION:
+					r._bcastRecvBuffer[j]._position = *((int *)(m.data));
+					r._bcastRecvBuffer[j]._update_p = before;
+					j++;
+					if (j < r.getJoints())
+					{
+						r._bcastRecvBuffer[j]._position = *((int *)(m.data+4));
+						r._bcastRecvBuffer[j]._update_p = before;
+					}
+					break;
+
+				case CAN_BCAST_PID_VAL:
+					r._bcastRecvBuffer[j]._pid_value = *((short *)(m.data));
+					r._bcastRecvBuffer[j]._update_v = before;
+
+					j++;
+					if (j < r.getJoints())
+					{
+						r._bcastRecvBuffer[j]._pid_value = *((short *)(m.data+2));
+						r._bcastRecvBuffer[j]._update_v = before;
+					}
+					break;
+
+				case CAN_BCAST_FAULT:
+					// fault signals.
+					r._bcastRecvBuffer[j]._fault = *((short *)(m.data));
+					r._bcastRecvBuffer[j]._update_e = before;
+					j++;
+
+					if (j < r.getJoints())
+					{
+						r._bcastRecvBuffer[j]._fault = *((short *)(m.data+2));
+						r._bcastRecvBuffer[j]._update_e = before;
+					}
+					break;
+
+				case CAN_BCAST_CURRENT:
+					// also receives the control values.
+					r._bcastRecvBuffer[j]._current = *((short *)(m.data));
+
+					r._bcastRecvBuffer[j]._position_error = *((short *)(m.data+4));
+					r._bcastRecvBuffer[j]._update_c = before;
+					j++;
+					if (j < r.getJoints())
+					{
+						r._bcastRecvBuffer[j]._current = *((short *)(m.data+2));
+
+						r._bcastRecvBuffer[j]._position_error = *((short *)(m.data+6));
+						r._bcastRecvBuffer[j]._update_c = before;
+					}
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+
+		//
+		// handle class 0 messages - polling messages.
+		// (class 0, 8 bits of the ID used to represent the source and destination).
+		// the first byte of the message is the message type and motor number (0 or 1).
+		//
 		if (messagePending)
 		{
 			for (i = 0; i < r._readMessages; i++)
@@ -510,7 +682,7 @@ void YARPEsdCanDeviceDriver::Body (void)
 
 				if (((m.id &0x700) == 0) && 
 					((m.data[0] & 0x7f) != _filter) &&
-					 (m.data[0] & 0x7f) < CAN_GET_ACTIVE_ENCODER_POSITION)
+					 (m.data[0] & 0x7f) < NUM_OF_MESSAGES)
 					r.printMessage (m);
 
 				if (!noreply) /// this requires a reply.
@@ -623,22 +795,22 @@ AckMessageLoop:
 		_mutex.Post ();
 
 		/// wait.
-		now = YARPTime::GetTimeAsSeconds();
+		now = YARPTime::GetTimeAsSecondsHr();
 		if ((now - before)*1000 < r._polling_interval)
 		{
-			YARPTime::DelayInSeconds(double(r._polling_interval)/1000.0-(now-before));
+            double k = double(r._polling_interval)/1000.0-(now-before);
+			YARPTime::DelayInSeconds(k);
+            //before = now + k;
 		}
 		else 
 		{
 			if (r._p) (*r._p)("CAN: thread can't poll fast enough (time: %f)\n", now-before);
+    		//before = now;
 		}
-		before = now;
 	}
 
 	///
 }
-
-
 
 
 ///
@@ -780,6 +952,37 @@ int YARPEsdCanDeviceDriver::setPosition (void *cmd)
 	_done.Wait();
 
 	return YARP_OK;
+}
+
+///
+/// starts the homing procedure for a given joint.
+int YARPEsdCanDeviceDriver::startCalibration (void *cmd)
+{
+	/// prepare can message.
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	
+	return _writeWord16 (CAN_CALIBRATE_ENCODER, axis, S_16(*((double *)tmp->parameters)));   
+}
+
+///
+/// gets the control mode according to some controller specific coding (if any).
+int YARPEsdCanDeviceDriver::getControlMode (void *cmd)
+{
+    short value = 0;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+
+   	if (_readWord16 (CAN_GET_CONTROL_MODE, axis, value) != YARP_OK)
+	{
+		*((double *)tmp->parameters) = 0;
+		return YARP_FAIL;
+	}
+
+	*((double *)tmp->parameters) = double(value); 
+    return YARP_OK;
 }
 
 /// cmd is an array of double of length njoints specifying speed 
@@ -1172,7 +1375,7 @@ int YARPEsdCanDeviceDriver::getTorque (void *cmd)
 
 
 /// cmd is a SingleAxisParameters struct with a double argument.
-int YARPEsdCanDeviceDriver::getError (void *cmd)
+int YARPEsdCanDeviceDriver::getPidError (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
@@ -1364,6 +1567,29 @@ int YARPEsdCanDeviceDriver::getErrorStatus (void *cmd)
 	return YARP_OK;
 }
 
+/// check motion done, single axis.
+int YARPEsdCanDeviceDriver::checkMotionDoneSingle (void *cmd)
+{
+    SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+	
+	short value;
+	double *out = (double *)tmp->parameters;
+
+    if (_readWord16 (CAN_MOTION_DONE, axis, value) == YARP_OK)
+    {
+        *out = double(value);
+    }
+    else
+    {
+        *out = 0;
+        return YARP_FAIL;
+    }
+
+    return YARP_OK;
+}
+
 /// cmd is a pointer to a bool
 int YARPEsdCanDeviceDriver::checkMotionDone (void *cmd)
 {
@@ -1420,6 +1646,156 @@ int YARPEsdCanDeviceDriver::checkMotionDone (void *cmd)
 	*out = true;
 	return YARP_OK;
 }
+
+
+/// sets the broadcast policy for a given board (don't need to be called twice).
+/// the parameter is a 32-bit integer: bit X = 1 -> message X = active
+/// e.g. 0x02 activates the broadcast of position information
+///		 0x04 activates the broadcast of velocity ...
+///
+int YARPEsdCanDeviceDriver::setBCastMessages (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
+
+	return _writeDWord (CAN_SET_BCAST_POLICY, axis, S_32(*((double *)tmp->parameters)));
+}
+
+///
+/// reads an array of double from the broadcast message position buffer.
+/// LATER: add a check of timing/error message.
+///
+int YARPEsdCanDeviceDriver::getBCastPosition (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= r.getJoints());
+	
+    _mutex.Wait();
+	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._position);
+    _mutex.Post();
+
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastPositions (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	double *tmp = (double *)cmd;
+    _mutex.Wait();
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = double(r._bcastRecvBuffer[i]._position);
+	}
+    _mutex.Post();
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastPIDOutput (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= r.getJoints());
+	
+    _mutex.Wait();
+	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._pid_value);
+    _mutex.Post();
+
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastPIDOutputs (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	double *tmp = (double *)cmd;
+    _mutex.Wait();
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = double(r._bcastRecvBuffer[i]._pid_value);
+	}
+    _mutex.Post();
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastCurrent (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= r.getJoints());
+	
+    _mutex.Wait();
+	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._current);
+    _mutex.Post();
+
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastCurrents (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	double *tmp = (double *)cmd;
+    _mutex.Wait();
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = double(r._bcastRecvBuffer[i]._current);
+	}
+    _mutex.Post();
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastFaults (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	short *tmp = (short *)cmd;
+
+    _mutex.Wait();
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = short(r._bcastRecvBuffer[i]._fault);
+	}
+    _mutex.Post();
+
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastPositionError (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= r.getJoints());
+	
+    _mutex.Wait();
+	*((double *)tmp->parameters) = double(r._bcastRecvBuffer[axis]._position_error);
+    _mutex.Post();
+
+	return YARP_OK;
+}
+
+int YARPEsdCanDeviceDriver::getBCastPositionErrors (void *cmd)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	double *tmp = (double *)cmd;
+
+    _mutex.Wait();
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		tmp[i] = double(r._bcastRecvBuffer[i]._position_error);
+	}
+    _mutex.Post();
+
+	return YARP_OK;
+}
+
 
 ///
 /// helper functions.
@@ -1693,13 +2069,10 @@ int YARPEsdCanDeviceDriver::_readDWordArray (int msg, double *out)
 	}
 
 	if (r._writeMessages < 1)
-
 	{
-
 		_mutex.Post();
 		return YARP_FAIL;
 	}
-
 
 	_writerequested = true;
 	_noreply = false;
@@ -1729,5 +2102,4 @@ int YARPEsdCanDeviceDriver::_readDWordArray (int msg, double *out)
 
 	return YARP_OK;
 }
-
 
