@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 2.1 2005-12-07 14:34:09 natta Exp $
+/// $Id: YARPNameService.cpp,v 2.2 2006-05-26 21:33:07 babybot Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -398,7 +398,7 @@ void help() {
   ACE_OS::printf("\n");
   ACE_OS::printf("Usage information for %s\n\n", app);
   ACE_OS::printf("%s --run   : starts YARP name service running on this machine\n",app);
-  ACE_OS::printf("%s --daemon : starts YARP name service as daemon (suppress interactive mode)", app);
+  ACE_OS::printf("%s --daemon : starts YARP name service as daemon (suppress interactive mode)\n", app);
   ACE_OS::printf("%s --check : checks and troubleshoots YARP name service configuration\n",app);
   ACE_OS::printf("%s --remote <server> [<portnumber>] : \n", app);
   ACE_OS::printf("%s           configures current machine to consult YARP name\n",bpp);
