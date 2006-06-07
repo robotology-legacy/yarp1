@@ -134,6 +134,12 @@ Int32  _adjustment[JN] = { 0, 0 };		/* the actual adjustment (compensation) */
 Int32  _delta_adj[JN] = { 0, 0 };		/* velocity over the adjustment */
 #endif
 
+#ifdef SMOOTH_PID_CTRL
+float _pid_old[JN] = { 0, 0 };			/* pid control at previous time step */
+float _filt_pid[JN] = { 0, 0 };			/* filtered pid control*/
+float _filt_pid_old[JN] = { 0, 0 };		/* filtered pid control at previous time step*/
+#endif
+
 bool _pending_request = false;			/* whether a request to another card is pending */
 Int16  _timeout = 0;					/* used to timeout requests */
 
@@ -166,6 +172,10 @@ void check_in_position(byte j);
 void get_postion(byte jnt);
 void get_abs_postion(byte jnt);
 void decouple_positions(void);
+#ifdef SMOOTH_PID_CTRL
+Int32 compute_filtpid(byte j, Int32 PID);
+#endif
+
 
 void set_can_masks()
 {
@@ -237,6 +247,10 @@ Int32 compute_pwm(byte j)
 		_control_mode[j] = MODE_IDLE;
 		break;			
 	}
+	
+#ifdef SMOOTH_PID_CTRL
+	PWMoutput = compute_filtpid(j, PWMoutput);
+#endif
 	return PWMoutput;
 }
 
@@ -365,7 +379,7 @@ Int32 compute_pid_abs(byte j)
 	/* Control hard limit reached ? i.e. abnormal high current ? */ \
 	if (_control_mode[j] == MODE_POSITION) \
 	{\
-		if (_filt_current[j] > _limit_current[j]/4) \
+		if (_filt_current[j] > _limit_current[j] / 2) \
 		{\
 			AS1_printStringEx ("R: "); \
 			_control_mode[j] = MODE_HANDLE_HARD_STOPS; \
@@ -382,6 +396,38 @@ Int32 compute_pid_abs(byte j)
 		}\
 	}\
 }
+
+/* 
+ * this function filters the current (AD value).
+ */
+#ifdef SMOOTH_PID_CTRL
+ 
+Int32 compute_filtpid(byte jnt, Int32 PID)
+{
+	/*
+	The filter is the following:
+	_filt_current = a_1 * _filt_current_old 
+				  + a_2 * (_current_old + _current).
+	Parameters a_1 and a_2 are computed on the sample time
+	(Ts = 1 ms) and the rising time (ts = 200ms).Specifically
+	we have:
+	a_1 = (2*tau - Ts) / (2*tau + Ts)
+	a_2 = Ts / (2*tau + Ts)
+	where tau = ts/2.3. Therefore:
+	a_1 = 0.9773
+	a_2 = 0.0114
+	*/
+	float pid;
+	
+	pid = (float) PID;
+	_filt_pid_old[jnt] = _filt_pid[jnt];
+	_filt_pid[jnt] = 0.9773 * _filt_pid_old[jnt] + 0.0114 * (_pid_old[jnt] + pid);
+	_pid_old[jnt] = pid;
+	return (Int32) _filt_pid[jnt];
+	//return (Int32) pid;
+}
+
+#endif
 
 /*
  * a step in the trajectory generation for velocity control. 

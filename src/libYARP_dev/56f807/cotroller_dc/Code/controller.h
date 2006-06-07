@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.37 2006-05-25 17:28:38 babybot Exp $
+/// $Id: controller.h,v 1.38 2006-06-07 10:03:56 babybot Exp $
 ///
 ///
 
@@ -53,7 +53,7 @@
 
 //#define VERSION 0x0111   				/* standard/basic implementation */
 //#define VERSION 0x0112				/* decouples shoulder first two joints */
-#define VERSION 0x0113			   	/* decouples the third joint of the shoulder */
+#define VERSION 0x0113			   		/* decouples the third joint of the shoulder */
 //#define VERSION 0x0114		    	/* feedback from the AD */
 //#define VERSION 0x0115		    	/* coordinated control of the eyes */
 
@@ -62,9 +62,9 @@
 //#define DEBUG_TRAJECTORY 		1		/* print encoder/joint position */
 #define DEBUG_SERIAL			1		/* for debugging through terminal */
 //#define DEBUG_CURRENT			1		/* for debugging current through terminal */
-//#define DEBUG_CALIBRATION		1		/* for calibration debugging through terminal */
+#define DEBUG_CALIBRATION		1		/* for calibration debugging through terminal */
 //#define EMERGENCY_DISABLED	1		/* emergency fault signal disabled */
-
+//#define SMOOTH_PID_CTRL		1		/* for debugging current spikes */
 
 #define DEFAULT_BOARD_ID	15		/* default ID for receiving messages (4 bit field) */
 #define SMALL_BUFFER_SIZE 	10		/* for serial I/O */
