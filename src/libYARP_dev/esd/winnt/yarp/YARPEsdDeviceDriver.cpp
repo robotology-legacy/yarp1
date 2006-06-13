@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDeviceDriver.cpp,v 1.7 2006-05-19 11:40:06 babybot Exp $
+/// $Id: YARPEsdDeviceDriver.cpp,v 1.8 2006-06-13 12:31:46 gmetta Exp $
 ///
 ///
 

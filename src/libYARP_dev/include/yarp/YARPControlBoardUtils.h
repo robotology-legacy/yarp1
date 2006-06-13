@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.19 2006-05-15 10:51:01 babybot Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.20 2006-06-13 12:31:46 gmetta Exp $
 ///
 ///
 

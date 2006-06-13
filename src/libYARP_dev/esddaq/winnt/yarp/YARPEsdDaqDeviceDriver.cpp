@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.10 2006-05-18 14:10:10 babybot Exp $
+/// $Id: YARPEsdDaqDeviceDriver.cpp,v 1.11 2006-06-13 12:31:46 gmetta Exp $
 ///
 ///
 

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.16 2006-05-19 11:40:06 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.17 2006-06-13 12:31:46 gmetta Exp $
 ///
 ///
 
