@@ -1,0 +1,86 @@
+\section{Serial\-Handler Class Reference}
+\label{classSerialHandler}\index{SerialHandler@{SerialHandler}}
+Implements the Serial Adaptor ----------------------------------------------------------------------------.  
+
+
+{\tt \#include $<$Serial\-Handler.h$>$}
+
+\subsection*{Public Member Functions}
+\begin{CompactItemize}
+\item 
+int {\bf initialize} (void)
+\begin{CompactList}\small\item\em initialize starts the inizialization of the serial device and attach it to the file reading streams. \item\end{CompactList}\item 
+virtual int {\bf svc} ()
+\begin{CompactList}\small\item\em svc This is the internal loop of the ACETask, it read from the standart input. \item\end{CompactList}\end{CompactItemize}
+\subsection*{Protected Member Functions}
+\begin{CompactItemize}
+\item 
+virtual void {\bf handle\_\-read\_\-file} (const ACE\_\-Asynch\_\-Read\_\-File::Result \&result)
+\begin{CompactList}\small\item\em handle\_\-read\_\-file \item\end{CompactList}\item 
+virtual void {\bf handle\_\-write\_\-file} (const ACE\_\-Asynch\_\-Write\_\-File::Result \&result)
+\begin{CompactList}\small\item\em handle\_\-write\_\-file \item\end{CompactList}\end{CompactItemize}
+
+
+\subsection{Detailed Description}
+Implements the Serial Adaptor ----------------------------------------------------------------------------. 
+
+-------------------------------------------------------------------------- 
+
+
+
+\subsection{Member Function Documentation}
+\index{SerialHandler@{Serial\-Handler}!handle_read_file@{handle\_\-read\_\-file}}
+\index{handle_read_file@{handle\_\-read\_\-file}!SerialHandler@{Serial\-Handler}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}virtual void Serial\-Handler::handle\_\-read\_\-file (const ACE\_\-Asynch\_\-Read\_\-File::Result \& {\em result})\hspace{0.3cm}{\tt  [protected, virtual]}}\label{classSerialHandler_b0}
+
+
+handle\_\-read\_\-file 
+
+-------------------------------------------------------------------------- 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em result}]---------------------------------------------------------------------------- \end{description}
+\end{Desc}
+\index{SerialHandler@{Serial\-Handler}!handle_write_file@{handle\_\-write\_\-file}}
+\index{handle_write_file@{handle\_\-write\_\-file}!SerialHandler@{Serial\-Handler}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}virtual void Serial\-Handler::handle\_\-write\_\-file (const ACE\_\-Asynch\_\-Write\_\-File::Result \& {\em result})\hspace{0.3cm}{\tt  [protected, virtual]}}\label{classSerialHandler_b1}
+
+
+handle\_\-write\_\-file 
+
+-------------------------------------------------------------------------- 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em result}]---------------------------------------------------------------------------- \end{description}
+\end{Desc}
+\index{SerialHandler@{Serial\-Handler}!initialize@{initialize}}
+\index{initialize@{initialize}!SerialHandler@{Serial\-Handler}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}int Serial\-Handler::initialize (void)}\label{classSerialHandler_a2}
+
+
+initialize starts the inizialization of the serial device and attach it to the file reading streams. 
+
+-------------------------------------------------------------------------- 
+
+\begin{Desc}
+\item[Returns:]---------------------------------------------------------------------------- \end{Desc}
+\index{SerialHandler@{Serial\-Handler}!svc@{svc}}
+\index{svc@{svc}!SerialHandler@{Serial\-Handler}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}virtual int Serial\-Handler::svc ()\hspace{0.3cm}{\tt  [virtual]}}\label{classSerialHandler_a3}
+
+
+svc This is the internal loop of the ACETask, it read from the standart input. 
+
+-------------------------------------------------------------------------- 
+
+\begin{Desc}
+\item[Returns:]---------------------------------------------------------------------------- \end{Desc}
+
+
+The documentation for this class was generated from the following file:\begin{CompactItemize}
+\item 
+{\bf Serial\-Handler.h}\end{CompactItemize}
