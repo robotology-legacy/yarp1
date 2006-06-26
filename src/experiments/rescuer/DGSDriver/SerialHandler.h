@@ -16,7 +16,7 @@
  * ===================================================================================*/
 
 /*
- * $Id: SerialHandler.h,v 1.1 2006-06-21 17:32:24 beltran Exp $
+ * $Id: SerialHandler.h,v 1.2 2006-06-26 13:53:36 beltran Exp $
  */
 
 #ifndef __SERIALHANDLERH__
@@ -51,7 +51,7 @@ public:
 
     /** --------------------------------------------------------------------------
      * @brief initialize starts the inizialization of the serial device and attach it
-     * to the file reading streams.
+     * to the reading streams.
      * 
      * @return 
      ----------------------------------------------------------------------------*/
@@ -69,19 +69,19 @@ protected:
     // = These methods are called by the framework.
 
     /** --------------------------------------------------------------------------
-     * @brief handle_read_file
+     * @brief handle_read_stream
      * 
      * @param result 
      ----------------------------------------------------------------------------*/
-    virtual void handle_read_file (const ACE_Asynch_Read_File::Result &result);
+    virtual void handle_read_stream (const ACE_Asynch_Read_Stream::Result &result);
     // This is called when asynchronous reads from the socket complete.
 
     /** --------------------------------------------------------------------------
-     * @brief handle_write_file
+     * @brief handle_write_stream
      * 
      * @param result 
      ----------------------------------------------------------------------------*/
-    virtual void handle_write_file (const ACE_Asynch_Write_File::Result &result);
+    virtual void handle_write_stream (const ACE_Asynch_Write_Stream::Result &result);
     // This is called when asynchronous writes from the socket complete.
 
 private:
@@ -89,42 +89,35 @@ private:
     // Initiate an asynchronous <read> operation on the socket
 
     /** --------------------------------------------------------------------------
-     * @brief initiate_read_file
+     * @brief initiate_read_stream 
      * 
      * @return 
      ----------------------------------------------------------------------------*/
-    int initiate_read_file (void);
-
+    int initiate_read_stream (void);
 
     /**
      *  Parameters.
      */
 
     /** --------------------------------------------------------------------------
-     * @brief 
+     * @brief The stream for reading from the serial line
      ----------------------------------------------------------------------------*/
-    ACE_Asynch_Read_File rf_;
-    // rf (read file): for writing from the file.
+    ACE_Asynch_Read_Stream _serial_read_stream; 
 
     /** --------------------------------------------------------------------------
-     * @brief ws (write File): for writing to the file.
+     * @brief The stream for writing to the serial line
      ----------------------------------------------------------------------------*/
-    ACE_Asynch_Write_File wf_;
+    ACE_Asynch_Write_Stream _serial_write_stream;
 
     /** --------------------------------------------------------------------------
-     * @brief 
+     * @brief The TTY device for the serial line
      ----------------------------------------------------------------------------*/
-    ACE_TTY_IO read_dev;
-
-    ACE_Asynch_Read_Stream reader_;
-    ACE_Asynch_Write_Stream writer_;
-
+    ACE_TTY_IO _serial_dev; 
     /** --------------------------------------------------------------------------
-     * @brief 
+     * @brief The connector used to connect to the serial line
      ----------------------------------------------------------------------------*/
-    ACE_DEV_Connector con;
+    ACE_DEV_Connector _serialConnector;
     int flag;
-    int counter;
 };
 
 #endif /* __SERIALHANDLER__ */ 

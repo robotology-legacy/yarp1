@@ -16,7 +16,7 @@
  * ===================================================================================*/
 
 /*
- * $Id: SerialHandler.cpp,v 1.1 2006-06-21 17:32:24 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.2 2006-06-26 13:53:36 beltran Exp $
  */
 #include "SerialHandler.h"
 
@@ -26,8 +26,6 @@
 SerialHandler::SerialHandler (void)
 {
     ACE_TRACE("SerialHandler::SerialHandler");
-    flag = 0;
-    counter = 0;
 }
 
 /** --------------------------------------------------------------------------
@@ -37,7 +35,6 @@ SerialHandler::SerialHandler (void)
 SerialHandler::~SerialHandler (void)
 {
     ACE_TRACE("SerialHandler::~SerialHandler");
-    reader_.cancel();
 }
 
 /** --------------------------------------------------------------------------
@@ -50,7 +47,7 @@ int SerialHandler::initialize(void)
   u_short client_port = ACE_DEFAULT_SERVICE_PORT; /* This seems to be 20003*/
 
   // Initialize serial port
-  con.connect(read_dev, ACE_DEV_Addr ("COM4"), 0, ACE_Addr::sap_any, 0, 
+  _serialConnector.connect(_serial_dev, ACE_DEV_Addr ("COM4"), 0, ACE_Addr::sap_any, 0, 
       O_RDWR|FILE_FLAG_OVERLAPPED); 
 
   ACE_TTY_IO::Serial_Params myparams;
@@ -64,26 +61,26 @@ int SerialHandler::initialize(void)
   myparams.databits = 8;
   myparams.stopbits = 1;
 
-  if (read_dev.control (ACE_TTY_IO::SETPARAMS, &myparams) == -1)
+  if (_serial_dev.control (ACE_TTY_IO::SETPARAMS, &myparams) == -1)
       ACE_ERROR_RETURN ((LM_ERROR,
               ACE_TEXT ("%p control\n"),
               "COM1"), 1);
 
-  // Asociate the ACE_Asynch_Read_File with the TTY serial device
-  if (this->rf_.open (*this, read_dev.get_handle()) == -1)
+  // Asociate the ACE_Asynch_Read_Stream with the TTY serial device
+  if (this->_serial_read_stream.open (*this, _serial_dev.get_handle()) == -1)
     ACE_ERROR_RETURN ((LM_ERROR, ACE_TEXT("%p\n"),
-            ACE_TEXT("ACE_Asynch_Read_File::open")), -1);
+            ACE_TEXT("ACE_Asynch_Read_Stream::open")), -1);
 
-  // Idem for ACE_Asynch_Write_File
-  if (this->wf_.open (*this, read_dev.get_handle()) == -1)
+  // Idem for ACE_Asynch_Write_Stream
+  if (this->_serial_write_stream.open (*this, _serial_dev.get_handle()) == -1)
     ACE_ERROR_RETURN ((LM_ERROR, ACE_TEXT("%p\n"),
-                ACE_TEXT("ACE_Asynch_Write_File::open")), -1);
+                ACE_TEXT("ACE_Asynch_Write_Stream::open")), -1);
 
   ACE_DEBUG ((LM_DEBUG, 
-          ACE_TEXT("SerialHandler::open: Files and Asynch Operations opened sucessfully\n")));
+          ACE_TEXT("SerialHandler::open: streams and Asynch Operations opened sucessfully\n")));
 
-  // Start an asynchronous read file
-  if (this->initiate_read_file () == -1)
+  // Start an asynchronous read stream
+  if (this->initiate_read_stream () == -1)
     return -1;
   
   /* Sending a ? to the serial {{{*/
@@ -96,8 +93,8 @@ int SerialHandler::initialize(void)
                     ACE_TEXT ("Error copiando mensaje\n")));
   }
 
-  //ssize_t bytes_written = read_dev.send_n ("hola\n", 5);
-  if (this->wf_.write (message_block, 2 ) == -1)
+  //ssize_t bytes_written = _serial_dev.send_n ("hola\n", 5);
+  if (this->_serial_write_stream.write (message_block, 2 ) == -1)
   {
       ACE_ERROR ((LM_ERROR, "%p\n", "Error escribiendo conyo"));
       return 0;
@@ -138,8 +135,8 @@ int SerialHandler::svc()
                     ACE_TEXT ("Error copiando mensaje\n")));
         }
 
-        //ssize_t bytes_written = read_dev.send_n ("hola\n", 5);
-        if (this->wf_.write (message_block, user_input.size()) == -1)
+        //ssize_t bytes_written = _serial_dev.send_n ("hola\n", 5);
+        if (this->_serial_write_stream.write (message_block, user_input.size()) == -1)
         {
             ACE_ERROR ((LM_ERROR, "%p\n", "Error escribiendo conyo"));
             return 0;
@@ -148,37 +145,36 @@ int SerialHandler::svc()
 }
 
 /** --------------------------------------------------------------------------
- * @brief SerialHandler::initiate_read_file
+ * @brief SerialHandler::initiate_read_stream
  * @return 
  ----------------------------------------------------------------------------*/
 int
-SerialHandler::initiate_read_file (void)
+SerialHandler::initiate_read_stream (void)
 {
-    //ACE_TRACE("SerialHandler::initiate_read_file");
+    //ACE_TRACE("SerialHandler::initiate_read_stream");
   // Create Message_Block
   ACE_Message_Block *mb = 0;
   ACE_NEW_RETURN (mb, ACE_Message_Block (BUFSIZ + 1), -1);
 
-  // Inititiate an asynchronous read from the file
-  if (this->rf_.read (*mb,
+  // Inititiate an asynchronous read from the stream
+  if (this->_serial_read_stream.read (*mb,
 		      mb->size () - 1) == -1)
-    ACE_ERROR_RETURN ((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("ACE_Asynch_Read_File::read")), -1);
+    ACE_ERROR_RETURN ((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("ACE_Asynch_Read_Stream::read")), -1);
 
-  ACE_DEBUG ((LM_DEBUG, ACE_TEXT("SerialHandler:initiate_read_file: Asynch Read File issued sucessfully\n")));
+  ACE_DEBUG ((LM_DEBUG, ACE_TEXT("SerialHandler:initiate_read_stream: Asynch Read stream issued sucessfully\n")));
 
   return 0;
 }
 
 /** --------------------------------------------------------------------------
- * @brief SerialHandler::handle_read_file
+ * @brief SerialHandler::handle_read_stream
  * @param result 
  ----------------------------------------------------------------------------*/
 void
-SerialHandler::handle_read_file (const ACE_Asynch_Read_File::Result &result)
+SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
 {
-    counter++;
-    //ACE_TRACE("SerialHandler::handle_read_file");
-  ACE_DEBUG ((LM_DEBUG,ACE_TEXT( "handle_read_file called\n")));
+    //ACE_TRACE("SerialHandler::handle_read_stream");
+  ACE_DEBUG ((LM_DEBUG,ACE_TEXT( "handle_read_stream called\n")));
 
   result.message_block ().rd_ptr ()[result.bytes_transferred ()] = '\0';
 
@@ -198,52 +194,19 @@ SerialHandler::handle_read_file (const ACE_Asynch_Read_File::Result &result)
   //ACE_DEBUG ((LM_INFO, "%s",
               //result.message_block ().rd_ptr ()));/*}}}*/
   ACE_OS::printf("%s", result.message_block().rd_ptr());
-  // Start an asynchronous read file
-  this->initiate_read_file ();
-/*{{{*/
-  /*
-  if ((result.bytes_transferred() == 0) && (flag == 0)) {
+  // Start an asynchronous read stream
+  this->initiate_read_stream ();
 
-      ACE_DEBUG ((LM_INFO, ACE_TEXT("Writing ? message\n")));
-      char message[]="PGET PTEMP\r";
-      ACE_Message_Block message_block(11);
-
-      if (message_block.copy(message, 11)) {
-          ACE_ERROR ((LM_ERROR,
-                  ACE_TEXT ("Error copiando mensaje\n")));
-      }
-
-      //ssize_t bytes_written = read_dev.send_n ("hola\n", 5);
-      if (this->wf_.write (message_block, 11 ) == -1)
-      {
-          ACE_ERROR ((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("Error escribiendo conyo")));
-          return;
-      }
-      flag = 1;
-  }
-  */
-
-  ////if (result.success ())
-  ////  {
-  ////    // Read successful: write this to the file.
-  ////    if (this->wf_.write (result.message_block (),
-  ////  		   result.bytes_transferred ()) == -1)
-  ////  {
-  ////    ACE_ERROR ((LM_ERROR, "%p\n", "ACE_Asynch_Write_File::write"));
-  ////    return;
-  ////  }
-  ////  }
-/*}}}*/
 }
 
 /** --------------------------------------------------------------------------
- * @brief SerialHandler::handle_write_file
+ * @brief SerialHandler::handle_write_stream
  * @param result 
  ----------------------------------------------------------------------------*/
-void SerialHandler::handle_write_file (const ACE_Asynch_Write_File::Result &result)
+void SerialHandler::handle_write_stream (const ACE_Asynch_Write_Stream::Result &result)
 {
-    ACE_TRACE("SerialHandler::handle_write_file");
-  ACE_DEBUG ((LM_INFO, ACE_TEXT("handle_write_File called\n")));
+    ACE_TRACE("SerialHandler::handle_write_stream");
+  ACE_DEBUG ((LM_INFO, ACE_TEXT("handle_write_stream called\n")));
 
   // Reset pointers/*{{{*/
   ////result.message_block ().rd_ptr (result.message_block ().rd_ptr () - result.bytes_transferred ());
