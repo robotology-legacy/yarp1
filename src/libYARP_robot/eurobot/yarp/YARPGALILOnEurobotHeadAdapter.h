@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.9 2006-02-22 19:52:17 beltran Exp $
+///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.10 2006-06-27 13:53:50 babybot Exp $
 ///
 ///
 
@@ -128,18 +128,20 @@ public:
 	 */
 	YARPEurobotHeadParameters()
 	{
-		_highPIDs = NULL;
-		_lowPIDs = NULL;
-		_zeros = NULL;
-		_signs = NULL;
-		_axis_map = NULL;
-		_inv_axis_map = NULL;
+		_highPIDs        = NULL;
+		_lowPIDs         = NULL;
+		_zeros           = NULL;
+		_signs           = NULL;
+		_axis_map        = NULL;
+		_inv_axis_map    = NULL;
 		_encoderToAngles = NULL;
-		_stiffPID = NULL;
-		_maxDAC = NULL;
-		_limitsMax = NULL;
-		_limitsMin = NULL;
+		_stiffPID        = NULL;
+		_maxDAC          = NULL;
+		_limitsMax       = NULL;
+		_limitsMin       = NULL;
 		_nj = 0;
+        
+        _galil_id = 1;
 
 		_nj = _EurobotHead::_nj;
 		_mask = (char) 0x0F;
@@ -148,8 +150,8 @@ public:
 		for(i = 0; i<_nj; i++) 
 		{
 			_highPIDs[i] = _EurobotHead::_highPIDs[i];
-			_lowPIDs[i] = _EurobotHead::_lowPIDs[i];
-			_zeros[i] = _EurobotHead::_zeros[i];
+			_lowPIDs[i]  = _EurobotHead::_lowPIDs[i];
+			_zeros[i]    = _EurobotHead::_zeros[i];
 			_axis_map[i] = _EurobotHead::_axis_map[i];
 			_signs[i] = _EurobotHead::_signs[i];
 			_encoderToAngles[i] = _EurobotHead::_encoderToAngles[i];
@@ -401,6 +403,7 @@ public:
 	double *_maxDAC;
 	YARPString _inertialConfig;
 	char _mask;
+    short _galil_id;
 };
 
 
@@ -456,6 +459,7 @@ public:
 	{
 		_parameters = par;
 		GalilOpenParameters op_par;
+        op_par.device_id = par->_galil_id;
 		op_par.nj= _parameters->_nj; 
 		op_par.mask = _parameters->_mask;
 		if (YARPGalilDeviceDriver::open(&op_par) != 0)
