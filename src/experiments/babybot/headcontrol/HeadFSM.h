@@ -5,22 +5,7 @@
 
 #include <yarp/YARPFSM.h>
 #include <yarp/YARPRobotMath.h>
-
-
-
-#if defined(__QNXEurobot__)
-
-	#include <yarp/YARPEurobotHead.h>
-
-#else
-
-	#include <yarp/YARPBabybotHead.h>
-
-#endif
-
-
-
-
+#include <yarp/YARPRobotHardware.h>
 #include "HeadSharedData.h"
 
 class HeadFSM: public YARPFSM<HeadFSM, HeadSharedData>
