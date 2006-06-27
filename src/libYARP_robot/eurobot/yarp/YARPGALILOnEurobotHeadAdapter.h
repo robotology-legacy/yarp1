@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.10 2006-06-27 13:53:50 babybot Exp $
+///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.11 2006-06-27 14:44:53 babybot Exp $
 ///
 ///
 
@@ -465,8 +465,6 @@ public:
 		if (YARPGalilDeviceDriver::open(&op_par) != 0)
 			return YARP_FAIL;
 			
-		/* First the card needs to be reseted */
-		IOCtl(CMDResetController, NULL);
 
 		for(int i=0; i < _parameters->_nj; i++)
 		{
