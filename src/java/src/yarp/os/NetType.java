@@ -115,7 +115,17 @@ class NetType {
 	StringBuffer result = new StringBuffer();
         String fromServer;
 	boolean first = true;
-        while ((fromServer = in.readLine()) != null) {
+	boolean done = false;
+        while (!done) {
+	    fromServer = in.readLine();
+	    if (fromServer==null) {
+		done = true;
+		break;
+	    }
+	    if (fromServer.equals("*** end of message")) {
+		done = true;
+		break;
+	    }
 	    if (fromServer.length()>0) {
 		if (fromServer.charAt(0)>=32) {
 		    if (!first) {

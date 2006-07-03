@@ -25,10 +25,10 @@ public class BottleContent implements Content {
     public void read(BlockReader proto) throws IOException {
 	log.println("Bottle should read");
 	if (!proto.isTextMode()) {
-	    int len = proto.expectInt();
-	    log.println("> name len is " + len);
-	    byte[] b = proto.expectBlock(len);
-	    log.println("> name is " + new String(b));
+	    //int len = proto.expectInt();
+	    //log.println("> name len is " + len);
+	    //byte[] b = proto.expectBlock(len);
+	    //log.println("> name is " + new String(b));
 	    int dataLen = proto.expectInt();
 	    log.println("> data len is " + dataLen);
 	    data = proto.expectBlock(dataLen);
@@ -48,10 +48,10 @@ public class BottleContent implements Content {
     public void write(BlockWriter proto) throws IOException {	
 	if (!proto.isTextMode()) {
 	    byte[] data2 = bot.get();
-	    String name = "void";
+	    //String name = "void";
 	    int len = data2.length;
-	    proto.appendInt(name.length()+1);
-	    proto.appendString(name);
+	    //proto.appendInt(name.length()+1);
+	    //proto.appendString(name);
 	    proto.appendInt(len);
 	    proto.appendBlock(bot.get());
 	} else {

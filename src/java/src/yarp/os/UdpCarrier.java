@@ -14,7 +14,7 @@ class UdpCarrier extends AbstractCarrier {
     boolean reading = false;
 
     public String getName() {
-	return "udp";
+	return "j_udp";
     }
 
     public int getSpecifier() {

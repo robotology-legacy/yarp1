@@ -7,6 +7,9 @@ can contain integers and strings.
 The MCAST/UDP implementations have not been updated to the current YARP2 
 standard. This code is after getting a bit out of date, sorry!
 
+I recommend you use the C++ YARP2 nameserver if you plan to 
+interoperate, since it is better tested.
+
 -paulfitz
 
 ======================================================================

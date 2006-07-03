@@ -167,13 +167,13 @@ class YarpServer implements CommandProcessor {
 	NameRecord() {
 	    // set up some defaults for legacy support
 	    addProp("accepts","tcp");
-	    addProp("accepts","udp");
-	    addProp("accepts","mcast");
-	    addProp("accepts","shmem");
+	    addProp("accepts","text");
+	    addProp("accepts","j_udp");
+	    addProp("accepts","j_mcast");
 	    addProp("offers","tcp");
-	    addProp("offers","udp");
-	    addProp("offers","mcast");
-	    addProp("offers","shmem");
+	    addProp("offers","text");
+	    addProp("offers","j_udp");
+	    addProp("offers","j_mcast");
 	}
 
 	public PropertyRecord getPropertyRecord(String name, boolean create) {

@@ -109,13 +109,15 @@ public class Bottle {
      */
     public byte[] get() {
 	byte[] b = {};
+	b = append(b,NetType.netInt(256));
+	b = append(b,NetType.netInt(items.size()));
 	for (Iterator it = items.iterator(); it.hasNext(); ) {
 	    Object o = it.next();
 	    if (o instanceof Integer) {
 		b = append(b,NetType.netInt(1));
 		b = append(b,NetType.netInt(((Integer)o).intValue()));
 	    } else if (o instanceof String) {
-		b = append(b,NetType.netInt(5));
+		b = append(b,NetType.netInt(4));
 		b = append(b,NetType.netInt(((String)o).length()+1));
 		b = append(b,NetType.netString((String)o));
 	    }
@@ -130,6 +132,10 @@ public class Bottle {
 	clear();
 	int index = 0;
 	int len = data.length;
+	int ignore = NetType.netInt(data,index,4);
+	index+=4;
+	ignore = NetType.netInt(data,index,4);
+	index+=4;
 	while (index<len-4) {
 	    int id = NetType.netInt(data,index,4);
 	    index+=4;
@@ -141,7 +147,7 @@ public class Bottle {
 		log.println(" > num is " + v);
 		add(new Integer(v));
 		break;
-	    case 5:
+	    case 4:
 		int l = NetType.netInt(data,index,4);
 		index+=4;
 		byte[] sub = new byte[l];

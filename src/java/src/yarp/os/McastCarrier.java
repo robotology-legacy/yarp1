@@ -113,7 +113,7 @@ class McastCarrier extends AbstractCarrier {
 
 
     public String getName() {
-	return "mcast";
+	return "j_mcast";
     }
 
     public int getSpecifier() {

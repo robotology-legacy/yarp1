@@ -132,9 +132,9 @@ public class NameClient {
 	String home = getEnv("HOME");
 	File conf = null;
 	if (root!=null) {
-	    conf = new File(new File(root,"conf"),"namer.conf");
+	    conf = new File(new File(root,"conf"),"yarp.conf");
 	} else if (home!=null) {
-	    conf = new File(new File(new File(home,".yarp"),"conf"),"namer.conf");
+	    conf = new File(new File(new File(home,".yarp"),"conf"),"yarp.conf");
 	} else {
 	    log.error("Cannot decide where configuration file is - set YARP_ROOT or HOME");
 	    System.exit(1);
@@ -487,7 +487,6 @@ public class NameClient {
 	String result = "";
 
 	while (!done) {
-
 	    if (address==null) {
 		log.info("Configuration file problem; trying multicast fallback");
 		address = seek();
