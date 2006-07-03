@@ -1,9 +1,11 @@
 
-This is the beginnings of a Java interface to YARP.  It is not yet
-fully functional.  However, already it is probably a better source for
-understanding the basic communication protocol than the C++ code.
+This is the beginnings of a native Java interface to YARP.
+The TCP protocol works and is interoperable with C++ YARP2.
+The Bottle object is interoperable with C++ YARP2 but just 
+can contain integers and strings.
 
-Hopefully we will write the protocol down explicitly at some point :-)
+The MCAST/UDP implementations have not been updated to the current YARP2 
+standard. This code is after getting a bit out of date, sorry!
 
 -paulfitz
 
