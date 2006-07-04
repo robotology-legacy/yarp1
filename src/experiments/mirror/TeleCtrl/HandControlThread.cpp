@@ -7,6 +7,8 @@
 void HandControlThread::Body (void)
 {
 
+	cout << "sf: " << _streamingFrequency << endl;
+
 	// loop until the thread is terminated
 	while ( !IsTerminated() ) {
 
@@ -14,21 +16,24 @@ void HandControlThread::Body (void)
 		YARPTime::DelayInSeconds(_streamingFrequency);
 	    
 		// output to screen
-//		cout << "Hand:" << "\t"
-//			 << _thumb(_data.gloveData.abduction[0])  << "\t"
-//			 << _index(_data.gloveData.index[0])  << "\t"
-//			 << _fingers(_data.gloveData.middle[0])  << "\t"
-//			 << "       \r";
-//		cout.flush();
+		cout << "Hand:" << "\t"
+			 << _thumb0(_data.gloveData.thumb[0])    << "\t"
+			 << _thumb1(_data.gloveData.thumb[1])    << "\t"
+			 << _index0(_data.gloveData.index[0])    << "\t"
+			 << _index1(_data.gloveData.index[1])    << "\t"
+			 << _fingers0(_data.gloveData.middle[0]) << "\t"
+			 << _fingers1(_data.gloveData.middle[1])
+			 << "       \r";
+		cout.flush();
 
 		// send commands to the hand
         sendPosCmd(
-			_thumb(_data.gloveData.abduction[0]),
-			_handInit1,
-			_index(_data.gloveData.index[0]),
-			_handInit3,
-			_fingers(_data.gloveData.middle[0]),
-			_handInit5
+			_thumb0(_data.gloveData.thumb[0])*DegRad,
+			_thumb1(_data.gloveData.thumb[1])*DegRad,
+			_index0(_data.gloveData.index[0])*DegRad,
+			_index1(_data.gloveData.index[1])*DegRad,
+			_fingers0(_data.gloveData.middle[0])*DegRad,
+			_fingers1(_data.gloveData.middle[1])*DegRad
 		);
 
 	}
@@ -46,44 +51,59 @@ void HandControlThread::calibrate(void)
 
 	// calibrate fingers
 	// hand open
-	int gloveOpen[3];
+	int gloveOpen[6];
 	cout << "(hand calibration 1/2) Open your hand and press enter. "; cout.flush(); cin.get();
 	SendCommandToCollector(CCmdGetData);
 	ReadCollectorData();
-    gloveOpen[0] = _data.gloveData.abduction[0];
-    gloveOpen[1] = _data.gloveData.index[0];
-    gloveOpen[2] = _data.gloveData.middle[0];
+    gloveOpen[0] = _data.gloveData.thumb[0];
+    gloveOpen[1] = _data.gloveData.thumb[1];
+    gloveOpen[2] = _data.gloveData.index[0];
+    gloveOpen[3] = _data.gloveData.index[1];
+    gloveOpen[4] = _data.gloveData.middle[0];
+    gloveOpen[5] = _data.gloveData.middle[1];
 	// hand close
-	int gloveClose[3];
+	int gloveClose[6];
 	cout << "(hand calibration 2/2) Close your hand and press enter. "; cout.flush(); cin.get();
 	SendCommandToCollector(CCmdGetData);
 	ReadCollectorData();
-    gloveClose[0] = _data.gloveData.abduction[0];
-    gloveClose[1] = _data.gloveData.index[0];
-    gloveClose[2] = _data.gloveData.middle[0];
+    gloveClose[0] = _data.gloveData.thumb[0];
+    gloveClose[1] = _data.gloveData.thumb[1];
+    gloveClose[2] = _data.gloveData.index[0];
+    gloveClose[3] = _data.gloveData.index[1];
+    gloveClose[4] = _data.gloveData.middle[0];
+    gloveClose[5] = _data.gloveData.middle[1];
 	// calibrate fingers
-	_thumb.eval(gloveOpen[0],gloveClose[0]);
-	_index.eval(gloveOpen[1],gloveClose[1]);
-	_fingers.eval(gloveOpen[2],gloveClose[2]);
+	_thumb0.eval(gloveOpen[0],gloveClose[0]);
+	_thumb1.eval(gloveOpen[1],gloveClose[1]);
+	_index0.eval(gloveOpen[2],gloveClose[2]);
+	_index1.eval(gloveOpen[3],gloveClose[3]);
+	_fingers0.eval(gloveOpen[4],gloveClose[4]);
+	_fingers1.eval(gloveOpen[5],gloveClose[5]);
 
 }
 
 void HandControlThread::initialise(void)
 {
 
-	sendPosCmd(_handInit0, _handInit1, _handInit2, _handInit3, _handInit4, _handInit5);
+	sendPosCmd(_handInit0*DegRad, _handInit1*DegRad,
+			   _handInit2*DegRad, _handInit3*DegRad,
+			   _handInit4*DegRad, _handInit5*DegRad);
 
 }
 
 void HandControlThread::shutdown(void)
 {
 
-	sendPosCmd(_handInit0, _handInit1, _handInit2, _handInit3, _handInit4, _handInit5);
+	sendPosCmd(_handInit0*DegRad, _handInit1*DegRad,
+			   _handInit2*DegRad, _handInit3*DegRad,
+			   _handInit4*DegRad, _handInit5*DegRad);
 
 }
 
 void HandControlThread::sendPosCmd(double dof1, double dof2, double dof3, double dof4, double dof5, double dof6)
 {
+
+	// hand needs commands IN RADIANTS!!
 
     YVector handCmd(6);
     YARPBabyBottle tmpBottle;

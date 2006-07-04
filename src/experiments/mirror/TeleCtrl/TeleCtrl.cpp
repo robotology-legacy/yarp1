@@ -55,7 +55,7 @@ void registerPorts()
 {
 
 	// this procedure just registers ports; they must be properly
-	// connected via the connect.bat script, which is invoked in main()
+	// connected via the external connection script
 	
 	// mirrorCollector (numerical data, commands)
 	RegisterPort(_coll_data_in, "/TCCollector/i:str");
@@ -140,9 +140,9 @@ int main()
 	// arm control thread
 	ControlThread* act = new ArmControlThread(1./10.,_rep_out,_repeaterSema, true);
 	// hand control thread
-	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema, false);
+	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema, true);
 	// gaze control thread
-	ControlThread* gct = new GazeControlThread(1./10.,_hs_out,_img_out,_imageSema, true);
+	ControlThread* gct = new GazeControlThread(1./10.,_hs_out,_img_out,_imageSema, false);
 
 	// tell collector to activate the sensors
 	cout << endl << "Initialising collector... "; cout.flush();
@@ -151,7 +151,8 @@ int main()
 
 	// gather which sensors we use
 	_coll_cmd_in.Read();
-	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0|HardwareUseGT) ) {
+//	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0|HardwareUseGT) ) {
+	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0) ) {
 		cout << "must use tracker 0, gaze tracker and dataglove only." << endl;
 		unregisterPorts();
 		return 0;

@@ -1,0 +1,51 @@
+NOTE
+----
+
+formato dati:
+	x y z x0 y0 x1 y1
+
+	ove (x,y,z) e' la posizione spaziale del tracker, (x0,y0) sono le coordinate
+		immagine telecamera sinistra e (x1,y1) telecamera destra
+frequenza:
+	3000 sample in circa sei minuti = circa 8.33 Hz
+
+sorgenti di rumore:
+	. talvolta il tracker esce dal campo visivo delle telecamere
+	. talvolta la segmentazione viene ingannata dall'incarnato della mano, ergo
+	   le coordinate sui piani immagine sono errate
+	. i movimenti della mano possono essere ben piu' rapidi della frequenza di
+	   campionamento che per adesso e' bassina
+
+NB:
+	quando il tracker esce dal campo visivo di una telecamera, il dato riportato
+		corrispondente a quella terna (x,y,z) e' (-1,-1)
+
+DATASET
+-------
+
+sample1.dat: (claudio)
+	lento e preciso, spazzando tutto il dominio in maniera quasi ordinata, muovendomi
+		avanti e indietro, lentamente. ho cercato di non prendere troppi campioni
+		doppi (cioe', non sono mai stato fermo con la mano); ho anche cercato di
+		tenere lo spot rosso bene in favore di camera. morale della favola:
+		rumore piuttosto basso.
+
+sample2.dat: (claudio)
+	piu' caotico, movimenti veloci e piuttosto casuali, e qualche pausa (leggi: ci saranno
+		parecchi campioni multipli). inoltre qua e la' la croce e' fuori posto per
+		via della mia mano che inganna il segmentatore. rumore piu' alto.
+
+sample3.dat: (francesco)
+	strategia simile a sample1.dat di claudio, anche se non saprei dire se 
+	ho preso molti punti doppi.
+
+sample4.dat: (francesco)
+	stessa di sample2.dat
+
+sample5.dat: (claudio)
+	movimenti totalmente random, ma con euristica di campionamento uniforme.
+	dovrebbe diminuire la sensitivita' al riordino dei campioni.
+
+sample6.dat: (francesco)
+	idem con sample5, per cross-test.
+

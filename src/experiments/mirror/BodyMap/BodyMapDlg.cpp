@@ -301,6 +301,7 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 	_settings._ldata_outport.Write(true);
 
 	// (4) ------- measure the error and display its stats
+	// evaluate error statistics
 	double newDistance = Distance(y,predicted_y,4);
 	_distanceMean = (1/(double)(_distanceNumOfExamples+1)) *
 				    ( _distanceNumOfExamples*_distanceMean + newDistance );
@@ -308,8 +309,11 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 					      ( _distanceNumOfExamples*_distanceStdv*_distanceStdv + 
 					        (newDistance-_distanceMean)*(newDistance-_distanceMean)
 					    ) );
+	// show them in the button caption (I know... don't feel like learning bloody MFC...)
 	char title[50];
 	ACE_OS::sprintf(title, "%.2lf %.2lf", _distanceMean, _distanceStdv);
+	GetDlgItem(IDC_DISTANCE)->SetWindowText(title);
+	// write them in a file
 	{
 		if ( _distanceNumOfExamples==0 ) {
 			ofstream outFile("distance.dat");
@@ -317,8 +321,7 @@ void CBodyMapDlg::OnTimer(UINT nIDEvent)
 		ofstream outFile("distance.dat",ios::app);
 		outFile << _distanceNumOfExamples << " " << _distanceMean << " " << _distanceStdv << endl;
 	}
-	
-	GetDlgItem(IDC_DISTANCE)->SetWindowText(title);
+	// one more smaple has been caught
 	++_distanceNumOfExamples;
 
 	// update dialogs

@@ -14,12 +14,12 @@ void GazeControlThread::Body (void)
 		YARPTime::DelayInSeconds(_streamingFrequency);
 
 		// output to screen
-		cout << "Gaze:" << "\t"
-			 << _data.GTData.valid   << "\t"
-			 << _data.GTData.pupilX  << "\t"
-			 << _data.GTData.pupilY  << "\t"
-			 << "       \r";
-		cout.flush();
+//		cout << "Gaze:" << "\t"
+//			 << _data.GTData.valid   << "\t"
+//			 << _data.GTData.pupilX  << "\t"
+//			 << _data.GTData.pupilY  << "\t"
+//			 << "       \r";
+//		cout.flush();
 
 		// convert logpolar image to Cartesian
 		_sema.Wait();
@@ -50,8 +50,8 @@ void GazeControlThread::Body (void)
 		stdvY = sqrt(stdvY / ((double)_gazeSamples-1.0));
 		double stdv = sqrt(stdvX*stdvX+stdvY*stdvY);
 		// draw current mean and stdv (thin, variable red cross)
-		//		YarpPixelBGR tmpPixel2(255,0,0);
-		//		YARPSimpleOperations::DrawCross<YarpPixelBGR>(_remappedImg, meanX, meanY, tmpPixel2, stdv, 1);
+//		YarpPixelBGR tmpPixel2(255,0,0);
+//		YARPSimpleOperations::DrawCross<YarpPixelBGR>(_remappedImg, meanX, meanY, tmpPixel2, stdv, 1);
 		// draw current gaze position. if stdv is below T,
 		// it becomes green; otherwise, it is yellow
 		YarpPixelBGR tmpPixel1(255,255,0);

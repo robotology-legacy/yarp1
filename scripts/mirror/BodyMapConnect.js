@@ -11,7 +11,7 @@ WshShell.Run ("yarp-connect /mirrorCollector/o:img1 /BodyMap/i:img1", 7, true);
 WshShell.Run ("yarp-connect /mirrorCollector/o:int  /BodyMap/i:int", 7, true);
 WshShell.Run ("yarp-connect /BodyMap/o:int          /mirrorCollector/i:int", 7, true);
 
-// connect BodyMap to mirrorCollector
+// connect BodyMap to learner
 WshShell.Run ("yarp-connect /learner/o:vec  /BodyMapL/i:vec", 7, true);
 WshShell.Run ("yarp-connect /learner/o:int  /BodyMapL/i:int", 7, true);
 WshShell.Run ("yarp-connect /BodyMapL/o:vec /learner/i:vec", 7, true);

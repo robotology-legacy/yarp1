@@ -18,8 +18,10 @@ public:
 		YARPSemaphore& sema, bool enabled=true)
 		: ControlThread(frequency, sema, enabled),
 	  _outPort(outPort),
-	  _thumb(-10,100), _index(10,-50), _fingers(10,-50),
-	  _handInit0(0), _handInit1(-60), _handInit2(0),
+	  _thumb0(0,90), _thumb1(-20,40), 
+	  _index0(0,-90), _index1(0,-90),
+	  _fingers0(0,-90), _fingers1(0,-90),
+	  _handInit0(0), _handInit1(0), _handInit2(0),
 	  _handInit3(0), _handInit4(0), _handInit5(0) {}
 
 	void Body (void);
@@ -35,7 +37,7 @@ private:
 	void sendPosCmd(double,double,double,double,double,double);
 
 	// values for the robot fingers
-	LimitLinCalibration _thumb, _index, _fingers;
+	LimitLinCalibration _thumb0, _thumb1, _index0, _index1, _fingers0, _fingers1;
 
 	// hand joints initial positions (degrees)
 	const double _handInit0;

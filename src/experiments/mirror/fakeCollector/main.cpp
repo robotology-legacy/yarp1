@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.12 2006-07-04 11:36:52 babybot Exp $
+/// $Id: main.cpp,v 1.1 2006-07-04 11:36:52 babybot Exp $
 ///
 ///
 
@@ -124,7 +124,7 @@ typedef struct {
 // options
 typedef struct CollectorOptionsStruct {
 	CollectorOptionsStruct() {
-		portName			= "mirrorCollector";
+		portName			= "fakeCollector";
 		netName				= "default";
 		useDataGlove		= false;
 		gloveComPort		= 3;
@@ -193,79 +193,30 @@ CollectorImage         _img0;
 CollectorImage         _img1;
 
 // the default options file name
-char* CollectorConfFileName = "C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
+char* CollectorConfFileName = "C:\\yarp\\src\\experiments\\mirror\\fakeCollector\\fakeCollector.conf";
 
 // the streaming frequency - used only if cameras are turned off
-const double CollectorStreamingFreq = 0.033;
+const double CollectorStreamingFreq = 0.04;
 
-// a counter, telling us how many times GetData has been called
-unsigned long numOfGetDatas = 0;
+// fake datum to be sent over the network
+double fakeDatum = 0;
 
 // ---------- streaming thread
 
 class streamingThread : public YARPThread {
-
 public:
-
-	streamingThread (void)
-		: _averageTime(0.0), _numOfRuns(0) {}
-
 	virtual void Body (void) {
-
-		// start streaming peripherals
-		if (_options.useDataGlove) {
-			_hardware.glove.startStreaming();
-		}
-		if (_options.useTracker0) {
-			_hardware.tracker0.startStreaming();
-		}
-		if (_options.useTracker1) {
-			_hardware.tracker1.startStreaming();
-		}
-
-//cout.precision(2);
-//_previousTime = YARPTime::GetTimeAsSeconds();
-
 		// stream until terminated
 		while ( !IsTerminated() ) {
-
-// ------------ debug: show average frequency
-//_currentTime = YARPTime::GetTimeAsSeconds();
-//_interval = _currentTime - _previousTime;
-//_previousTime = _currentTime;
-//_averageTime += (_interval - _averageTime) / (++_numOfRuns);
-//cout << "--> interval:" << _interval << " (average: " << _averageTime << ")   \r";
-// ------------ debug
-
 			acquireAndSend();
-
 			if ( ! _options.useCamera0 && ! _options.useCamera1 ) {
 				// if cameras are turned off, there is no delay;
 				// so we force one.
 				YARPTime::DelayInSeconds(CollectorStreamingFreq);
 			}
-
 		}
-
-		// stop streaming peripherals
-		if (_options.useDataGlove) {
-			_hardware.glove.stopStreaming();
-		}
-		if (_options.useTracker0) {
-			_hardware.tracker0.stopStreaming();
-		}
-		if (_options.useTracker1) {
-			_hardware.tracker1.stopStreaming();
-		}
-		
 		return;
 	}
-
-private:
-
-	double _previousTime, _currentTime, _averageTime, _interval;
-	unsigned long _numOfRuns;
-
 };
 
 // ---------- functions
@@ -273,50 +224,28 @@ private:
 void acquireAndSend(void)
 {
 
-	// acquire data
-
-	if (_options.useCamera0) {
-		unsigned char *buffer = NULL;
-		_hardware.grabber0.waitOnNewFrame();
-		_hardware.grabber0.acquireBuffer(&buffer);
-		memcpy((unsigned char *)_img0.GetRawBuffer(), buffer, _options.sizeX * _options.sizeY * 3);
-		_hardware.grabber0.releaseBuffer();
-
-		_img0_outport.Content().Refer(_img0);
-		_img0_outport.Write();
-	}
-
-	if (_options.useCamera1) {
-		unsigned char *buffer = NULL;
-		_hardware.grabber1.waitOnNewFrame();
-		_hardware.grabber1.acquireBuffer(&buffer);
-		memcpy((unsigned char *)_img1.GetRawBuffer(), buffer, _options.sizeX * _options.sizeY * 3);
-		_hardware.grabber1.releaseBuffer();
-
-		_img1_outport.Content().Refer(_img1);
-		_img1_outport.Write();
-	}
-
+	// send random data
+	
 	if ( _options.useGazeTracker || _options.useDataGlove ||
 		 _options.usePresSens || _options.useTracker0 || _options.useTracker1 ) {
 		if (_options.useTracker0) {
 			// Read Tracker
-			_hardware.tracker0.getData(&_data.tracker0Data);
+			_data.tracker0Data.z = ( fakeDatum == 1000.0 ? 0 : fakeDatum++ );
 		}
 		if (_options.useTracker1) {
-			_hardware.tracker1.getData(&_data.tracker1Data);
+			_data.tracker1Data.z = ( fakeDatum == 1000.0 ? 0 : fakeDatum++ );
 		}
 		if (_options.useGazeTracker) {
 			// Read GT
-			_hardware.gt.getData(&_data.GTData);
+			; // do nothing
 		}
 		if (_options.useDataGlove) {
 			// Read DataGlove
-			_hardware.glove.getData(&_data.gloveData);
+			; // do nothing
 		}
 		if (_options.usePresSens) {
 			// Read Pressure Sensors
-			_hardware.press.getData(&_data.pressureData);
+			; // do nothing
 		}
 		// send data
 		_data_outport.Content() = _data;
@@ -328,158 +257,12 @@ void acquireAndSend(void)
 bool connectSensors(void)
 {
 
-	// try and connect all peripherals requested (look at _options)
-	// if all of them fail to initialise, return failure; otherwise, ok, but
-	// disable peripherals which did not initialise.
-
-	bool atLeastOneIsOK = false;
-
-	if (_options.useCamera0) {
-		// Framegrabber Initialization
-		cout << "Initialising camera #0... ";
-		if ( _hardware.grabber0.initialize (0, _options.sizeX, _options.sizeY) == YARP_OK ) {
-			cout <<  "done. W=" << _options.sizeX << ", H=" << _options.sizeY <<endl;
-			atLeastOneIsOK = true;
-		} else {
-			cout <<  "failed." <<endl;
-			_options.useCamera0 = false;
-		}
-	}
-
-	if (_options.useCamera1) {
-		// Framegrabber Initialization
-		cout << "Initialising camera #1... ";
-		if ( _hardware.grabber1.initialize (1, _options.sizeX, _options.sizeY) == YARP_OK ) {
-			cout <<  "done. W=" << _options.sizeX << ", H=" << _options.sizeY <<endl;
-			atLeastOneIsOK = true;
-		} else {
-			cout <<  "failed." <<endl;
-			_options.useCamera1 = false;
-		}
-	}
-
-	if (_options.useTracker0) {
-		// Tracker Initialization
-		cout << "Initialising tracker #0... ";
-		if ( _hardware.tracker0.initialize (0, _options.tracker0ComPort,
-											_options.tracker0BaudRate,
-											_options.tracker0Timeout) == YARP_OK ) {
-			cout <<  "done. On COM" << _options.tracker0ComPort << ", " << _options.tracker0BaudRate << " baud." << endl;
-			atLeastOneIsOK = true;
-		} else {
-			cout <<  "failed." <<endl;
-			_options.useTracker0 = false;
-		}
-	}
-	
-	if (_options.useTracker1) {
-		// Tracker Initialization
-		cout << "Initialising tracker #1... ";
-		if ( _hardware.tracker1.initialize (1, _options.tracker1ComPort,
-											_options.tracker1BaudRate,
-											_options.tracker1Timeout) == YARP_OK ) {
-			cout <<  "done. On COM" << _options.tracker1ComPort << ", " << _options.tracker1BaudRate << " baud." << endl;
-			atLeastOneIsOK = true;
-		} else {
-			cout <<  "failed." <<endl;
-			_options.useTracker1 = false;
-		}
-	}
-	
-	if (_options.useDataGlove) {
-		// DataGlove Initialization
-		cout << "Initialising DataGlove... ";
-		if ( _hardware.glove.initialize (_options.gloveComPort, _options.gloveBaudRate) == YARP_OK ) {
-			cout <<  "done. On COM" << _options.gloveComPort << ", " << _options.gloveBaudRate << " baud." << endl;
-			atLeastOneIsOK = true;
-		} else {
-			cout <<  "failed." <<endl;
-			_options.useDataGlove = false;
-		}
-	}
-	
-	if (_options.useGazeTracker) {
-		// GT Initialization
-		cout << "Initialising GazeTracker... ";
-		E504OpenParameters params;
-		params.baudRate = _options.GTBaudRate;
-		params.comPort = _options.GTComPort;
-		if ( _hardware.gt.initialize (params) == YARP_OK ) {
-			cout <<  "done. On COM" << _options.GTComPort << ", " << _options.GTBaudRate << " baud." << endl;
-			atLeastOneIsOK = true;
-		} else {
-			cout <<  "failed." <<endl;
-			_options.useGazeTracker = false;
-		}
-	}
-	
-	if (_options.usePresSens) {
-		// PresSensors Initialization
-		cout << "Initialising pressure sensors... ";
-		if ( _hardware.press.initialize (_options.nPresSens) == YARP_OK ) {
-			cout <<  "done. " << _options.nPresSens << " sensor(s) connected." << endl;
-			atLeastOneIsOK = true;
-		} else {
-			cout <<  "failed." <<endl;
-			_options.usePresSens = false;
-		}
-	}
-
-	return atLeastOneIsOK;
+	return true;
 
 }
 
 void releaseSensors(void)
 {
-
-	if (_options.useCamera0) {
-		// Framegrabber 0
-		cout << "Releasing camera 0... ";  
-		_hardware.grabber0.uninitialize ();
-		cout << "done." << endl;
-	}
-	
-	if (_options.useCamera1) {
-		// Framegrabber 1
-		cout << "Releasing camera 1... ";  
-		_hardware.grabber1.uninitialize ();
-		cout << "done." << endl;
-	}
-	
-	if (_options.useTracker0) {
-		// Tracker 
-		cout << "Releasing tracker #0... ";
-		_hardware.tracker0.uninitialize ();
-		cout << "done." << endl;
-	}
-
-	if (_options.useTracker1) {
-		// Tracker 
-		cout << "Releasing tracker #1... ";
-		_hardware.tracker1.uninitialize ();
-		cout << "done." << endl;
-	}
-
-	if (_options.useDataGlove) {
-		// DataGlove 
-		cout << "Releasing DataGlove... ";
-		_hardware.glove.uninitialize ();
-		cout << "done." << endl;
-	}
-	
-	if (_options.useGazeTracker) {
-		// GT
-		cout << "Releasing GazeTracker... ";
-		_hardware.gt.uninitialize ();
-		cout << "done." << endl;
-	}
-	
-	if (_options.usePresSens) {
-		// Pressure Sensors
-		cout << "Releasing pressure sensors... ";
-		_hardware.press.uninitialize ();
-		cout << "done." << endl;
-	}
 
 }
 
@@ -491,9 +274,9 @@ void getOptionsFromEnv(char* fileName)
 	// network specs
 	optFile.setName(fileName);
 	char buf[255];
-	if ( optFile.getString("[NETWORK]", "PortName", buf) == YARP_OK) {
-		_options.portName = buf;
-	}
+//	if ( optFile.getString("[NETWORK]", "PortName", buf) == YARP_OK) {
+//		_options.portName = buf;
+//	}
 	if ( optFile.getString("[NETWORK]", "NetName", buf) == YARP_OK) {
 		_options.netName = buf;
 	}
@@ -754,7 +537,6 @@ int main (int argc, char *argv[])
 				_cmd_outport.Write(true);
 				// acquire data and send
 				acquireAndSend();
-//	cout << "Getdata succeeded - data sent (" << ++numOfGetDatas << ")." << "\r";
 			} else {
 				_cmd_outport.Content() = CCmdFailed;
 				_cmd_outport.Write(true);

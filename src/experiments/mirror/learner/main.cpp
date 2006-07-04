@@ -62,6 +62,10 @@ real threshold = 0.5;
 bool classification = false;
 // do we want non-SVs filtering?
 bool filter = false;
+// do we want to load previouslt saved models and data, on startup?
+bool load = false;
+
+int samples = 0;
 
 // -------------------------------------------------------
 // a class enforcing multiple-output learning machines
@@ -218,7 +222,7 @@ void parseCmdLine( int argc, char** argv )
 		cout << "  --ex <number of examples>" << endl;
 		cout << "  [--port <port basename>] [--net <network name>]" << endl;
 		cout << "  [--f] [--u <tolerance values>]" << endl;
-		cout << "  [--cla]" << endl;
+		cout << "  [--cl] [--filter] [--load]" << endl;
 		exit(YARP_OK);
 	}
 
@@ -303,6 +307,11 @@ void parseCmdLine( int argc, char** argv )
 		filter = true;
 	}
 
+	// load data and models on startup?
+	if ( YARPParseParameters::parse(argc, argv, "-load") ) {
+		load = true;
+	}
+
 	// show parameters
 	cout << "CMDLINE: port basename is " << portName << "." << endl;
 	cout << "CMDLINE: network name is " << netName << "." << endl;
@@ -329,6 +338,9 @@ void parseCmdLine( int argc, char** argv )
 		cout << "CMDLINE: non-SVs filtering: ON."<<endl;
 	} else {
 		cout << "CMDLINE: non-SVs filtering: OFF."<<endl;
+	}
+	if ( ! load ) {
+		cout << "CMDLINE: this machine WON'T load/save any models/data on startup."<<endl;
 	}
 
 }
@@ -369,7 +381,7 @@ int main ( int argc, char** argv )
 		params._svmparams.weight_label = 0;
 		params._svmparams.weight = 0;
 	} else {
-		params._svmparams.svm_type = NU_SVR;
+		params._svmparams.svm_type = EPSILON_SVR;
 		params._svmparams.kernel_type = RBF;
 		params._svmparams.degree = 3;
 		params._svmparams.gamma = 1/(real)params._domainSize;
@@ -390,8 +402,10 @@ int main ( int argc, char** argv )
 	// create learner (pool of learning machines)
 	libsvmLearner learner(machineType,4,params);
 
-	// try and load previously saved model and data
-	learner.load();
+	// if required, try and load previously saved model and data
+	if ( load ) {
+		learner.load();
+	}
 
 	// vectors and arrays of reals to interact with the machine
 	YVector example, prediction(codomainSize);
@@ -400,6 +414,12 @@ int main ( int argc, char** argv )
 	lmAlloc(y,codomainSize);
 
 	// ------------ main command parsing loop
+
+	if ( learner.getCount() == 0 ) {
+		ofstream outFile("C:\\yarp\\scripts\\mirror\\sample.dat");
+	}
+	ofstream outFile("C:\\yarp\\scripts\\mirror\\sample.dat",ios::app);
+//	outFile.precision(2);
 
 	bool goOn = true;
 
@@ -427,6 +447,26 @@ int main ( int argc, char** argv )
 			}
 		}
 
+		// ----- just save data got as examples
+		if ( data_in.Read(false) ) {
+			example = data_in.Content();
+			if ( example.Length() == domainSize+codomainSize ) {
+				{ foreach(domainSize,i) x[i] = example[i]; }
+				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
+				if ( learner.addExample(x, y) ) {
+					{ foreach(domainSize+codomainSize,i) outFile << example[i] << " "; }
+					outFile << endl;
+					cout << samples++ << "     \r";
+				}
+			} else {
+				{ foreach(codomainSize,i) prediction[i] = 0.0; } 
+				data_out.Content() = prediction;
+				data_out.Write();
+			}
+		}
+
+goto skip;
+
 		// ----- read an example or a sample to be predicted
 		if ( data_in.Read(false) ) {
 			example = data_in.Content();
@@ -449,13 +489,17 @@ int main ( int argc, char** argv )
 						if ( filter ) {
 							learner.filterSVs();
 						}
-						learner.save();
+						if ( load ) {
+							learner.save();
+						}
 					}
 				}
 			} else {
 				cout << "ERROR: got sample/example of the wrong size." << endl;
 			}
 		}
+
+skip:
 
 		// ----- any keyboard commands?
 		if ( _kbhit() ) {
@@ -471,7 +515,9 @@ int main ( int argc, char** argv )
 				cin >> newC;
 				learner.setC(newC);
 				learner.train();
-				learner.save();
+				if ( load ) {
+					learner.save();
+				}
 				break;
 			case 'q': // QUIT
 				cout << "Got QUIT command. Bailing out." << endl;
@@ -486,7 +532,7 @@ int main ( int argc, char** argv )
 		}
 
 		// wait for some time
-		YARPTime::DelayInSeconds(1.0/25.0);
+//		YARPTime::DelayInSeconds(1.0/25.0);
 
 	} // while ( goOn )
 
