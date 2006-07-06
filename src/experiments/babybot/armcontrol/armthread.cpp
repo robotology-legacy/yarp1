@@ -153,6 +153,11 @@ void ArmThread::doInit()
 	
 	_arm.activatePID();
 	park(1);
+
+	std::cout << "Now performing absolute calibration\n";
+	_arm.calibrate();
+	std::cout << "Done.\n";
+
 	_arm.resetEncoders();		// set this new position
 
 	_arm.setVelocities(_speed.data());
