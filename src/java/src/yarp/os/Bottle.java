@@ -132,13 +132,19 @@ public class Bottle {
 	clear();
 	int index = 0;
 	int len = data.length;
-	int ignore = NetType.netInt(data,index,4);
+	int code = NetType.netInt(data,index,4);
 	index+=4;
-	ignore = NetType.netInt(data,index,4);
+	int gid = 0;
+	log.println("code is " + code);
+	gid = code&0xff;
+	int top = NetType.netInt(data,index,4);
 	index+=4;
-	while (index<len-4) {
-	    int id = NetType.netInt(data,index,4);
-	    index+=4;
+	for (int t=0; t<top; t++) {
+	    int id = gid;
+	    if (gid==0) {
+		id = NetType.netInt(data,index,4);
+		index+=4;
+	    }
 	    log.println("Id is " + id);
 	    switch (id) {
 	    case 1:
