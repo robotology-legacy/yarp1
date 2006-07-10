@@ -1,10 +1,10 @@
-#include "ArmControlThread.h"
+#include "ArmPosControlThread.h"
 
 // -----------------------------------
 // thread body
 // -----------------------------------
 
-void ArmControlThread::Body (void)
+void ArmPosControlThread::Body (void)
 {
 
 	// for the inverse kinematics
@@ -44,13 +44,13 @@ void ArmControlThread::Body (void)
 		// let next starting point be the one we've just found
 		starting_Q = required_Q; // all Qs are in DEGREES
 
-//	    cout 
-//			<< "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
-//			<< "Q\t" << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "\t"
+	    cout 
+			<< "X " << desired_X[0]  << "\t" << desired_X[1]  << "\t" << desired_X[2] << "\t"
+			<< "Q " << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "\t"
 //			<< "roll " << frRo/DegRad << "\t"
 //			<< "wrist pitch " << _armInit4+30-_wristPitch(_data.gloveData.wristPitch)/DegRad << "\t"
-//			<< "       \r";
-//		cout.flush();
+			<< "       \r";
+		cout.flush();
 
 		// send commands to the arm, after correction (_armInits and signs)
 		sendPosCmd(
@@ -71,7 +71,7 @@ void ArmControlThread::Body (void)
 // thread mandatory methods
 // -----------------------------------
 
-void ArmControlThread::calibrate()
+void ArmPosControlThread::calibrate()
 {
 
 	// gather reference coordinates
@@ -104,7 +104,7 @@ void ArmControlThread::calibrate()
 
 }
 
-void ArmControlThread::initialise()
+void ArmPosControlThread::initialise()
 {
 
 	// have arm and hand positioned in the starting position
@@ -115,7 +115,7 @@ void ArmControlThread::initialise()
 		
 }
 
-void ArmControlThread::shutdown()
+void ArmPosControlThread::shutdown()
 {
 
 	// let the arm go to rest
@@ -135,7 +135,7 @@ void ArmControlThread::shutdown()
 
 }
 
-void ArmControlThread::sendPosCmd(const double dof1, const double dof2, const double dof3,
+void ArmPosControlThread::sendPosCmd(const double dof1, const double dof2, const double dof3,
 								  const double dof4, const double dof5, const double dof6)
 {
 
@@ -186,46 +186,52 @@ void forward_kinematics(YVector& Q, YVector& X)
 	const double L1 = 13.0*InchCm, L2 = 7.8*InchCm, L2prime = -0.75*InchCm, L3 = 8.0*InchCm,
 				 H1 = 0.0, H2 = 5.9*InchCm-2.5;
 
-	// configuration matrices and vectors
-	YMatrix e_csi_1(4,4), e_csi_2(4,4), e_csi_3(4,4), g_st_0(4,4), T(4,4);
-	YVector zero(4), translation(4), tmpX(4);
-
 	// turn degrees into radiants
 	Q[0] *= DegRad;
 	Q[1] *= DegRad;
 	Q[2] *= DegRad;
 
-	// evaluate configurations:
-	// first joint (rotate Q[0] radiants about Y axis)
-	e_csi_1[0][0] =  cos(Q[0]); e_csi_1[0][1] = 0;          e_csi_1[0][2] =  sin(Q[0]); e_csi_1[0][3] =  0;
-	e_csi_1[1][0] =          0; e_csi_1[1][1] = 1;          e_csi_1[1][2] =          0; e_csi_1[1][3] =  0;
-	e_csi_1[2][0] = -sin(Q[0]); e_csi_1[2][1] = 0;          e_csi_1[2][2] =  cos(Q[0]); e_csi_1[2][3] =  0;
-	e_csi_1[3][0] =          0; e_csi_1[3][1] = 0;          e_csi_1[3][2] =          0; e_csi_1[3][3] =  1;
-	// second joint (rot Q[1] about Z, displaced L1 on Y, H1 on Z)
-	e_csi_2[0][0] =  cos(Q[1]); e_csi_2[0][1] = -sin(Q[1]); e_csi_2[0][2] =          0; e_csi_2[0][3] =  0;
-	e_csi_2[1][0] =  sin(Q[1]); e_csi_2[1][1] =  cos(Q[1]); e_csi_2[1][2] =          0; e_csi_2[1][3] =  L1;
-	e_csi_2[2][0] =          0; e_csi_2[2][1] =          0; e_csi_2[2][2] =          1; e_csi_2[2][3] =  H1;
-	e_csi_2[3][0] =          0; e_csi_2[3][1] =          0; e_csi_2[3][2] =          0; e_csi_2[3][3] =  1;
-	// third joint (rot Q[2] about Z, displaced L2 on X, L2prime on Y, H2 on Z)
-	e_csi_3[0][0] =  cos(Q[2]); e_csi_3[0][1] = -sin(Q[2]); e_csi_3[0][2] =          0; e_csi_3[0][3] =  L2;
-	e_csi_3[1][0] =  sin(Q[2]); e_csi_3[1][1] =  cos(Q[2]); e_csi_3[1][2] =          0; e_csi_3[1][3] =  L2prime;
-	e_csi_3[2][0] =          0; e_csi_3[2][1] =          0; e_csi_3[2][2] =          1; e_csi_3[2][3] =  H2;
-	e_csi_3[3][0] =          0; e_csi_3[3][1] =          0; e_csi_3[3][2] =          0; e_csi_3[3][3] =  1;
-	// end effector (displaced L3 on X)
-	g_st_0[0][0]  =          1; g_st_0[0][1]  =          0; g_st_0[0][2]  =          0; g_st_0[0][3]  =  L3;
-	g_st_0[1][0]  =          0; g_st_0[1][1]  =          1; g_st_0[1][2]  =          0; g_st_0[1][3]  =  0;
-	g_st_0[2][0]  =          0; g_st_0[2][1]  =          0; g_st_0[2][2]  =          1; g_st_0[2][3]  =  0;
-	g_st_0[3][0]  =          0; g_st_0[3][1]  =          0; g_st_0[3][2]  =          0; g_st_0[3][3]  =  1;
-	// final configuration: chain-multiply all !!
-	T = e_csi_1 * (e_csi_2 * (e_csi_3 * g_st_0));
+	/* the forward kinematics exression has been evaluated symbolically via
+	   matlab, using this simple .m file:
 
-	// give me the end-effector's position translated back to its frame.
-	zero[0] = 0; zero[1] = 0; zero[2] = 0; zero[3] = 1;
-	translation[0] = L2+L3; translation[1] = L1+L2prime; translation[2] = H1+H2; translation[3] = 1;
-	tmpX = (T * zero) - translation;
+		function sym_for_kin
 
-	// project on first three cordinates (we are not interested in the last "1")
-	X[0] = tmpX[0]; X[1] = tmpX[1]; X[2] = tmpX[2];
+		syms Q0 Q1 Q2 L1 L2 L2prime L3 H1 H2 real
+
+	    % first joint (rot Q0 about Y)
+		e_csi_1 = [ [  cos(Q0)        0  sin(Q0)        0 ];
+			        [        0        1        0        0 ];
+				    [ -sin(Q0)        0  cos(Q0)        0 ];
+					[        0        0        0        1 ] ];
+
+		% second joint (rot Q1 about Z, trans L1 on Y, trans H1 on Z)
+		e_csi_2 = [ [  cos(Q1) -sin(Q1)        0        0  ];
+			        [  sin(Q1)  cos(Q1)        0        L1 ];
+				    [        0        0        1        H1 ];
+					[        0        0        0        1  ] ];
+
+		% third joint (rot Q2 about Z, trans L2 on X, trans L2prime on Y, trans H2 on Z)
+		e_csi_3 = [ [  cos(Q2) -sin(Q2)        0        L2 ];
+			        [  sin(Q2)  cos(Q2)        0        L2prime ];
+				    [        0        0        1        H2 ];
+					[        0        0        0        1  ] ];
+
+		% end effector (trans L3 on X)
+		g_st_0 =  [ [        1        0        0        L3 ];
+			        [        0        1        0        0  ];
+				    [        0        0        1        0  ];
+					[        0        0        0        1  ] ];
+
+		% end-effector's position, translated back to its frame
+		T = e_csi_1 * (e_csi_2 * (e_csi_3 * g_st_0));
+		zero = [0 0 0 1]';
+		X = (T * zero) - [L2+L3 L1+L2prime H1+H2 1]'
+
+	*/
+
+	X[0] = cos(Q[0])*(cos(Q[1])*(cos(Q[2])*L3+L2)-sin(Q[1])*(sin(Q[2])*L3+L2prime))+sin(Q[0])*(H2+H1)-L2-L3;
+	X[1] = sin(Q[1])*(cos(Q[2])*L3+L2)+cos(Q[1])*(sin(Q[2])*L3+L2prime)-L2prime;
+	X[2] = -sin(Q[0])*(cos(Q[1])*(cos(Q[2])*L3+L2)-sin(Q[1])*(sin(Q[2])*L3+L2prime))+cos(Q[0])*(H2+H1)-H2-H1;
 
 	// revert the Q to degrees
 	Q[0] /= DegRad;

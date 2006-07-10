@@ -52,6 +52,10 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 libYARP_math.lib libYARP_sig.lib libYARP_sig_logpolar.lib libYARP_OS.lib libYARP_dev.lib libYARP_robot.lib ace.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /libpath:"..\..\..\..\lib\winnt"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy .\Release\*.exe ..\..\..\..\bin\winnt
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "TeleCtrl - Win32 Debug"
 
@@ -94,7 +98,11 @@ PostBuild_Cmds=copy .\Release\*.exe ..\..\..\..\bin\winnt
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\ArmControlThread.h
+SOURCE=.\ArmPosControlThread.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ArmVelControlThread.h
 # End Source File
 # Begin Source File
 
@@ -122,7 +130,11 @@ SOURCE=.\TeleCtrl.h
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\ArmControlThread.cpp
+SOURCE=.\ArmPosControlThread.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ArmVelControlThread.cpp
 # End Source File
 # Begin Source File
 

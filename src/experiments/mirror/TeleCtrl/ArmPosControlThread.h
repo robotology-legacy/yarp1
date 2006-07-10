@@ -1,20 +1,22 @@
 #include "TeleCtrl.h"
 
-#ifndef ArmControlThreadH
-#define ArmControlThreadH
+#ifndef ArmPosControlThreadH
+#define ArmPosControlThreadH
 
 // babybot
 #include <conf/babybot/YARPVocab_babybot.h>
 
 // -----------------------------------
-// class ArmControlThread
+// class ArmPosControlThread
+//
+// control the arm in position
 // -----------------------------------
 
-class ArmControlThread : public ControlThread {
+class ArmPosControlThread : public ControlThread {
 
 public:
 
-	ArmControlThread(const double frequency, YARPOutputPortOf<YARPBabyBottle>& outPort,
+	ArmPosControlThread(const double frequency, YARPOutputPortOf<YARPBabyBottle>& outPort,
 		YARPSemaphore& sema, bool enabled=true)
 		: ControlThread(frequency, sema, enabled),
 	  _outPort(outPort), _wristPitch(-70*DegRad,70*DegRad),

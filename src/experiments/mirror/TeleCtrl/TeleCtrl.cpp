@@ -7,7 +7,8 @@
 
 #include "TeleCtrl.h"
 #include "GazeControlThread.h"
-#include "ArmControlThread.h"
+#include "ArmPosControlThread.h"
+#include "ArmVelControlThread.h"
 #include "HandControlThread.h"
 
 #undef MainRoutine
@@ -137,10 +138,12 @@ int main()
 
 	// acquisition thread
 	acquisitionThread at;
-	// arm control thread
-	ControlThread* act = new ArmControlThread(1./10.,_rep_out,_repeaterSema, true);
+	// arm position control thread
+	ControlThread* apct = new ArmPosControlThread(1./10.,_rep_out,_repeaterSema, false);
+	// arm velocity control thread
+	ControlThread* avct = new ArmVelControlThread(1./10.,_rep_out,_repeaterSema, false);
 	// hand control thread
-	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema, true);
+	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema, false);
 	// gaze control thread
 	ControlThread* gct = new GazeControlThread(1./10.,_hs_out,_img_out,_imageSema, false);
 
@@ -152,7 +155,7 @@ int main()
 	// gather which sensors we use
 	_coll_cmd_in.Read();
 //	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0|HardwareUseGT) ) {
-	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0) ) {
+	if ( _coll_cmd_in.Content() != (HardwareUseTracker0) ) {
 		cout << "must use tracker 0, gaze tracker and dataglove only." << endl;
 		unregisterPorts();
 		return 0;
@@ -163,8 +166,8 @@ int main()
 	hct->initialise();
 
 	// calibrate and initialise arm
-	act->calibrate();
-	act->initialise();
+	apct->calibrate();
+	apct->initialise();
 
 	// calibrate and initialise gaze thread
 	gct->calibrate();
@@ -179,7 +182,7 @@ int main()
 	// activate acquisition thread
 	at.Begin();
 	// activate control threads
-	act->Begin();
+	apct->Begin();
 	hct->Begin();
 	gct->Begin();
 
@@ -190,7 +193,7 @@ int main()
 	// stop control threads
 	gct->End();
 	hct->End();
-	act->End();
+	apct->End();
 	// stop acquisition stream
 	at.End();
 	// tell collector to stop streaming
@@ -202,12 +205,12 @@ int main()
 	// shut down
 	gct->shutdown();
 	hct->shutdown();
-	act->shutdown();
+	apct->shutdown();
 
 	// delete threads
 	delete gct;
 	delete hct;
-	delete act;
+	delete apct;
 
 	// release collector
 	cout << "Now releasing collector. "; cout.flush();
