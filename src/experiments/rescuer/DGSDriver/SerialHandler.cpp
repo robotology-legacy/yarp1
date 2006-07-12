@@ -16,7 +16,7 @@
  * ===================================================================================*/
 
 /*
- * $Id: SerialHandler.cpp,v 1.2 2006-06-26 13:53:36 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.3 2006-07-12 19:48:45 beltran Exp $
  */
 #include "SerialHandler.h"
 
@@ -51,15 +51,15 @@ int SerialHandler::initialize(void)
       O_RDWR|FILE_FLAG_OVERLAPPED); 
 
   ACE_TTY_IO::Serial_Params myparams;
-  myparams.baudrate = 9600;
-  myparams.xonlim   = 0;
-  myparams.xofflim  = 0;
-  myparams.readmincharacters = 0;
-  myparams.readtimeoutmsec   = 10000;
+  myparams.baudrate   = 9600;
+  myparams.xonlim     = 0;
+  myparams.xofflim    = 0;
   myparams.parityenb  = true;
   myparams.paritymode = "FALSE";
-  myparams.databits = 8;
-  myparams.stopbits = 1;
+  myparams.databits   = 8;
+  myparams.stopbits   = 1;
+  myparams.readmincharacters = 0;
+  myparams.readtimeoutmsec   = 10000;
 
   if (_serial_dev.control (ACE_TTY_IO::SETPARAMS, &myparams) == -1)
       ACE_ERROR_RETURN ((LM_ERROR,
@@ -80,8 +80,8 @@ int SerialHandler::initialize(void)
           ACE_TEXT("SerialHandler::open: streams and Asynch Operations opened sucessfully\n")));
 
   // Start an asynchronous read stream
-  if (this->initiate_read_stream () == -1)
-    return -1;
+  ////if (this->initiate_read_stream () == -1)
+  ////  return -1;
   
   /* Sending a ? to the serial {{{*/
   /*
@@ -108,40 +108,38 @@ int SerialHandler::initialize(void)
 }
 
 /** --------------------------------------------------------------------------
- * @brief SerialHandler::svc
+ * @brief SerialHandler::svc Reads the queue and writes the message block in the
+ * serial device
  * @return 
  ----------------------------------------------------------------------------*/
 int SerialHandler::svc()
 {
+    ACE_TRACE(ACE_TEXT("SerialHandler::svc"));
+    ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l SerialHandler::svc Entering\n")));
     for (;;)
     {
-        std::string user_input;
-        //std::getline(cin,user_input, '\n');
-        int c = getchar();
-        while ( c != '\n')
+        ACE_Message_Block * serial_block;
+        int result = getq(serial_block);
+
+        if (result == -1)
         {
-            user_input+= c;
-            c = getchar();
-        }
-        if (user_input.size() == 0) continue;
-        if (user_input == "quit") 
-            ACE_OS::printf("ok, received quit\n");
-        user_input = user_input + "\r";
-
-        ACE_Message_Block message_block(user_input.size());
-
-        if (message_block.copy(user_input.c_str(), user_input.size())) {
-            ACE_ERROR ((LM_ERROR,
-                    ACE_TEXT ("Error copiando mensaje\n")));
-        }
-
-        //ssize_t bytes_written = _serial_dev.send_n ("hola\n", 5);
-        if (this->_serial_write_stream.write (message_block, user_input.size()) == -1)
+            ACE_DEBUG((LM_NOTICE, ACE_TEXT("%l SerialHandler::svc Problem Reading block from Queue\n")));
+        } 
+        else 
         {
-            ACE_ERROR ((LM_ERROR, "%p\n", "Error escribiendo conyo"));
-            return 0;
+            ACE_DEBUG((LM_NOTICE, ACE_TEXT("%l SerialHandler::svc Procesing Message_block\n")));
+            serial_block->rd_ptr()[serial_block->length()] = '\0';
+            ACE_OS::printf("Mensaje: %s\n", serial_block->rd_ptr());
+            if (this->_serial_write_stream.write (*serial_block, serial_block->length()) == -1)
+            {
+                ACE_ERROR ((LM_ERROR, "%l \n", "Error writing in svc SerialHandler"));
+                return 0;
+            }
+            serial_block->release();
         }
     }
+    ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l SerialHandler::svc Exiting\n")));
+    return 0;
 }
 
 /** --------------------------------------------------------------------------
@@ -149,16 +147,22 @@ int SerialHandler::svc()
  * @return 
  ----------------------------------------------------------------------------*/
 int
-SerialHandler::initiate_read_stream (void)
+SerialHandler::initiate_read_stream (DGS_Task * command_sender)
 {
     //ACE_TRACE("SerialHandler::initiate_read_stream");
+  ACE_DEBUG ((LM_INFO, ACE_TEXT("SerialHandler::initiate_read_stream called\n")));
   // Create Message_Block
   ACE_Message_Block *mb = 0;
   ACE_NEW_RETURN (mb, ACE_Message_Block (BUFSIZ + 1), -1);
 
+  ACE_Message_Block * pointer_block = 0;
+  ACE_NEW_RETURN ( pointer_block, ACE_Message_Block( ACE_reinterpret_cast( char *, command_sender)), -1);
+
+  //glue both block block and pointer_block
+  mb->cont(pointer_block);
+
   // Inititiate an asynchronous read from the stream
-  if (this->_serial_read_stream.read (*mb,
-		      mb->size () - 1) == -1)
+  if (this->_serial_read_stream.read (*mb, mb->size () - 1) == -1)
     ACE_ERROR_RETURN ((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("ACE_Asynch_Read_Stream::read")), -1);
 
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT("SerialHandler:initiate_read_stream: Asynch Read stream issued sucessfully\n")));
@@ -176,8 +180,6 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
     //ACE_TRACE("SerialHandler::handle_read_stream");
   ACE_DEBUG ((LM_DEBUG,ACE_TEXT( "handle_read_stream called\n")));
 
-  result.message_block ().rd_ptr ()[result.bytes_transferred ()] = '\0';
-
   ACE_DEBUG ((LM_DEBUG, "********************\n"));
   ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "bytes_to_read", result.bytes_to_read ()));
   ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "handle", result.handle ()));
@@ -193,9 +195,12 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
 //#if 0
   //ACE_DEBUG ((LM_INFO, "%s",
               //result.message_block ().rd_ptr ()));/*}}}*/
-  ACE_OS::printf("%s", result.message_block().rd_ptr());
+  ////ACE_OS::printf("%s", result.message_block().rd_ptr());
   // Start an asynchronous read stream
-  this->initiate_read_stream ();
+  ////this->initiate_read_stream ();
+
+  DGS_Task * command_sender = ACE_reinterpret_cast(DGS_Task *, result.message_block().cont()->rd_ptr());
+  command_sender->putq(&result.message_block());
 
 }
 
@@ -217,6 +222,11 @@ void SerialHandler::handle_write_stream (const ACE_Asynch_Write_Stream::Result &
   ACE_DEBUG ((LM_INFO, "%s = %d\n", "bytes_to_write", result.bytes_to_write ()));
   ///ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "handle", result.handle ()));
   ACE_DEBUG ((LM_INFO, "%s = %d\n", "bytes_transfered", result.bytes_transferred ()));
+  ACE_DEBUG ((LM_INFO, ACE_TEXT("Getting the command sender pointer\n")));
+  DGS_Task * command_sender = ACE_reinterpret_cast(DGS_Task *, result.message_block().cont()->rd_ptr());
+  ACE_DEBUG ((LM_INFO, ACE_TEXT("Sending it to iniate_read_stream\n")));
+  ACE_ASSERT(command_sender != NULL);
+  this->initiate_read_stream (command_sender);
   ////ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "act", (u_long) result.act ()));/*{{{*/
   ////ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "success", result.success ()));
   ////ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "completion_key", (u_long) result.completion_key ()));
@@ -230,6 +240,5 @@ void SerialHandler::handle_write_stream (const ACE_Asynch_Write_Stream::Result &
               "message_block",
               result.message_block ().rd_ptr ()));
 #endif  /* 0 *//*}}}*/
-  ///ACE_Proactor::end_event_loop ();
 }
 

@@ -8,17 +8,21 @@ Implements the Serial Adaptor --------------------------------------------------
 \subsection*{Public Member Functions}
 \begin{CompactItemize}
 \item 
+{\bf Serial\-Handler} (void)
+\begin{CompactList}\small\item\em {\bf Serial\-Handler::Serial\-Handler}{\rm (p.\,\pageref{classSerialHandler_a0})} ----------------------------------------------------------------------------. \item\end{CompactList}\item 
+{\bf $\sim$Serial\-Handler} (void)
+\begin{CompactList}\small\item\em {\bf Serial\-Handler::$\sim$Serial\-Handler}{\rm (p.\,\pageref{classSerialHandler_a1})} Destructor. \item\end{CompactList}\item 
 int {\bf initialize} (void)
-\begin{CompactList}\small\item\em initialize starts the inizialization of the serial device and attach it to the file reading streams. \item\end{CompactList}\item 
+\begin{CompactList}\small\item\em initialize starts the inizialization of the serial device and attach it to the reading streams. \item\end{CompactList}\item 
 virtual int {\bf svc} ()
 \begin{CompactList}\small\item\em svc This is the internal loop of the ACETask, it read from the standart input. \item\end{CompactList}\end{CompactItemize}
 \subsection*{Protected Member Functions}
 \begin{CompactItemize}
 \item 
-virtual void {\bf handle\_\-read\_\-file} (const ACE\_\-Asynch\_\-Read\_\-File::Result \&result)
-\begin{CompactList}\small\item\em handle\_\-read\_\-file \item\end{CompactList}\item 
-virtual void {\bf handle\_\-write\_\-file} (const ACE\_\-Asynch\_\-Write\_\-File::Result \&result)
-\begin{CompactList}\small\item\em handle\_\-write\_\-file \item\end{CompactList}\end{CompactItemize}
+virtual void {\bf handle\_\-read\_\-stream} (const ACE\_\-Asynch\_\-Read\_\-Stream::Result \&result)
+\begin{CompactList}\small\item\em handle\_\-read\_\-stream \item\end{CompactList}\item 
+virtual void {\bf handle\_\-write\_\-stream} (const ACE\_\-Asynch\_\-Write\_\-Stream::Result \&result)
+\begin{CompactList}\small\item\em handle\_\-write\_\-stream \item\end{CompactList}\end{CompactItemize}
 
 
 \subsection{Detailed Description}
@@ -28,13 +32,34 @@ Implements the Serial Adaptor --------------------------------------------------
 
 
 
+\subsection{Constructor \& Destructor Documentation}
+\index{SerialHandler@{Serial\-Handler}!SerialHandler@{SerialHandler}}
+\index{SerialHandler@{SerialHandler}!SerialHandler@{Serial\-Handler}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}Serial\-Handler::Serial\-Handler (void)}\label{classSerialHandler_a0}
+
+
+{\bf Serial\-Handler::Serial\-Handler}{\rm (p.\,\pageref{classSerialHandler_a0})} ----------------------------------------------------------------------------. 
+
+-------------------------------------------------------------------------- \index{SerialHandler@{Serial\-Handler}!~SerialHandler@{$\sim$SerialHandler}}
+\index{~SerialHandler@{$\sim$SerialHandler}!SerialHandler@{Serial\-Handler}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}Serial\-Handler::$\sim${\bf Serial\-Handler} (void)}\label{classSerialHandler_a1}
+
+
+{\bf Serial\-Handler::$\sim$Serial\-Handler}{\rm (p.\,\pageref{classSerialHandler_a1})} Destructor. 
+
+-------------------------------------------------------------------------- 
+
+\begin{Desc}
+\item[{\bf Todo}]close correctly all the streams ----------------------------------------------------------------------------\end{Desc}
+
+
 \subsection{Member Function Documentation}
-\index{SerialHandler@{Serial\-Handler}!handle_read_file@{handle\_\-read\_\-file}}
-\index{handle_read_file@{handle\_\-read\_\-file}!SerialHandler@{Serial\-Handler}}
-\subsubsection{\setlength{\rightskip}{0pt plus 5cm}virtual void Serial\-Handler::handle\_\-read\_\-file (const ACE\_\-Asynch\_\-Read\_\-File::Result \& {\em result})\hspace{0.3cm}{\tt  [protected, virtual]}}\label{classSerialHandler_b0}
+\index{SerialHandler@{Serial\-Handler}!handle_read_stream@{handle\_\-read\_\-stream}}
+\index{handle_read_stream@{handle\_\-read\_\-stream}!SerialHandler@{Serial\-Handler}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}void Serial\-Handler::handle\_\-read\_\-stream (const ACE\_\-Asynch\_\-Read\_\-Stream::Result \& {\em result})\hspace{0.3cm}{\tt  [protected, virtual]}}\label{classSerialHandler_b0}
 
 
-handle\_\-read\_\-file 
+handle\_\-read\_\-stream 
 
 -------------------------------------------------------------------------- 
 
@@ -43,12 +68,12 @@ handle\_\-read\_\-file
 \begin{description}
 \item[{\em result}]---------------------------------------------------------------------------- \end{description}
 \end{Desc}
-\index{SerialHandler@{Serial\-Handler}!handle_write_file@{handle\_\-write\_\-file}}
-\index{handle_write_file@{handle\_\-write\_\-file}!SerialHandler@{Serial\-Handler}}
-\subsubsection{\setlength{\rightskip}{0pt plus 5cm}virtual void Serial\-Handler::handle\_\-write\_\-file (const ACE\_\-Asynch\_\-Write\_\-File::Result \& {\em result})\hspace{0.3cm}{\tt  [protected, virtual]}}\label{classSerialHandler_b1}
+\index{SerialHandler@{Serial\-Handler}!handle_write_stream@{handle\_\-write\_\-stream}}
+\index{handle_write_stream@{handle\_\-write\_\-stream}!SerialHandler@{Serial\-Handler}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}void Serial\-Handler::handle\_\-write\_\-stream (const ACE\_\-Asynch\_\-Write\_\-Stream::Result \& {\em result})\hspace{0.3cm}{\tt  [protected, virtual]}}\label{classSerialHandler_b1}
 
 
-handle\_\-write\_\-file 
+handle\_\-write\_\-stream 
 
 -------------------------------------------------------------------------- 
 
@@ -62,7 +87,7 @@ handle\_\-write\_\-file
 \subsubsection{\setlength{\rightskip}{0pt plus 5cm}int Serial\-Handler::initialize (void)}\label{classSerialHandler_a2}
 
 
-initialize starts the inizialization of the serial device and attach it to the file reading streams. 
+initialize starts the inizialization of the serial device and attach it to the reading streams. 
 
 -------------------------------------------------------------------------- 
 
@@ -70,7 +95,7 @@ initialize starts the inizialization of the serial device and attach it to the f
 \item[Returns:]---------------------------------------------------------------------------- \end{Desc}
 \index{SerialHandler@{Serial\-Handler}!svc@{svc}}
 \index{svc@{svc}!SerialHandler@{Serial\-Handler}}
-\subsubsection{\setlength{\rightskip}{0pt plus 5cm}virtual int Serial\-Handler::svc ()\hspace{0.3cm}{\tt  [virtual]}}\label{classSerialHandler_a3}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}int Serial\-Handler::svc ()\hspace{0.3cm}{\tt  [virtual]}}\label{classSerialHandler_a3}
 
 
 svc This is the internal loop of the ACETask, it read from the standart input. 
@@ -81,6 +106,7 @@ svc This is the internal loop of the ACETask, it read from the standart input.
 \item[Returns:]---------------------------------------------------------------------------- \end{Desc}
 
 
-The documentation for this class was generated from the following file:\begin{CompactItemize}
+The documentation for this class was generated from the following files:\begin{CompactItemize}
 \item 
-{\bf Serial\-Handler.h}\end{CompactItemize}
+{\bf Serial\-Handler.h}\item 
+{\bf Serial\-Handler.cpp}\end{CompactItemize}

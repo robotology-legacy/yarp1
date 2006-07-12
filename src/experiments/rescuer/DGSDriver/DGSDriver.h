@@ -16,10 +16,12 @@
  * ===================================================================================*/
 
 /*
- * $Id: DGSDriver.h,v 1.1 2006-06-21 17:32:24 beltran Exp $
+ * $Id: DGSDriver.h,v 1.2 2006-07-12 19:48:45 beltran Exp $
  */
 #ifndef __DGSDRIVERH__
 #define __DGSDRIVERH__
+
+typedef ACE_Task<ACE_MT_SYNCH> DGS_Task;
 
 #include "SerialHandler.h"
 

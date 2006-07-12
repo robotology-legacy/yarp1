@@ -16,7 +16,7 @@
  * ===================================================================================*/
 
 /*
- * $Id: SerialHandler.h,v 1.2 2006-06-26 13:53:36 beltran Exp $
+ * $Id: SerialHandler.h,v 1.3 2006-07-12 19:48:45 beltran Exp $
  */
 
 #ifndef __SERIALHANDLERH__
@@ -36,12 +36,13 @@
 #include "ace/Task.h"
 #include "ace/CDR_Stream.h"
 #include "ace/DEV_Connector.h"
+#include "DGSDriver.h"
 
 /** --------------------------------------------------------------------------
  * @class SerialHandler
  * @brief Implements the Serial Adaptor
  ----------------------------------------------------------------------------*/
-class SerialHandler : public ACE_Task<ACE_NULL_SYNCH>, public ACE_Service_Handler
+class SerialHandler : public DGS_Task, public ACE_Service_Handler
 {
 
 public:
@@ -93,7 +94,7 @@ private:
      * 
      * @return 
      ----------------------------------------------------------------------------*/
-    int initiate_read_stream (void);
+    int initiate_read_stream (DGS_Task *);
 
     /**
      *  Parameters.
