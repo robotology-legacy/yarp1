@@ -9,7 +9,7 @@
  * @file SerialConsole.h
  * @brief Provides a text like console to access directly the Serial Handler. It
  * runs its own svc loop reading from the keyboard and puts the command into the
- * SerialHandler ACE_Message_Queue
+ * SerialHandler ACE_Message_Queue.
  * @version 1.0
  * @date 26-Jun-06 4:06:17 PM ora solare Europa occidentale
  * @author Carlos Beltran Gonzalez (Carlos), cbeltran@dist.unige.it
@@ -18,7 +18,7 @@
  * ===================================================================================*/
 
 /*
- * RCS-ID:$Id: SerialConsole.h,v 1.1 2006-07-13 16:53:08 beltran Exp $
+ * RCS-ID:$Id: SerialConsole.h,v 1.2 2006-07-13 17:04:04 beltran Exp $
  */
 #ifndef __SERIALCONSOLEH__
 #define __SERIALCONSOLEH__
@@ -30,8 +30,8 @@
 
 /** ===================================================================================
  * @class SerialConsole
- * @brief Provides console like access to the serial port
- =====================================================================================*/
+ * @brief Provides console like access to the serial port.
+ * ====================================================================================*/
 class SerialConsole:public DGSTask
 {
 

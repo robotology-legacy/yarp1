@@ -1,5 +1,4 @@
 /** =================================================================================
- * 
  *
  *             RESCUER - IST-2003-511492 (c) 2004-2008 
  *
@@ -17,10 +16,16 @@
  * V1.0: Tries to make an independed SerialHandler and SerialConsole and
  * communicated them through Ace message queues
  * ===================================================================================*/
+/**
+ * Defines the current "general" version of the DGSDRiver
+ */
 #define VERSION 1.0
+/**
+ * Controls if the trace is activated
+ */
 #define ACE_NTRACE 0
 /*
- * $Id: DGSDriver.cpp,v 1.3 2006-07-13 16:45:57 beltran Exp $
+ * $Id: DGSDriver.cpp,v 1.4 2006-07-13 17:04:04 beltran Exp $
  */
 #include "SerialHandler.h"
 #include "SerialConsole.h"
@@ -34,8 +39,7 @@
  * 
  * @return 
  ----------------------------------------------------------------------------*/
-int
-ACE_TMAIN (int argc, ACE_TCHAR *argv[])
+int ACE_TMAIN (int argc, ACE_TCHAR *argv[])
 {
     //ACE_TRACE("main");
     //if (parse_args (argc, argv) == -1)

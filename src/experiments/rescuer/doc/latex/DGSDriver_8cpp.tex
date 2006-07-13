@@ -5,13 +5,18 @@ Contains the driver for the Dexterous Grasping System (Three finger gripper).
 
 {\tt \#include \char`\"{}Serial\-Handler.h\char`\"{}}\par
 {\tt \#include \char`\"{}Serial\-Console.h\char`\"{}}\par
-{\tt \#include \char`\"{}DGSDriver.h\char`\"{}}\par
 \subsection*{Defines}
 \begin{CompactItemize}
 \item 
-\#define {\bf ACE\_\-NTRACE}\ 0\label{DGSDriver_8cpp_a0}
-
+\#define {\bf VERSION}\ 1.0
+\item 
+\#define {\bf ACE\_\-NTRACE}\ 0
 \end{CompactItemize}
+\subsection*{Functions}
+\begin{CompactItemize}
+\item 
+int {\bf ACE\_\-TMAIN} (int argc, ACE\_\-TCHAR $\ast$argv[$\,$])
+\begin{CompactList}\small\item\em ACE\_\-TMAIN The main DGC loop. Starts the systems and creates and initializes all other components. \item\end{CompactList}\end{CompactItemize}
 
 
 \subsection{Detailed Description}
@@ -30,4 +35,36 @@ Improvement of the Emergency Risk Management through Secure Mobile Mechatronic S
 \begin{Desc}
 \item[Author:]Carlos Beltran Gonzalez (Carlos), {\tt cbeltran@dist.unige.it} 
 
-Lira-Lab. Revisions:. ===================================================================================\end{Desc}
+Lira-Lab. Revisions:. V1.0: Tries to make an independed {\bf Serial\-Handler}{\rm (p.\,\pageref{classSerialHandler})} and {\bf Serial\-Console}{\rm (p.\,\pageref{classSerialConsole})} and communicated them through Ace message queues ===================================================================================\end{Desc}
+
+
+\subsection{Define Documentation}
+\index{DGSDriver.cpp@{DGSDriver.cpp}!ACE_NTRACE@{ACE\_\-NTRACE}}
+\index{ACE_NTRACE@{ACE\_\-NTRACE}!DGSDriver.cpp@{DGSDriver.cpp}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}\#define ACE\_\-NTRACE\ 0}\label{DGSDriver_8cpp_a1}
+
+
+Controls if the trace is activated \index{DGSDriver.cpp@{DGSDriver.cpp}!VERSION@{VERSION}}
+\index{VERSION@{VERSION}!DGSDriver.cpp@{DGSDriver.cpp}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}\#define VERSION\ 1.0}\label{DGSDriver_8cpp_a0}
+
+
+Defines the current \char`\"{}general\char`\"{} version of the DGSDRiver 
+
+\subsection{Function Documentation}
+\index{DGSDriver.cpp@{DGSDriver.cpp}!ACE_TMAIN@{ACE\_\-TMAIN}}
+\index{ACE_TMAIN@{ACE\_\-TMAIN}!DGSDriver.cpp@{DGSDriver.cpp}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}int ACE\_\-TMAIN (int {\em argc}, ACE\_\-TCHAR $\ast$ {\em argv}[$\,$])}\label{DGSDriver_8cpp_a2}
+
+
+ACE\_\-TMAIN The main DGC loop. Starts the systems and creates and initializes all other components. 
+
+-------------------------------------------------------------------------- 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em argc}]The number of entered parameters \item[{\em argv}]The array containing the input parameters\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]---------------------------------------------------------------------------- \end{Desc}
