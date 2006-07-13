@@ -16,7 +16,7 @@
  * ===================================================================================*/
 
 /*
- * $Id: SerialHandler.cpp,v 1.3 2006-07-12 19:48:45 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.4 2006-07-13 16:45:57 beltran Exp $
  */
 #include "SerialHandler.h"
 
@@ -128,14 +128,16 @@ int SerialHandler::svc()
         else 
         {
             ACE_DEBUG((LM_NOTICE, ACE_TEXT("%l SerialHandler::svc Procesing Message_block\n")));
-            serial_block->rd_ptr()[serial_block->length()] = '\0';
-            ACE_OS::printf("Mensaje: %s\n", serial_block->rd_ptr());
+            //serial_block->rd_ptr()[serial_block->length()] = '\0';
+            //ACE_OS::printf("Mensaje: %s\n", serial_block->rd_ptr());
             if (this->_serial_write_stream.write (*serial_block, serial_block->length()) == -1)
             {
                 ACE_ERROR ((LM_ERROR, "%l \n", "Error writing in svc SerialHandler"));
                 return 0;
             }
-            serial_block->release();
+            //serial_block->release();
+            DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, serial_block->cont()->rd_ptr());
+            command_sender->IsAlive();
         }
     }
     ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l SerialHandler::svc Exiting\n")));
@@ -147,7 +149,7 @@ int SerialHandler::svc()
  * @return 
  ----------------------------------------------------------------------------*/
 int
-SerialHandler::initiate_read_stream (DGS_Task * command_sender)
+SerialHandler::initiate_read_stream (DGSTask * command_sender)
 {
     //ACE_TRACE("SerialHandler::initiate_read_stream");
   ACE_DEBUG ((LM_INFO, ACE_TEXT("SerialHandler::initiate_read_stream called\n")));
@@ -199,7 +201,7 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
   // Start an asynchronous read stream
   ////this->initiate_read_stream ();
 
-  DGS_Task * command_sender = ACE_reinterpret_cast(DGS_Task *, result.message_block().cont()->rd_ptr());
+  DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, result.message_block().cont()->rd_ptr());
   command_sender->putq(&result.message_block());
 
 }
@@ -223,9 +225,10 @@ void SerialHandler::handle_write_stream (const ACE_Asynch_Write_Stream::Result &
   ///ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "handle", result.handle ()));
   ACE_DEBUG ((LM_INFO, "%s = %d\n", "bytes_transfered", result.bytes_transferred ()));
   ACE_DEBUG ((LM_INFO, ACE_TEXT("Getting the command sender pointer\n")));
-  DGS_Task * command_sender = ACE_reinterpret_cast(DGS_Task *, result.message_block().cont()->rd_ptr());
+  DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, result.message_block().cont()->rd_ptr());
   ACE_DEBUG ((LM_INFO, ACE_TEXT("Sending it to iniate_read_stream\n")));
   ACE_ASSERT(command_sender != NULL);
+  result.message_block().release();
   this->initiate_read_stream (command_sender);
   ////ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "act", (u_long) result.act ()));/*{{{*/
   ////ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "success", result.success ()));

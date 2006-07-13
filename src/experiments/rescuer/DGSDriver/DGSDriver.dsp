@@ -114,6 +114,10 @@ SOURCE=.\DGSDriver.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\DGSTask.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\SerialConsole.h
 # End Source File
 # Begin Source File
