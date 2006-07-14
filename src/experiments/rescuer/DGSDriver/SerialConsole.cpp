@@ -1,4 +1,4 @@
-/** =================================================================================
+/** 
  * 
  *
  *             RESCUER - IST-2003-511492 (c) 2004-2008 
@@ -7,7 +7,7 @@
  *   Mechatronic Support to Bomb Disposal and Rescue Operations
  *
  * @file SerialConsole.cpp
- * @brief Provides a text like console to access directly the Serial Handler. It
+ *  Provides a text like console to access directly the Serial Handler. It
  * runs its own svc loop reading from the keyboard and puts the command into the
  * SerialHandler ACE_Message_Queue
  * @version 1.0
@@ -15,31 +15,31 @@
  * @author Carlos Beltran Gonzalez (Carlos), cbeltran@dist.unige.it
  * @author Lira-Lab
  * Revisions:
- * ===================================================================================*/
+ * */
 
 /*
- * RCS-ID:$Id: SerialConsole.cpp,v 1.1 2006-07-13 16:53:08 beltran Exp $
+ * RCS-ID:$Id: SerialConsole.cpp,v 1.2 2006-07-14 14:05:24 beltran Exp $
  */
 #include "SerialConsole.h"
 
 /**
- * @brief SerialConsole constructor
+ *  SerialConsole constructor
  */
 SerialConsole::SerialConsole ()
 {
 }  
 
-/** --------------------------------------------------------------------------
- * @brief SerialConsole::~SerialConsole Destructor
- ----------------------------------------------------------------------------*/
+/** 
+ *  SerialConsole::~SerialConsole Destructor
+ */
 SerialConsole::~SerialConsole()
 {
 }
 
-/** --------------------------------------------------------------------------
- * @brief SerialHandler::svc Reads from the keyboard
+/** 
+ *  SerialHandler::svc Reads from the keyboard
  * @return 
- ----------------------------------------------------------------------------*/
+ */
 int SerialConsole::svc()
 {
     for (;;)

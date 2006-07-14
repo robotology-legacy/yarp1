@@ -1,8 +1,5 @@
 \section{DGSDriver.cpp File Reference}
 \label{DGSDriver_8cpp}\index{DGSDriver.cpp@{DGSDriver.cpp}}
-Contains the driver for the Dexterous Grasping System (Three finger gripper).  
-
-
 {\tt \#include \char`\"{}Serial\-Handler.h\char`\"{}}\par
 {\tt \#include \char`\"{}Serial\-Console.h\char`\"{}}\par
 \subsection*{Defines}
@@ -16,26 +13,26 @@ Contains the driver for the Dexterous Grasping System (Three finger gripper).
 \begin{CompactItemize}
 \item 
 int {\bf ACE\_\-TMAIN} (int argc, ACE\_\-TCHAR $\ast$argv[$\,$])
-\begin{CompactList}\small\item\em ACE\_\-TMAIN The main DGC loop. Starts the systems and creates and initializes all other components. \item\end{CompactList}\end{CompactItemize}
+\end{CompactItemize}
 
 
 \subsection{Detailed Description}
-Contains the driver for the Dexterous Grasping System (Three finger gripper). 
-
-=================================================================================
-
 RESCUER - IST-2003-511492 (c) 2004-2008
 
 Improvement of the Emergency Risk Management through Secure Mobile Mechatronic Support to Bomb Disposal and Rescue Operations
 
-\begin{Desc}
+Contains the driver for the Dexterous Grasping System (Three finger gripper) \begin{Desc}
 \item[Version:]1.0 \end{Desc}
 \begin{Desc}
 \item[Date:]20-Jun-06 1:10:28 PM ora solare Europa occidentale \end{Desc}
 \begin{Desc}
 \item[Author:]Carlos Beltran Gonzalez (Carlos), {\tt cbeltran@dist.unige.it} 
 
-Lira-Lab. Revisions:. V1.0: Tries to make an independed {\bf Serial\-Handler}{\rm (p.\,\pageref{classSerialHandler})} and {\bf Serial\-Console}{\rm (p.\,\pageref{classSerialConsole})} and communicated them through Ace message queues ===================================================================================\end{Desc}
+Lira-Lab. Revisions:. V1.0: Tries to make an independed {\bf Serial\-Handler}{\rm (p.\,\pageref{classSerialHandler})} and {\bf Serial\-Console}{\rm (p.\,\pageref{classSerialConsole})} and communicated them through Ace message queues \end{Desc}
+\begin{Desc}
+\item[{\bf Todo}]Fix syncronization problems in message queues 
+
+Fix visualization problems in the doxygen documentation \end{Desc}
 
 
 \subsection{Define Documentation}
@@ -57,9 +54,7 @@ Defines the current \char`\"{}general\char`\"{} version of the DGSDRiver
 \subsubsection{\setlength{\rightskip}{0pt plus 5cm}int ACE\_\-TMAIN (int {\em argc}, ACE\_\-TCHAR $\ast$ {\em argv}[$\,$])}\label{DGSDriver_8cpp_a2}
 
 
-ACE\_\-TMAIN The main DGC loop. Starts the systems and creates and initializes all other components. 
-
--------------------------------------------------------------------------- 
+ACE\_\-TMAIN The main DGC loop. Starts the systems and creates and initializes all other components.
 
 \begin{Desc}
 \item[Parameters:]
@@ -67,4 +62,4 @@ ACE\_\-TMAIN The main DGC loop. Starts the systems and creates and initializes a
 \item[{\em argc}]The number of entered parameters \item[{\em argv}]The array containing the input parameters\end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]---------------------------------------------------------------------------- \end{Desc}
+\item[Returns:]\end{Desc}

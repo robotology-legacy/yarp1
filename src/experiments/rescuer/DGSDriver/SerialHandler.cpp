@@ -1,4 +1,4 @@
-/** =================================================================================
+/** 
  * 
  *
  *             RESCUER - IST-2003-511492 (c) 2004-2008 
@@ -7,40 +7,41 @@
  *   Mechatronic Support to Bomb Disposal and Rescue Operations
  *
  * @file SerialHandler.cpp
- * @brief Contains the implementation of the Serial Handler
+ *  Contains the implementation of the Serial Handler
  * @version 1.0
  * @date 21-Jun-06 1:53:39 PM ora solare Europa occidentale
  * @author Carlos Beltran Gonzalez (Carlos), cbeltran@dist.unige.it
  * @author Lira-Lab
  * Revisions:
- * ===================================================================================*/
+ */
 
 /*
- * $Id: SerialHandler.cpp,v 1.4 2006-07-13 16:45:57 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.5 2006-07-14 14:05:24 beltran Exp $
  */
+#include <string.h>
 #include "SerialHandler.h"
 
-/** --------------------------------------------------------------------------
- * @brief SerialHandler::SerialHandler 
- ----------------------------------------------------------------------------*/
+/** 
+ *  SerialHandler::SerialHandler 
+ */
 SerialHandler::SerialHandler (void)
 {
     ACE_TRACE("SerialHandler::SerialHandler");
 }
 
-/** --------------------------------------------------------------------------
- * @brief SerialHandler::~SerialHandler Destructor.
+/** 
+ *  SerialHandler::~SerialHandler Destructor.
  * @todo close correctly all the streams
- ----------------------------------------------------------------------------*/
+ */
 SerialHandler::~SerialHandler (void)
 {
     ACE_TRACE("SerialHandler::~SerialHandler");
 }
 
-/** --------------------------------------------------------------------------
- * @brief SerialHandler::open Opens the serial handler. 
+/** 
+ *  SerialHandler::open Opens the serial handler. 
  * @return 
- ----------------------------------------------------------------------------*/
+ */
 int SerialHandler::initialize(void) 
 {
   ACE_TRACE("SerialHandler::initialize");
@@ -107,11 +108,11 @@ int SerialHandler::initialize(void)
   return 0;
 }
 
-/** --------------------------------------------------------------------------
- * @brief SerialHandler::svc Reads the queue and writes the message block in the
+/** 
+ *  SerialHandler::svc Reads the queue and writes the message block in the
  * serial device
  * @return 
- ----------------------------------------------------------------------------*/
+ */
 int SerialHandler::svc()
 {
     ACE_TRACE(ACE_TEXT("SerialHandler::svc"));
@@ -144,10 +145,10 @@ int SerialHandler::svc()
     return 0;
 }
 
-/** --------------------------------------------------------------------------
- * @brief SerialHandler::initiate_read_stream
+/** 
+ *  SerialHandler::initiate_read_stream
  * @return 
- ----------------------------------------------------------------------------*/
+ */
 int
 SerialHandler::initiate_read_stream (DGSTask * command_sender)
 {
@@ -172,10 +173,10 @@ SerialHandler::initiate_read_stream (DGSTask * command_sender)
   return 0;
 }
 
-/** --------------------------------------------------------------------------
- * @brief SerialHandler::handle_read_stream
+/** 
+ *  SerialHandler::handle_read_stream
  * @param result 
- ----------------------------------------------------------------------------*/
+ */
 void
 SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
 {
@@ -201,15 +202,30 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
   // Start an asynchronous read stream
   ////this->initiate_read_stream ();
 
-  DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, result.message_block().cont()->rd_ptr());
-  command_sender->putq(&result.message_block());
+  // Check if the => command from the barrett is present in the readed buffer
+  /**
+   * @todo Chech if the compartion can be done in a more eficient way
+   */
+  if ( strstr(result.message_block().rd_ptr(),"=>") != NULL)
+  {
+      DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, result.message_block().cont()->rd_ptr());
+      command_sender->putq(&result.message_block());
+  }
+  else
+  {
+      // Inititiate an asynchronous read from the stream to read the rest of the
+      // response
+      if (this->_serial_read_stream.read (result.message_block(), result.message_block().size() - 1) == -1)
+          ACE_ERROR ((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("ACE_Asynch_Read_Stream::read")));
+  }
+
 
 }
 
-/** --------------------------------------------------------------------------
- * @brief SerialHandler::handle_write_stream
+/** 
+ *  SerialHandler::handle_write_stream
  * @param result 
- ----------------------------------------------------------------------------*/
+ */
 void SerialHandler::handle_write_stream (const ACE_Asynch_Write_Stream::Result &result)
 {
     ACE_TRACE("SerialHandler::handle_write_stream");

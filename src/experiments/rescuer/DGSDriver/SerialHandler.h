@@ -1,4 +1,4 @@
-/** =================================================================================
+/** 
  * 
  *
  *             RESCUER - IST-2003-511492 (c) 2004-2008 
@@ -7,23 +7,23 @@
  *   Mechatronic Support to Bomb Disposal and Rescue Operations
  *
  * @file SerialHandler.h
- * @brief Contains the serial handler using the Proactor framework
+ *  Contains the serial handler using the Proactor framework
  * @version 1.0
  * @date 21-Jun-06 1:06:18 PM ora solare Europa occidentale
  * @author Carlos Beltran Gonzalez (Carlos), cbeltran@dist.unige.it
  * @author Lira-Lab
  * Revisions:
- * ===================================================================================*/
+ */
 
 /*
- * $Id: SerialHandler.h,v 1.4 2006-07-13 16:45:57 beltran Exp $
+ * $Id: SerialHandler.h,v 1.5 2006-07-14 14:05:24 beltran Exp $
  */
 
 #ifndef __SERIALHANDLERH__
 #define __SERIALHANDLERH__
 
-#include <stdio.h>
-#include <string>
+///#include <stdio.h>
+///#include <string>
 #include "ace/streams.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
@@ -39,10 +39,10 @@
 #include "DGSDriver.h"
 #include "DGSTask.h"
 
-/** --------------------------------------------------------------------------
+/** 
  * @class SerialHandler
- * @brief Implements the Serial Adaptor
- ----------------------------------------------------------------------------*/
+ *  Implements the Serial Adaptor
+ */
 class SerialHandler : public DGSTask, public ACE_Service_Handler
 {
 
@@ -51,38 +51,38 @@ public:
     SerialHandler (void);
     ~SerialHandler (void);
 
-    /** --------------------------------------------------------------------------
-     * @brief initialize starts the inizialization of the serial device and attach it
+    /** 
+     *  initialize starts the inizialization of the serial device and attach it
      * to the reading streams.
      * 
      * @return 
-     ----------------------------------------------------------------------------*/
+     */
     int initialize(void);
 
-    /** --------------------------------------------------------------------------
-     * @brief svc This is the internal loop of the ACETask, it read from the
+    /** 
+     *  svc This is the internal loop of the ACETask, it read from the
      * standart input. 
      * 
      * @return 
-     ----------------------------------------------------------------------------*/
+     */
     virtual int svc();
 
 protected:
     // = These methods are called by the framework.
 
-    /** --------------------------------------------------------------------------
-     * @brief handle_read_stream
+    /** 
+     *  handle_read_stream
      * 
      * @param result 
-     ----------------------------------------------------------------------------*/
+     */
     virtual void handle_read_stream (const ACE_Asynch_Read_Stream::Result &result);
     // This is called when asynchronous reads from the socket complete.
 
-    /** --------------------------------------------------------------------------
-     * @brief handle_write_stream
+    /** 
+     *  handle_write_stream
      * 
      * @param result 
-     ----------------------------------------------------------------------------*/
+     */
     virtual void handle_write_stream (const ACE_Asynch_Write_Stream::Result &result);
     // This is called when asynchronous writes from the socket complete.
 
@@ -90,34 +90,34 @@ private:
     //int initiate_read_stream(void);
     // Initiate an asynchronous <read> operation on the socket
 
-    /** --------------------------------------------------------------------------
-     * @brief initiate_read_stream 
+    /** 
+     *  initiate_read_stream 
      * 
      * @return 
-     ----------------------------------------------------------------------------*/
+     */
     int initiate_read_stream (DGSTask *);
 
     /**
      *  Parameters.
      */
 
-    /** --------------------------------------------------------------------------
-     * @brief The stream for reading from the serial line
-     ----------------------------------------------------------------------------*/
+    /** 
+     *  The stream for reading from the serial line
+     */
     ACE_Asynch_Read_Stream _serial_read_stream; 
 
-    /** --------------------------------------------------------------------------
-     * @brief The stream for writing to the serial line
-     ----------------------------------------------------------------------------*/
+    /** 
+     *  The stream for writing to the serial line
+     */
     ACE_Asynch_Write_Stream _serial_write_stream;
 
-    /** --------------------------------------------------------------------------
-     * @brief The TTY device for the serial line
-     ----------------------------------------------------------------------------*/
+    /** 
+     *  The TTY device for the serial line
+     */
     ACE_TTY_IO _serial_dev; 
-    /** --------------------------------------------------------------------------
-     * @brief The connector used to connect to the serial line
-     ----------------------------------------------------------------------------*/
+    /** 
+     *  The connector used to connect to the serial line
+     */
     ACE_DEV_Connector _serialConnector;
     int flag;
 };

@@ -1,4 +1,4 @@
-/** =================================================================================
+/** 
  *
  *             RESCUER - IST-2003-511492 (c) 2004-2008 
  *
@@ -6,7 +6,7 @@
  *   Mechatronic Support to Bomb Disposal and Rescue Operations
  *
  * @file DGSDriver.cpp
- * @brief Contains the driver for the Dexterous Grasping System (Three finger
+ *  Contains the driver for the Dexterous Grasping System (Three finger
  * gripper)
  * @version 1.0
  * @date 20-Jun-06 1:10:28 PM ora solare Europa occidentale
@@ -15,7 +15,9 @@
  * Revisions:.
  * V1.0: Tries to make an independed SerialHandler and SerialConsole and
  * communicated them through Ace message queues
- * ===================================================================================*/
+ * @todo Fix syncronization problems in message queues
+ * @todo Fix visualization problems in the doxygen documentation
+ */
 /**
  * Defines the current "general" version of the DGSDRiver
  */
@@ -25,20 +27,20 @@
  */
 #define ACE_NTRACE 0
 /*
- * $Id: DGSDriver.cpp,v 1.4 2006-07-13 17:04:04 beltran Exp $
+ * $Id: DGSDriver.cpp,v 1.5 2006-07-14 14:05:23 beltran Exp $
  */
 #include "SerialHandler.h"
 #include "SerialConsole.h"
 
-/** --------------------------------------------------------------------------
- * @brief ACE_TMAIN The main DGC loop.
+/** 
+ *  ACE_TMAIN The main DGC loop.
  * Starts the systems and creates and initializes all other components. 
  * 
  * @param argc The number of entered parameters
  * @param argv The array containing the input parameters
  * 
  * @return 
- ----------------------------------------------------------------------------*/
+ */
 int ACE_TMAIN (int argc, ACE_TCHAR *argv[])
 {
     //ACE_TRACE("main");
@@ -46,14 +48,15 @@ int ACE_TMAIN (int argc, ACE_TCHAR *argv[])
     //return -1;
 
        
-    ACE_LOG_MSG->priority_mask ( LM_NOTICE, ACE_Log_Msg::PROCESS);
+    //ACE_LOG_MSG->priority_mask ( LM_INFO | LM_DEBUG, ACE_Log_Msg::PROCESS);
     //ACE_LOG_MSG->open(argv[0],ACE_Log_Msg::SYSLOG, ACE_TEXT("syslogTest"));
+    ACE_LOG_MSG->open(argv[0],ACE_Log_Msg::SILENT, ACE_TEXT("syslogTest"));
 
-    ACE_printf(ACE_TEXT("%I***********************************************************\n"));
-    ACE_printf(ACE_TEXT("%I*     Welcome to Dexterous Grasping System Module         *\n"));
-    ACE_printf(ACE_TEXT("%I*                      Version %1.2f                      *\n"),VERSION);
-    ACE_printf(ACE_TEXT("%I***********************************************************\n"));
-    ACE_printf(ACE_TEXT("%I                                                           \n"));
+    ACE_OS::printf(ACE_TEXT("***********************************************************\n"));
+    ACE_OS::printf(ACE_TEXT("*     Welcome to Dexterous Grasping System Module         *\n"));
+    ACE_OS::printf(ACE_TEXT("*                      Version %1.2f                       *\n"),VERSION);
+    ACE_OS::printf(ACE_TEXT("***********************************************************\n"));
+    ACE_OS::printf(ACE_TEXT("                                                           \n"));
 	
     SerialHandler serialhandler;
     if (serialhandler.initialize () == -1)
