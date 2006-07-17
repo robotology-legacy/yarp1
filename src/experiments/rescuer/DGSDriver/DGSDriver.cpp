@@ -27,10 +27,11 @@
  */
 #define ACE_NTRACE 0
 /*
- * $Id: DGSDriver.cpp,v 1.5 2006-07-14 14:05:23 beltran Exp $
+ * $Id: DGSDriver.cpp,v 1.6 2006-07-17 18:17:43 beltran Exp $
  */
 #include "SerialHandler.h"
 #include "SerialConsole.h"
+#include "DGSAcceptor.h"
 
 /** 
  *  ACE_TMAIN The main DGC loop.
@@ -57,7 +58,13 @@ int ACE_TMAIN (int argc, ACE_TCHAR *argv[])
     ACE_OS::printf(ACE_TEXT("*                      Version %1.2f                       *\n"),VERSION);
     ACE_OS::printf(ACE_TEXT("***********************************************************\n"));
     ACE_OS::printf(ACE_TEXT("                                                           \n"));
+
 	
+    u_short cld_port = ACE_DEFAULT_SERVICE_PORT;
+    ACE_INET_Addr cld_addr_;
+
+  if (cld_addr_.set (cld_port) == -1)
+    return -1;
     SerialHandler serialhandler;
     if (serialhandler.initialize () == -1)
         return -1;

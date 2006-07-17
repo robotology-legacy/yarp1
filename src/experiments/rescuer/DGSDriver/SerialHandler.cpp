@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: SerialHandler.cpp,v 1.5 2006-07-14 14:05:24 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.6 2006-07-17 18:17:43 beltran Exp $
  */
 #include <string.h>
 #include "SerialHandler.h"
@@ -204,7 +204,7 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
 
   // Check if the => command from the barrett is present in the readed buffer
   /**
-   * @todo Chech if the compartion can be done in a more eficient way
+   * @todo Chech if the comparison can be done in a more eficient way
    */
   if ( strstr(result.message_block().rd_ptr(),"=>") != NULL)
   {

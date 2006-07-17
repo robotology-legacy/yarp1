@@ -94,7 +94,15 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\DGSAcceptor.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DGSDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DGSNetworkHandler.cpp
 # End Source File
 # Begin Source File
 
@@ -110,7 +118,15 @@ SOURCE=.\SerialHandler.cpp
 # PROP Default_Filter "h"
 # Begin Source File
 
+SOURCE=.\DGSAcceptor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\DGSDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DGSNetworkHandler.h
 # End Source File
 # Begin Source File
 
