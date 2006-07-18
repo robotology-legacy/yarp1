@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: SerialHandler.cpp,v 1.6 2006-07-17 18:17:43 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.7 2006-07-18 15:52:50 beltran Exp $
  */
 #include <string.h>
 #include "SerialHandler.h"
@@ -203,10 +203,7 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
   ////this->initiate_read_stream ();
 
   // Check if the => command from the barrett is present in the readed buffer
-  /**
-   * @todo Chech if the comparison can be done in a more eficient way
-   */
-  if ( strstr(result.message_block().rd_ptr(),"=>") != NULL)
+  if ( ACE_OS::strstr(result.message_block().rd_ptr(),"=>") != NULL)
   {
       DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, result.message_block().cont()->rd_ptr());
       command_sender->putq(&result.message_block());

@@ -16,7 +16,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSAcceptor.cpp,v 1.1 2006-07-17 18:17:43 beltran Exp $
+ * RCS-ID:$Id: DGSAcceptor.cpp,v 1.2 2006-07-18 15:52:50 beltran Exp $
  */
 
 #include "DGSAcceptor.h"
@@ -41,7 +41,8 @@ void DGSAcceptor::close (void)
 DGSNetworkHandler * DGSAcceptor::make_handler (void)
 {
   DGSNetworkHandler *ih;
-  ACE_NEW_RETURN (ih, DGSNetworkHandler(this), 0);
+  ACE_NEW_RETURN (ih, DGSNetworkHandler(this, commands_consumer ,
+          console_consumer), 0);
   if (clients_.insert (ih) == -1)
     { delete ih; return 0; }
   return ih;

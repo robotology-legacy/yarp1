@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSAcceptor.h,v 1.1 2006-07-17 18:17:43 beltran Exp $
+ * RCS-ID:$Id: DGSAcceptor.h,v 1.2 2006-07-18 15:52:50 beltran Exp $
  */
 
 #ifndef _DGSAcceptorh_ 
@@ -48,6 +48,24 @@ public:
     void remove (DGSNetworkHandler *ih)
     { clients_.remove (ih); }
 
+    /** 
+     * setCommandsConsumer Set the consumer of the received commands.
+     * 
+     * @param consumer A pointer to a task with a Messages Block queue.
+     * 
+     * @return 
+     */
+    int setCommandsConsumer(DGSTask * consumer){ commands_consumer = consumer; return 0;};
+
+    /** 
+     * setConsoleConsumer Set the console that is visualicing the answers from
+     * the serial consumer.
+     * 
+     * @param consumer 
+     * 
+     * @return 
+     */
+    int setConsoleConsumer(DGSTask * consumer){ console_consumer = consumer; return 0;};
 protected:
     /** 
      * Service handler factory method.
@@ -60,6 +78,9 @@ protected:
      * Set of all connected clients.
      */
     ACE_Unbounded_Set<DGSNetworkHandler *> clients_;
+
+    DGSTask * commands_consumer;
+    DGSTask * console_consumer;
 };
 #endif
 

@@ -16,7 +16,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSNetworkHandler.cpp,v 1.1 2006-07-17 18:17:43 beltran Exp $
+ * RCS-ID:$Id: DGSNetworkHandler.cpp,v 1.2 2006-07-18 15:52:50 beltran Exp $
  */
 #include <ace/OS_NS_string.h>
 #include <ace/OS_NS_sys_socket.h>
@@ -58,17 +58,37 @@ void DGSNetworkHandler::open
  * @param result 
  */
 void DGSNetworkHandler::handle_read_stream
-    (const ACE_Asynch_Read_Stream::Result &result) {
-  if (!result.success () || result.bytes_transferred () == 0)
-  { 
-      ACE_DEBUG((LM_ERROR, ACE_TEXT("%N Line %l DGSNetworkHandler::handle_read_stream Problems receiving data from socket\n")));
-    delete this;
-  }
-  else 
-  {
-    reader_.read (*mblk_, BLOCK_SIZE);
-    ACE_OS::printf("%s", mblk_->rd_ptr());
-  }
+    (const ACE_Asynch_Read_Stream::Result &result) 
+{
+    if (!result.success () || result.bytes_transferred () == 0)
+    { 
+        ACE_DEBUG((LM_ERROR, ACE_TEXT("%N Line %l DGSNetworkHandler::handle_read_stream Problems receiving data from socket\n")));
+        delete this;
+    }
+    else 
+    {
+        mblk_->rd_ptr()[mblk_->length()] = '\0';
+        ACE_OS::printf("%s", mblk_->wr_ptr() - result.bytes_transferred());
+        //Detect the carriage return
+        if ( ACE_OS::strchr(mblk_->rd_ptr(),'\n') != NULL)
+        {
+            mblk_->rd_ptr()[mblk_->length()] = '\r';
+            //Compose a message block putting the pointer to this serial console (to
+            //be used by the serial handler to send back data)
+            ACE_Message_Block * pointer_block = 0;
+            ACE_NEW_NORETURN ( pointer_block, ACE_Message_Block( ACE_reinterpret_cast( char *, console_consumer)));
+
+            //glue both block message_block and pointer_block
+            mblk_->cont(pointer_block);
+            commands_consumer->putq(mblk_) ;
+
+            ///@todo to be sure that the consumer is erasing the message blocks
+            //Create a new message block
+            ACE_NEW_NORETURN (mblk_, ACE_Message_Block (BLOCK_SIZE));
+        }
+        
+        reader_.read (*mblk_, BLOCK_SIZE);
+    }
 }
 
 /** 

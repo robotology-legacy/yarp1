@@ -27,7 +27,7 @@
  */
 #define ACE_NTRACE 0
 /*
- * $Id: DGSDriver.cpp,v 1.6 2006-07-17 18:17:43 beltran Exp $
+ * $Id: DGSDriver.cpp,v 1.7 2006-07-18 15:52:50 beltran Exp $
  */
 #include "SerialHandler.h"
 #include "SerialConsole.h"
@@ -48,7 +48,7 @@ int ACE_TMAIN (int argc, ACE_TCHAR *argv[])
     //if (parse_args (argc, argv) == -1)
     //return -1;
 
-       
+
     //ACE_LOG_MSG->priority_mask ( LM_INFO | LM_DEBUG, ACE_Log_Msg::PROCESS);
     //ACE_LOG_MSG->open(argv[0],ACE_Log_Msg::SYSLOG, ACE_TEXT("syslogTest"));
     ACE_LOG_MSG->open(argv[0],ACE_Log_Msg::SILENT, ACE_TEXT("syslogTest"));
@@ -59,21 +59,31 @@ int ACE_TMAIN (int argc, ACE_TCHAR *argv[])
     ACE_OS::printf(ACE_TEXT("***********************************************************\n"));
     ACE_OS::printf(ACE_TEXT("                                                           \n"));
 
-	
+
     u_short cld_port = ACE_DEFAULT_SERVICE_PORT;
     ACE_INET_Addr cld_addr_;
 
-  if (cld_addr_.set (cld_port) == -1)
-    return -1;
+    if (cld_addr_.set (cld_port) == -1)
+        return -1;
+
+
     SerialHandler serialhandler;
     if (serialhandler.initialize () == -1)
         return -1;
+
 
     SerialConsole serialConsole;
     serialConsole.setCommandsConsumer(&serialhandler); 
     if (serialConsole.activate() == -1)
         return -1;
     int success = 1;
+
+    DGSAcceptor acceptor_;
+    acceptor_.setCommandsConsumer(&serialhandler);
+    acceptor_.setConsoleConsumer(&serialConsole);
+
+    if (acceptor_.open (cld_addr_) == -1) return -1;
+    ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l main DGSAcceptor Activated\n")));
 
     // dispatch events
     success = !(ACE_Proactor::run_event_loop () == -1);

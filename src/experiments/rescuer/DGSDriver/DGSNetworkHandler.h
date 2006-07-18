@@ -16,7 +16,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSNetworkHandler.h,v 1.1 2006-07-17 18:17:43 beltran Exp $
+ * RCS-ID:$Id: DGSNetworkHandler.h,v 1.2 2006-07-18 15:52:50 beltran Exp $
  */
 
 #ifndef _DGSNetworkHandlerh_
@@ -25,6 +25,7 @@
 #include <ace/Asynch_IO.h>
 #include <ace/Task.h>
 #include <ace/Message_Block.h>
+#include "DGSTask.h"
 #include "DGSAcceptor.h"
 
 #define BLOCK_SIZE 100
@@ -40,7 +41,9 @@ public:
      * 
      * @param *acc It is the acceptor that has created this.
      */
-    DGSNetworkHandler (DGSAcceptor *acc = 0): acceptor_ (acc), mblk_ (0) {}
+    DGSNetworkHandler (DGSAcceptor *acc = 0, DGSTask * com_cons = NULL, DGSTask *
+        cons_cons = NULL): acceptor_ (acc), commands_consumer(com_cons),
+    console_consumer(cons_cons), mblk_ (0) {}
 
     virtual ~DGSNetworkHandler ();
 
@@ -54,6 +57,7 @@ public:
     virtual void open (ACE_HANDLE new_handle,
         ACE_Message_Block &message_block);
 
+
 protected:
     /** 
      * This header size is from the example.
@@ -64,6 +68,8 @@ protected:
     ACE_Message_Block *mblk_;       /// Block to receive log record
     ACE_Asynch_Read_Stream reader_; /// Async read factory
     ACE_Asynch_Write_Stream writer_;
+    DGSTask * commands_consumer;
+    DGSTask * console_consumer;
 
     // Handle input from logging clients.
     virtual void handle_read_stream
