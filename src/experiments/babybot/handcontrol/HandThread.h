@@ -45,6 +45,7 @@ public:
 
 private:
 	void _computeHandPosture();
+	void _absCalibrate();
 
 	ACE_High_Res_Timer	timer;
 	ACE_Time_Value		period;

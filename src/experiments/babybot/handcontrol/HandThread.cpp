@@ -87,15 +87,75 @@ HandThread::~HandThread()
 	delete [] _shakeWait;
 }
 
+void HandThread::_absCalibrate()
+{
+
+	// do absolute calibration of the hand. this is done as follows:
+	// for each joint,
+	//     . send the joint to its hard stop,
+	//     . gather the current position and set the final position to this
+	//       minus the reference position
+	// go to the final positions and reset the encoders
+
+	double ref_pos[6] = { -20.0, -5.0, -90.0, -135.0, -85.0, -90.0 };
+	double ref_vel[6] = { 3000.0, 2000.0, 1500.0, 1500.0, -1500.0, -1500.0 };
+
+	YVector pos(6), error(6), vel(6), final_pos(6);
+	error = 0.0; vel = 0.0; final_pos = 0.0;
+
+	for ( int i=1; i<=6; ++i ) {
+		cout << "Joint #" << i << "... "; cout.flush();
+		// issue velocity command
+		vel(i) = ref_vel[i-1];
+		_hand.velocityMoves(vel.data());
+		// wait for the hard stop to be reached (error spikes)
+		error = 0.0;
+		while ( error.norm2()<100 ) {
+			_hand.input();
+			_hand.getMotorErrors(error.data());
+		}
+		// stop joint
+		vel(i) = 0.0;
+		_hand.velocityMoves(vel.data());
+		// get current position
+		_hand.input();
+		_hand.getPositions(pos.data());
+//		cout << " stopped at " << pos(i)*180/3.1415 << "." << endl;
+		cout << " done." << endl;
+		// gather final position: correct this with the reference position
+		final_pos(i) = pos(i)-ref_pos[i-1]*3.1415/180;
+		// reset joint to its final position
+		_hand.setPositions(final_pos.data());
+//		while ( _hand.isMoving() ) _hand.input();
+		YARPTime::DelayInSeconds(2.0);
+	}
+
+	// reset encoders
+	_hand.resetEncoders();
+
+//	fprintf(stdout, "Newhome (%.2lf,%.2lf,%.2lf,%.2lf,%.2lf,%.2lf).\n",
+//			final_pos[0]*180/3.1415, final_pos[1]*180/3.1415, final_pos[2]*180/3.1415,
+//			final_pos[3]*180/3.1415, final_pos[4]*180/3.1415, final_pos[5]*180/3.1415);
+
+}
+
 void HandThread::doInit()
 {
+
+	char c;
+
 	_hand.initialize(_path, _cfgFile);
 	_hand.idleMode();
 	_hand.resetEncoders();
 
 	cout << "Turn on the hand and press any key...\n";
-	int c = getc(stdin);
+	cin >> c;
 	_hand.activatePID();
+
+	cout << "Now doing absolute calibration:\n";
+	_absCalibrate();
+	cout << "done.\n";
+
 }
 
 void HandThread::doLoop()

@@ -73,7 +73,10 @@ private:
 	//move the head to 0
 	void park(int flag);
 
-	void calibrateInertial();
+//	void calibrateInertial();
+
+    // do absolute calibration
+    void absCalibrate();
 
 	YVector _deltaQ;				// command
 	double  _deltaT;				// thread rate (s)

@@ -2,6 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+//#include <>
 #include "HeadThread.h"
 
 #include <iostream>
@@ -88,6 +89,100 @@ HeadThread::~HeadThread()
 	delete _fsm;
 }
 
+void HeadThread::absCalibrate()
+{
+
+	// this routine sends all joints, in turn, off to their hard limits;
+	// gathers the extremum positions; and then sets the mean positions
+	// and resets the system, so that the zero position is always the same.
+
+	// gather admissible accelerations from cfg file
+	YARPConfigFile cfg;
+	cfg.set(_path, _iniFile);
+	YVector cfg_vel(_head.nj()), cfg_acc(_head.nj());
+	cfg.get("[THREAD]", "Accelerations", cfg_acc.data(), _head.nj());
+	cfg.get("[THREAD]", "Speeds", cfg_vel.data(), _head.nj());
+
+	std::cout << "Doing absolute calibration." << std::endl;
+
+	YVector old_pos(_head.nj()), vel(_head.nj()), pos(_head.nj());
+	YVector start_vel(_head.nj());
+	YVector meanPosition(_head.nj());
+	vel = 0.0; meanPosition = 0.0;
+
+	for ( int i=1; i<=_head.nj(); ++i ) {
+
+		// cannot calibrate the eyes - the motor slips.
+		if ( i==4 || i==5 ) continue;
+		
+		std::cout << "Joint " << i << "... ";
+		double lowerLimit, upperLimit;
+
+		_head.getPositions(pos.data());
+		lowerLimit = pos(i);
+
+		// gather lower limit
+		old_pos = 0.0;
+		vel(i) = -35.0;
+		_head.velocityMove(vel.data());
+		while(true) {
+			YARPTime::DelayInSeconds(.2);
+			_head.getPositions(pos.data());
+			if ( fabs(lowerLimit-pos(i))<1.0 ) continue;
+//			std::cout << ".";
+			if ( pos(i) == old_pos(i) ) {
+				// stop the motion
+				vel(i) = 0.0;
+				_head.velocityMove(vel.data());
+				break;
+			}
+			old_pos = pos;
+		}
+		lowerLimit = pos(i);
+//		std::cout << "o";
+
+		// gather upper limit
+		old_pos = 0.0;
+		vel(i) = 35.0;
+		_head.velocityMove(vel.data());
+		while(true) {
+			YARPTime::DelayInSeconds(.2);
+			_head.getPositions(pos.data());
+			if ( fabs(lowerLimit-pos(i))<1.0 ) continue;
+//			std::cout << ".";
+			if ( pos(i) == old_pos(i) ) {
+				vel(i) = 0.0;
+				_head.velocityMove(vel.data());
+				break;
+			}
+			old_pos = pos;
+		}
+		upperLimit = pos(i);
+//		std::cout << "o";
+
+		// evaluate mean position, wrt current zero
+		meanPosition(i) = __min(upperLimit,lowerLimit)+fabs(upperLimit-lowerLimit)/2.0;
+		
+		// now send the joint to its mean position
+		std::cout << ".done. Now going to newhome... ";
+//		std::cout << "Now sending joint to " << meanPosition(i);
+		vel(i) = -35.0;
+		_head.setVelocities(vel.data());
+		_head.setAccs(cfg_acc.data());
+		_head.setPositions(meanPosition.data());
+		while(!_head.checkMotionDone()) {
+//			std::cout << ".";
+			ACE_OS::sleep(ACE_Time_Value(0,200000));
+		}
+		std::cout << "done." << std::endl;
+		vel = 0.0;
+	}
+
+	std::cout << "Done." << std::endl << std::endl;
+//	std::cout << "mean positions: " << meanPosition << std::endl;
+
+}
+
 void HeadThread::doInit()
 {
 	if (!_askHib)
@@ -95,16 +190,16 @@ void HeadThread::doInit()
 		// start head
 		_head.idleMode();
 		_head._status._pidStatus = 0;
-		std::cout << "--> Head is idle. Calibrate it manually then press any key + return\n";
-		char c;
-		std::cin >> c;
-		std::cout << "Ok, setting velocity mode\n";
+
+		std::cout << "--> Head is idle. Turn it on then press any key.\n";
+		std::cout.flush(); char c; std::cin >> c;
 	
 		_head.activatePID();
 		_head._status._pidStatus = 1;
+		absCalibrate();
+		_head.activatePID();
 
 		park(1);
-
 		_head.calibrate();
 	}
 	else
@@ -163,6 +258,11 @@ void HeadThread::doLoop()
 	_head._status._velocity /= 10;		// normalize (hell, WHY!!!!)
 
 	_head.readAnalogs(_inertial.data());
+
+//	std::cout << "inertial: "
+//			  << _inertial(1) << " "
+//			  << _inertial(2) << " "
+//			  << _inertial(3) << "             \r";
 
 	// poll input port
 	if (_inPort.Read(0))
