@@ -24,6 +24,8 @@ const int __defaultRate = 40;
 const YARPString __defaultName = "/touch/o";
 const int __nSensors = 17;
 
+int counter = 0;
+
 // we keep a history of 3 elements and we apply a median filter
 class MyThread : public YARPRateThread
 {
@@ -78,6 +80,7 @@ public:
 	void _filter()
 	{
 		double tmp[3];
+//		ACE_OS::printf("%4d ", counter++);
 		for(int j = 1; j<=__nSensors; j++)
 		{
 			tmp[0] = _history[0](j);
@@ -86,9 +89,9 @@ public:
 
 			sort(tmp);
 			_readings(j) = tmp[1];
-			//ACE_OS::printf("%lf ",tmp[1]);
+//			ACE_OS::printf("%3.lf ",tmp[1]);
 		}
-		//ACE_OS::printf("\n");
+//		ACE_OS::printf("\r");
 	}
 
 	// bubble sort with 3 elements

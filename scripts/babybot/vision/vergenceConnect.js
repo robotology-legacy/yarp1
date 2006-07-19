@@ -7,7 +7,6 @@ WshShell.Run ("yarp-connect /left/o:img /vergence/i:left", 7, true);
 WshShell.Run ("yarp-connect /vergence/o:histo /viewvergence/i:img", 7, true);
 
 WshShell.Run ("yarp-connect /headcontrol/position/o /vergence/head/i", 7, true);
-WshShell.Run ("yarp-connect /vergence/o:disparity /headvergence/i", 7, true);
 
 // WshShell.Run ("yarp-connect /vergence/o:histo2 /viewvergence2/i:img", 7, true);
 // WshShell.Run ("yarp-connect /vergence/o:img /viewvergence3/i:img", 7, true);
