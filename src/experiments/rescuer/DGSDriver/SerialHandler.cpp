@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: SerialHandler.cpp,v 1.7 2006-07-18 15:52:50 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.8 2006-07-20 19:05:17 beltran Exp $
  */
 #include <string.h>
 #include "SerialHandler.h"
@@ -183,15 +183,15 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
     //ACE_TRACE("SerialHandler::handle_read_stream");
   ACE_DEBUG ((LM_DEBUG,ACE_TEXT( "handle_read_stream called\n")));
 
-  ACE_DEBUG ((LM_DEBUG, "********************\n"));
-  ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "bytes_to_read", result.bytes_to_read ()));
-  ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "handle", result.handle ()));
-  ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "bytes_transfered", result.bytes_transferred ()));
-  ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "act", (u_long) result.act ()));
-  ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "success", result.success ()));
-  ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "completion_key", (u_long) result.completion_key ()));
-  ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "error", result.error ()));
-  ACE_DEBUG ((LM_DEBUG, "********************\n"));
+  //ACE_DEBUG ((LM_DEBUG, "********************\n"));
+  //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "bytes_to_read", result.bytes_to_read ()));
+  //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "handle", result.handle ()));
+  //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "bytes_transfered", result.bytes_transferred ()));
+  //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "act", (u_long) result.act ()));
+  //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "success", result.success ()));
+  //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "completion_key", (u_long) result.completion_key ()));
+  //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "error", result.error ()));
+  //ACE_DEBUG ((LM_DEBUG, "********************\n"));
   // Watch out if you need to enable this... the ACE_Log_Record::MAXLOGMSGLEN/*{{{*/
   // value controls to max length of a log record, and a large output
   // buffer may smash it.

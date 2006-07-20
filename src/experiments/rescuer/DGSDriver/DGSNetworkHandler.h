@@ -16,7 +16,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSNetworkHandler.h,v 1.2 2006-07-18 15:52:50 beltran Exp $
+ * RCS-ID:$Id: DGSNetworkHandler.h,v 1.3 2006-07-20 19:05:17 beltran Exp $
  */
 
 #ifndef _DGSNetworkHandlerh_
@@ -33,7 +33,7 @@ class DGSAcceptor;
 /** 
  * @class DGSNetworkHandler
  */
-class DGSNetworkHandler : public ACE_Service_Handler
+class DGSNetworkHandler : public DGSTask, public ACE_Service_Handler
 {
 public:
     /** 
@@ -63,21 +63,36 @@ protected:
      * This header size is from the example.
      * @todo Use a similar constant to fix the DGS Header size
      */
-    enum { LOG_HEADER_SIZE = 8 };   /// Length of CDR header
-    DGSAcceptor *acceptor_;         /// Our creator
-    ACE_Message_Block *mblk_;       /// Block to receive log record
-    ACE_Asynch_Read_Stream reader_; /// Async read factory
-    ACE_Asynch_Write_Stream writer_;
-    DGSTask * commands_consumer;
-    DGSTask * console_consumer;
+    enum { LOG_HEADER_SIZE = 8 };    /// Length of CDR header
+    DGSAcceptor *acceptor_;          /// Our creator
+    ACE_Message_Block *mblk_;        /// Block to receive log record
+    ACE_Asynch_Read_Stream reader_;  /// Async reading stream
+    ACE_Asynch_Write_Stream writer_; /// Asynch writing stream
+    DGSTask * commands_consumer;     /// The consumer of command received
+    DGSTask * console_consumer;      /// An external console consumer
 
-    // Handle input from logging clients.
+    /** 
+     * handle_read_stream Handle input form loggin clients
+     * 
+     * @param result 
+     */
     virtual void handle_read_stream
         (const ACE_Asynch_Read_Stream::Result &result);
 
-    // Handle the asynchronous writing
+    /** 
+     * handle_write_stream Handle the asynchronous writing
+     * 
+     * @param result 
+     */
     virtual void handle_write_stream
         (const ACE_Asynch_Read_Stream::Result &result);
+
+    /** 
+     * svc The svc task reading from the message queue
+     * 
+     * @return 
+     */
+    virtual int svc();
 };
 #endif
 

@@ -16,7 +16,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSNetworkHandler.cpp,v 1.2 2006-07-18 15:52:50 beltran Exp $
+ * RCS-ID:$Id: DGSNetworkHandler.cpp,v 1.3 2006-07-20 19:05:17 beltran Exp $
  */
 #include <ace/OS_NS_string.h>
 #include <ace/OS_NS_sys_socket.h>
@@ -42,8 +42,15 @@ DGSNetworkHandler::~DGSNetworkHandler () {
  * @param  
  */
 void DGSNetworkHandler::open
-  (ACE_HANDLE new_handle, ACE_Message_Block &) {
+  (ACE_HANDLE new_handle, ACE_Message_Block &)
+{
+
+  // Link the handle with the reader stream
   reader_.open (*this, new_handle, 0, proactor ());
+  // Link the handle with the writer stream
+  writer_.open (*this, new_handle, 0, proactor ());
+
+  this->activate(); ///Activate the svc message queue reading.
   
   ACE_NEW_NORETURN
     (mblk_, ACE_Message_Block (BLOCK_SIZE));
@@ -67,8 +74,8 @@ void DGSNetworkHandler::handle_read_stream
     }
     else 
     {
-        mblk_->rd_ptr()[mblk_->length()] = '\0';
-        ACE_OS::printf("%s", mblk_->wr_ptr() - result.bytes_transferred());
+        ////mblk_->rd_ptr()[mblk_->length()] = '\0';
+        ////ACE_OS::printf("%s", mblk_->wr_ptr() - result.bytes_transferred());
         //Detect the carriage return
         if ( ACE_OS::strchr(mblk_->rd_ptr(),'\n') != NULL)
         {
@@ -76,7 +83,7 @@ void DGSNetworkHandler::handle_read_stream
             //Compose a message block putting the pointer to this serial console (to
             //be used by the serial handler to send back data)
             ACE_Message_Block * pointer_block = 0;
-            ACE_NEW_NORETURN ( pointer_block, ACE_Message_Block( ACE_reinterpret_cast( char *, console_consumer)));
+            ACE_NEW_NORETURN ( pointer_block, ACE_Message_Block( ACE_reinterpret_cast( char *, this)));
 
             //glue both block message_block and pointer_block
             mblk_->cont(pointer_block);
@@ -99,5 +106,31 @@ void DGSNetworkHandler::handle_read_stream
 void DGSNetworkHandler::handle_write_stream
     (const ACE_Asynch_Read_Stream::Result &result)
 {
+    ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l DGSNetworkHandler::handle_write_stream I have sent back data\n")));
+    result.message_block().release();
+}
+
+/** 
+ * DGSNetworkHandler::svc Reads from the message queue and sends it back to the
+ * network client.
+ * 
+ * @return 
+ */
+int DGSNetworkHandler::svc()
+{
+    ACE_TRACE("DGSNetworkHandler::svc");
+    ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l DGSNetworkHandler::svc Starting SVC\n"))); 
+
+    for (;;)
+    {
+        ACE_Message_Block * response_block;
+        getq(response_block);
+        ACE_DEBUG((LM_DEBUG, ACE_TEXT("%N Line %l DGSNetworkHandler::svc Getting a message\n"))); 
+        writer_.write( *response_block, response_block->length());
+        ACE_DEBUG((LM_DEBUG, ACE_TEXT("%N Line %l DGSNetworkHandler::svc Sending a message back\n"))); 
+        //response_block->release();
+    }
+    ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l DGSNetworkHandler::svc Finising SVC\n")));
+    return 0;
 }
 

@@ -27,7 +27,7 @@
  */
 #define ACE_NTRACE 0
 /*
- * $Id: DGSDriver.cpp,v 1.7 2006-07-18 15:52:50 beltran Exp $
+ * $Id: DGSDriver.cpp,v 1.8 2006-07-20 19:05:17 beltran Exp $
  */
 #include "SerialHandler.h"
 #include "SerialConsole.h"
@@ -49,9 +49,9 @@ int ACE_TMAIN (int argc, ACE_TCHAR *argv[])
     //return -1;
 
 
-    //ACE_LOG_MSG->priority_mask ( LM_INFO | LM_DEBUG, ACE_Log_Msg::PROCESS);
+    ACE_LOG_MSG->priority_mask ( LM_INFO | LM_DEBUG | LM_NOTICE, ACE_Log_Msg::PROCESS);
     //ACE_LOG_MSG->open(argv[0],ACE_Log_Msg::SYSLOG, ACE_TEXT("syslogTest"));
-    ACE_LOG_MSG->open(argv[0],ACE_Log_Msg::SILENT, ACE_TEXT("syslogTest"));
+    //ACE_LOG_MSG->open(argv[0],ACE_Log_Msg::SILENT, ACE_TEXT("syslogTest"));
 
     ACE_OS::printf(ACE_TEXT("***********************************************************\n"));
     ACE_OS::printf(ACE_TEXT("*     Welcome to Dexterous Grasping System Module         *\n"));
