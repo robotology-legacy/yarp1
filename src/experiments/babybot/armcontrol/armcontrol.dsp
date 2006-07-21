@@ -135,6 +135,10 @@ SOURCE=.\ArmBehavior.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ArmFSM.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ArmFSMStates.h
 # End Source File
 # Begin Source File

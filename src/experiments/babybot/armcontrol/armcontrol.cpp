@@ -61,6 +61,7 @@ int main(int argc, char* argv[])
 	ABSimpleOutput outputArmIsBusy(YBVArmIsBusy);
 	ABInputCommand inputCmd(YBVArmNewCmd);
 	ABInputCommand forceCmd(YBVArmForceNewCmd);
+	ABInputCommand forceVelCmd(YBVArmForceNewVelCmd);
 	ABInputShakeCommand inputShk(YBVArmShake);
 	ABSimpleInput inputRest(YBVArmRest);
 	ABSimpleInput checkRestDone(YBVArmRestDone);
@@ -90,6 +91,7 @@ int main(int argc, char* argv[])
 	// shake and arm command
 	_arm.add(&inputCmd, &waitIdle, &waitMotion, &outputCmd);
 	_arm.add(&forceCmd, &waitIdle, &waitInhibition , &outputInhibitRestTrue);
+	_arm.add(&forceVelCmd, &waitIdle, &waitInhibition , &outputInhibitRestTrue);
 	_arm.add(NULL, &waitInhibition, &waitMotion, &outputCmdForce);
 	_arm.add(&inputShk, &waitIdle, &waitMotion, &outputShk);
 	_arm.add(&checkMotionDone, &waitMotion, &waitIdle);
@@ -108,6 +110,7 @@ int main(int argc, char* argv[])
 	_arm.add(&checkRestDone, &waitRest, &waitIdle);
 	_arm.add(&inputCmd, &waitRest, &waitRest, &outputArmIsBusy);
 	_arm.add(&forceCmd, &waitRest, &waitInhibition , &outputInhibitRestTrue);
+	_arm.add(&forceVelCmd, &waitRest, &waitInhibition , &outputInhibitRestTrue);
 	
 	// set stiffness
 	_arm.add(&setStiffness, &waitIdle, &setStiffnessState1);

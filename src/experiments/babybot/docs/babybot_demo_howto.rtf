@@ -1,23 +1,25 @@
 {\rtf1\ansi\ansicpg1252\deff0\deflang1033\deflangfe1033{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;}{\f1\froman\fprq2\fcharset0 Times New Roman;}{\f2\froman\fprq2\fcharset2 Symbol;}{\f3\fmodern\fprq1\fcharset0 Courier New;}}
+{\colortbl ;\red255\green0\blue0;}
 {\stylesheet{ Normal;}{\s1 heading 1;}{\s2 heading 2;}{\s3 heading 3;}}
 \viewkind4\uc1\pard\keepn\nowidctlpar\s1\sb240\sa60\kerning32\b\f0\fs32 Running the Babybot demo\par
 \pard\nowidctlpar\lang2057\kerning0\b0\f1\fs24 Claudio Castellini, March/June 2006\par
 \pard\keepn\nowidctlpar\s2\lang1033\b\f0\fs28 1. Introduction\par
-\pard\nowidctlpar\b0\f1\fs24 This manual will enable you to run Babybot\rquote s demos, from the simplest to the most complex one. This manual is a follow-up to the \i Babybot HOWTO\i0 , which I will assume you have read and understood. In particular, I will assume \i you are at the final stage of the Babybot HOWTO\i0 , end of Section 2. We start from a point in which the robot is ready to accept your commands via \i sendCmd\i0 .\par
-All preliminaries and notes to the previous manual apply.\par
-There is a number of demos that can be given with Babybot, in ascending order of complexity; some of them heavily depend on the arm/head/hand calibration, so chances are that they won\rquote t work the first time you try and run them. Pay particular attention to the indication about calibration, referring especially to the Appendix, in which some hints about it are given. \b Warning: \b0 this is correct as of the above indicated date, and there is \i no guarantee\i0  it will still work fine when you read this. You should check everything is fine, and this Manual is up to date, with the people working on Babybot and with Matteo, our sysadm, \i before\i0  attempting to do anything whatsoever.\par
+\pard\nowidctlpar\b0\f1\fs24 This manual will enable you to run Babybot\rquote s demos, from the simplest to the most complex one. This manual is a follow-up to the \i Babybot HOWTO\i0 , which I will assume you have read and understood. In particular, I will assume \i you are at the final stage of the Babybot HOWTO\i0 , end of Section 2. We start from a point in which the robot is ready to accept your commands via \i sendCmd\i0 . All preliminaries and notes to the previous manual apply.\par
+There is a number of demos that can be given with Babybot, in ascending order of complexity; some of them heavily depend on the arm/head/hand calibration, so chances are that they won\rquote t work the first time you try and run them.\par
+\b Warning: \b0 this is correct as of the above indicated date, and there is \i no guarantee\i0  it will still work fine when you read this. You should check everything is fine, and this Manual is up to date, with the people working on Babybot and with Matteo, our sysadm, \i before\i0  attempting to do anything whatsoever.\par
 \pard\keepn\nowidctlpar\s2\b\f0\fs28 2. Vision\par
-\pard\nowidctlpar\fi-360\li720\tx720\b0\f2\fs24\'b7\tab\f1 Launch \i vision/vergenceRun.js\i0  and \i vision/vergenceConnect.js.\i0  A camview will appear on \f3 circe\f1 , showing the animated graph of vergence.\par
-\f2\'b7\tab\f1 Launch \i vision/trackerRun.js, vision/trackerViewer.js\i0  and \i vision/trackerConnect.js\i0 . A camview will appear on \f3 cariddi\f1 , showing the tracking point of the robot.\par
+\pard\nowidctlpar\fi-360\li720\tx720\b0\f2\fs24\'b7\tab\f1 Launch \i vision/trackerRun.js\i0  and \i vision/trackerConnect.js\i0 . A camview will appear on \f3 cariddi\f1 , showing the tracking point of the robot.\par
 \pard\nowidctlpar\b\i Demo: \i0 show that whatever you move in the robot view field, the tracking point will follow.\par
+\b0 Here no head movement will be performed; the tracing point will obviously stop following the moving object when it gets out of the view field.\b\par
 \b0 We then move on to having the robot head follow any moving object.\par
-\pard\nowidctlpar\fi-360\li720\tx720\f2\'b7\tab\f1 Launch \i vision/handTracker.js, vision/handTrackerViewer.js \i0 and \i vision/handTrackerConnect.js\i0 . A camview will appear on \f3 hades\f1 , showing a circle where the hand is. At this point, check carefully that \i the circle indicates exactly the palm of the hand\i0 . There is no image processing magic behind that - it heavily relies on the calibration of the head; therefore, if the hand tracker is not indicating the hand correctly, you need to re-calibrate the head and/or the arm. Check the Appendix.\par
-\pard\nowidctlpar\fi-360\li720\f2\'b7\tab\f1 Launch \i behaviors/hControlRun.js\i0 ,\i  behaviors/hControlConnect.js\i0 ,\i  behaviors/hSaccades.js\i0 ,\i  \i0 and \i behaviors/hSaccadesConnect.js\i0 . As a result of this, eight programs will be started on \f3 thaumas\f1 , and a further camview will appear on \f3 circe\f1 , showing the robot\rquote s view field.\par
-\f2\'b7\tab\f1 Issue \i SinkRelease \i0 in \i sendCmd\i0 .\par
+\pard\nowidctlpar\fi-360\li720\tx720\f2\'b7\tab\f1 Launch \i vision/vergenceRun.js\i0  and \i vision/vergenceConnect.js.\i0  A camview will appear on \f3 circe\f1 , showing the animated graph of vergence.\par
+\f2\'b7\tab\f1 Launch \i vision/handTrackerRun.js \i0 and \i vision/handTrackerConnect.js\i0 . A camview will appear on \f3 hades\f1 , showing a circle where the hand is. At this point, check carefully that \i the circle indicates exactly the palm of the hand\i0 .\par
+\pard\nowidctlpar\fi-360\li720\f2\'b7\tab\f1 Launch \i behaviors/hControlRun.js\i0 ,\i  behaviors/hControlConnect.js\i0 ,\i  behaviors/hSaccadesRun.js\i0 ,\i  \i0 and \i behaviors/hSaccadesConnect.js\i0 . As a result of this, eight programs will be started on \f3 thaumas\f1 , and a further camview will appear on \f3 circe\f1 , showing the robot\rquote s view field.\par
+\f2\'b7\tab\f1 Issue \i SinkRelease \i0 in \i sendCmd\i0 . You should see the right eye "verge", and then the two foveas showing some very similar images. \i If this does not happen, something is wrong with vergence, and nothing else will work. \i0 Repeat the steps so far.\par
 \f2\'b7\tab\f1 Issue \i SinkSaccadeMode \i0 in \i sendCmd\i0 .\par
 \pard\nowidctlpar In the \i Saccade \i0 mode, activated by the \i SinkSaccadeMode\i0  command, the robot saccades to anything you point to in the visual field.\par
 \b\i Demo 2: \i0 show that the robot saccades to an object you click upon with the mouse in the view field, shown in the camview on \f3 circe\f1 .\par
-\b0 Chances are that the saccades could be slow, the clickable camview responding with a large delay to your double click. If this is the case, you might need to recheck that all applications are correctly connected to one another - if necessary, activate the \ldblquote disconnect\rdblquote  scripts related to the previous steps (e.g., \i behaviors/hSaccadesDisconnect.js\i0  and \i behaviors/hControlDisconnect.js\i0 ), and then the \ldblquote connect\rdblquote  scripts again (e.g., \i behaviors/hSaccadesConnect.js\i0  and \i behaviors/hControlConnect.js\i0 ).\par
+\b0 Chances are that the saccades could be slow, the clickable camview responding with a large delay to your double click. If this is the case, you might need to recheck that all applications are correctly connected to one another - if necessary, relaunch the \ldblquote connect\rdblquote  scripts related to the previous steps (e.g., \i behaviors/hSaccadesConnect.js\i0  and \i behaviors/hControlConnect.js\i0 ). They will automatically disconnect and reconnect everything.\par
 The machine called \f3 circe\f1  is crucial for this demo - also check that there are no spurious applications running on it, subtracting CPU time to the two camviews on it. \i If this demo does not work properly, nothing else will.\i0\par
 Now we switch to the \i Tracking \i0 mode and try and track a user\rquote s finger.\par
 \pard\nowidctlpar\fi-360\li720\tx720\f2\'b7\tab\f1 Issue \i SinkTrackingMode\i0  in \i sendCmd\i0 .\par
@@ -33,9 +35,9 @@ You can repeatedly switch back and forth between demos 2, 3 and 4 by following t
 \pard\keepn\nowidctlpar\s2\b\f0\fs28 3. Grasping\par
 \pard\nowidctlpar\b0\f1\fs24 Now get back to the \i Saccade \i0 mode. Then,\par
 \pard\nowidctlpar\fi-360\li720\tx720\f2\'b7\tab\f1 Launch \i Matlab \i0 on \f3 rhea\f1 , then launch \i %YARP_ROOT%/src/experiments/babybot/handkinematics/handkinematics.m \i0 from within \i Matlab\i0 . A window with a schema of the robot hand will open up on \f3 rhea\f1 .\par
-\pard\nowidctlpar\fi-360\li720\f2\'b7\tab\f1 Launch \i vision/visualAttention.js, vision/visualAttentionViewers.js, vision/visualAttentionConnect.js, vision/visualAttentionViewersConnect.js \i0 and \i vision/visualAttentionToSaccades.js\i0 . As a result, an application will start up on \f3 scilla\f1 , and three camview will open up on \f3 hades\f1 , showing the colour blobs the robot can find in its own view field.\par
-\f2\'b7\tab\f1 Launch \i behaviors/reachingRun.js \i0 and \i behaviors/reachingConnect.js\i0 . As a result, a program will be started on \f3 rhea\f1 .\par
-\pard\nowidctlpar Now the robot will be able to saccade to \i and grasp \i0 an object clicked upon in the camview on \f3 circe\f1 .\par
+\pard\nowidctlpar\fi-360\li720\f2\'b7\tab\f1 Launch \i vision/visualAttentionRun.js, vision/visualAttentionConnect.js \i0 and \i vision/visualAttentionToSaccades.js\i0 . As a result, an application will start up on \f3 scilla\f1 , and three camview will open up on \f3 hades\f1 , showing the colour blobs the robot can find in its own view field.\par
+\cf1\f2\'b7\tab\f1 Launch \i behaviors/reachingRun.js \i0 and \i behaviors/reachingConnect.js\i0 . As a result, a program will be started on \f3 rhea\f1 .\par
+\pard\nowidctlpar\cf0 Now the robot will be able to saccade to \i and grasp \i0 an object clicked upon in the camview on \f3 circe\f1 .\par
 \b\i Demo 5: \i0 show that the robot grasps an object you click upon in the camview.\par
 \b0 If this does not work, i.e., it grasps in the wrong place or it cannot grasp because the hand is ill-positioned, you have to recalibrate the robot. See the Appendix again - if you have got to this point well, but Demo 5 fails, it will mostly be a problem with the hand calibration (if the grasping fails) or the arm/head calibration (if the grasping happens far away from the target).\par
 Lastly, we go for the most scenic demo.\par
@@ -52,21 +54,13 @@ Lastly, we go for the most scenic demo.\par
 \pard\nowidctlpar\fi-377\li737 (2)\tab\par
 (3)\tab\par
 (4)\tab Launch \i behaviors/reachingSlay.js\i0 , then launch \i vision/visualAttentionSlay.js\i0 . Now manually kill the three blob camviews on \f3 hades\f1 .\par
-(5)\tab Shut down \i Matlab \i0 on \f3 rhea\f1 . This will usually cause a general protection fault - do not care.\par
+(5)\tab Shut down \i Matlab \i0 on \f3 rhea\f1 .\par
 \pard\nowidctlpar\s3\f0 Vision\par
 \pard\nowidctlpar\fi-377\li737\tx737\f1 (1)\tab Launch \i behaviors/hSaccadesSlay.js \i0 and \i behaviors/hControlSlay.js\i0 . As a result, all applications launched previously on \f3 thaumas \f1 should die, except \i headcontrol.exe \i0 of course, which was already up\rquote n\rquote running before starting the whole lot.\par
 \pard\nowidctlpar\fi-377\li737 (2)\tab Launch \i vision/handTrackerSlay.js.\i0  As a result, all applications on \f3 hades\f1  should die.\par
 (3)\tab Launch \i vision/trackerSlay.js.\i0  Then manually kill the related camview on \f3 cariddi\f1 .\par
 (4)\tab Launch \i vision/vergenceSlay.js.\i0  As a result, all applications on \f3 circe\f1  should die.\par
 \pard\nowidctlpar At this point, you should be exactly at the point you started from: Babybot ready to accept commands via \i sendCmd\i0 . If you need to shut everything down, please follow the shutdown instructions in the \i Babybot HOWTO\i0 .\par
-\pard\keepn\nowidctlpar\s2\b\f0\fs28 5. Appendix: calibration\par
-\pard\nowidctlpar\b0\f1\fs24 As we have said in the \i Babybot HOWTO\i0 , setting Babybot up is modular and can be split. (This is absolutely not true for the demos!) The calibration must be done while the robot is parked and not actuated; so, if you are at the start of the whole procedure, be sure to calibrate before activating the red button; if you are already into the procedure, then you might want to selectively deactivate one of the parts of the robot (arm, head, hand), calibrate it, then revive it and reconnect it. You do not really need to turn everything off (i.e., switching off the power supply).\par
-To selectively turn off a part, issue the related \ldblquote quit\rdblquote  command in \i sendCmd: ArmQuit\i0 , \i HeadQuit \i0 or \i HandQuit\i0 . To revive it, repeat the related procedure described in the \i Babybot HOWTO\i0 . You will then have to redo all the connections regarding the part (e.g., to sensors or modules for visual attention, etc.)\par
-\pard\nowidctlpar\s3\f0 Calibrating the head\par
-\pard\nowidctlpar\f1\par
-\pard\nowidctlpar\s3\f0 Calibrating the hand\par
-\pard\nowidctlpar\f1\par
-\pard\nowidctlpar\s3\f0 Calibrating the arm\par
-\pard\nowidctlpar\f1\par
+\par
 }
  
