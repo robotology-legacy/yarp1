@@ -15,7 +15,6 @@ _handForceOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	
 	_cfgFile = YARPString(cfgF);
 	_path = YARPString(path);
-		
 
 	_fsm = new HandFSM(&_hand);
 
@@ -95,10 +94,13 @@ void HandThread::_absCalibrate()
 	//     . send the joint to its hard stop,
 	//     . gather the current position and set the final position to this
 	//       minus the reference position
-	// go to the final positions and reset the encoders
+	// go to the final position
 
-	double ref_pos[6] = { -20.0, -5.0, -90.0, -135.0, -85.0, -90.0 };
-	double ref_vel[6] = { 3000.0, 2000.0, 1500.0, 1500.0, -1500.0, -1500.0 };
+	YARPConfigFile cfg;
+	double ref_pos[6], ref_vel[6];
+	cfg.set(_path, _cfgFile);
+	cfg.get("[THREAD]", "CalRefPos", ref_pos, 6);
+	cfg.get("[THREAD]", "CalRefVel", ref_vel, 6);
 
 	YVector pos(6), error(6), vel(6), final_pos(6);
 	error = 0.0; vel = 0.0; final_pos = 0.0;
@@ -130,9 +132,6 @@ void HandThread::_absCalibrate()
 		YARPTime::DelayInSeconds(2.0);
 	}
 
-	// reset encoders
-	_hand.resetEncoders();
-
 //	fprintf(stdout, "Newhome (%.2lf,%.2lf,%.2lf,%.2lf,%.2lf,%.2lf).\n",
 //			final_pos[0]*180/3.1415, final_pos[1]*180/3.1415, final_pos[2]*180/3.1415,
 //			final_pos[3]*180/3.1415, final_pos[4]*180/3.1415, final_pos[5]*180/3.1415);
@@ -144,16 +143,25 @@ void HandThread::doInit()
 
 	char c;
 
+	// initialise
 	_hand.initialize(_path, _cfgFile);
+	
+	// stop motors, reset encoders
 	_hand.idleMode();
 	_hand.resetEncoders();
 
+	// now the user gives us power, then we activate the pid
 	cout << "Turn on the hand and press any key...\n";
 	cin >> c;
 	_hand.activatePID();
 
+	// absolute calibration
 	cout << "Now doing absolute calibration:\n";
 	_absCalibrate();
+	// re-reset encoders and set new pid values
+	_hand.idleMode();
+	_hand.resetEncoders();
+	_hand.activatePID();
 	cout << "done.\n";
 
 }
@@ -166,7 +174,7 @@ void HandThread::doLoop()
 
 	_hand.getPositions(_motorJoints.data());
 	_hand.getHallRaw(_hallEncodersRaw.data());
-	
+
 	_computeHandPosture();
 
 	_handStatusOut.Content() = _posture;
