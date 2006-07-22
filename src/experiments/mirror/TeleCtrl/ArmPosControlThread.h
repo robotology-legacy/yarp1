@@ -19,9 +19,10 @@ public:
 	ArmPosControlThread(const double frequency, YARPOutputPortOf<YARPBabyBottle>& outPort,
 		YARPSemaphore& sema, bool enabled=true)
 		: ControlThread(frequency, sema, enabled),
-	  _outPort(outPort), _wristPitch(-70*DegRad,70*DegRad),
-	  _armInit0(20), _armInit1(25), _armInit2(-40),
-	  _armInit3(0), _armInit4(0), _armInit5(-160) {}
+	  _outPort(outPort),
+	  _wristRoll(0,90), _wristPitch(50,-50),
+	  _armInit0(25), _armInit1(25), _armInit2(-40),
+	  _armInit3(0), _armInit4(-20), _armInit5(-180) {}
 
 	void Body (void);
 	void calibrate(void);
@@ -42,7 +43,7 @@ private:
 	} _ref;
 	
 	// wrist pitch
-	LimitLinCalibration _wristPitch;
+	LimitLinCalibration _wristPitch, _wristRoll;
 
 	// arm joints initial position (in degrees). the arm is initially stretched with the hand down.
 	const double _armInit0;
@@ -61,15 +62,16 @@ private:
 // Numerical Recipes - minimisation algorithm for inverse kinematics
 #include "nr.h"
 
-// forward kinematics
-void forward_kinematics(YVector&, YVector&);
+// inverse kinematics
+void inverse_kinematics(YVector&, YVector&, YVector&);
 // error wrt a desired position in Cartesian space
 DP evaluate_error (Vec_I_DP&);
+// forward kinematics
+void forward_kinematics(YVector&, YVector&);
+
 // minimisation algorithm
 inline void get_psum(Mat_I_DP&, Vec_O_DP&);
 void amoeba(Mat_IO_DP&, Vec_IO_DP&, const DP, DP funk(Vec_I_DP&), int&);
 DP amotry(Mat_IO_DP&, Vec_O_DP&, Vec_IO_DP&, DP funk(Vec_I_DP&), const int, const DP);
-// inverse kinematics
-void inverse_kinematics(YVector&, YVector&, YVector&);
 
 #endif

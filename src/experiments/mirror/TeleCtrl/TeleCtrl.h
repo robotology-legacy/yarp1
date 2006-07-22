@@ -1,5 +1,5 @@
 ///
-/// $Id: TeleCtrl.h,v 1.2 2006-04-05 11:53:59 claudio72 Exp $
+/// $Id: TeleCtrl.h,v 1.3 2006-07-22 15:37:05 babybot Exp $
 ///
 
 #ifndef TeleCtrlH
@@ -56,17 +56,21 @@ YARPInputPortOf<YARPGenericImage>       _img_in(YARPInputPort::DEFAULT_BUFFERS, 
 YARPOutputPortOf<YARPGenericImage>      _img_out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 // headSaccades (coordinates fixated by the user)
 YARPOutputPortOf<YARPBottle>            _hs_out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+// arm position
+YARPInputPortOf<YVector> _arm_pos_in(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
 // -----------------
 
 // traffic to repeater control port
 YARPSemaphore _repeaterSema;
-
 // traffic to/from read image
 YARPSemaphore _imageSema;
 
-// numerical data from the master
+// numerical data from the collector
 CollectorNumericalData _data;
+// image from the grabber
 YARPGenericImage _image;
+// positions from the arm
+YVector _armPos;
 
 #else
 
@@ -77,9 +81,11 @@ extern YARPOutputPortOf<YARPBabyBottle>        _rep_out;
 extern YARPInputPortOf<YARPGenericImage>       _img_in;
 extern YARPOutputPortOf<YARPGenericImage>      _img_out;
 extern YARPOutputPortOf<YARPBottle>            _hs_out;
-extern YARPSemaphore _controlSema;
+extern YARPInputPortOf<YVector>                _arm_pos_in;
+extern YARPSemaphore _repeaterSema, _controlSema;
 extern CollectorNumericalData _data;
 extern YARPGenericImage _image;
+extern YVector _armPos;
 
 #endif
 

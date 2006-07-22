@@ -7,8 +7,6 @@
 void HandControlThread::Body (void)
 {
 
-	cout << "sf: " << _streamingFrequency << endl;
-
 	// loop until the thread is terminated
 	while ( !IsTerminated() ) {
 
@@ -28,12 +26,12 @@ void HandControlThread::Body (void)
 
 		// send commands to the hand
         sendPosCmd(
-			_thumb0(_data.gloveData.thumb[0])*DegRad,
-			_thumb1(_data.gloveData.thumb[1])*DegRad,
-			_index0(_data.gloveData.index[0])*DegRad,
-			_index1(_data.gloveData.index[1])*DegRad,
-			_fingers0(_data.gloveData.middle[0])*DegRad,
-			_fingers1(_data.gloveData.middle[1])*DegRad
+			_thumb0(_data.gloveData.thumb[0]),
+			_thumb1(_data.gloveData.thumb[1]),
+			_index0(_data.gloveData.index[0]),
+			_index1(_data.gloveData.index[1]),
+			_fingers0(_data.gloveData.middle[0]),
+			_fingers1(_data.gloveData.middle[1])
 		);
 
 	}
@@ -85,37 +83,33 @@ void HandControlThread::calibrate(void)
 void HandControlThread::initialise(void)
 {
 
-	sendPosCmd(_handInit0*DegRad, _handInit1*DegRad,
-			   _handInit2*DegRad, _handInit3*DegRad,
-			   _handInit4*DegRad, _handInit5*DegRad);
+	sendPosCmd(_handInit0, _handInit1, _handInit2, _handInit3, _handInit4, _handInit5);
 
 }
 
 void HandControlThread::shutdown(void)
 {
 
-	sendPosCmd(_handInit0*DegRad, _handInit1*DegRad,
-			   _handInit2*DegRad, _handInit3*DegRad,
-			   _handInit4*DegRad, _handInit5*DegRad);
+	sendPosCmd(_handInit0, _handInit1, _handInit2, _handInit3, _handInit4, _handInit5);
 
 }
 
 void HandControlThread::sendPosCmd(double dof1, double dof2, double dof3, double dof4, double dof5, double dof6)
 {
 
-	// hand needs commands IN RADIANTS!!
+	// this function needs DEGREES; it converts them to radiants
 
     YVector handCmd(6);
     YARPBabyBottle tmpBottle;
     tmpBottle.setID(YBVMotorLabel); 
 
     // send command to the hand
-    handCmd(1) = dof1;
-    handCmd(2) = dof2;
-    handCmd(3) = dof3;
-    handCmd(4) = dof4;
-    handCmd(5) = dof5;
-    handCmd(6) = dof6;
+    handCmd(1) = dof1*DegRad;
+    handCmd(2) = dof2*DegRad;
+    handCmd(3) = dof3*DegRad;
+    handCmd(4) = dof4*DegRad;
+    handCmd(5) = dof5*DegRad;
+    handCmd(6) = dof6*DegRad;
 
     tmpBottle.reset();
     tmpBottle.writeVocab(YBVocab(YBVHandNewCmd));
