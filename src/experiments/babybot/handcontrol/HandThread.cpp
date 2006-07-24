@@ -188,7 +188,14 @@ void HandThread::doLoop()
 	
 void HandThread::doRelease()
 {
+
+	// send me back to zero position before quitting
+	YVector zero(6); zero = 0.0;
+	_hand.setPositions(zero.data());
+	YARPTime::DelayInSeconds(3.0);
+	
 	_hand.uninitialize();
+
 }
 
 void HandThread::singleMove(const YVector &pos, int time)
