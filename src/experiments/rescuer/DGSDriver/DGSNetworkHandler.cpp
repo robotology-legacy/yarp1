@@ -16,7 +16,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSNetworkHandler.cpp,v 1.3 2006-07-20 19:05:17 beltran Exp $
+ * RCS-ID:$Id: DGSNetworkHandler.cpp,v 1.4 2006-07-25 08:45:43 beltran Exp $
  */
 #include <ace/OS_NS_string.h>
 #include <ace/OS_NS_sys_socket.h>
@@ -52,8 +52,7 @@ void DGSNetworkHandler::open
 
   this->activate(); ///Activate the svc message queue reading.
   
-  ACE_NEW_NORETURN
-    (mblk_, ACE_Message_Block (BLOCK_SIZE));
+  ACE_NEW_NORETURN (mblk_, ACE_Message_Block (BLOCK_SIZE));
   // Align the Message Block for a CDR stream
   //ACE_CDR::mb_align (mblk_);
   reader_.read (*mblk_, LOG_HEADER_SIZE);

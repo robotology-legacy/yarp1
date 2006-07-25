@@ -13,10 +13,11 @@
  * @author Carlos Beltran Gonzalez (Carlos), cbeltran@dist.unige.it
  * @author Lira-Lab
  * Revisions:
+ * @todo Write a correct method of finalization of the system.
  */
 
 /*
- * $Id: SerialHandler.cpp,v 1.8 2006-07-20 19:05:17 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.9 2006-07-25 08:45:43 beltran Exp $
  */
 #include <string.h>
 #include "SerialHandler.h"
@@ -206,6 +207,8 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
   if ( ACE_OS::strstr(result.message_block().rd_ptr(),"=>") != NULL)
   {
       DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, result.message_block().cont()->rd_ptr());
+      result.message_block().cont()->release();
+      result.message_block().cont(NULL);
       command_sender->putq(&result.message_block());
   }
   else
