@@ -1,0 +1,3 @@
+var WshShell = WScript.CreateObject("WScript.Shell");
+
+WshShell.Run ("on -d -n rhea grasprflx.exe", 7, true);
