@@ -1,4 +1,5 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
+
 WshShell.Run ("hsaccadesDisconnect.js", 7, true);
 
 WshShell.Run ("yarp-connect /headsaccades/cmd/o /headsink/saccades/i", 7, true);

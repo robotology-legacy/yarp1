@@ -1,5 +1,7 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
 
+WshShell.Run ("reachingDisconnect.js", 7, true);
+
 // reaching
 WshShell.Run ("yarp-connect /armcontrol/o:status /reaching/arm/i", 7, true);
 WshShell.Run ("yarp-connect /headcontrol/position/o /reaching/head/i", 7, true);
