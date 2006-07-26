@@ -7,7 +7,7 @@
 <div class="qindex"><a class="qindex" href="index.html">Main&nbsp;Page</a> | <a class="qindex" href="hierarchy.html">Class&nbsp;Hierarchy</a> | <a class="qindex" href="annotated.html">Class&nbsp;List</a> | <a class="qindex" href="files.html">File&nbsp;List</a> | <a class="qindex" href="functions.html">Class&nbsp;Members</a> | <a class="qindex" href="globals.html">File&nbsp;Members</a> | <a class="qindex" href="pages.html">Related&nbsp;Pages</a></div>
 <h1>DGSNetworkHandler.h</h1><a href="DGSNetworkHandler_8h.html">Go to the documentation of this file.</a><pre class="fragment"><div>00001 
 00018 <span class="comment">/*</span>
-00019 <span class="comment"> * RCS-ID:$Id: DGSNetworkHandler_8h-source.html,v 1.1 2006-07-20 10:15:32 beltran Exp $</span>
+00019 <span class="comment"> * RCS-ID:$Id: DGSNetworkHandler_8h-source.html,v 1.2 2006-07-26 16:11:18 beltran Exp $</span>
 00020 <span class="comment"> */</span>
 00021 
 00022 <span class="preprocessor">#ifndef _DGSNetworkHandlerh_</span>
@@ -21,7 +21,7 @@
 00030 
 00031 <span class="preprocessor">#define BLOCK_SIZE 100</span>
 00032 <span class="preprocessor"></span><span class="keyword">class </span>DGSAcceptor;
-00036 <span class="keyword">class </span>DGSNetworkHandler : <span class="keyword">public</span> ACE_Service_Handler
+00036 <span class="keyword">class </span>DGSNetworkHandler : <span class="keyword">public</span> <a class="code" href="classDGSTask.html">DGSTask</a>, <span class="keyword">public</span> ACE_Service_Handler
 00037 {
 00038 <span class="keyword">public</span>:
 00044     DGSNetworkHandler (DGSAcceptor *acc = 0, <a class="code" href="classDGSTask.html">DGSTask</a> * com_cons = NULL, <a class="code" href="classDGSTask.html">DGSTask</a> *
@@ -36,25 +36,25 @@
 00059 
 00060 
 00061 <span class="keyword">protected</span>:
-00066     <span class="keyword">enum</span> { LOG_HEADER_SIZE = 8 };   
-00067     DGSAcceptor *acceptor_;         
-00068     ACE_Message_Block *mblk_;       
-00069     ACE_Asynch_Read_Stream reader_; 
-00070     ACE_Asynch_Write_Stream writer_;
-00071     <a class="code" href="classDGSTask.html">DGSTask</a> * commands_consumer;
-00072     <a class="code" href="classDGSTask.html">DGSTask</a> * console_consumer;
+00066     <span class="keyword">enum</span> { LOG_HEADER_SIZE = 8 };    
+00067     DGSAcceptor *acceptor_;          
+00068     ACE_Message_Block *mblk_;        
+00069     ACE_Asynch_Read_Stream reader_;  
+00070     ACE_Asynch_Write_Stream writer_; 
+00071     <a class="code" href="classDGSTask.html">DGSTask</a> * commands_consumer;     
+00072     <a class="code" href="classDGSTask.html">DGSTask</a> * console_consumer;      
 00073 
-00074     <span class="comment">// Handle input from logging clients.</span>
-00075     <span class="keyword">virtual</span> <span class="keywordtype">void</span> handle_read_stream
-00076         (<span class="keyword">const</span> ACE_Asynch_Read_Stream::Result &amp;result);
-00077 
-00078     <span class="comment">// Handle the asynchronous writing</span>
-00079     <span class="keyword">virtual</span> <span class="keywordtype">void</span> handle_write_stream
+00079     <span class="keyword">virtual</span> <span class="keywordtype">void</span> handle_read_stream
 00080         (<span class="keyword">const</span> ACE_Asynch_Read_Stream::Result &amp;result);
-00081 };
-00082 <span class="preprocessor">#endif</span>
-00083 <span class="preprocessor"></span>
-</div></pre><hr size="1"><address style="align: right;"><small>Generated on Thu Jul 20 12:10:17 2006 for UG_RESCUER by
+00081 
+00087     <span class="keyword">virtual</span> <span class="keywordtype">void</span> handle_write_stream
+00088         (<span class="keyword">const</span> ACE_Asynch_Read_Stream::Result &amp;result);
+00089 
+00095     <span class="keyword">virtual</span> <span class="keywordtype">int</span> svc();
+00096 };
+00097 <span class="preprocessor">#endif</span>
+00098 <span class="preprocessor"></span>
+</div></pre><hr size="1"><address style="align: right;"><small>Generated on Tue Jul 25 11:37:30 2006 for UG_RESCUER by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 ></a> 1.3.7 </small></address>
 </body>

@@ -16,7 +16,7 @@
  */
 
 /*
- * $Id: SerialHandler.h,v 1.6 2006-07-17 18:17:43 beltran Exp $
+ * $Id: SerialHandler.h,v 1.7 2006-07-26 16:11:18 beltran Exp $
  */
 
 #ifndef __SERIALHANDLERH__
@@ -95,7 +95,7 @@ private:
      * 
      * @return 
      */
-    int initiate_read_stream (DGSTask *);
+    int initiate_read_stream (ACE_Message_Block *);
 
     /**
      *  Parameters.

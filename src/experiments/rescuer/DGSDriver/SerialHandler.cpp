@@ -17,7 +17,7 @@
  */
 
 /*
- * $Id: SerialHandler.cpp,v 1.9 2006-07-25 08:45:43 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.10 2006-07-26 16:11:18 beltran Exp $
  */
 #include <string.h>
 #include "SerialHandler.h"
@@ -46,6 +46,7 @@ SerialHandler::~SerialHandler (void)
 int SerialHandler::initialize(void) 
 {
   ACE_TRACE("SerialHandler::initialize");
+
   u_short client_port = ACE_DEFAULT_SERVICE_PORT; /* This seems to be 20003*/
 
   // Initialize serial port
@@ -80,7 +81,7 @@ int SerialHandler::initialize(void)
 
   ACE_DEBUG ((LM_DEBUG, 
           ACE_TEXT("SerialHandler::open: streams and Asynch Operations opened sucessfully\n")));
-
+/*{{{*/
   // Start an asynchronous read stream
   ////if (this->initiate_read_stream () == -1)
   ////  return -1;
@@ -103,6 +104,7 @@ int SerialHandler::initialize(void)
   }*/
   /*}}}*/
   // Acceptor configuration
+  /*}}}*/
   
   //Start the keyboad reading thread
   activate();
@@ -117,7 +119,7 @@ int SerialHandler::initialize(void)
 int SerialHandler::svc()
 {
     ACE_TRACE(ACE_TEXT("SerialHandler::svc"));
-    ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l SerialHandler::svc Entering\n")));
+
     for (;;)
     {
         ACE_Message_Block * serial_block;
@@ -151,26 +153,24 @@ int SerialHandler::svc()
  * @return 
  */
 int
-SerialHandler::initiate_read_stream (DGSTask * command_sender)
+SerialHandler::initiate_read_stream (ACE_Message_Block * response_data_block)
 {
-    //ACE_TRACE("SerialHandler::initiate_read_stream");
-  ACE_DEBUG ((LM_INFO, ACE_TEXT("SerialHandler::initiate_read_stream called\n")));
+  ACE_TRACE("SerialHandler::initiate_read_stream");
+
   // Create Message_Block
   ACE_Message_Block *mb = 0;
   ACE_NEW_RETURN (mb, ACE_Message_Block (BUFSIZ + 1), -1);
 
-  ACE_Message_Block * pointer_block = 0;
-  ACE_NEW_RETURN ( pointer_block, ACE_Message_Block( ACE_reinterpret_cast( char *, command_sender)), -1);
-
-  //glue both block block and pointer_block
-  mb->cont(pointer_block);
+  //glue both block block and the response_data_block that contains all the
+  //necessary data to detect the response condition and the feedback Task
+  mb->cont(response_data_block);
 
   // Inititiate an asynchronous read from the stream
   if (this->_serial_read_stream.read (*mb, mb->size () - 1) == -1)
     ACE_ERROR_RETURN ((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("ACE_Asynch_Read_Stream::read")), -1);
 
-  ACE_DEBUG ((LM_DEBUG, ACE_TEXT("SerialHandler:initiate_read_stream: Asynch Read stream issued sucessfully\n")));
-
+  ACE_DEBUG ((LM_DEBUG, ACE_TEXT("SerialHandler:initiate_read_stream: Asynch Read stream issued sucessfully\n")));/*{{{*/
+/*}}}*/
   return 0;
 }
 
@@ -184,6 +184,7 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
     //ACE_TRACE("SerialHandler::handle_read_stream");
   ACE_DEBUG ((LM_DEBUG,ACE_TEXT( "handle_read_stream called\n")));
 
+  /*{{{
   //ACE_DEBUG ((LM_DEBUG, "********************\n"));
   //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "bytes_to_read", result.bytes_to_read ()));
   //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "handle", result.handle ()));
@@ -193,15 +194,18 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
   //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "completion_key", (u_long) result.completion_key ()));
   //ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "error", result.error ()));
   //ACE_DEBUG ((LM_DEBUG, "********************\n"));
+  }}}*/
   // Watch out if you need to enable this... the ACE_Log_Record::MAXLOGMSGLEN/*{{{*/
   // value controls to max length of a log record, and a large output
   // buffer may smash it.
 //#if 0
   //ACE_DEBUG ((LM_INFO, "%s",
               //result.message_block ().rd_ptr ()));/*}}}*/
+              /*{{{
   ////ACE_OS::printf("%s", result.message_block().rd_ptr());
   // Start an asynchronous read stream
   ////this->initiate_read_stream ();
+  }}}*/
 
   // Check if the => command from the barrett is present in the readed buffer
   if ( ACE_OS::strstr(result.message_block().rd_ptr(),"=>") != NULL)
@@ -237,15 +241,19 @@ void SerialHandler::handle_write_stream (const ACE_Asynch_Write_Stream::Result &
   ////result.message_block ().rd_ptr ()[result.bytes_transferred ()] = '\0';
 
   ////ACE_DEBUG ((LM_DEBUG, "********************\n"));/*}}}*/
+  /*{{{*/
   ACE_DEBUG ((LM_INFO, "%s = %d\n", "bytes_to_write", result.bytes_to_write ()));
   ///ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "handle", result.handle ()));
   ACE_DEBUG ((LM_INFO, "%s = %d\n", "bytes_transfered", result.bytes_transferred ()));
   ACE_DEBUG ((LM_INFO, ACE_TEXT("Getting the command sender pointer\n")));
-  DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, result.message_block().cont()->rd_ptr());
-  ACE_DEBUG ((LM_INFO, ACE_TEXT("Sending it to iniate_read_stream\n")));
-  ACE_ASSERT(command_sender != NULL);
+  /*}}}*/
+
+  ACE_Message_Block * response_data_block = result.message_block().cont();
+
+  result.message_block().cont(NULL);
   result.message_block().release();
-  this->initiate_read_stream (command_sender);
+  
+  this->initiate_read_stream (response_data_block);
   ////ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "act", (u_long) result.act ()));/*{{{*/
   ////ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "success", result.success ()));
   ////ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "completion_key", (u_long) result.completion_key ()));
@@ -259,5 +267,5 @@ void SerialHandler::handle_write_stream (const ACE_Asynch_Write_Stream::Result &
               "message_block",
               result.message_block ().rd_ptr ()));
 #endif  /* 0 *//*}}}*/
-}
-
+}/*{{{*/
+/*}}}*/
