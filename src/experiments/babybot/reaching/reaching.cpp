@@ -17,7 +17,7 @@ int _nFrames = 0;
 
 const double __handOpen[] = {100.0*degToRad, 0.0, 20.0*degToRad, 20.0*degToRad, 20.0*degToRad, 20.0*degToRad};
 const double __handClose[] = {100.0*degToRad, 50.0*degToRad, -80.0*degToRad, -80.0*degToRad, -80.0*degToRad, -80.0*degToRad};
-const double __handAtRest[] = {0.0*degToRad, 50.0*degToRad, 0.0, 0.0, 0.0, 0.0};
+const double __handAtRest[] = {0.0*degToRad, 0.0*degToRad, 0.0, 0.0, 0.0, 0.0};
 
 const double __armDrop[] = {30*degToRad, -25*degToRad, 0.0, 0.0, -50*degToRad, -190.0*degToRad};
 

@@ -12,7 +12,7 @@
 //////////////////////////////////////////////////////////////////////
 
 ArmThread::ArmThread(int rate, const char *name, const char *ini_file):
-YARPRateThread(name, rate),
+YARPRateThread(name, rate), _rate(rate),
 YARPBehaviorSharedData("/armcontrol/behavior/o", YBVMotorLabel),
 _tirednessControl(23000.0, 10000.0, rate, 0.5),
 _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
@@ -37,10 +37,12 @@ _torquesPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	_trajectory.resize(_nj, _nSteps);
 	_actual_command.Resize(_nj);
 	//////// speed and accelerations (used by stiff pid only)
+	_old_arm_pos.Resize(_nj);
 	_speed.Resize(_nj);
 	_acc.Resize(_nj);
 	_parkSpeed.Resize(_nj);
-	_speed = 0.0;	
+	_old_arm_pos = 0.0;
+	_speed = 0.0;
 	_acc = 0.0;
 	_parkSpeed = 0.0;
 	
@@ -214,7 +216,7 @@ void ArmThread::doLoop()
 {
 	// read data from MEI board
 	read_status();
-	
+
 	// check tiredness
 	if (_tirednessControl.high() && !_restingInhibited)
 	{
@@ -281,8 +283,10 @@ inline void ArmThread::read_status()
 {
 	/// get arm
 	_arm.getPositions(_arm_status._current_position.data());
-	_arm.getVelocities(_arm_status._velocity.data());
-	_arm_status._velocity*=radToDeg/10;		//normalize
+	//_arm.getVelocities(_arm_status._velocity.data());
+	//_arm_status._velocity*=radToDeg/10;		//normalize
+	_arm_status._velocity = (_arm_status._current_position - _old_arm_pos)/_rate*1000.0;
+	_old_arm_pos = _arm_status._current_position;
 	_arm.getTorques(_arm_status._torques.data());
 	///
 	_tirednessControl.add(_arm_status._torques(1));

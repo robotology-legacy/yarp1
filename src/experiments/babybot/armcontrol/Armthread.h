@@ -243,6 +243,8 @@ private:
 
 	bool _shaking;
 
+	double _rate;
+
 	int _nj;
 	int _nSteps;
 	
@@ -251,6 +253,7 @@ private:
 
 public: //later: make it private
 	YARPControlBoardNetworkData _arm_status;
+	YVector _old_arm_pos;
 	
 	YARPArmClass _arm;
 

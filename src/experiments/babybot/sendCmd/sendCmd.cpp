@@ -124,7 +124,7 @@ bool _parse(const YARPString &c, YARPBabyBottle &b)
 	{
 		COMMAND_TABLE_ENTRY &tmp = (*it);
 
-		if (tmp.verbose == c)
+		if ( stricmp(tmp.verbose.c_str(), c.c_str()) == 0 )
 		{
 			// command registered
 			return tmp.f(tmp.command, b);

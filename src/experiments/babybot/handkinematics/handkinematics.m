@@ -3,6 +3,8 @@
 %
 %
 
+warning('off','MATLAB:dispatcher:InexactMatch');
+
 %% load network from disk
 % load 'vq'
 load 'vqNetWrist'
@@ -101,17 +103,23 @@ i = 0;
 az = 45;
 el = 45;
 exit = 0;
-freeze = 0;
+freeze = 1;
 filename = '';
 filename2 = '';
 while(~exit)
+
+   %disp('idVector');
     [qh err1] = port('read', idVector, 0);
+
+   %disp('idTouch');
     [qtouch err2] = port('read', idTouch, 0);
       
     if (err2 < 0)
+        disp('Error reading touch sensors');
         qtouch(1:17) = 0;
     end
     
+   %disp('idWristForce');
      [wristForce err4] = port('read', idWristForce, 0);
      if (err4 < 0)
          disp('Error reading wrist');
@@ -120,11 +128,12 @@ while(~exit)
      % zoomV(1:6) = 10;
      % plot_vector(wristForce(1:3), wristForce(4:6), zoomV);
     
-    
+   %disp('computeHandKin');
     if ( (err1 >= 0) && (~freeze))
       computeHandKin(qh, qtouch, wristForce, az, el);
     end
     
+   %disp('idForce');
     [qforce err3] = port('read', idForce, 0);
     if (err3 < 0)
         qforce(1:15) = 0;
@@ -133,6 +142,7 @@ while(~exit)
     %% bottle
     [bottle err3] = port('read', idBottle, 0);
     if (err3 >= 0)
+   %disp('received bottle');
         % received a bottle
         if (strcmp(bottle{1},'Motor'))
             if(strcmp(bottle{2}, 'IsAlive'))
@@ -234,3 +244,5 @@ port('unregister', idOutBottle);
 port('destroy', idOutBottle);
 
 clear port;
+
+quit;
