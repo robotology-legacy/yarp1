@@ -7,7 +7,7 @@
  *   Improvement of the Emergency Risk Management through Secure Mobile
  *   Mechatronic Support to Bomb Disposal and Rescue Operations
  *
- * @file DGSDriver.h
+ * @file DGS_MMU_Driver.h
  *  
  * @version 1.0
  * @date 21-Jun-06 1:14:25 PM ora solare Europa occidentale
@@ -17,9 +17,9 @@
  * */
 
 /*
- * $Id: DGSDriver.h,v 1.5 2006-07-27 11:06:08 beltran Exp $
+ * $Id: DGS_MMU_Driver.h,v 1.1 2006-07-27 16:07:02 beltran Exp $
  */
-#ifndef __DGSDRIVERH__
-#define __DGSDRIVERH__
+#ifndef __DGS_MMU_DriverH__
+#define __DGS_MMU_DriverH__
 
-#endif /*__DGSDRIVERH__*/
+#endif /*__DGS_MMU_DriverH__*/

@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSNetworkHandler.h,v 1.6 2006-07-27 11:06:08 beltran Exp $
+ * RCS-ID:$Id: DGSNetworkHandler.h,v 1.1 2006-07-27 16:07:03 beltran Exp $
  */
 
 #ifndef _DGSNetworkHandlerh_
@@ -27,13 +27,13 @@
 #include <ace/Task.h>
 #include <ace/Message_Block.h>
 #include "DGSTask.h"
-#include "DGSAcceptor.h"
+#include "DGS_MMU_Acceptor.h"
 
 /** 
  * Determines the size of the reading block.
  */
 #define BLOCK_SIZE 100
-class DGSAcceptor;
+class DGS_MMU_Acceptor;
 
 /** 
  * @class DGSNetworkHandler Takes care of routing console commands coming from a telnet like
@@ -48,7 +48,7 @@ public:
      * 
      * @param *acc It is the acceptor that has created this.
      */
-    DGSNetworkHandler (DGSAcceptor *acc = 0, DGSTask * com_cons = NULL,
+    DGSNetworkHandler (DGS_MMU_Acceptor *acc = 0, DGSTask * com_cons = NULL,
         DGSTask * cons_cons = NULL): acceptor_ (acc), commands_consumer(com_cons),
     console_consumer(cons_cons), mblk_ (0) {}
 
@@ -71,7 +71,7 @@ protected:
      * @todo Use a similar constant to fix the DGS Header size
      */
     enum { LOG_HEADER_SIZE = 8 };    /// Length of CDR header
-    DGSAcceptor *acceptor_;          /// Our creator
+    DGS_MMU_Acceptor *acceptor_;          /// Our creator
     ACE_Message_Block *mblk_;        /// Block to receive log record
     ACE_Asynch_Read_Stream reader_;  /// Async reading stream
     ACE_Asynch_Write_Stream writer_; /// Asynch writing stream

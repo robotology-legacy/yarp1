@@ -7,8 +7,8 @@
  *   Improvement of the Emergency Risk Management through Secure Mobile
  *   Mechatronic Support to Bomb Disposal and Rescue Operations
  *
- * @file DGSAcceptor.h
- * @brief Contains the DGSAcceptor that receives incoming connection to the
+ * @file DGS_MMU_Acceptor.h
+ * @brief Contains the DGS_MMU_Acceptor that receives incoming connection to the
  * DGSDriver.
  * @version 1.0
  * @date 17-Jul-06 5:14:57 PM ora solare Europa occidentale
@@ -18,11 +18,11 @@
  */
 
 /*
- * RCS-ID:$Id: DGSAcceptor.h,v 1.4 2006-07-27 11:06:08 beltran Exp $
+ * RCS-ID:$Id: DGS_MMU_Acceptor.h,v 1.1 2006-07-27 16:07:02 beltran Exp $
  */
 
-#ifndef _DGSAcceptorh_ 
-#define _DGSAcceptorh_
+#ifndef _DGS_MMU_Acceptorh_ 
+#define _DGS_MMU_Acceptorh_
 
 #include <ace/Asynch_Acceptor.h>
 #include <ace/Asynch_IO.h>
@@ -33,13 +33,13 @@ class DGSNetworkHandler;
 
 
 /** 
- * @class DGSAcceptor listens for connections in a given port creating the
+ * @class DGS_MMU_Acceptor listens for connections in a given port creating the
  * corresponding Network handler.
  * @todo In the future the acceptor should be able to create different types of
  * networks hardlers based on a first handshaking packet. To be defined. This
  * should be part of a Rescuer protocol.
  */
-class DGSAcceptor : public ACE_Asynch_Acceptor<DGSNetworkHandler> {
+class DGS_MMU_Acceptor : public ACE_Asynch_Acceptor<DGSNetworkHandler> {
 public:
     /** 
      * Cancel accept and close all clients

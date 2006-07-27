@@ -7,7 +7,7 @@
  *   Improvement of the Emergency Risk Management through Secure Mobile
  *   Mechatronic Support to Bomb Disposal and Rescue Operations
  *
- * @file DGSAcceptor.cpp
+ * @file DGS_MMU_Acceptor.cpp
  * @brief Contains the implementation of the Acceptor.
  * @version 1.0
  * @date 17-Jul-06 5:22:29 PM ora solare Europa occidentale
@@ -17,15 +17,15 @@
  */
 
 /*
- * RCS-ID:$Id: DGSAcceptor.cpp,v 1.3 2006-07-27 11:06:08 beltran Exp $
+ * RCS-ID:$Id: DGS_MMU_Acceptor.cpp,v 1.1 2006-07-27 16:07:02 beltran Exp $
  */
 
-#include "DGSAcceptor.h"
+#include "DGS_MMU_Acceptor.h"
 
 /** 
- * DGSAcceptor::close
+ * DGS_MMU_Acceptor::close
  */
-void DGSAcceptor::close (void)
+void DGS_MMU_Acceptor::close (void)
 {
   ACE_Unbounded_Set_Iterator<DGSNetworkHandler *>
     iter (clients_.begin ());
@@ -35,11 +35,11 @@ void DGSAcceptor::close (void)
 }
 
 /** 
- * DGSAcceptor::make_handler
+ * DGS_MMU_Acceptor::make_handler
  * 
  * @return 
  */
-DGSNetworkHandler * DGSAcceptor::make_handler (void)
+DGSNetworkHandler * DGS_MMU_Acceptor::make_handler (void)
 {
   DGSNetworkHandler *ih;
   ACE_NEW_RETURN (ih, DGSNetworkHandler(this, commands_consumer ,

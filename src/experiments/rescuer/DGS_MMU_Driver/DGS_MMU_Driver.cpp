@@ -6,7 +6,7 @@
  *   Improvement of the Emergency Risk Management through Secure Mobile
  *   Mechatronic Support to Bomb Disposal and Rescue Operations
  *
- * @file DGSDriver.cpp
+ * @file DGS_MMU_Driver.cpp
  *  Contains the driver for the Dexterous Grasping System (Three finger
  * gripper)
  * @version 1.0
@@ -20,7 +20,7 @@
  * @todo Fix visualization problems in the doxygen documentation
  */
 /**
- * Defines the current "general" version of the DGSDRiver
+ * Defines the current "general" version of the DGS_MMU_Driver
  */
 #define VERSION 1.0
 /**
@@ -28,11 +28,11 @@
  */
 #define ACE_NTRACE 0
 /*
- * $Id: DGSDriver.cpp,v 1.9 2006-07-27 11:06:08 beltran Exp $
+ * $Id: DGS_MMU_Driver.cpp,v 1.1 2006-07-27 16:07:02 beltran Exp $
  */
 #include "SerialHandler.h"
 #include "SerialConsole.h"
-#include "DGSAcceptor.h"
+#include "DGS_MMU_Acceptor.h"
 
 /** 
  *  ACE_TMAIN The main DGC loop.
@@ -55,7 +55,8 @@ int ACE_TMAIN (int argc, ACE_TCHAR *argv[])
     //ACE_LOG_MSG->open(argv[0],ACE_Log_Msg::SILENT, ACE_TEXT("syslogTest"));
 
     ACE_OS::printf(ACE_TEXT("***********************************************************\n"));
-    ACE_OS::printf(ACE_TEXT("*     Welcome to Dexterous Grasping System Module         *\n"));
+    ACE_OS::printf(ACE_TEXT("*     Welcome to Dexterous Grasping System Driver         *\n"));
+    ACE_OS::printf(ACE_TEXT("*             Mobile Mechatronic Unit (MMU)               *\n"));
     ACE_OS::printf(ACE_TEXT("*                      Version %1.2f                       *\n"),VERSION);
     ACE_OS::printf(ACE_TEXT("***********************************************************\n"));
     ACE_OS::printf(ACE_TEXT("                                                           \n"));
@@ -79,7 +80,7 @@ int ACE_TMAIN (int argc, ACE_TCHAR *argv[])
         return -1;
     int success = 1;
 
-    DGSAcceptor acceptor_;
+    DGS_MMU_Acceptor acceptor_;
     acceptor_.setCommandsConsumer(&serialhandler);
     acceptor_.setConsoleConsumer(&serialConsole);
 
