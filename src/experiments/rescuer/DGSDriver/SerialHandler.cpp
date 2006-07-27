@@ -17,7 +17,7 @@
  */
 
 /*
- * $Id: SerialHandler.cpp,v 1.10 2006-07-26 16:11:18 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.11 2006-07-27 10:23:27 beltran Exp $
  */
 #include <string.h>
 #include "SerialHandler.h"
@@ -140,7 +140,9 @@ int SerialHandler::svc()
                 return 0;
             }
             //serial_block->release();
-            DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, serial_block->cont()->rd_ptr());
+            //DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, serial_block->cont()->rd_ptr());
+            SerialFeedbackData * feedback_data = ACE_reinterpret_cast(SerialFeedbackData *, serial_block->cont()->rd_ptr());
+            DGSTask * command_sender = feedback_data->getCommandSender();
             command_sender->IsAlive();
         }
     }
@@ -206,11 +208,12 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
   // Start an asynchronous read stream
   ////this->initiate_read_stream ();
   }}}*/
+  SerialFeedbackData * feedback_data = ACE_reinterpret_cast(SerialFeedbackData *, result.message_block().cont()->rd_ptr());
 
   // Check if the => command from the barrett is present in the readed buffer
-  if ( ACE_OS::strstr(result.message_block().rd_ptr(),"=>") != NULL)
+  if ( feedback_data->checkSerialResponseEnd(result.message_block().rd_ptr(), 0))
   {
-      DGSTask * command_sender = ACE_reinterpret_cast(DGSTask *, result.message_block().cont()->rd_ptr());
+      DGSTask * command_sender = feedback_data->getCommandSender();
       result.message_block().cont()->release();
       result.message_block().cont(NULL);
       command_sender->putq(&result.message_block());
@@ -222,8 +225,6 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
       if (this->_serial_read_stream.read (result.message_block(), result.message_block().size() - 1) == -1)
           ACE_ERROR ((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("ACE_Asynch_Read_Stream::read")));
   }
-
-
 }
 
 /** 

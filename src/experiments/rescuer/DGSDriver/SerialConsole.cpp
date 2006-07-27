@@ -18,7 +18,7 @@
  * */
 
 /*
- * RCS-ID:$Id: SerialConsole.cpp,v 1.2 2006-07-14 14:05:24 beltran Exp $
+ * RCS-ID:$Id: SerialConsole.cpp,v 1.3 2006-07-27 10:23:27 beltran Exp $
  */
 #include "SerialConsole.h"
 
@@ -67,9 +67,13 @@ int SerialConsole::svc()
 
         //Compose a message block putting the pointer to this serial console (to
         //be used by the serial handler to send back data)
-        ACE_Message_Block * pointer_block = 0;
-        ACE_NEW_RETURN ( pointer_block, ACE_Message_Block( ACE_reinterpret_cast( char *, this)), -1);
+        SerialFeedbackData * feedback_data = 0;
+        ACE_NEW_RETURN( feedback_data, SerialFeedbackData(),-1);
+        feedback_data->setCommandSender(this);
+        feedback_data->setSerialResponseDelimiter("=>");
 
+        ACE_Message_Block * pointer_block = 0;
+        ACE_NEW_RETURN ( pointer_block, ACE_Message_Block( ACE_reinterpret_cast( char *, feedback_data)), -1);
         //glue both block message_block and pointer_block
         message_block->cont(pointer_block);
         

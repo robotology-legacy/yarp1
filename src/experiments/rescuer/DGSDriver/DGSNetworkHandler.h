@@ -1,3 +1,5 @@
+/* vim:set tw=78: set sw=4: set ts=4: */
+
 /** 
  * 
  *
@@ -16,7 +18,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSNetworkHandler.h,v 1.3 2006-07-20 19:05:17 beltran Exp $
+ * RCS-ID:$Id: DGSNetworkHandler.h,v 1.4 2006-07-27 10:23:27 beltran Exp $
  */
 
 #ifndef _DGSNetworkHandlerh_
@@ -28,10 +30,16 @@
 #include "DGSTask.h"
 #include "DGSAcceptor.h"
 
+/** 
+ * Determines the size of the reading block.
+ */
 #define BLOCK_SIZE 100
 class DGSAcceptor;
+
 /** 
- * @class DGSNetworkHandler
+ * @class Takes care of routing console commands coming from a telnet like
+ * connection. 
+ * @todo Change the name into a more a appropriate name.
  */
 class DGSNetworkHandler : public DGSTask, public ACE_Service_Handler
 {
@@ -41,8 +49,8 @@ public:
      * 
      * @param *acc It is the acceptor that has created this.
      */
-    DGSNetworkHandler (DGSAcceptor *acc = 0, DGSTask * com_cons = NULL, DGSTask *
-        cons_cons = NULL): acceptor_ (acc), commands_consumer(com_cons),
+    DGSNetworkHandler (DGSAcceptor *acc = 0, DGSTask * com_cons = NULL,
+        DGSTask * cons_cons = NULL): acceptor_ (acc), commands_consumer(com_cons),
     console_consumer(cons_cons), mblk_ (0) {}
 
     virtual ~DGSNetworkHandler ();

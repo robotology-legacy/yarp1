@@ -18,7 +18,7 @@
  */
 
 /*
- * RCS-ID:$Id: SerialConsole.h,v 1.3 2006-07-14 14:05:24 beltran Exp $
+ * RCS-ID:$Id: SerialConsole.h,v 1.4 2006-07-27 10:23:27 beltran Exp $
  */
 #ifndef __SERIALCONSOLEH__
 #define __SERIALCONSOLEH__
@@ -27,6 +27,7 @@
 #include <string>
 #include "DGSTask.h"
 #include "DGSDriver.h"
+#include "SerialFeedbackData.h"
 
 /** 
  * @class SerialConsole

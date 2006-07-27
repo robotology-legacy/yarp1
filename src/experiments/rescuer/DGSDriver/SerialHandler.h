@@ -1,3 +1,5 @@
+/* vim:tw=78:sw=4:ts=4: */
+
 /** 
  * 
  *
@@ -16,7 +18,7 @@
  */
 
 /*
- * $Id: SerialHandler.h,v 1.7 2006-07-26 16:11:18 beltran Exp $
+ * $Id: SerialHandler.h,v 1.8 2006-07-27 10:23:27 beltran Exp $
  */
 
 #ifndef __SERIALHANDLERH__
@@ -38,6 +40,7 @@
 #include <ace/DEV_Connector.h>
 #include "DGSDriver.h"
 #include "DGSTask.h"
+#include "SerialFeedbackData.h"
 
 /** 
  * @class SerialHandler

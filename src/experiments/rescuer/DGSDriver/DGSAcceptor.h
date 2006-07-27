@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSAcceptor.h,v 1.2 2006-07-18 15:52:50 beltran Exp $
+ * RCS-ID:$Id: DGSAcceptor.h,v 1.3 2006-07-27 10:23:27 beltran Exp $
  */
 
 #ifndef _DGSAcceptorh_ 
@@ -31,8 +31,14 @@
 class DGSNetworkHandler;
 
 
-class DGSAcceptor
-: public ACE_Asynch_Acceptor<DGSNetworkHandler> {
+/** 
+ * @class DGSAcceptor listens for connections in a given port creating the
+ * corresponding Network handler.
+ * @todo In the future the acceptor should be able to create different types of
+ * networks hardlers based on a first handshaking packet. To be defined. This
+ * should be part of a Rescuer protocol.
+ */
+class DGSAcceptor : public ACE_Asynch_Acceptor<DGSNetworkHandler> {
 public:
     /** 
      * Cancel accept and close all clients
@@ -79,8 +85,8 @@ protected:
      */
     ACE_Unbounded_Set<DGSNetworkHandler *> clients_;
 
-    DGSTask * commands_consumer;
-    DGSTask * console_consumer;
+    DGSTask * commands_consumer; /// A pointer to the DGSTask accepting commands.
+    DGSTask * console_consumer; /// A pointer to the DGSTask accepting console responses.
 };
 #endif
 

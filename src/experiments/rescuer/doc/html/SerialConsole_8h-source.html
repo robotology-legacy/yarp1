@@ -7,7 +7,7 @@
 <div class="qindex"><a class="qindex" href="index.html">Main&nbsp;Page</a> | <a class="qindex" href="hierarchy.html">Class&nbsp;Hierarchy</a> | <a class="qindex" href="annotated.html">Class&nbsp;List</a> | <a class="qindex" href="files.html">File&nbsp;List</a> | <a class="qindex" href="functions.html">Class&nbsp;Members</a> | <a class="qindex" href="globals.html">File&nbsp;Members</a> | <a class="qindex" href="pages.html">Related&nbsp;Pages</a></div>
 <h1>SerialConsole.h</h1><a href="SerialConsole_8h.html">Go to the documentation of this file.</a><pre class="fragment"><div>00001 
 00020 <span class="comment">/*</span>
-00021 <span class="comment"> * RCS-ID:$Id: SerialConsole_8h-source.html,v 1.2 2006-07-26 16:11:18 beltran Exp $</span>
+00021 <span class="comment"> * RCS-ID:$Id: SerialConsole_8h-source.html,v 1.3 2006-07-27 10:23:27 beltran Exp $</span>
 00022 <span class="comment"> */</span>
 00023 <span class="preprocessor">#ifndef __SERIALCONSOLEH__</span>
 00024 <span class="preprocessor"></span><span class="preprocessor">#define __SERIALCONSOLEH__</span>
@@ -16,28 +16,29 @@
 00027 <span class="preprocessor">#include &lt;string&gt;</span>
 00028 <span class="preprocessor">#include "<a class="code" href="DGSTask_8h.html">DGSTask.h</a>"</span>
 00029 <span class="preprocessor">#include "<a class="code" href="DGSDriver_8h.html">DGSDriver.h</a>"</span>
-00030 
-<a name="l00035"></a><a class="code" href="classSerialConsole.html">00035</a> <span class="keyword">class </span><a class="code" href="classSerialConsole.html">SerialConsole</a>:<span class="keyword">public</span> <a class="code" href="classDGSTask.html">DGSTask</a>
-00036 {
-00037 
-00038 <span class="keyword">public</span>:
-00039     <a class="code" href="classSerialConsole.html#a0">SerialConsole</a> ();  <span class="comment">/* constructor */</span>
-00040     <a class="code" href="classSerialConsole.html#a1">~SerialConsole</a>(); <span class="comment">/*Destructor */</span>
-00041     
-00047     <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classSerialConsole.html#a2">svc</a>();
-00048     
-<a name="l00058"></a><a class="code" href="classSerialConsole.html#a3">00058</a>     <span class="keywordtype">int</span> <a class="code" href="classSerialConsole.html#a3">setCommandsConsumer</a>(<a class="code" href="classDGSTask.html">DGSTask</a> * consumer){ commands_consumer = consumer; <span class="keywordflow">return</span> 0;};
-00059 
-<a name="l00065"></a><a class="code" href="classSerialConsole.html#a4">00065</a>     <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classSerialConsole.html#a4">IsAlive</a>(){ ACE_DEBUG((LM_INFO, ACE_TEXT(<span class="stringliteral">"SerialConsole: I am Alive!\n"</span>))); <span class="keywordflow">return</span> 0;};
-00066 
-00067 <span class="keyword">protected</span>:
-00068 
-00069 <span class="keyword">private</span>:
-00070     <a class="code" href="classDGSTask.html">DGSTask</a> * commands_consumer;
-00071 }; <span class="comment">/*   end of class  SerialConsole   */</span>
-00072 
-00073 <span class="preprocessor">#endif</span>
-</div></pre><hr size="1"><address style="align: right;"><small>Generated on Tue Jul 25 11:37:30 2006 for UG_RESCUER by
+00030 <span class="preprocessor">#include "<a class="code" href="SerialFeedbackData_8h.html">SerialFeedbackData.h</a>"</span>
+00031 
+<a name="l00036"></a><a class="code" href="classSerialConsole.html">00036</a> <span class="keyword">class </span><a class="code" href="classSerialConsole.html">SerialConsole</a>:<span class="keyword">public</span> <a class="code" href="classDGSTask.html">DGSTask</a>
+00037 {
+00038 
+00039 <span class="keyword">public</span>:
+00040     <a class="code" href="classSerialConsole.html#a0">SerialConsole</a> ();  <span class="comment">/* constructor */</span>
+00041     <a class="code" href="classSerialConsole.html#a1">~SerialConsole</a>(); <span class="comment">/*Destructor */</span>
+00042     
+00048     <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classSerialConsole.html#a2">svc</a>();
+00049     
+<a name="l00059"></a><a class="code" href="classSerialConsole.html#a3">00059</a>     <span class="keywordtype">int</span> <a class="code" href="classSerialConsole.html#a3">setCommandsConsumer</a>(<a class="code" href="classDGSTask.html">DGSTask</a> * consumer){ commands_consumer = consumer; <span class="keywordflow">return</span> 0;};
+00060 
+<a name="l00066"></a><a class="code" href="classSerialConsole.html#a4">00066</a>     <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classSerialConsole.html#a4">IsAlive</a>(){ ACE_DEBUG((LM_INFO, ACE_TEXT(<span class="stringliteral">"SerialConsole: I am Alive!\n"</span>))); <span class="keywordflow">return</span> 0;};
+00067 
+00068 <span class="keyword">protected</span>:
+00069 
+00070 <span class="keyword">private</span>:
+00071     <a class="code" href="classDGSTask.html">DGSTask</a> * commands_consumer;
+00072 }; <span class="comment">/*   end of class  SerialConsole   */</span>
+00073 
+00074 <span class="preprocessor">#endif</span>
+</div></pre><hr size="1"><address style="align: right;"><small>Generated on Thu Jul 27 12:21:04 2006 for UG_RESCUER by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 ></a> 1.3.7 </small></address>
 </body>
