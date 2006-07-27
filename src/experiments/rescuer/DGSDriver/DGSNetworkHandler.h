@@ -18,7 +18,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSNetworkHandler.h,v 1.4 2006-07-27 10:23:27 beltran Exp $
+ * RCS-ID:$Id: DGSNetworkHandler.h,v 1.5 2006-07-27 10:25:38 beltran Exp $
  */
 
 #ifndef _DGSNetworkHandlerh_
@@ -37,7 +37,7 @@
 class DGSAcceptor;
 
 /** 
- * @class Takes care of routing console commands coming from a telnet like
+ * @class DGSNetworkHandler Takes care of routing console commands coming from a telnet like
  * connection. 
  * @todo Change the name into a more a appropriate name.
  */
