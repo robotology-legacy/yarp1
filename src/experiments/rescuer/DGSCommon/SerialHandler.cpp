@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: SerialHandler.cpp,v 1.12 2006-07-27 11:06:08 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.1 2006-07-27 15:23:20 beltran Exp $
  */
 #include <string.h>
 #include "SerialHandler.h"

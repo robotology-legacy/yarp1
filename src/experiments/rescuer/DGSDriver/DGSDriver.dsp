@@ -72,7 +72,7 @@ PostBuild_Cmds=copy .\release\DGSDriver.exe ..\..\..\..\bin\winnt
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "$(ACE_ROOT)" /I "$(YARP_ROOT)\include\winnt" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FR /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "$(ACE_ROOT)" /I "..\DGSCommon" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FR /FD /GZ /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE RSC /l 0x410 /d "_DEBUG"
 # ADD RSC /l 0x410 /d "_DEBUG"
@@ -106,15 +106,15 @@ SOURCE=.\DGSNetworkHandler.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SerialConsole.cpp
+SOURCE=..\DGSCommon\SerialConsole.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SerialFeedbackData.cpp
+SOURCE=..\DGSCommon\SerialFeedbackData.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SerialHandler.cpp
+SOURCE=..\DGSCommon\SerialHandler.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -134,19 +134,15 @@ SOURCE=.\DGSNetworkHandler.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\DGSTask.h
+SOURCE=..\DGSCommon\SerialConsole.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\SerialConsole.h
+SOURCE=..\DGSCommon\SerialFeedbackData.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\SerialFeedbackData.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SerialHandler.h
+SOURCE=..\DGSCommon\SerialHandler.h
 # End Source File
 # End Group
 # End Target

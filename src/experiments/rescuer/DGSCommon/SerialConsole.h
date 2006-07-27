@@ -19,7 +19,7 @@
  */
 
 /*
- * RCS-ID:$Id: SerialConsole.h,v 1.5 2006-07-27 11:06:08 beltran Exp $
+ * RCS-ID:$Id: SerialConsole.h,v 1.1 2006-07-27 15:23:20 beltran Exp $
  */
 #ifndef __SERIALCONSOLEH__
 #define __SERIALCONSOLEH__
