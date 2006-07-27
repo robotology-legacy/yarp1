@@ -1,3 +1,4 @@
+/* vim:set tw=78: set sw=4: set ts=4: */
 /** 
  * 
  *
@@ -16,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSAcceptor.cpp,v 1.2 2006-07-18 15:52:50 beltran Exp $
+ * RCS-ID:$Id: DGSAcceptor.cpp,v 1.3 2006-07-27 11:06:08 beltran Exp $
  */
 
 #include "DGSAcceptor.h"

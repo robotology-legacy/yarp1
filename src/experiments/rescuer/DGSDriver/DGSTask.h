@@ -1,3 +1,4 @@
+/* vim:set tw=78: set sw=4: set ts=4: */
 /** 
  * 
  *
@@ -16,7 +17,7 @@
  * */
 
 /*
- * RCS-ID:$Id: DGSTask.h,v 1.3 2006-07-14 14:05:24 beltran Exp $
+ * RCS-ID:$Id: DGSTask.h,v 1.4 2006-07-27 11:06:08 beltran Exp $
  */
 
 #ifndef __DGSTASKH__

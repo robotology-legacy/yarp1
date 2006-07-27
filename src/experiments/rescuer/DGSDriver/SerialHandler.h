@@ -1,5 +1,4 @@
-/* vim:tw=78:sw=4:ts=4: */
-
+/* vim:set tw=78: set sw=4: set ts=4: */
 /** 
  * 
  *
@@ -18,7 +17,7 @@
  */
 
 /*
- * $Id: SerialHandler.h,v 1.8 2006-07-27 10:23:27 beltran Exp $
+ * $Id: SerialHandler.h,v 1.9 2006-07-27 11:06:08 beltran Exp $
  */
 
 #ifndef __SERIALHANDLERH__

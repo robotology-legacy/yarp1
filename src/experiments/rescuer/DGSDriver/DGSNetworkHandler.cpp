@@ -1,3 +1,4 @@
+/* vim:set tw=78: set sw=4: set ts=4: */
 /** 
  * 
  *
@@ -16,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: DGSNetworkHandler.cpp,v 1.5 2006-07-27 10:23:27 beltran Exp $
+ * RCS-ID:$Id: DGSNetworkHandler.cpp,v 1.6 2006-07-27 11:06:08 beltran Exp $
  */
 #include <ace/OS_NS_string.h>
 #include <ace/OS_NS_sys_socket.h>

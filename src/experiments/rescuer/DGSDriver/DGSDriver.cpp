@@ -1,3 +1,4 @@
+/* vim:set tw=78: set sw=4: set ts=4: */
 /** 
  *
  *             RESCUER - IST-2003-511492 (c) 2004-2008 
@@ -27,7 +28,7 @@
  */
 #define ACE_NTRACE 0
 /*
- * $Id: DGSDriver.cpp,v 1.8 2006-07-20 19:05:17 beltran Exp $
+ * $Id: DGSDriver.cpp,v 1.9 2006-07-27 11:06:08 beltran Exp $
  */
 #include "SerialHandler.h"
 #include "SerialConsole.h"
