@@ -110,6 +110,10 @@ SOURCE=.\SerialConsole.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SerialFeedbackData.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SerialHandler.cpp
 # End Source File
 # End Group
@@ -135,6 +139,10 @@ SOURCE=.\DGSTask.h
 # Begin Source File
 
 SOURCE=.\SerialConsole.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SerialFeedbackData.h
 # End Source File
 # Begin Source File
 
