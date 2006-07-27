@@ -17,7 +17,7 @@
  */
 
 /*
- * $Id: SerialHandler.h,v 1.1 2006-07-27 15:23:20 beltran Exp $
+ * $Id: SerialHandler.h,v 1.2 2006-07-27 16:05:26 beltran Exp $
  */
 
 #ifndef __SERIALHANDLERH__
@@ -37,7 +37,6 @@
 #include <ace/Task.h>
 #include <ace/CDR_Stream.h>
 #include <ace/DEV_Connector.h>
-#include "DGSDriver.h"
 #include "DGSTask.h"
 #include "SerialFeedbackData.h"
 
