@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: datacollector.cpp,v 1.4 2005-11-26 00:39:23 gmetta Exp $
+/// $Id: datacollector.cpp,v 1.5 2006-07-28 16:58:45 babybot Exp $
 /// 
 
 #include <yarp/YARPConfig.h>
@@ -73,6 +73,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <conio.h>
 
 #include <yarp/YARPLogpolar.h>
 #include <yarp/YARPMath.h>
@@ -84,6 +85,15 @@
 #include <yarp/YARPSemaphore.h>
 #include <yarp/YARPList.h>
 #include <yarp/YARPTime.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPConfigRobot.h>
+
+inline int inkey()
+{
+	if (_kbhit())
+		return _getch();
+	return 0;
+}
 
 class MyPort
 {
@@ -206,6 +216,8 @@ Port1 _touchPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 YARPInputPortOf<YARPGenericImage> _rightImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 YARPInputPortOf<YARPGenericImage> _leftImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 
+YARPInputPortOf<YARPBottle> _synchro(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+
 const double dummy[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 // ADD HERE YOUR PORT
@@ -283,10 +295,15 @@ int main(int argc, char *argv[])
 	tmp.append("/left/i:img");
 	_leftImagePort.Register(tmp.c_str(), "Net1");
 	
+	tmp = _baseName;
+	tmp.append("/synchro");
+	_synchro.Register(tmp.c_str(), "Net0");
+
 	_fillPortList();
 	/////////////////////////////////////////////
 
 	int frameCounter = 0;
+	int frameCounter2 = 0;
 	int nFrame = (int) length/timeFrame;
 
 	char tmpRightName[255];
@@ -297,24 +314,74 @@ int main(int argc, char *argv[])
 
 	int time1;
 	float deltaT = 0;
-	
+	bool con = false;
+
+	/*while (!con)
+	{
+		YBVocab message;
+		_synchro.Read();
+		YARPBottle& bottle = _synchro.Content();
+
+		bottle.tryReadVocab (message);
+		if (message == YBVReachingAck) con = true;
+	}*/
+
 	time1 = YARPTime::GetTimeAsSeconds ();
-	while (frameCounter < nFrame)
+	con = false;
+	char c='a';
+	//while (frameCounter < nFrame && con == false)
+	while (c!='q')
 	{		
-		
 		_leftImagePort.Read();
 		_rightImagePort.Read();
+		
+		/*if (_synchro.Read(0))
+		{
+			YBVocab message;
+			YARPBottle& bottle = _synchro.Content();
 
-		sprintf(tmpLeftName, "%sleft%d.pgm", _path.c_str(), frameCounter);
-		sprintf(tmpRightName, "%sright%d.pgm", _path.c_str(), frameCounter);
+			bottle.tryReadVocab (message);
+			if (message == YBVArmRest) con = true;
+		}
+
+		ACE_OS::sprintf(tmpLeftName, "%sleft%04d.pgm", _path.c_str(), frameCounter);
+		ACE_OS::sprintf(tmpRightName, "%sright%04d.pgm", _path.c_str(), frameCounter);
 		YARPImageFile::Write(tmpLeftName, _leftImagePort.Content());
 		YARPImageFile::Write(tmpRightName, _rightImagePort.Content());
+		
+		dumpAll(_portList);*/
 
-		dumpAll(_portList);
+		c=inkey();
+		if (c=='c') {
+			ACE_OS::sprintf(tmpLeftName, "%sleft%04d.pgm", _path.c_str(), frameCounter);
+			ACE_OS::sprintf(tmpRightName, "%sright%04d.pgm", _path.c_str(), frameCounter);
+			YARPImageFile::Write(tmpLeftName, _leftImagePort.Content());
+			YARPImageFile::Write(tmpRightName, _rightImagePort.Content());
+			frameCounter++;
+			ACE_OS::printf ("Image! %d\n", frameCounter);
+		} 
 
-		printFrame(frameCounter, time1);
-		frameCounter++;
+		if (_synchro.Read(0))
+		{
+			YBVocab message;
+			YARPBottle& bottle = _synchro.Content();
+
+			bottle.tryReadVocab (message);
+			if (message == YBVGraspRflxClutch) {
+				dumpAll(_portList);
+				printFrame(frameCounter, time1);
+				frameCounter2++;
+				ACE_OS::printf ("Grasp! %d\n", frameCounter2);
+			}
+		}
+
 	}
+
+	/*if (con == true)
+		ACE_OS::printf ("Returned because reaching terminated\n");
+	else
+		ACE_OS::printf ("Returned because recorded enough data\n");*/
+
 
 	return 0;
 }

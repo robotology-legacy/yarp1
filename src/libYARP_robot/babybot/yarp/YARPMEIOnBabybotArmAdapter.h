@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.8 2006-02-20 12:45:09 gmetta Exp $
+///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.9 2006-07-28 16:57:38 babybot Exp $
 ///
 ///
 
@@ -577,10 +577,10 @@ public:
 	 */
 	int calibrate(int joint = -1) 
 	{
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Starting calibration routine...\n"));
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Calibration routine started.\n"));
 		if (! (_initialized && _amplifiers) )
 		{
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Sorry cannot calibrate encoders, the arm not initialized or the power is down!\n"));
+			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Arm is not initialized or power is down.\n"));
 			return YARP_FAIL;
 		}
 
@@ -597,68 +597,66 @@ public:
 		double pos2[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 		double newHome[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-		//////////// find first index
+		int waitTime = 0;
+
+		// gather my current position. this is the HOME position from now on
+		IOCtl(CMDGetPositions, posHome);
+
+		// find first index
 		_setHomeConfig(CBStopEvent);
 		_clearStop();
 		
-		//
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Searching first index...\n"));
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Gathering first index...\n"));
 		IOCtl(CMDSetAccelerations, acc);
 		IOCtl(CMDVMove, speeds1);
-		IOCtl(CMDWaitForMotionDone, NULL);
+		IOCtl(CMDWaitForMotionDone, &waitTime);
 		IOCtl(CMDGetPositions, pos1);
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
-		////////////////////////////
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done.\n"));
 
-		//////////// go back to home position
+		// go back to HOME position
 		_setHomeConfig(CBNoEvent);
 		_clearStop();
 		
-		//
 		IOCtl(CMDSetSpeeds, speeds1);
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Going back to initial position... \n"));
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Going back home...\n"));
 		IOCtl(CMDSetPositions, posHome);
-		IOCtl(CMDWaitForMotionDone, NULL);
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
-		///////////////////////////////
+		IOCtl(CMDWaitForMotionDone, &waitTime);
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done.\n"));
 
-		//////////// find second index
+		// find second index
 		_setHomeConfig(CBStopEvent);
 		_clearStop();
 		
-		//
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Searching second index ... \n"));
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Gathering second index...\n"));
 		IOCtl(CMDSetAccelerations, acc);
 		IOCtl(CMDVMove, speeds2);
-		IOCtl(CMDWaitForMotionDone, NULL);
+		IOCtl(CMDWaitForMotionDone, &waitTime);
 		IOCtl(CMDGetPositions, pos2);
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
-		////////////////////////////
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done.\n"));
 
-		// compute new home position
-		for(int i = 0; i < _parameters->_nj; i++)
-		{
+		// compute new HOME position
+		for(int i = 0; i < _parameters->_nj; i++) {
 			newHome[i] = (pos1[i]+pos2[i])/2;
 		}
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Calibration: %lf %lf %lf %lf %lf %lf!\n", newHome[0], newHome[1], newHome[2], newHome[3], newHome[5]));
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Newhome (%.2lf,%.2lf,%.2lf,%.2lf,%.2lf,%.2lf).\n",
+			newHome[0], newHome[1], newHome[2], newHome[3], newHome[4], newHome[5]));
 
-		//////////// go back to the calibrated position
+		// go back to the new, absolutely calibrated position
 		_setHomeConfig(CBNoEvent);
 		_clearStop();
-		//
 
 		IOCtl(CMDSetSpeeds, speeds1);
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Finally move to the calibrated position... \n"));
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Going home...\n"));
 		IOCtl(CMDSetPositions, newHome);
-		IOCtl(CMDWaitForMotionDone, NULL);
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done!\n"));
-		///////////////////////////////
+		IOCtl(CMDWaitForMotionDone, &waitTime);
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done.\n"));
 
 		// reset encoders here
 		_setHomeConfig(CBNoEvent);
 		_clearStop();
+	 	ACE_OS::memset(posHome, 0, sizeof(double)*6);
 		IOCtl(CMDDefinePositions, posHome);	// posHome is still '0'
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Reset encoders... done!\n"));
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Encoders reset.\n"));
 		
 		if (limitFlag)
 			enableLimitCheck();
