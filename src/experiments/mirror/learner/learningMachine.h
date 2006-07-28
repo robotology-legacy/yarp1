@@ -34,11 +34,12 @@ public:
     // parameters of a learning machine
     class params {
 	  public:
-		params(unsigned int capacity, unsigned int domainSize, string name)
-            : _capacity(capacity), _domainSize(domainSize), _name(name) {}
-		params() : _capacity(100), _domainSize(1), _name("learner") {}
+		params(unsigned int capacity, unsigned int domainSize, string name, string path = "")
+            : _capacity(capacity), _domainSize(domainSize), _name(name), _path(path) {}
+		params() : _capacity(100), _domainSize(1), _path(""), _name("learner") {}
 		unsigned int _capacity;
 		unsigned int _domainSize;
+		string _path;
 		string _name;
 	};
 

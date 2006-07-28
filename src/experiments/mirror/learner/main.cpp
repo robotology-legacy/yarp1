@@ -41,6 +41,9 @@ YARPInputPortOf<int> cmd_in (YARPInputPort::NO_BUFFERS, YARP_TCP);
 YARPString portName("learner");
 YARPString netName("default");
 
+// path where data/model files are loaded/saved
+YARPString path("y:\\zgarbage\\");
+
 // domain and codomain size and number of examples
 int domainSize;
 int codomainSize;
@@ -220,14 +223,14 @@ void parseCmdLine( int argc, char** argv )
 		cout << "USAGE: " << argv[0] << endl;
 		cout << "  --dom <domain size> --cod <codomain size>" << endl;
 		cout << "  --ex <number of examples>" << endl;
-		cout << "  [--port <port basename>] [--net <network name>]" << endl;
+		cout << "  [--name <learner name>] [--net <network name>]" << endl;
 		cout << "  [--f] [--u <tolerance values>]" << endl;
 		cout << "  [--cl] [--filter] [--load]" << endl;
 		exit(YARP_OK);
 	}
 
 	// basename of the ports
-	YARPParseParameters::parse(argc, argv, "-port", portName);
+	YARPParseParameters::parse(argc, argv, "-name", portName);
 	// network name
 	YARPParseParameters::parse(argc, argv, "-net", netName);
 	// domain size
@@ -313,8 +316,8 @@ void parseCmdLine( int argc, char** argv )
 	}
 
 	// show parameters
-	cout << "CMDLINE: port basename is " << portName << "." << endl;
-	cout << "CMDLINE: network name is " << netName << "." << endl;
+	cout << "CMDLINE: port basename is \"" << portName << "\"." << endl;
+	cout << "CMDLINE: network name is \"" << netName << "\"." << endl;
 	cout << "CMDLINE: domain dim. " << domainSize << ", codomain dim. " << codomainSize << ", " << capacity << " examples." << endl;
 	switch ( machineType ) {
 	case typeOfMachine::plain:
@@ -342,6 +345,7 @@ void parseCmdLine( int argc, char** argv )
 	if ( ! load ) {
 		cout << "CMDLINE: this machine WON'T load/save any models/data on startup."<<endl;
 	}
+	cout << "CMDLINE: model/data saved in/loaded from \"" << path << "\"."<<endl;
 
 }
 
@@ -364,6 +368,7 @@ int main ( int argc, char** argv )
     params._domainSize = domainSize;
 	string name(portName.c_str());
     params._name = name;
+    params._path = path.c_str();
     if ( classification ) {
 		params._svmparams.svm_type = NU_SVC;
 		params._svmparams.kernel_type = RBF;
@@ -400,7 +405,7 @@ int main ( int argc, char** argv )
     params._filter = filter;
 
 	// create learner (pool of learning machines)
-	libsvmLearner learner(machineType,4,params);
+	libsvmLearner learner(machineType,codomainSize,params);
 
 	// if required, try and load previously saved model and data
 	if ( load ) {
@@ -414,12 +419,6 @@ int main ( int argc, char** argv )
 	lmAlloc(y,codomainSize);
 
 	// ------------ main command parsing loop
-
-	if ( learner.getCount() == 0 ) {
-		ofstream outFile("C:\\yarp\\scripts\\mirror\\sample.dat");
-	}
-	ofstream outFile("C:\\yarp\\scripts\\mirror\\sample.dat",ios::app);
-//	outFile.precision(2);
 
 	bool goOn = true;
 
@@ -447,26 +446,6 @@ int main ( int argc, char** argv )
 			}
 		}
 
-		// ----- just save data got as examples
-		if ( data_in.Read(false) ) {
-			example = data_in.Content();
-			if ( example.Length() == domainSize+codomainSize ) {
-				{ foreach(domainSize,i) x[i] = example[i]; }
-				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
-				if ( learner.addExample(x, y) ) {
-					{ foreach(domainSize+codomainSize,i) outFile << example[i] << " "; }
-					outFile << endl;
-					cout << samples++ << "     \r";
-				}
-			} else {
-				{ foreach(codomainSize,i) prediction[i] = 0.0; } 
-				data_out.Content() = prediction;
-				data_out.Write();
-			}
-		}
-
-goto skip;
-
 		// ----- read an example or a sample to be predicted
 		if ( data_in.Read(false) ) {
 			example = data_in.Content();
@@ -482,15 +461,13 @@ goto skip;
 				{ foreach(domainSize,i) x[i] = example[i]; }
 				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
 				if ( learner.addExample(x, y) ) {
+					learner.save();
 					cout << learner.getCount() << "/" << learner.getCapacity() << "     \r";
-					// every now and then, train the machines and save
-					if ( learner.getCount() % 80 > 75 ) {
+					// every now and then, train the machines
+					if ( learner.getCount() % 30 > 25 ) {
 						learner.train();
 						if ( filter ) {
 							learner.filterSVs();
-						}
-						if ( load ) {
-							learner.save();
 						}
 					}
 				}
@@ -498,8 +475,6 @@ goto skip;
 				cout << "ERROR: got sample/example of the wrong size." << endl;
 			}
 		}
-
-skip:
 
 		// ----- any keyboard commands?
 		if ( _kbhit() ) {
@@ -515,9 +490,7 @@ skip:
 				cin >> newC;
 				learner.setC(newC);
 				learner.train();
-				if ( load ) {
 					learner.save();
-				}
 				break;
 			case 'q': // QUIT
 				cout << "Got QUIT command. Bailing out." << endl;

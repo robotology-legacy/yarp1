@@ -11,11 +11,11 @@ void LearningMachine::save( void )
 {
 
     // save non-normalised data
-    string dataFileName = _params._name + ".raw.data";
+    string dataFileName = _params._path + _params._name + ".raw.data";
     _rawData.save(dataFileName);
     cout << "saved raw data to " << dataFileName << "." << endl;
     // save normalised data
-    dataFileName = _params._name + ".norm.data";
+    dataFileName = _params._path + _params._name + ".norm.data";
     _normalData.save(dataFileName);
     cout << "saved normalised data to " << dataFileName << "." << endl;
 
@@ -26,7 +26,7 @@ bool LearningMachine::load( void )
 {
 
     // load non-normalised data
-    string dataFileName = _params._name + ".raw.data";
+    string dataFileName = _params._path + _params._name + ".raw.data";
     if ( _rawData.load(dataFileName) ==  false ) {
         return false;
     }

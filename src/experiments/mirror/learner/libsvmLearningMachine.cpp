@@ -56,7 +56,7 @@ void libsvmLearningMachine::save()
 {
 
 	// save model
-	string modelFileName = _params._name + ".model";
+	string modelFileName = _params._path + _params._name + ".model";
 	if ( svm_save_model(modelFileName.c_str(), _model ) == -1 ) {
 		cout << "ERROR: could not save model." << endl;
 		return;
@@ -73,7 +73,7 @@ bool libsvmLearningMachine::load()
 {
 
 	// load a previously saved model
-	string modelFileName = _params._name + ".model";
+	string modelFileName = _params._path + _params._name + ".model";
 	_model = svm_load_model(modelFileName.c_str());
 	if ( _model == 0 ) {
 		cout << "no previously saved model found." << endl;
