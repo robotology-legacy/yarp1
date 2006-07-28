@@ -1,6 +1,6 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
 
-WshShell.Run ("handTrackerDisconnect.js", 7, true);
+WshShell.Run ("handTrackerSVMDisconnect.js", 7, true);
 
 WshShell.Run ("yarp-connect /armcontrol/o:status /handtracker/arm/i", 7, true);
 WshShell.Run ("yarp-connect /headcontrol/position/o /handtracker/head/i", 7, true);

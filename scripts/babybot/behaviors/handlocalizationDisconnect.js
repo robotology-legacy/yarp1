@@ -1,4 +1,5 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
+
 WshShell.Run ("yarp-connect /left/o:img !/handlocalization/i:img", 7, true);
 WshShell.Run ("yarp-connect /handlocalization/o:img !/view006/i:img", 7, true);
 
