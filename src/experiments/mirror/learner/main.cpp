@@ -461,14 +461,14 @@ int main ( int argc, char** argv )
 				{ foreach(domainSize,i) x[i] = example[i]; }
 				{ foreach_s(domainSize,domainSize+codomainSize,i) y[i-domainSize] = example[i]; }
 				if ( learner.addExample(x, y) ) {
-					learner.save();
 					cout << learner.getCount() << "/" << learner.getCapacity() << "     \r";
 					// every now and then, train the machines
-					if ( learner.getCount() % 30 > 25 ) {
+					if ( learner.getCount() % 5 == 4 ) {
 						learner.train();
 						if ( filter ) {
 							learner.filterSVs();
 						}
+						learner.save();
 					}
 				}
 			} else {
