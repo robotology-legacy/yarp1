@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.10 2006-02-15 09:44:22 gmetta Exp $
+///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.11 2006-07-28 16:26:15 babybot Exp $
 ///
 ///
 
@@ -536,10 +536,18 @@ public:
 	 */
 	int calibrate(int joint = -1)
 	{
-		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
-		ACE_OS::printf("..done!\n");
 
-		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting inertial sensor calibration:\n"));
+		// head absolute calibration
+		//
+		// does not work so far. better to do it using the higher-level
+		// routines, because of axis mapping and so on.
+
+		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting head calibration routine..."));
+		ACE_OS::printf("done.\n");
+
+		// inertial sensor calibration
+
+		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting inertial sensor calibration..."));
 
 		int p = 0;
 		bool cal = false;
@@ -557,12 +565,14 @@ public:
 			}
 
 			cal = _inertial->calibrate(_tmpShort, &p);
-			ACE_OS::printf("%d\r",p);
+//			ACE_OS::printf("%d\r",p);
 			ACE_OS::sleep(ACE_Time_Value(0,40000));
 		}
 
 		_inertial->save("",_parameters->_inertialConfig);
 		
+		ACE_OS::printf("done.\n");
+
 		return YARP_OK;
 	}
 

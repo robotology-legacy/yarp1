@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPMEIDeviceDriver.cpp,v 1.4 2006-02-20 12:45:09 gmetta Exp $
+/// $Id: YARPMEIDeviceDriver.cpp,v 1.5 2006-07-28 16:23:18 babybot Exp $
 ///
 
 #include "YARPMEIDeviceDriver.h"
@@ -350,7 +350,6 @@ int YARPMEIDeviceDriver::getSpeeds(void *spds)
 		pcdsp_transfer_block(dspPtr, TRUE, FALSE, current_v_addr, 1, &vel);
 		out[i] =  vel*_dsp_rate;
 	}
-
 	return rc;
 }
 
