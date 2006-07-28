@@ -19,15 +19,17 @@
  */
 
 /*
- * RCS-ID:$Id: SerialConsole.h,v 1.2 2006-07-27 16:05:26 beltran Exp $
+ * RCS-ID:$Id: SerialConsole.h,v 1.3 2006-07-28 12:39:00 beltran Exp $
  */
 #ifndef __SERIALCONSOLEH__
 #define __SERIALCONSOLEH__
 
 #include <stdio.h>
 #include <string>
+#include <ace/String_Base.h>
 #include "DGSTask.h"
 #include "SerialFeedbackData.h"
+#include "KeyboardReader.h"
 
 /** 
  * @class SerialConsole
@@ -38,6 +40,15 @@ class SerialConsole:public DGSTask
 
 public:
     SerialConsole ();  /* constructor */
+    /** 
+     * SerialConsole Alternative constructor that accepts a string to
+     * determinate the end of a response. This can be so in some serial
+     * devices like the Barrett Hand that issues a "=>" when a command
+     * response is finish.
+     * 
+     * @param delimiter The string containing the delimiter. 
+     */
+    SerialConsole (char * delimiter); /* alternative constructor */
     ~SerialConsole(); /*Destructor */
     
     /** 
@@ -56,7 +67,7 @@ public:
      * 
      * @return 
      */
-    int setCommandsConsumer(DGSTask * consumer){ commands_consumer = consumer; return 0;};
+    int setCommandsConsumer(DGSTask * consumer){ _mykeyboardreader.setCommandsConsumer(consumer); return 0;};
 
     /** 
      *  IsAlive Prints a messages signaling that is alive
@@ -68,7 +79,7 @@ public:
 protected:
 
 private:
-    DGSTask * commands_consumer;
+    KeyboardReader _mykeyboardreader;
 }; /*   end of class  SerialConsole   */
 
 #endif

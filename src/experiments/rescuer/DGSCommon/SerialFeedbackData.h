@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: SerialFeedbackData.h,v 1.1 2006-07-27 15:23:20 beltran Exp $
+ * RCS-ID:$Id: SerialFeedbackData.h,v 1.2 2006-07-28 12:39:00 beltran Exp $
  */
 
 #ifndef _SERIALFEEDBACKDATAH_ 
@@ -44,6 +44,8 @@ public:
         _command_sender   = 0;
         _bytes_to_read    = 0;
         _counted_bytes    = 0;
+        _use_string_delimiter      = false;
+        _use_bytesnumber_delimiter = false;
     };  /* constructor */
 
     ~SerialFeedbackData()
@@ -100,7 +102,7 @@ public:
      * true if the serial finalization condition has been detected.
      *
      */
-    bool checkSerialResponseEnd(char * serial_response, int 
+    int checkSerialResponseEnd(char * serial_response, int 
         number_of_readed_bytes = 0);
 protected:
 

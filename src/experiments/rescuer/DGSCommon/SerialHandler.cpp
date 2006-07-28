@@ -18,7 +18,7 @@
  */
 
 /*
- * $Id: SerialHandler.cpp,v 1.1 2006-07-27 15:23:20 beltran Exp $
+ * $Id: SerialHandler.cpp,v 1.2 2006-07-28 12:39:00 beltran Exp $
  */
 #include <string.h>
 #include "SerialHandler.h"
@@ -172,8 +172,7 @@ SerialHandler::initiate_read_stream (ACE_Message_Block * response_data_block)
   if (this->_serial_read_stream.read (*mb, mb->size () - 1) == -1)
     ACE_ERROR_RETURN ((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("ACE_Asynch_Read_Stream::read")), -1);
 
-  ACE_DEBUG ((LM_DEBUG, ACE_TEXT("SerialHandler:initiate_read_stream: Asynch Read stream issued sucessfully\n")));/*{{{*/
-/*}}}*/
+  ACE_DEBUG ((LM_DEBUG, ACE_TEXT("SerialHandler:initiate_read_stream: Asynch Read stream issued sucessfully\n")));
   return 0;
 }
 
@@ -209,22 +208,34 @@ SerialHandler::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
   // Start an asynchronous read stream
   ////this->initiate_read_stream ();
   }}}*/
-  SerialFeedbackData * feedback_data = ACE_reinterpret_cast(SerialFeedbackData *, result.message_block().cont()->rd_ptr());
+  if ( result.bytes_transferred() != 0)
+  {
+      SerialFeedbackData * feedback_data = ACE_reinterpret_cast(SerialFeedbackData *, 
+          result.message_block().cont()->rd_ptr());
 
-  // Check if the => command from the barrett is present in the readed buffer
-  if ( feedback_data->checkSerialResponseEnd(result.message_block().rd_ptr(), 0))
-  {
+      // Check if the => command from the barrett is present in the readed buffer
+      int response = feedback_data->checkSerialResponseEnd(result.message_block().rd_ptr(), 
+          result.bytes_transferred());
+      // Get the sender of the command.
       DGSTask * command_sender = feedback_data->getCommandSender();
-      result.message_block().cont()->release();
-      result.message_block().cont(NULL);
-      command_sender->putq(&result.message_block());
-  }
-  else
-  {
-      // Inititiate an asynchronous read from the stream to read the rest of the
-      // response
-      if (this->_serial_read_stream.read (result.message_block(), result.message_block().size() - 1) == -1)
-          ACE_ERROR ((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("ACE_Asynch_Read_Stream::read")));
+
+      switch(response){
+          case 0: /// We have not finish. Continue reading form the serial device.
+              if (this->_serial_read_stream.read (result.message_block(), result.message_block().size() - 1) == -1)
+                  ACE_ERROR ((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("ACE_Asynch_Read_Stream::read")));
+              break;
+          case 1: /// He have got a termination condition.
+              result.message_block().cont()->release();
+              result.message_block().cont(NULL);
+              command_sender->putq(&result.message_block());
+              break;
+          case 2: /// There is not termination condition. Just send back what we have and continue reading.
+              ACE_Message_Block * response_block = result.message_block().cont();
+              result.message_block().cont(NULL);
+              command_sender->putq(&result.message_block());
+              initiate_read_stream (response_block);
+              break;
+      }
   }
 }
 

@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: SerialFeedbackData.cpp,v 1.1 2006-07-27 15:23:20 beltran Exp $
+ * RCS-ID:$Id: SerialFeedbackData.cpp,v 1.2 2006-07-28 12:39:00 beltran Exp $
  */
 
 #include "SerialFeedbackData.h"
@@ -53,24 +53,27 @@ SerialFeedbackData::setSerialResponseDelimiter(int bytes_to_read)
  * 
  * @param serial_reponse A pointer to the readed data.
  * @param number_of_readed_bytes The number of bytes readed.
- * @return True if a end condition has been detected.
- * False if the condition has non been meet.
+ * @return 1 if a end condition has been detected.
+ * @return 2 if no end condition has been activated.
+ * @return 0 if the end condition has not been meet.
  */
-bool SerialFeedbackData::checkSerialResponseEnd(char * serial_response, int
+int SerialFeedbackData::checkSerialResponseEnd(char * serial_response, int
     number_of_readed_bytes)
 {
     if ( _use_string_delimiter || number_of_readed_bytes == 0 )
     {
-        return ACE_OS::strstr( serial_response, _delimiter_string->c_str());
+        char * result = ACE_OS::strstr( serial_response, _delimiter_string->c_str());
+        if (result) return 1;
+        else return 0;
     }
     else if ( _use_bytesnumber_delimiter )
     {
         _counted_bytes += number_of_readed_bytes;
         if (_counted_bytes >= _bytes_to_read)
-            return true;
-        else return false;
+            return 1;
+        else return 0;
     }
 
-    return false;
+    return 2; //No termination condition has been activated
 }
 

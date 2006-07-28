@@ -94,11 +94,11 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\DGSAcceptor.cpp
+SOURCE=.\DGS_MMU_Acceptor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DGSDriver.cpp
+SOURCE=.\DGS_MMU_Driver.cpp
 # End Source File
 # Begin Source File
 
@@ -122,11 +122,11 @@ SOURCE=..\DGSCommon\SerialHandler.cpp
 # PROP Default_Filter "h"
 # Begin Source File
 
-SOURCE=.\DGSAcceptor.h
+SOURCE=.\DGS_MMU_Acceptor.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\DGSDriver.h
+SOURCE=.\DGS_MMU_Driver.h
 # End Source File
 # Begin Source File
 

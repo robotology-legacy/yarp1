@@ -19,7 +19,7 @@
  * */
 
 /*
- * RCS-ID:$Id: SerialConsole.cpp,v 1.1 2006-07-27 15:23:20 beltran Exp $
+ * RCS-ID:$Id: SerialConsole.cpp,v 1.2 2006-07-28 12:39:00 beltran Exp $
  */
 #include "SerialConsole.h"
 
@@ -28,7 +28,13 @@
  */
 SerialConsole::SerialConsole ()
 {
+    _mykeyboardreader.setFather(this);
 }  
+
+SerialConsole::SerialConsole (char * delimiter)
+{
+    _mykeyboardreader.setDelimiter(delimiter);
+}
 
 /** 
  *  SerialConsole::~SerialConsole Destructor
@@ -38,50 +44,16 @@ SerialConsole::~SerialConsole()
 }
 
 /** 
- *  SerialHandler::svc Reads from the keyboard
+ *  SerialHandler::svc This is a loop reading for input from the internal
+ *  queue.
  * @return 
  */
 int SerialConsole::svc()
 {
+    // Activate the task (thread) that reads from the keyboard.
+    _mykeyboardreader.activate();
     for (;;)
     {
-        std::string user_input;
-        int c = getchar();
-        while ( c != '\n')
-        {
-            user_input+= c;
-            c = getchar();
-        }
-        if (user_input.size() == 0) continue;
-
-        if (user_input == "quit") 
-            ACE_OS::printf("ok, received quit\n");
-        // A return is need for the Barrett hand
-        user_input = user_input + "\r";
-
-        //Compose the Ace_Message_Block with user data
-        ACE_Message_Block * message_block = 0;
-        ACE_NEW_RETURN( message_block, ACE_Message_Block(user_input.size()),-1);
-
-        if (message_block->copy(user_input.c_str(), user_input.size())) 
-            ACE_ERROR ((LM_ERROR,"%p%l", ACE_TEXT ("%I%N%l Error coping user message block\n")));
-
-        //Compose a message block putting the pointer to this serial console (to
-        //be used by the serial handler to send back data)
-        SerialFeedbackData * feedback_data = 0;
-        ACE_NEW_RETURN( feedback_data, SerialFeedbackData(),-1);
-        feedback_data->setCommandSender(this);
-        feedback_data->setSerialResponseDelimiter("=>");
-
-        ACE_Message_Block * pointer_block = 0;
-        ACE_NEW_RETURN ( pointer_block, ACE_Message_Block( ACE_reinterpret_cast( char *, feedback_data)), -1);
-        //glue both block message_block and pointer_block
-        message_block->cont(pointer_block);
-        
-        ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l SerialConsole::svc Sending MessageBlock\n")));
-        commands_consumer->putq(message_block);
-        ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l SerialConsole::svc Message Block Send\n")));
-
         //wait for the answer
         ACE_Message_Block * response_block;
         ACE_DEBUG((LM_NOTICE, ACE_TEXT("%N Line %l SerialConsole::svc Waiting Response\n")));
@@ -90,4 +62,5 @@ int SerialConsole::svc()
         response_block->rd_ptr()[response_block->length()] = '\0';
         ACE_OS::printf("%s", response_block->rd_ptr());
     }
+    return 0;
 }
