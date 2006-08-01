@@ -138,6 +138,10 @@ SOURCE=.\libsvm.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\libsvmLearner.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\libsvmLearningMachine.h
 # End Source File
 # Begin Source File

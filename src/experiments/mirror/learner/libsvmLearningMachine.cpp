@@ -52,7 +52,7 @@ void libsvmLearningMachine::reset()
 
 }
 
-void libsvmLearningMachine::save()
+void libsvmLearningMachine::saveModel()
 {
 
 	// save model
@@ -63,13 +63,20 @@ void libsvmLearningMachine::save()
 	}
 	cout << "saved model to " << modelFileName << "." << endl;
 
+}
+
+void libsvmLearningMachine::save()
+{
+
+	// save model
+	saveModel();
+
 	// save data
 	LearningMachine::save();
 
 }
 
-
-bool libsvmLearningMachine::load()
+bool libsvmLearningMachine::loadModel()
 {
 
 	// load a previously saved model
@@ -81,6 +88,18 @@ bool libsvmLearningMachine::load()
 		return false;
 	}
 	cout << "loaded model from " << modelFileName << "." << endl;
+	return true;
+
+}
+
+bool libsvmLearningMachine::load()
+{
+
+	// load model
+	if ( loadModel() == false ) {
+		reset();
+		return false;
+	}
 
 	// try and load data
 	if ( LearningMachine::load() == false ) {

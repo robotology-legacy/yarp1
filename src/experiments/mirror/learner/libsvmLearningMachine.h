@@ -44,8 +44,10 @@ public:
 	~libsvmLearningMachine( void );
 
 	void reset( void );
-	void save( void );
-	bool load( void );
+	void save( void );  // load data and model
+	bool load( void );  // save data and model
+	void saveModel( void );  // load model only
+	bool loadModel( void );  // save model only
 	void setC( const double );
 
 	bool addExample( const real[], const real );
