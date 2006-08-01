@@ -17,12 +17,44 @@
  */
 
 /*
- * RCS-ID:$Id: receiver.cpp,v 1.1 2006-08-01 09:20:13 beltran Exp $
+ * RCS-ID:$Id: receiver.cpp,v 1.2 2006-08-01 20:53:27 beltran Exp $
  */
 
+#include <stdio.h>
+#include <string>
+#include <ace/CDR_Stream.h>
 #include "receiver.h"
+#include "glovedata.h"
+extern const int __finalmessagelength;
 
+int operator>> (ACE_InputCDR &cdr, DataGloveData &glove_data)
+{
+  char * _message = (char *)malloc(__finalmessagelength+1);
+  ACE_CDR::Long length;
 
+  cdr >> length;
+  ACE_INT32 _thumb[3];
+  cdr.read_long_array(_thumb,3);
+  ACE_CDR::Long _palmArch;
+  cdr >> _palmArch;
+  ACE_CDR::Long _wristPitch;
+  cdr >> _wristPitch;
+  ACE_CDR::Long _wristYaw;
+  cdr >> _wristYaw;
+
+  ACE_OS::memcpy(_thumb, glove_data.thumb, sizeof(ACE_INT32));
+  glove_data.palmArch = _palmArch;
+  glove_data.wristPitch = _wristPitch;
+  glove_data.wristYaw = _wristYaw;
+
+  cdr.read_char_array (_message, __finalmessagelength);
+  _message[__finalmessagelength] = '\0';
+
+  glove_data.dump();
+  ACE_OS::printf("%s\n",_message);
+  free(_message);
+  return cdr.good_bit ();
+}
 
 Receiver::Receiver (void)
   : dump_file_ (ACE_INVALID_HANDLE),
@@ -119,6 +151,7 @@ Receiver::open (ACE_HANDLE handle,
     // stream.
     if (this->initiate_read_stream () == -1)
       return;
+     /////this->rs_.read(message_block, 8 );
 }
 
 int
@@ -127,26 +160,21 @@ Receiver::initiate_read_stream (void)
   // Create a new <Message_Block>.  Note that this message block will
   // be used both to <read> data asynchronously from the socket and to
   // <write> data asynchronously to the file.
+  ACE_DEBUG ((LM_DEBUG, "initiate_read_stream called\n"));
   ACE_Message_Block *mb = 0;
-  ACE_NEW_RETURN (mb,
-                  ACE_Message_Block (BUFSIZ + 1),
-                  -1);
+  ACE_NEW_RETURN (mb, ACE_Message_Block (ACE_DEFAULT_CDR_BUFSIZE), -1);
+  ACE_CDR::mb_align(mb);
 
   // Inititiate read
-  if (this->rs_.read (*mb,
-                      mb->size () - 1) == -1)
-    ACE_ERROR_RETURN ((LM_ERROR,
-                       "%p\n",
-                       "ACE_Asynch_Read_Stream::read"),
-                      -1);
+  if (this->rs_.read (*mb, HEADER_SIZE) == -1)
+    ACE_ERROR_RETURN ((LM_ERROR, "%p\n", "ACE_Asynch_Read_Stream::read"), -1);
   return 0;
 }
 
 void
 Receiver::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
 {
-  ACE_DEBUG ((LM_DEBUG,
-              "handle_read_stream called\n"));
+  ACE_DEBUG ((LM_DEBUG, "handle_read_stream called\n"));
 
   // Reset pointers.
   result.message_block ().rd_ptr ()[result.bytes_transferred ()] = '\0';
@@ -166,40 +194,58 @@ Receiver::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
   ACE_DEBUG ((LM_DEBUG, "%s = %s\n", "message_block", result.message_block ().rd_ptr ()));
 #endif /* 0 */
 
-  if (result.success () && result.bytes_transferred () != 0)
-    {
+  if (!result.success() || result.bytes_transferred() == 0)
+  {
+      delete this;
+  }
+  else if (result.bytes_transferred() < result.bytes_to_read())
+  {
+     rs_.read( result.message_block(), result.bytes_to_read() - result.bytes_transferred() ); 
+  }
+  else if ( result.message_block().length() == HEADER_SIZE)
+  {
+      ACE_InputCDR cdr (& (result.message_block()));
+
+      ACE_CDR::Boolean byte_order;
+      cdr >> ACE_InputCDR::to_boolean (byte_order);
+      cdr.reset_byte_order(byte_order);
+
+      ACE_CDR::ULong length;
+      cdr >> length;
+
+      result.message_block().size(length + HEADER_SIZE);
+      rs_.read (result.message_block(),length);
+  }
+  else
+  {
+      ACE_InputCDR cdr (& (result.message_block()));
+
+      ACE_CDR::Boolean byte_order;
+      cdr >> ACE_InputCDR::to_boolean (byte_order);
+      cdr.reset_byte_order(byte_order);
+
+      ACE_CDR::ULong length;
+      cdr >> length;
+      DataGloveData glovedata;
+      cdr >> glovedata;
       // Successful read: write the data to the file asynchronously.
       // Note how we reuse the <ACE_Message_Block> for the writing.
       // Therefore, we do not delete this buffer because it is handled
       // in <handle_write_stream>.
       if (this->wf_.write (result.message_block (),
-                           result.bytes_transferred (),
-                           this->file_offset_) == -1)
-        {
+              result.bytes_transferred (),
+              this->file_offset_) == -1)
+      {
           ACE_ERROR ((LM_ERROR,
-                      "%p\n",
-                      "ACE_Asynch_Write_File::write"));
+                  "%p\n",
+                  "ACE_Asynch_Write_File::write"));
           return;
-        }
+      }
 
       // Initiate new read from the stream.
       if (this->initiate_read_stream () == -1)
-        return;
-    }
-  else
-    {
-      ACE_DEBUG ((LM_DEBUG,
-                  "Receiver completed\n"));
-
-      // No need for this message block anymore.
-      result.message_block ().release ();
-
-      // Note that we are done with the test.
-      done = 1;
-
-      // We are done: commit suicide.
-      delete this;
-    }
+          return;
+  }
 }
 
 void

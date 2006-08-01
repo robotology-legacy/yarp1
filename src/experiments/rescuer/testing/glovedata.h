@@ -17,11 +17,15 @@
  */
 
 /*
- * RCS-ID:$Id: glovedata.h,v 1.1 2006-08-01 09:20:13 beltran Exp $
+ * RCS-ID:$Id: glovedata.h,v 1.2 2006-08-01 20:53:27 beltran Exp $
  */
 
 #ifndef _GLOVEDATAH_ 
 #define _GLOVEDATAH_
+
+#include <stdio.h>
+#include <string>
+#include <ace/Basic_Types.h>
 
 
 extern const char * finalmessage;
@@ -42,7 +46,6 @@ enum DataGloveCmd
 //ccc #include<yarp/begin_pack_for_net.h>
 
 class DataGloveData {
-    DataGloveData(){ clean(); };
     void clean() {
         length = 24 + __finalmessagelength;
         thumb[0]     = 1;  thumb[1]    = 10;  thumb[2]    = 25;
@@ -54,6 +57,7 @@ class DataGloveData {
         palmArch     = 200;	wristPitch   = 255; wristYaw     = 111;
     };
 public:
+    DataGloveData(){ clean(); };
     ACE_INT32 length;
     ACE_INT32 thumb[3];     // [rotation, inner, outer]
     //int index[3];     // [inner, middle, outer phalanx]
@@ -64,6 +68,8 @@ public:
     ACE_INT32 palmArch;     /// palm arch
     ACE_INT32 wristPitch;   /// wrist pitch
     ACE_INT32 wristYaw;     /// wrist yaw
+
+    void dump();
 };
 #endif
 

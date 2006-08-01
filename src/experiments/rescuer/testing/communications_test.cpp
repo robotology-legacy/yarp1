@@ -19,7 +19,7 @@
  */
 
 /*
- * RCS-ID:$Id: communications_test.cpp,v 1.1 2006-08-01 09:20:13 beltran Exp $
+ * RCS-ID:$Id: communications_test.cpp,v 1.2 2006-08-01 20:53:27 beltran Exp $
  */
 #include "ace/OS_NS_string.h"
 #include "ace/OS_main.h"
@@ -41,10 +41,12 @@
 #include "ace/OS_NS_fcntl.h"
 
 #include "receiver.h"
+#include "glovedata.h"
 #include "sender.h"
 
 const char * finalmessage = "GloveDataSend\0";
-const int __finalmessagelength = 13;
+const int __finalmessagelength = 14;
+const int HEADER_SIZE = 8;
 // Host that we're connecting to.
 ACE_TCHAR *host = 0;
 
@@ -115,17 +117,34 @@ ACE_TMAIN (int argc, ACE_TCHAR *argv[])
                         initial_read_size,
                         1) == -1)
        return -1;
+
+     int success = 1;
+
+     while (success > 0  && !done)
+         // Dispatch events via Proactor singleton.
+         success = ACE_Proactor::instance ()->handle_events ();
    }
   // If active side
-  else if (sender.open (host, port) == -1)
-    return -1;
+  //else if (sender.open (host, port) == -1)
+  //  return -1;
+  else 
+  {
+      ACE_INET_Addr reader_addr;
+      int result;
+      result = reader_addr.set ( port, host);
+      ACE_SOCK_Connector connector;
 
-  int success = 1;
+      if (connector.connect (sender.peer (), reader_addr) < 0)
+          ACE_ERROR_RETURN ((LM_ERROR, "%p\n", "connect()"), 1);
+      DataGloveData glove_data;
+      while (1)
+      {
+          sender.send(glove_data);
+          ACE_OS::sleep(2);
+      }
+  }
 
-  while (success > 0  && !done)
-    // Dispatch events via Proactor singleton.
-    success = ACE_Proactor::instance ()->handle_events ();
-
+  ACE_DEBUG ((LM_DEBUG, "Ending the program\n"));
   return 0;
 }
 

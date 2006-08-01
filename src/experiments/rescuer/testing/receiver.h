@@ -25,8 +25,8 @@
 #include "ace/OS_NS_fcntl.h"
 
 extern int done;
+extern const int HEADER_SIZE;
 extern const ACE_TCHAR *dump_file;
-
 
 class Receiver : public ACE_Service_Handler
 {

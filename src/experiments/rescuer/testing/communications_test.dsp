@@ -98,6 +98,10 @@ SOURCE=.\communications_test.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\glovedata.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\receiver.cpp
 # End Source File
 # Begin Source File
@@ -108,6 +112,10 @@ SOURCE=.\sender.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h"
+# Begin Source File
+
+SOURCE=.\glovedata.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\receiver.h
