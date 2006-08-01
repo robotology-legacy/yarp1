@@ -217,6 +217,8 @@ void ArmThread::doLoop()
 	// read data from MEI board
 	read_status();
 
+std::cout << _arm_status._current_position;
+
 	// check tiredness
 	if (_tirednessControl.high() && !_restingInhibited)
 	{

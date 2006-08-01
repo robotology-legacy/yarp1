@@ -30,7 +30,6 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVArmInhibitResting, "inhibit arm resting (dangerous)");
 	REG_VOCAB(sendSimpleVocab, YBVArmForceResting, "force arm resting");
 	REG_VOCAB(sendArmJointCommand, YBVArmForceNewCmd, "send arm position command");
-	REG_VOCAB(sendArmJointCommand, YBVArmForceNewVelCmd, "send arm velocity command (DANGER!!)");
 	REG_VOCAB(sendArmJointCommand, YBVArmNewCmd, "send arm position command");
 	REG_VOCAB(sendArmJointCommand, YBVArmShake, "send arm shake command");
 	REG_VOCAB(sendSimpleVocab, YBVArmHibernate, "hibernate arm control");
