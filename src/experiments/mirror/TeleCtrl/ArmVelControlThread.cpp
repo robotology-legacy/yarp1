@@ -6,6 +6,8 @@ YVector Xdot(3), Qdot(3), starting_Qdot(3);
 // thread body
 // -----------------------------------
 
+extern void forward_kinematics(YVector&, YVector&);
+
 void ArmVelControlThread::Body (void)
 {
 
@@ -37,12 +39,24 @@ void ArmVelControlThread::Body (void)
 	    frRo = _data.tracker0Data.roll - _ref.ro;
 
 		// compute tracker velocity (cms/sec)
-		Xdot(1) =  (frX-oldFrX)*InchCm/_streamingFrequency;
-		Xdot(2) = -(frY-oldFrY)*InchCm/_streamingFrequency;
-		Xdot(3) =  (frZ-oldFrZ)*InchCm/_streamingFrequency;
+		// first version: desired Xdot is EXACTLY the velocity of the tracker
+//		Xdot(1) =  (frX-oldFrX)*InchCm/_streamingFrequency;
+//		Xdot(2) = -(frY-oldFrY)*InchCm/_streamingFrequency;
+//		Xdot(3) =  (frZ-oldFrZ)*InchCm/_streamingFrequency;
+		// second version: desired Xdot is proportional to the current error in position
+		YVector current_Q(3); current_Q = 0.0;
+//		YVector current_Q = _armPos/DegRad;
+		YVector current_X(3);
+		forward_kinematics(current_Q, current_X);
+		YVector desired_X(3);
+		desired_X(1) =  frX*InchCm;
+		desired_X(2) = -frY*InchCm;
+		desired_X(3) =  frZ*InchCm;
+		Xdot = (desired_X-current_X)/_streamingFrequency;
+
 		// assume zero if too small
-		if ( Xdot.norm2() < 3.0 ) {
-			Xdot = 0.0;
+		if ( Xdot.norm2() < 1.0 ) {
+//			Xdot = 0.0;
 		}
 
 		// compute required joints velocity (rads/sec)
@@ -51,8 +65,8 @@ void ArmVelControlThread::Body (void)
 		starting_Qdot = Qdot;
 
 		cout 
-			<< "Xdot " << Xdot(1) << " " << Xdot(2)  << " " << Xdot(3)
-			<< " Q " << _armPos(1)/DegRad  << " " << _armPos(2)/DegRad << " " << _armPos(3)/DegRad
+//			<< "Xdot " << Xdot(1) << " " << Xdot(2)  << " " << Xdot(3)
+//			<< " Q " << _armPos(1)/DegRad  << " " << _armPos(2)/DegRad << " " << _armPos(3)/DegRad
 			<< " Qdot " << Qdot(1)  << " " << Qdot(2)  << " " << Qdot(3)
 			<< "       \r";
 		cout.flush();

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.12 2006-07-04 11:36:52 babybot Exp $
+/// $Id: main.cpp,v 1.13 2006-08-01 14:42:49 babybot Exp $
 ///
 ///
 
@@ -196,7 +196,7 @@ CollectorImage         _img1;
 char* CollectorConfFileName = "C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
 
 // the streaming frequency - used only if cameras are turned off
-const double CollectorStreamingFreq = 0.033;
+const double CollectorStreamingFreq = 0.04;
 
 // a counter, telling us how many times GetData has been called
 unsigned long numOfGetDatas = 0;
