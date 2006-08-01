@@ -41,7 +41,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x410 /d "NDEBUG"
 # ADD RSC /l 0x410 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -53,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing .h and release version...
-PostBuild_Cmds=copy libsvmLearner.h ..\..\..\..\include\yarp	copy release\lib_learner.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy libsvmLearner.h ..\..\..\..\include\yarp	copy release\lib_learner.lib ..\..\..\..\lib\winnt\lib_learner.lib
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "lib_learner - Win32 Debug"
@@ -68,8 +69,9 @@ PostBuild_Cmds=copy libsvmLearner.h ..\..\..\..\include\yarp	copy release\lib_le
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FR /FD /GZ /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x410 /d "_DEBUG"
 # ADD RSC /l 0x410 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -80,8 +82,8 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=Installing .h and release version...
-PostBuild_Cmds=copy libsvmLearner.h ..\..\..\..\include\yarp	copy debug\lib_learner.lib ..\..\..\..\lib\winnt
+PostBuild_Desc=Installing .h and debug version...
+PostBuild_Cmds=copy libsvmLearner.h ..\..\..\..\include\yarp	copy debug\lib_learner.lib ..\..\..\..\lib\winnt\lib_learnerd.lib
 # End Special Build Tool
 
 !ENDIF 

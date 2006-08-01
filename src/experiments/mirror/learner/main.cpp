@@ -15,7 +15,7 @@
 #include <yarp/YARPTime.h>
 #include <yarp/YARPParseParameters.h>
 
-using namespace std;
+//using namespace std;
 
 // ---------- prototypes
 
