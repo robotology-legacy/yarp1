@@ -227,6 +227,40 @@ void msNormaliser::evalStatistics( void )
 
 }
 
+void msNormaliser::save( string fileName )
+{
+
+	ofstream dataOfstream(fileName.c_str());
+	if ( dataOfstream.is_open() == 0 ) {
+		cout << "ERROR: could not save statistics." << endl;
+		return;
+	}
+
+	{ foreach(_source->getSize(),j)
+        dataOfstream << _mean[j] << " " << _stdv[j] << endl;
+	}
+
+}
+
+bool msNormaliser::load( string fileName )
+{
+
+	ifstream dataIfstream(fileName.c_str());
+	if ( dataIfstream.is_open() == 0 ) {
+		cout << "ERROR: could not load statistics." << endl;
+		return false;
+	}
+
+	{ foreach(_source->getSize(),j)
+        dataIfstream >> _mean[j] >> _stdv[j];
+	}
+
+	cout << "loaded " << _source->getSize() << " mean values and standard deviations." << endl;
+
+	return true;
+
+}
+
 // -------------------------------------------------------
 // max/min normaliser
 // -------------------------------------------------------
@@ -330,5 +364,39 @@ void mmNormaliser::evalStatistics( void )
             }
         } }
     } }
+
+}
+
+void mmNormaliser::save( string fileName )
+{
+
+	ofstream dataOfstream(fileName.c_str());
+	if ( dataOfstream.is_open() == 0 ) {
+		cout << "ERROR: could not save statistics." << endl;
+		return;
+	}
+
+	{ foreach(_source->getSize(),j)
+        dataOfstream << _max[j] << " " << _min[j] << endl;
+	}
+
+}
+
+bool mmNormaliser::load( string fileName )
+{
+
+	ifstream dataIfstream(fileName.c_str());
+	if ( dataIfstream.is_open() == 0 ) {
+		cout << "ERROR: could not load statistics." << endl;
+		return false;
+	}
+
+	{ foreach(_source->getSize(),j)
+        dataIfstream >> _max[j] >> _min[j];
+	}
+
+	cout << "loaded " << _source->getSize() << " max and min values." << endl;
+
+	return true;
 
 }

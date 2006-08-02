@@ -23,6 +23,9 @@ public:
     virtual void normaliseAll( void ) = 0;
     virtual void unNormaliseAll( void ) = 0;
     virtual void evalStatistics( void ) = 0;
+	// save/load statistics
+	virtual void save( string ) = 0;
+	virtual bool load( string ) = 0;
 protected:
 	dataSet* _source;
     dataSet* _dest;
@@ -36,6 +39,8 @@ public:
     void normaliseAll( void );
     void unNormaliseAll( void );
     void evalStatistics( void ) {}
+	void save( string ) {};
+	bool load( string ) { return true; };
 };
 
 // fixed statistics normaliser (pass them to the constructor)
@@ -48,6 +53,8 @@ public:
     void normaliseAll( void );
     void unNormaliseAll( void );
     void evalStatistics( void ) {}
+	void save( string ) {};
+	bool load( string ) { return true; };
 private:
 	real _mean, _stdv;
 };
@@ -62,6 +69,8 @@ public:
     void normaliseAll( void );
     void unNormaliseAll( void );
     void evalStatistics( void );
+	void save( string );
+	bool load( string );
 private:
 	real* _mean, * _stdv;
 };
@@ -76,6 +85,8 @@ public:
     void normaliseAll( void );
     void unNormaliseAll( void );
     void evalStatistics( void );
+	void save( string );
+	bool load( string );
 private:
 	real* _max, * _min;
 };

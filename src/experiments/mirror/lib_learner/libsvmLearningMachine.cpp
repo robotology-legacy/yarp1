@@ -55,6 +55,10 @@ void libsvmLearningMachine::reset()
 void libsvmLearningMachine::saveModel()
 {
 
+	// save statistics
+	string statsFileName = _params._path + _params._name + ".stats";
+	_norm->save(statsFileName);
+	
 	// save model
 	string modelFileName = _params._path + _params._name + ".model";
 	if ( svm_save_model(modelFileName.c_str(), _model ) == -1 ) {
@@ -79,6 +83,13 @@ void libsvmLearningMachine::save()
 bool libsvmLearningMachine::loadModel()
 {
 
+	// load statistics
+	string statsFileName = _params._path + _params._name + ".stats";
+	if ( _norm->load(statsFileName) == false ) {
+		cout << "could not load statistics." << endl;
+		return false;
+	}
+	
 	// load a previously saved model
 	string modelFileName = _params._path + _params._name + ".model";
 	_model = svm_load_model(modelFileName.c_str());
