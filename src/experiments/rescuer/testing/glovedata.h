@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: glovedata.h,v 1.2 2006-08-01 20:53:27 beltran Exp $
+ * RCS-ID:$Id: glovedata.h,v 1.3 2006-08-02 15:30:37 beltran Exp $
  */
 
 #ifndef _GLOVEDATAH_ 
@@ -26,9 +26,9 @@
 #include <stdio.h>
 #include <string>
 #include <ace/Basic_Types.h>
+#include "receiver.h"
 
-
-extern const char * finalmessage;
+extern const ACE_TCHAR * finalmessage;
 extern const int __finalmessagelength;
 
 enum DataGloveCmd
@@ -47,7 +47,18 @@ enum DataGloveCmd
 
 class DataGloveData {
     void clean() {
-        length = 24 + __finalmessagelength;
+        length = 28 + getMessageLength();
+        thumb[0]     = 0;  thumb[1]    = 0;  thumb[2]    = 0;
+        //index[0]     = 0;  index[1]    = 0;  index[2]    = 0;
+        //middle[0]    = 0; middle[1]    = 0; middle[2]    = 0;
+        //ring[0]      = 0;   ring[1]    = 0;   ring[2]    = 0;
+        //pinkie[0]    = 0; pinkie[1]    = 0; pinkie[2]    = 0;
+        //abduction[0] = 0; abduction[1] = 0; abduction[2] = 0; abduction[3] = 0;
+        palmArch     = 0;	wristPitch   = 0; wristYaw     = 0;
+    };
+public:
+    DataGloveData(){ clean(); };
+    void initialize() {
         thumb[0]     = 1;  thumb[1]    = 10;  thumb[2]    = 25;
         //index[0]     = 0;  index[1]    = 0;  index[2]    = 0;
         //middle[0]    = 0; middle[1]    = 0; middle[2]    = 0;
@@ -56,8 +67,7 @@ class DataGloveData {
         //abduction[0] = 0; abduction[1] = 0; abduction[2] = 0; abduction[3] = 0;
         palmArch     = 200;	wristPitch   = 255; wristYaw     = 111;
     };
-public:
-    DataGloveData(){ clean(); };
+    size_t getMessageLength() const;
     ACE_INT32 length;
     ACE_INT32 thumb[3];     // [rotation, inner, outer]
     //int index[3];     // [inner, middle, outer phalanx]

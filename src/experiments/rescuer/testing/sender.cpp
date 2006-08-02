@@ -18,7 +18,7 @@
  */
 
 /*
- * RCS-ID:$Id: sender.cpp,v 1.2 2006-08-01 20:53:27 beltran Exp $
+ * RCS-ID:$Id: sender.cpp,v 1.3 2006-08-02 15:30:37 beltran Exp $
  */
 
 #include "ace/OS_NS_sys_time.h"
@@ -42,31 +42,30 @@
 #include "glovedata.h"
 #include "sender.h"
 extern const int HEADER_SIZE;
+extern const int __finalmessagelength;
 
 int operator<< (ACE_OutputCDR &cdr, const DataGloveData &glove_data)
 {
-  size_t msglen = glove_data.length;
+  size_t msglen = glove_data.getMessageLength();
   // Insert each field from <glove_data> into the output CDR stream.
-  cdr << ACE_CDR::ULong (msglen);
   cdr.write_long_array(glove_data.thumb, 3);
   cdr << ACE_CDR::ULong (glove_data.palmArch);
   cdr << ACE_CDR::ULong (glove_data.wristPitch);
   cdr << ACE_CDR::ULong (glove_data.wristYaw);
+  cdr << ACE_CDR::ULong (msglen);
   cdr.write_char_array (finalmessage, __finalmessagelength);
   return cdr.good_bit ();
 }
 
 int
-Sender::send(const DataGloveData &glove_data)
+Sender::send(const DataGloveData &glovedata)
 {
     ACE_DEBUG ((LM_DEBUG, "Sender::initiate_write called\n"));
     const size_t max_payload_size =
-        4 //length 
-        + 24 // Glove data
-        + __finalmessagelength
+        4 //boolean alignment flag
+        + 4 //payload length 
+        + glovedata.length // Data Glove data length
         + ACE_CDR::MAX_ALIGNMENT; //pading
-
-    DataGloveData glovedata;
 
     ACE_OutputCDR payload (max_payload_size);
     payload << glovedata;

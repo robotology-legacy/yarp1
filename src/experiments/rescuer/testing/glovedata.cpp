@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: glovedata.cpp,v 1.1 2006-08-01 20:53:27 beltran Exp $
+ * RCS-ID:$Id: glovedata.cpp,v 1.2 2006-08-02 15:30:37 beltran Exp $
  */
 #include "glovedata.h"
 
@@ -27,7 +27,12 @@ DataGloveData::dump()
     printf("*****Data Glove Structure*****\n");
     printf("Thumb: %d %d %d \n", thumb[0],thumb[1],thumb[2]);
     printf("PalmArch: %d \n",palmArch);
-    printf("WristPitch: %d",wristPitch);
-    printf("WristYaw: %d", wristYaw);
-    printf("*****************************");
+    printf("WristPitch: %d\n",wristPitch);
+    printf("WristYaw: %d\n", wristYaw);
+    printf("*****************************\n");
 }
+size_t DataGloveData::getMessageLength() const
+{
+    return ACE_OS::strlen(finalmessage);
+}
+

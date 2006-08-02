@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: receiver.cpp,v 1.2 2006-08-01 20:53:27 beltran Exp $
+ * RCS-ID:$Id: receiver.cpp,v 1.3 2006-08-02 15:30:37 beltran Exp $
  */
 
 #include <stdio.h>
@@ -25,34 +25,36 @@
 #include <ace/CDR_Stream.h>
 #include "receiver.h"
 #include "glovedata.h"
-extern const int __finalmessagelength;
+const ACE_TCHAR * finalmessage = "GloveDataSend";
+const int __finalmessagelength = 13;
 
 int operator>> (ACE_InputCDR &cdr, DataGloveData &glove_data)
 {
-  char * _message = (char *)malloc(__finalmessagelength+1);
-  ACE_CDR::Long length;
+  //char * _message = (char *)malloc((__finalmessagelength+1) *sizeof(char));
+  ACE_TCHAR _message[512];
+  ACE_CDR::ULong msglength;
 
-  cdr >> length;
   ACE_INT32 _thumb[3];
   cdr.read_long_array(_thumb,3);
-  ACE_CDR::Long _palmArch;
+  ACE_CDR::ULong _palmArch;
   cdr >> _palmArch;
-  ACE_CDR::Long _wristPitch;
+  ACE_CDR::ULong _wristPitch;
   cdr >> _wristPitch;
-  ACE_CDR::Long _wristYaw;
+  ACE_CDR::ULong _wristYaw;
   cdr >> _wristYaw;
+  cdr >> msglength;
 
-  ACE_OS::memcpy(_thumb, glove_data.thumb, sizeof(ACE_INT32));
-  glove_data.palmArch = _palmArch;
+  ACE_OS::memcpy(glove_data.thumb, _thumb, sizeof(ACE_INT32)*3);
+  glove_data.palmArch   = _palmArch;
   glove_data.wristPitch = _wristPitch;
-  glove_data.wristYaw = _wristYaw;
+  glove_data.wristYaw   = _wristYaw;
 
-  cdr.read_char_array (_message, __finalmessagelength);
-  _message[__finalmessagelength] = '\0';
+  cdr.read_char_array (_message, msglength);
+  _message[msglength] = '\0';
 
   glove_data.dump();
-  ACE_OS::printf("%s\n",_message);
-  free(_message);
+  ACE_OS::printf("%s **END MESSAGE*\n",_message);
+  //free(_message);
   return cdr.good_bit ();
 }
 
@@ -115,38 +117,38 @@ Receiver::open (ACE_HANDLE handle,
 
   // Fake the result and make the <handle_read_stream> get
   // called. But, not, if there is '0' is transferred.
-  //ccc if (message_block.length () != 0)
-    //ccc {
-      //ccc // Duplicate the message block so that we can keep it around.
-      //ccc ACE_Message_Block &duplicate =
-        //ccc *message_block.duplicate ();
-        //ccc 
-      //ccc // Fake the result so that we will get called back.
-      //ccc ACE_Asynch_Read_Stream_Result_Impl *fake_result =
-        //ccc ACE_Proactor::instance ()->create_asynch_read_stream_result (*this,
-                                                                     //ccc this->handle_,
-                                                                     //ccc duplicate,
-                                                                     //ccc initial_read_size,
-                                                                     //ccc 0,
-                                                                     //ccc ACE_INVALID_HANDLE,
-                                                                     //ccc 0,
-                                                                     //ccc 0);
-                                                                     //ccc 
-      //ccc size_t bytes_transferred = message_block.length ();
-      //ccc 
-      //ccc // <complete> for Accept would have already moved the <wr_ptr>
-      //ccc // forward. Update it to the beginning position.
-      //ccc duplicate.wr_ptr (duplicate.wr_ptr () - bytes_transferred);
-      //ccc 
-      //ccc // This will call the callback.
-      //ccc fake_result->complete (message_block.length (),
-                             //ccc 1,
-                             //ccc 0);
-                             //ccc 
-      //ccc // Zap the fake result.
-      //ccc delete fake_result;
-    //ccc }
-  //ccc else
+  ////CCC if (message_block.length () != 0)
+  ////CCC   {
+  ////CCC     // Duplicate the message block so that we can keep it around.
+  ////CCC     ACE_Message_Block &duplicate =
+  ////CCC       *message_block.duplicate ();
+  ////CCC       
+  ////CCC     // Fake the result so that we will get called back.
+  ////CCC     ACE_Asynch_Read_Stream_Result_Impl *fake_result =
+  ////CCC       ACE_Proactor::instance ()->create_asynch_read_stream_result (*this,
+  ////CCC                                                                    this->handle_,
+  ////CCC                                                                    duplicate,
+  ////CCC                                                                    0,
+  ////CCC                                                                    0,
+  ////CCC                                                                    ACE_INVALID_HANDLE,
+  ////CCC                                                                    0,
+  ////CCC                                                                    0);
+  ////CCC                                                                    
+  ////CCC     size_t bytes_transferred = message_block.length ();
+  ////CCC     
+  ////CCC     // <complete> for Accept would have already moved the <wr_ptr>
+  ////CCC     // forward. Update it to the beginning position.
+  ////CCC     duplicate.wr_ptr (duplicate.wr_ptr () - bytes_transferred);
+  ////CCC     
+  ////CCC     // This will call the callback.
+  ////CCC     fake_result->complete (message_block.length (),
+  ////CCC                            1,
+  ////CCC                            0);
+  ////CCC                            
+  ////CCC     // Zap the fake result.
+  ////CCC     delete fake_result;
+  ////CCC   }
+  ////CCC else
     // Otherwise, make sure we proceed. Initiate reading the socket
     // stream.
     if (this->initiate_read_stream () == -1)
@@ -177,7 +179,7 @@ Receiver::handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
   ACE_DEBUG ((LM_DEBUG, "handle_read_stream called\n"));
 
   // Reset pointers.
-  result.message_block ().rd_ptr ()[result.bytes_transferred ()] = '\0';
+  ////result.message_block ().rd_ptr ()[result.bytes_transferred ()] = '\0';
 
   ACE_DEBUG ((LM_DEBUG, "********************\n"));
   ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "bytes_to_read", result.bytes_to_read ()));

@@ -19,7 +19,7 @@
  */
 
 /*
- * RCS-ID:$Id: communications_test.cpp,v 1.2 2006-08-01 20:53:27 beltran Exp $
+ * RCS-ID:$Id: communications_test.cpp,v 1.3 2006-08-02 15:30:37 beltran Exp $
  */
 #include "ace/OS_NS_string.h"
 #include "ace/OS_main.h"
@@ -44,8 +44,6 @@
 #include "glovedata.h"
 #include "sender.h"
 
-const char * finalmessage = "GloveDataSend\0";
-const int __finalmessagelength = 14;
 const int HEADER_SIZE = 8;
 // Host that we're connecting to.
 ACE_TCHAR *host = 0;
@@ -113,9 +111,7 @@ ACE_TMAIN (int argc, ACE_TCHAR *argv[])
   // If passive side
   if (host == 0)
    {
-     if (acceptor.open (ACE_INET_Addr (port),
-                        initial_read_size,
-                        1) == -1)
+     if (acceptor.open (ACE_INET_Addr (port)) == -1)
        return -1;
 
      int success = 1;
@@ -137,8 +133,10 @@ ACE_TMAIN (int argc, ACE_TCHAR *argv[])
       if (connector.connect (sender.peer (), reader_addr) < 0)
           ACE_ERROR_RETURN ((LM_ERROR, "%p\n", "connect()"), 1);
       DataGloveData glove_data;
+      glove_data.initialize();
       while (1)
       {
+          ACE_OS::printf("*****%s ******\n", finalmessage);
           sender.send(glove_data);
           ACE_OS::sleep(2);
       }
