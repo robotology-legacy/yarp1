@@ -19,7 +19,7 @@
  */
 
 /*
- * RCS-ID:$Id: communications_test.cpp,v 1.3 2006-08-02 15:30:37 beltran Exp $
+ * RCS-ID:$Id: communications_test.cpp,v 1.4 2006-08-03 16:46:08 beltran Exp $
  */
 #include "ace/OS_NS_string.h"
 #include "ace/OS_main.h"
@@ -43,6 +43,7 @@
 #include "receiver.h"
 #include "glovedata.h"
 #include "sender.h"
+#include "UDPGenerator.h"
 
 const int HEADER_SIZE = 8;
 // Host that we're connecting to.
@@ -50,6 +51,7 @@ ACE_TCHAR *host = 0;
 
 // Port that we're receiving connections on.
 u_short port = ACE_DEFAULT_SERVER_PORT;
+u_short remoteport = 0;
 
 // File that we're sending.
 const ACE_TCHAR *file = ACE_TEXT("communications_test.cpp");
@@ -63,11 +65,14 @@ int done = 0;
 // Size of each initial asynchronous <read> operation.
 int initial_read_size = BUFSIZ;
 
+// Whether the connection is udp or tcp
+bool udp = false;
+
 
 static int
 parse_args (int argc, ACE_TCHAR *argv[])
 {
-  ACE_Get_Opt get_opt (argc, argv, ACE_TEXT("h:p:f:d:"));
+  ACE_Get_Opt get_opt (argc, argv, ACE_TEXT("h:p:r:f:d:u"));
   int c;
 
   while ((c = get_opt ()) != EOF)
@@ -79,18 +84,26 @@ parse_args (int argc, ACE_TCHAR *argv[])
       case 'p':
         port = ACE_OS::atoi (get_opt.opt_arg ());
         break;
+      case 'r':
+        remoteport = ACE_OS::atoi (get_opt.opt_arg());
+        break;
       case 'f':
         file = get_opt.opt_arg ();
         break;
       case 'd':
         //dump_file = get_opt.opt_arg ();
         break;
+      case 'u':
+        udp = true;
+        break;
       default:
         ACE_ERROR ((LM_ERROR, "%p.\n",
                     "usage :\n"
                     "-h <host>\n"
-                    "-p <port>\n"
-                    "-f <file>\n"));
+                    "-p <localport>\n"
+					"-r <remoteport>\n"
+                    "-f <file>\n"
+                    "-d determines the use of udp\n"));
         return -1;
       }
 
@@ -103,43 +116,68 @@ ACE_TMAIN (int argc, ACE_TCHAR *argv[])
   if (parse_args (argc, argv) == -1)
     return -1;
 
-  Sender sender;
-
-  // Note: acceptor parameterized by the Receiver.
-  ACE_Asynch_Acceptor<Receiver> acceptor;
-
-  // If passive side
-  if (host == 0)
-   {
-     if (acceptor.open (ACE_INET_Addr (port)) == -1)
-       return -1;
-
-     int success = 1;
-
-     while (success > 0  && !done)
-         // Dispatch events via Proactor singleton.
-         success = ACE_Proactor::instance ()->handle_events ();
-   }
-  // If active side
-  //else if (sender.open (host, port) == -1)
-  //  return -1;
-  else 
+  if ( udp = false) // Lets do a tcp/ip connection
   {
-      ACE_INET_Addr reader_addr;
-      int result;
-      result = reader_addr.set ( port, host);
-      ACE_SOCK_Connector connector;
+      Sender sender;
 
-      if (connector.connect (sender.peer (), reader_addr) < 0)
-          ACE_ERROR_RETURN ((LM_ERROR, "%p\n", "connect()"), 1);
-      DataGloveData glove_data;
-      glove_data.initialize();
-      while (1)
+      // Note: acceptor parameterized by the Receiver.
+      ACE_Asynch_Acceptor<Receiver> acceptor;
+
+      // If passive side
+      if (host == 0)
       {
-          ACE_OS::printf("*****%s ******\n", finalmessage);
-          sender.send(glove_data);
-          ACE_OS::sleep(2);
+          if (acceptor.open (ACE_INET_Addr (port)) == -1)
+              return -1;
+
+          int success = 1;
+
+          while (success > 0  && !done)
+              // Dispatch events via Proactor singleton.
+              success = ACE_Proactor::instance ()->handle_events ();
       }
+      // If active side
+      //else if (sender.open (host, port) == -1)
+      //  return -1;
+      else 
+      {
+          ACE_INET_Addr reader_addr;
+          int result;
+          result = reader_addr.set ( port, host);
+          ACE_SOCK_Connector connector;
+
+          if (connector.connect (sender.peer (), reader_addr) < 0)
+              ACE_ERROR_RETURN ((LM_ERROR, "%p\n", "connect()"), 1);
+          DataGloveData glove_data;
+          glove_data.initialize();
+          while (1)
+          {
+              ACE_OS::printf("*****%s ******\n", finalmessage);
+              sender.send(glove_data);
+              ACE_OS::sleep(2);
+          }
+      }
+  }
+  else // We want an udp connection
+  {
+      UDPGenerator udpGenerator;
+
+      // If passive side
+      if (host == 0 || port == 0 || remoteport == 0 )
+      {
+          ACE_ERROR_RETURN((LM_ERROR,ACE_TEXT("Sorry, I need a remote host name\n")),-1);
+          return -1;
+      }
+      // If active side
+      else if (udpGenerator.open (host, port, remoteport) == -1)
+          return -1;
+
+      for (int success = 1;
+          success > 0  && !done;
+          )
+          // Dispatch events via Proactor singleton.
+          success = ACE_Proactor::instance ()->handle_events ();
+
+      return 0;
   }
 
   ACE_DEBUG ((LM_DEBUG, "Ending the program\n"));

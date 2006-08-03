@@ -108,6 +108,10 @@ SOURCE=.\receiver.cpp
 
 SOURCE=.\sender.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\UDPGenerator.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -123,6 +127,10 @@ SOURCE=.\receiver.h
 # Begin Source File
 
 SOURCE=.\sender.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\UDPGenerator.h
 # End Source File
 # End Group
 # End Target
