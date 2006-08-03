@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: UDPGenerator.h,v 1.1 2006-08-03 16:46:08 beltran Exp $
+ * RCS-ID:$Id: UDPGenerator.h,v 1.2 2006-08-03 19:57:49 beltran Exp $
  */
 
 #ifndef _UDPGENERATORH_ 
@@ -32,6 +32,8 @@
 #include "ace/Message_Block.h"
 #include "ace/Get_Opt.h"
 #include "ace/Log_Msg.h"
+#include "ace/CDR_Stream.h"
+#include "glovedata.h"
 
 class UDPGenerator : public ACE_Service_Handler
 {
@@ -67,8 +69,11 @@ protected:
    */
   virtual void handle_write_dgram (const ACE_Asynch_Write_Dgram::Result &result);
 
-  int readdatagram();
-  int writedatagram(const ACE_TCHAR * remotehost, u_short remoteport);
+  int readdatagram(int header_size);
+  int gloveDgramWrite(const ACE_TCHAR * remotehost, u_short remoteport, const DataGloveData &glovedata);
+
+  int writedatagram( const ACE_TCHAR * remotehost, u_short remoteport);
+  int UDPGenerator::rescuerDgramWrite( const ACE_TCHAR * remotehost, u_short remoteport);
 
 private:
   ACE_SOCK_Dgram sockDgram_;

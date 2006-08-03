@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: UDPGenerator.cpp,v 1.1 2006-08-03 16:46:08 beltran Exp $
+ * RCS-ID:$Id: UDPGenerator.cpp,v 1.2 2006-08-03 19:57:49 beltran Exp $
  */
 
 #include "ace/OS_NS_string.h"
@@ -33,6 +33,8 @@
 
 // Keep track of when we're done.
 static int done = 0;
+extern int operator<< (ACE_OutputCDR &cdr, const DataGloveData &glove_data);
+extern int operator>> (ACE_InputCDR &cdr, DataGloveData &glove_data);
 
 UDPGenerator::UDPGenerator (void)
   : completion_key_ ("UDPGenerator Completion Key"),
@@ -84,37 +86,28 @@ UDPGenerator::open(const ACE_TCHAR *remotehost,
     ACE_ERROR_RETURN ((LM_ERROR, "%p\n", "ACE_Asynch_Write_Dgram::open"), -1);
 
   int res = 0;
-  res = readdatagram();
-  res = writedatagram(remotehost, remoteport);
-
+  //res = readdatagram(4);
+  //DataGloveData glove_data;
+  //glove_data.initialize();
+  //res = writedatagram(remotehost, remoteport);
+  res = rescuerDgramWrite(remotehost, remoteport);
+  //res = gloveDgramWrite(remotehost, remoteport, glove_data);
+  res = readdatagram(4);
   return res;
 }
 
-int UDPGenerator::readdatagram()
+int UDPGenerator::readdatagram(int header_size)
 {
-  // Create a buffer to read into.  We are using scatter/gather to
-  // read the message header and message body into 2 buffers
-
-  // create a message block to read the message header
   ACE_Message_Block* msg = 0;
   ACE_NEW_RETURN (msg, ACE_Message_Block (1024), -1);
 
-  // the next line sets the size of the header, even though we
-  // allocated a the message block of 1k, by setting the size to 20
-  // bytes then the first 20 bytes of the reveived datagram will be
-  // put into this message block.
-  msg->size (20); // size of header to read is 20 bytes
+  msg->size (header_size); // size of header to read is 20 bytes
 
   // create a message block to read the message body
   ACE_Message_Block* body = 0;
   ACE_NEW_RETURN (body, ACE_Message_Block (1024), -1);
   // The message body will not exceed 1024 bytes, at least not in this test.
 
-  // set body as the cont of msg.  This associates the 2 message
-  // blocks so that a read will fill the first block (which is the
-  // header) up to size(), and use the cont() block for the rest of
-  // the data.  You can chain up to IOV_MAX message block using this
-  // method.
   msg->cont (body);
 
   // ok lets do the asynch read
@@ -127,7 +120,7 @@ int UDPGenerator::readdatagram()
       PF_INET,
       this->act_);
   
-  switch (res)
+  switch (res)/*{{{*/
   {
       case 0:
           // this is a good error.  The proactor will call our handler when the
@@ -158,9 +151,108 @@ int UDPGenerator::readdatagram()
                   "ACE_Asynch_Read_Dgram::recv"));
           msg->release ();
           break;
-  }
+  }/*}}}*/
 
   return res;
+}
+
+
+/** 
+ * UDPGenerator::gloveDgramWrite
+ * 
+ * @param remotehost 
+ * @param remoteport 
+ * @param glovedata 
+ * 
+ * @return 
+ */
+int UDPGenerator::gloveDgramWrite(
+    const ACE_TCHAR * remotehost, 
+    u_short remoteport,
+    const DataGloveData &glovedata)
+{
+    ACE_DEBUG ((LM_DEBUG, "Sender::initiate_write called\n"));
+    const size_t max_payload_size =
+        4 //boolean alignment flag
+        + 4 //payload length 
+        + glovedata.length // Data Glove data length
+        + ACE_CDR::MAX_ALIGNMENT; //pading
+
+    ACE_OutputCDR payload (max_payload_size);
+    payload << glovedata;
+
+    ACE_CDR::ULong length = payload.total_length();
+
+    ACE_OutputCDR header (ACE_CDR::MAX_ALIGNMENT + 8);
+    header << ACE_OutputCDR::from_boolean (ACE_CDR_BYTE_ORDER);
+    header << ACE_CDR::ULong(length);
+
+    iovec iov[2];
+    iov[0].iov_base = header.begin()->rd_ptr();
+    iov[0].iov_len  = HEADER_SIZE;
+    iov[1].iov_base = payload.begin()->rd_ptr();
+    iov[1].iov_len  = length;
+
+    ACE_INET_Addr serverAddr(remoteport, remotehost);
+    return sockDgram_.send(iov,2,  serverAddr );
+}
+
+int UDPGenerator::rescuerDgramWrite(
+    const ACE_TCHAR * remotehost, 
+    u_short remoteport)
+{
+    ACE_DEBUG ((LM_DEBUG, "Sender::initiate_write called\n"));
+    const size_t max_payload_size = 4 + ACE_CDR::MAX_ALIGNMENT; //pading
+
+    u_short myid = htons(5);
+    u_short mysize = htons(0);
+
+    ACE_Message_Block* body = 0;
+    ACE_NEW_RETURN(body, ACE_Message_Block(4), -1);
+    body->copy((const char *)&myid, 2);
+    body->copy((const char *)&mysize, 2);
+
+    size_t number_of_bytes_sent = 0;
+    ACE_INET_Addr serverAddr(remoteport, remotehost);
+    int res = this->wd_.send(
+        body, number_of_bytes_sent, 
+        0, 
+        serverAddr, 
+        this->act_);
+
+    switch (res)
+    {
+        case 0:
+            // this is a good error.  The proactor will call our handler when the
+            // send has completed.
+            break;
+        case 1:
+            // actually sent something, we will handle it in the handler callback
+            ACE_DEBUG ((LM_DEBUG, "********************\n"));
+            ACE_DEBUG ((LM_DEBUG,
+                    "%s = %d\n",
+                    "bytes sent immediately",
+                    number_of_bytes_sent));
+            ACE_DEBUG ((LM_DEBUG, "********************\n"));
+            res = 0;
+            break;
+        case -1:
+            // Something else went wrong.
+            ACE_ERROR ((LM_ERROR,
+                    "%p\n",
+                    "ACE_Asynch_Write_Dgram::recv"));
+            // the handler will not get called in this case so lets clean up our msg
+            body->release ();
+            break;
+        default:
+            // Something undocumented really went wrong.
+            ACE_ERROR ((LM_ERROR,
+                    "%p\n",
+                    "ACE_Asynch_Write_Dgram::recv"));
+            body->release ();
+            break;
+    }
+    return res;
 }
 
 int UDPGenerator::writedatagram(const ACE_TCHAR * remotehost,
@@ -182,10 +274,6 @@ int UDPGenerator::writedatagram(const ACE_TCHAR * remotehost,
   ACE_OS::memset(body->wr_ptr(), 'X', 100);
   body->wr_ptr(100); // always remember to update the wr_ptr()
 
-  // set body as the cont of msg.  This associates the 2 message blocks so
-  // that a send will send the first block (which is the header) up to
-  // length(), and use the cont() to get the next block to send.  You can
-  // chain up to IOV_MAX message block using this method.
   msg->cont(body);
 
   // do the asynch send
@@ -257,11 +345,31 @@ UDPGenerator::handle_read_dgram (const ACE_Asynch_Read_Dgram::Result &result)
       for (const ACE_Message_Block* msg = result.message_block(); msg != 0; msg = msg->cont ())
         { // use msg->length() to get the number of bytes written to the message
           // block.
-          ACE_DEBUG ((LM_DEBUG, "Buf=[size=<%d>", msg->length ()));
-          for (u_long i = 0; i < msg->length(); ++i)
-            ACE_DEBUG ((LM_DEBUG,
-                        "%c", (msg->rd_ptr())[i]));
-          ACE_DEBUG ((LM_DEBUG, "]\n"));
+          if (msg->length() == 8)
+          {
+              ACE_InputCDR cdr (msg);
+
+              ACE_CDR::Boolean byte_order;
+              cdr >> ACE_InputCDR::to_boolean (byte_order);
+              cdr.reset_byte_order(byte_order);
+              ACE_CDR::ULong length;
+              cdr >> length;
+
+              ACE_InputCDR cdrpayload(msg->cont());
+              cdrpayload.reset_byte_order(byte_order);
+              DataGloveData glovedata;
+              cdrpayload >> glovedata;
+              continue;
+          }
+          else
+          {
+              ACE_DEBUG ((LM_DEBUG, "Buf=[size=<%d>", msg->length ()));
+              for (u_long i = 0; i < msg->length(); ++i)
+                  ACE_DEBUG ((LM_DEBUG, "%c", (msg->rd_ptr())[i]));
+              ACE_DEBUG ((LM_DEBUG, "]\n"));
+          }
+
+
         }
     }
 
@@ -269,7 +377,7 @@ UDPGenerator::handle_read_dgram (const ACE_Asynch_Read_Dgram::Result &result)
 
   // No need for this message block anymore.
   result.message_block ()->release ();
-  readdatagram();
+  readdatagram(8);
 
   // Note that we are done with the test.
   done++;
