@@ -17,7 +17,7 @@
  */
 
 /*
- * RCS-ID:$Id: UDPGenerator.cpp,v 1.2 2006-08-03 19:57:49 beltran Exp $
+ * RCS-ID:$Id: UDPGenerator.cpp,v 1.3 2006-08-04 14:29:44 beltran Exp $
  */
 
 #include "ace/OS_NS_string.h"
@@ -90,7 +90,7 @@ UDPGenerator::open(const ACE_TCHAR *remotehost,
   //DataGloveData glove_data;
   //glove_data.initialize();
   //res = writedatagram(remotehost, remoteport);
-  res = rescuerDgramWrite(remotehost, remoteport);
+  res = rescuerHandSake(remotehost, remoteport);
   //res = gloveDgramWrite(remotehost, remoteport, glove_data);
   res = readdatagram(4);
   return res;
@@ -98,7 +98,7 @@ UDPGenerator::open(const ACE_TCHAR *remotehost,
 
 int UDPGenerator::readdatagram(int header_size)
 {
-  ACE_Message_Block* msg = 0;
+  ACE_Message_Block* msg = 0;/*{{{*/
   ACE_NEW_RETURN (msg, ACE_Message_Block (1024), -1);
 
   msg->size (header_size); // size of header to read is 20 bytes
@@ -119,7 +119,7 @@ int UDPGenerator::readdatagram(int header_size)
       0,
       PF_INET,
       this->act_);
-  
+  /*}}}*/
   switch (res)/*{{{*/
   {
       case 0:
@@ -178,26 +178,38 @@ int UDPGenerator::gloveDgramWrite(
         + glovedata.length // Data Glove data length
         + ACE_CDR::MAX_ALIGNMENT; //pading
 
-    ACE_OutputCDR payload (max_payload_size);
-    payload << glovedata;
+    // Rescuer header
+    u_short myid = htons(5);
+    u_short mysize = htons(max_payload_size);
 
-    ACE_CDR::ULong length = payload.total_length();
+    ACE_Message_Block* rescuerheader= 0;
+    ACE_NEW_RETURN(rescuerheader, ACE_Message_Block(4), -1);
+    rescuerheader->copy((const char *)&myid, 2);
+    rescuerheader->copy((const char *)&mysize, 2);
 
+    // My DGS stuff (header and payload)
     ACE_OutputCDR header (ACE_CDR::MAX_ALIGNMENT + 8);
     header << ACE_OutputCDR::from_boolean (ACE_CDR_BYTE_ORDER);
     header << ACE_CDR::ULong(length);
 
-    iovec iov[2];
-    iov[0].iov_base = header.begin()->rd_ptr();
-    iov[0].iov_len  = HEADER_SIZE;
-    iov[1].iov_base = payload.begin()->rd_ptr();
-    iov[1].iov_len  = length;
+    // DGS Payload
+    ACE_OutputCDR payload (max_payload_size);
+    payload << glovedata;
+    ACE_CDR::ULong length = payload.total_length();
+
+    iovec iov[3];
+    iov[0].iov_base = rescuerheader->rd_ptr();
+    iov[0].iov_len  = 4;
+    iov[1].iov_base = header.begin()->rd_ptr();
+    iov[1].iov_len  = HEADER_SIZE;
+    iov[2].iov_base = payload.begin()->rd_ptr();
+    iov[2].iov_len  = length;
 
     ACE_INET_Addr serverAddr(remoteport, remotehost);
-    return sockDgram_.send(iov,2,  serverAddr );
+    return sockDgram_.send(iov,3,  serverAddr );
 }
 
-int UDPGenerator::rescuerDgramWrite(
+int UDPGenerator::rescuerHandSake(
     const ACE_TCHAR * remotehost, 
     u_short remoteport)
 {
@@ -258,7 +270,7 @@ int UDPGenerator::rescuerDgramWrite(
 int UDPGenerator::writedatagram(const ACE_TCHAR * remotehost,
     u_short remoteport)
 {
-  // We are using scatter/gather to send the message header and
+  // We are using scatter/gather to send the message header and/*{{{*/
   // message body using 2 buffers
 
   // create a message block for the message header
@@ -318,14 +330,14 @@ int UDPGenerator::writedatagram(const ACE_TCHAR * remotehost,
       break;
     }
   return res;
-}
+}/*}}}*/
 
 void
 UDPGenerator::handle_read_dgram (const ACE_Asynch_Read_Dgram::Result &result)
 {
   ACE_DEBUG ((LM_DEBUG, "handle_read_dgram called\n"));
 
-  ACE_DEBUG ((LM_DEBUG, "********************\n"));
+  ACE_DEBUG ((LM_DEBUG, "********************\n"));/*{{{*/
   ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "bytes_to_read", result.bytes_to_read ()));
   ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "handle", result.handle ()));
   ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "bytes_transfered", result.bytes_transferred ()));
@@ -337,47 +349,60 @@ UDPGenerator::handle_read_dgram (const ACE_Asynch_Read_Dgram::Result &result)
   ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "success", result.success ()));
   ACE_DEBUG ((LM_DEBUG, "%s = %s\n", "completion_key", result.completion_key ()));
   ACE_DEBUG ((LM_DEBUG, "%s = %d\n", "error", result.error ()));
-  ACE_DEBUG ((LM_DEBUG, "********************\n"));
+  ACE_DEBUG ((LM_DEBUG, "********************\n"));/*}}}*/
 
   if (result.success () && result.bytes_transferred () != 0)
     {
-      // loop through our message block and print out the contents
-      for (const ACE_Message_Block* msg = result.message_block(); msg != 0; msg = msg->cont ())
-        { // use msg->length() to get the number of bytes written to the message
+        const ACE_Message_Block * msg = result.message_block();
+
+        ACE_InputCDR cdr (msg->cont());
+
+        ACE_CDR::Boolean byte_order;
+        cdr >> ACE_InputCDR::to_boolean (byte_order);
+        cdr.reset_byte_order(byte_order);
+        ACE_CDR::ULong length;
+        cdr >> length;
+
+        ACE_InputCDR cdrpayload(msg->cont());
+        cdrpayload.reset_byte_order(byte_order);
+        DataGloveData glovedata;
+        cdrpayload >> glovedata;
+
+      // loop through our message block and print out the contents/*{{{*/
+      //for (const ACE_Message_Block* msg = result.message_block(); msg != 0; msg = msg->cont ())
+      //  { // use msg->length() to get the number of bytes written to the message
           // block.
-          if (msg->length() == 8)
-          {
-              ACE_InputCDR cdr (msg);
+          //if (msg->length() == 8)
+          //{
+          //    ACE_InputCDR cdr (msg);
 
-              ACE_CDR::Boolean byte_order;
-              cdr >> ACE_InputCDR::to_boolean (byte_order);
-              cdr.reset_byte_order(byte_order);
-              ACE_CDR::ULong length;
-              cdr >> length;
+          //    ACE_CDR::Boolean byte_order;
+          //    cdr >> ACE_InputCDR::to_boolean (byte_order);
+          //    cdr.reset_byte_order(byte_order);
+          //    ACE_CDR::ULong length;
+          //    cdr >> length;
 
-              ACE_InputCDR cdrpayload(msg->cont());
-              cdrpayload.reset_byte_order(byte_order);
-              DataGloveData glovedata;
-              cdrpayload >> glovedata;
-              continue;
-          }
-          else
-          {
-              ACE_DEBUG ((LM_DEBUG, "Buf=[size=<%d>", msg->length ()));
-              for (u_long i = 0; i < msg->length(); ++i)
-                  ACE_DEBUG ((LM_DEBUG, "%c", (msg->rd_ptr())[i]));
-              ACE_DEBUG ((LM_DEBUG, "]\n"));
-          }
-
-
-        }
+          //    ACE_InputCDR cdrpayload(msg->cont());
+          //    cdrpayload.reset_byte_order(byte_order);
+          //    DataGloveData glovedata;
+          //    cdrpayload >> glovedata;
+          //    continue;
+          //}
+          //else
+          //{
+       //       ACE_DEBUG ((LM_DEBUG, "Buf=[size=<%d>", msg->length ()));
+        //      for (u_long i = 0; i < msg->length(); ++i)
+         //         ACE_DEBUG ((LM_DEBUG, "%c", (msg->rd_ptr())[i]));
+          //    ACE_DEBUG ((LM_DEBUG, "]\n"));
+          //}/*}}}*/
+        //}
     }
 
   ACE_DEBUG ((LM_DEBUG, "Receive completed\n"));
 
   // No need for this message block anymore.
   result.message_block ()->release ();
-  readdatagram(8);
+  readdatagram(4);
 
   // Note that we are done with the test.
   done++;
