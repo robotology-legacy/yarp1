@@ -106,6 +106,10 @@ SOURCE=.\DGSNetworkHandler.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\DGSCommon\KeyboardReader.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\DGSCommon\SerialConsole.cpp
 # End Source File
 # Begin Source File
@@ -131,6 +135,10 @@ SOURCE=.\DGS_MMU_Driver.h
 # Begin Source File
 
 SOURCE=.\DGSNetworkHandler.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\DGSCommon\KeyboardReader.h
 # End Source File
 # Begin Source File
 
