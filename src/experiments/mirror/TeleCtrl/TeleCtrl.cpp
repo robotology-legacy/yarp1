@@ -144,11 +144,11 @@ int main()
 	// acquisition thread
 	acquisitionThread at;
 	// arm position control thread
-	ControlThread* act = new ArmPosControlThread(0.04,_rep_out,_repeaterSema, true);
+	ControlThread* act = new ArmPosControlThread(0.04,_rep_out,_repeaterSema, false);
 	// arm velocity control thread
 //	ControlThread* act = new ArmVelControlThread(0.04,_rep_out,_repeaterSema, false);
 	// hand control thread
-	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema, true);
+	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema, false);
 	// gaze control thread
 	ControlThread* gct = new GazeControlThread(1./10.,_hs_out,_img_out,_imageSema, false);
 
@@ -160,7 +160,7 @@ int main()
 	// gather which sensors we use
 	_coll_cmd_in.Read();
 //	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0|HardwareUseGT) ) {
-	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0) ) {
+	if ( _coll_cmd_in.Content() != (HardwareUseTracker0|HardwareUseDataGlove) ) {
 		cout << "must use tracker 0, gaze tracker and dataglove only." << endl;
 		unregisterPorts();
 		return 0;

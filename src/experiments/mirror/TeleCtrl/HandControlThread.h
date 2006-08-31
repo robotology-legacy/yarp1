@@ -18,7 +18,7 @@ public:
 		YARPSemaphore& sema, bool enabled=true)
 		: ControlThread(frequency, sema, enabled),
 	  _outPort(outPort),
-	  _thumb0(0,90), _thumb1(0,50),
+	  _thumb0(0,80), _thumb1(-20,30),
 	  _index0(0,-80), _index1(0,-80),
 	  _fingers0(0,-80), _fingers1(0,-80),
 	  _handInit0(0), _handInit1(0), _handInit2(0),

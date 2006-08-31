@@ -22,7 +22,17 @@ public:
 	  _outPort(outPort),
 	  _wristRoll(0,90), _wristPitch(50,-50),
 	  _armInit0(25), _armInit1(25), _armInit2(-40),
-	  _armInit3(0), _armInit4(-20), _armInit5(-180) {}
+	  _armInit3(0), _armInit4(-20), _armInit5(-180)
+	{
+		_motionTop = 0;
+		memset(_motionDiff, 0, sizeof(double)*20*3);
+		_currPos[0] = 0.0;
+		_currPos[1] = 0.0;
+		_currPos[2] = 0.0;
+		_oldPos[0] = 0.0;
+		_oldPos[1] = 0.0;
+		_oldPos[2] = 0.0;
+	}
 
 	void Body (void);
 	void calibrate(void);
@@ -52,6 +62,11 @@ private:
 	const double _armInit3;
 	const double _armInit4;
 	const double _armInit5;
+
+	// direction-of-motion detection
+	unsigned char _motionTop;
+	double _motionDiff[20][3];
+	double _currPos[3], _oldPos[3];
 
 };
 

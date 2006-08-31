@@ -32,19 +32,73 @@ void ArmPosControlThread::Body (void)
 	    frRo = _data.tracker0Data.roll - _ref.ro;
 
 		// set the desired_X (in cms)
-		desired_X[0] = frX*InchCm; desired_X[1] = -frY*InchCm; desired_X[2] = frZ*InchCm;
+		desired_X[0] = -frX*InchCm; desired_X[1] = frY*InchCm; desired_X[2] = frZ*InchCm;
 		// evaluate inverse kinematics
 		inverse_kinematics(desired_X, required_Q, starting_Q);
 		// let next starting point be the one we've just found
 		starting_Q = required_Q; // all Qs are in DEGREES
 
-/*	    cout 
-			<< "X " << desired_X[0]  << "\t" << desired_X[1]  << "\t" << desired_X[2] << "\t"
-			<< "Q " << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "\t"
-			<< "roll " << _armInit3+_wristRoll(frRo/DegRad) << "\t"
-			<< "pitch " << _armInit4+_wristPitch(_data.gloveData.wristPitch) << "\t"
-			<< "       \r";
-		cout.flush();*/
+		// evaluate direction of wrist motion
+		// set _currPos to the current tracker position
+		_currPos[0] = desired_X[0];
+		_currPos[1] = desired_X[1];
+		_currPos[2] = desired_X[2];
+		// _oldPos is the previous tracker position; then evaluate
+		// the direction by subtracting, and store it. normalise.
+		_motionDiff[_motionTop][0] = _currPos[0] - _oldPos[0];
+		_motionDiff[_motionTop][1] = _currPos[1] - _oldPos[1];
+		_motionDiff[_motionTop][2] = _currPos[2] - _oldPos[2];
+		if ( ++_motionTop == 20 ) {
+			_motionTop = 0;
+		}
+		// prepare oldPos for next round
+		_oldPos[0] = _currPos[0];
+		_oldPos[1] = _currPos[1];
+		_oldPos[2] = _currPos[2];
+		// evaluate mean value of motion
+		int i;
+		double motionMean[3] = { 0.0, 0.0, 0.0 };
+		for ( i=0; i<20; ++i ) {
+			motionMean[0] += _motionDiff[i][0];
+			motionMean[1] += _motionDiff[i][1];
+			motionMean[2] += _motionDiff[i][2];
+		}
+		motionMean[0] /= 20.0;
+		motionMean[1] /= 20.0;
+		motionMean[2] /= 20.0;
+		double mMeanMod = sqrt(motionMean[0]*motionMean[0]+motionMean[1]*motionMean[1]+motionMean[2]*motionMean[2]);
+		// evaluate stdv of motion
+		double motionStdv[3] = { 0.0, 0.0, 0.0 };
+		for ( i=0; i<20; ++i ) {
+			motionStdv[0] += (_motionDiff[i][0]-motionMean[0])*(_motionDiff[i][0]-motionMean[0]);
+			motionStdv[1] += (_motionDiff[i][1]-motionMean[1])*(_motionDiff[i][1]-motionMean[1]);
+			motionStdv[2] += (_motionDiff[i][2]-motionMean[2])*(_motionDiff[i][2]-motionMean[2]);
+		}
+		motionStdv[0] = sqrt(motionStdv[0] / 19.0);
+		motionStdv[1] = sqrt(motionStdv[1] / 19.0);
+		motionStdv[2] = sqrt(motionStdv[2] / 19.0);
+		double mStdvMod = sqrt(motionStdv[0]*motionStdv[0]+motionStdv[1]*motionStdv[1]+motionStdv[2]*motionStdv[2]);
+		// so: if mean is far from zero, and stdv is low, we have a directed motion.
+		if ( mMeanMod > 1.0 && mStdvMod < 1.5 ) {
+			cout 
+				<< "mean: " << mMeanMod << "\tstdv: " << mStdvMod
+				<< "\tYES"
+				<< "       \r";
+			cout.flush();
+		} else {
+			cout 
+				<< "mean: " << mMeanMod << "\tstdv: " << mStdvMod
+				<< "                             \r";
+			cout.flush();
+		}
+
+//	    cout 
+//			<< "X " << desired_X[0]  << "\t" << desired_X[1]  << "\t" << desired_X[2] << "\t"
+//			<< "Q " << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "\t"
+//			<< "roll " << _armInit3+_wristRoll(frRo/DegRad) << "\t"
+//			<< "pitch " << _armInit4+_wristPitch(_data.gloveData.wristPitch) << "\t"
+//			<< "       \r";
+//		cout.flush();
 
 		// send commands to the arm, after correction (_armInits and signs)
 		sendPosCmd(
