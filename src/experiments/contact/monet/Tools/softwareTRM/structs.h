@@ -1,6 +1,10 @@
 #ifndef __STRUCTS_H
 #define __STRUCTS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h> // For FILE
 #include "ring_buffer.h"
 #include "wavetable.h"
@@ -242,5 +246,9 @@ typedef struct {
     TRMRingBuffer *ringBuffer;
     TRMWavetable *wavetable;
 } TRMTubeModel;
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

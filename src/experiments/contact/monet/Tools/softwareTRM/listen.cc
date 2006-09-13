@@ -12,12 +12,64 @@ using namespace std;
 
 #include "yarpy.h"
 
+#include <yarp/os/BufferedPort.h>
+#include <yarp/os/Network.h>
+#include <yarp/os/Semaphore.h>
+#include <yarp/os/Time.h>
+#include <yarp/sig/Sound.h>
+
 #define MAX_LEN 10000
 
+#define SAMPLE_RATE	22000
+
+using namespace yarp::os;
+using namespace yarp::sig;
 
 #define UNINTERPRETED
 
-void listen(unsigned char *sample, int len) {
+static Semaphore mutex(0);
+static BufferedPort<Sound> pout;
+
+void init_listen() {
+  printf("Opening port...\n");
+  Network::init();
+  printf("Opening port for real...\n");
+  pout.open("/gnuspeech");
+  printf("Port opened...\n");
+  mutex.post();
+}
+
+
+void port_audio(unsigned char *sample, int len) {
+  int16_t *sample16 = (int16_t*)sample;
+  mutex.wait();
+  Sound& sound = pout.prepare();
+  sound.resize(len,1);
+  sound.setFrequency(SAMPLE_RATE);
+  static int ct = 0;
+  ct++;
+  for (int i=0; i<len; i++) {
+    sound.set(sample16[i],i);
+    //sound.set(i+ct%10,i);
+  }
+  pout.write();
+  mutex.post();
+  
+  double now = Time::now();
+  static double first = now;
+  static double target = 0;
+  target += ((double)len)/SAMPLE_RATE;
+  double dt = target-(now-first);
+  if (dt>0) {
+    Time::delay(dt);
+    printf("wait for %g\n", dt);
+  }
+}
+
+
+void plisten(unsigned char *sample, int len) {
+  //printf("got %d entities\n",len);
+  port_audio(sample,len);
   return;
 
   static ofstream fout("/tmp/snd.txt");

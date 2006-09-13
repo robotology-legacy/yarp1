@@ -44,14 +44,19 @@ wavetable.c \
 remote.c
 
 tube_CC_FILES = \
-yarpy.cc fft.cc listen.cc
+fft.cc listen.cc yarpy.cc
+
+YARP_ROOT = /home/paulfitz/cvs/yarp2
+YARP_OS_INCLUDE = $(YARP_ROOT)/src/libYARP_OS/include
+YARP_SIG_INCLUDE = $(YARP_ROOT)/src/libYARP_sig/include
+YARP_LIB = $(YARP_ROOT)/lib/
 
 # kind of a kludge.
-ADDITIONAL_INCLUDE_DIRS += -I$(GNUSTEP_LOCAL_ROOT)/Library/Headers/MonetExtensions/
+ADDITIONAL_INCLUDE_DIRS += -I$(GNUSTEP_LOCAL_ROOT)/Library/Headers/MonetExtensions/ -I$(YARP_SIG_INCLUDE) -I$(YARP_OS_INCLUDE)
 
 ADDITIONAL_GUI_LIBS += -lMonetExtensions
 
-tube_TOOL_LIBS += -lgnustep-gui -lYARP_OS -lACE -lfftw3
+tube_TOOL_LIBS += -lgnustep-gui  -L$(YARP_LIB) -lYARP_sig -lYARP_OS -lACE -lfftw3
 
 -include GNUmakefile.preamble
 
@@ -61,3 +66,7 @@ include $(GNUSTEP_MAKEFILES)/tool.make
 include $(GNUSTEP_MAKEFILES)/aggregate.make
 
 -include GNUmakefile.postamble
+
+
+CC = g++ -O3
+

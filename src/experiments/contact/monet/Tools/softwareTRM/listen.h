@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
-  void listen(unsigned char *sample, int len);
+  void init_listen();
+
+  void plisten(unsigned char *sample, int len);
 
 #ifdef __cplusplus
 };

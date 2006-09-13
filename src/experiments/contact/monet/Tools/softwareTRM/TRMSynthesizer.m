@@ -17,6 +17,7 @@
 #include "output.h"
 #include "tube.h"
 #include "util.h"
+#include "listen.h"
 
 typedef struct {
     char a, b, c, d;
@@ -52,6 +53,8 @@ OSStatus myInputCallback(void *inRefCon, AudioUnitRenderActionFlags inActionFlag
 
 - (id)init;
 {
+  init_listen();
+
     if ([super init] == nil)
         return nil;
 

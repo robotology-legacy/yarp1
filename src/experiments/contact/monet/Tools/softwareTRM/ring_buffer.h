@@ -3,6 +3,11 @@
 
 #define BUFFER_SIZE 1024
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _TRMRingBuffer {
     double buffer[BUFFER_SIZE];
     int padSize;
@@ -27,5 +32,10 @@ void flushBuffer(TRMRingBuffer *ringBuffer);
 
 void RBIncrementIndex(int *index);
 void RBDecrementIndex(int *index);
+
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

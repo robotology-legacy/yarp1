@@ -9,6 +9,8 @@
 #include "output.h"
 #include "structs.h"
 
+#include "listen.h"
+
 //#define SHARK
 
 /*  BOOLEAN CONSTANTS  */
@@ -130,6 +132,10 @@ void printInfo(struct _TRMData *data, char *inputFile)
 
 int main(int argc, char *argv[])
 {
+  printf("init_listen starts\n");
+  init_listen();
+  printf("init_listen stops\n");
+
     char inputFile[MAXPATHLEN + 1];
     char outputFile[MAXPATHLEN + 1];
     TRMData *inputData;

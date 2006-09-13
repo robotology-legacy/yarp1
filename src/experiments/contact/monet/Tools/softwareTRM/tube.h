@@ -21,10 +21,19 @@
 //extern int sampleRate;
 //extern double actualTubeLength;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 TRMTubeModel *TRMTubeModelCreate(TRMInputParameters *inputParameters);
 void TRMTubeModelFree(TRMTubeModel *model);
 
 void synthesize(TRMTubeModel *tubeModel, TRMData *data);
+
+
+#ifdef __cplusplus
+};
+#endif
+
 
 #endif

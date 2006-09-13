@@ -509,6 +509,7 @@ void srDecrement(int *pointer, int modulus);
 
 int main(int argc, char *argv[])
 {
+  return 0;
     /*  PARSE THE COMMAND LINE  */
     if (argc == 3) {
 	strcpy(inputFile,argv[1]);

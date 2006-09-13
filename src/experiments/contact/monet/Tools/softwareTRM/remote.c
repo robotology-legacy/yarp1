@@ -3,12 +3,15 @@
 #include <math.h>
 #include "structs.h"
 
+#include "listen.h"
 
 #include "yarpy.h"
 
 #define LOOP_INPUT
 
 #define EXTERNAL_CONTROL
+
+//#define TO_HARDWARE
 
 
 ////////////////////////////////////////////////////////////////
@@ -48,10 +51,8 @@ void audio_init() {
 }
 
 
-unsigned char	pulse_code[ NUM_SAMPLES ];
+unsigned char	pulse_code[ NUM_SAMPLES*10 ];
 int pulse_at = 0;
-
-#define TO_HARDWARE
 
 void audio_emit(int n) {
   static int first = 1;
@@ -62,14 +63,19 @@ void audio_emit(int n) {
     first = 0;
   }
 
-  if (pulse_at<512) {
+  if (pulse_at<2048) {
+#ifdef TO_HARDWARE
     pulse_code[pulse_at] = (unsigned char)n;
     pulse_at++;
+#else
+    ((int16_t*)pulse_code)[pulse_at] = n;
+    pulse_at++;
+#endif
   } else {
     // now playback the sound
     unsigned char	*pcm = pulse_code;
     int morebytes = pulse_at;
-    listen(pcm,morebytes);
+    plisten(pcm,morebytes);
 #ifdef TO_HARDWARE
     while ( morebytes > 0 )
       {
@@ -208,11 +214,19 @@ void remoteOutput(double signal) {
   if (mute) {
     signal = 0;
   }
+
+#ifdef TO_HARDWARE
   long int v = 128+signal*100000.0;
   if (v>255) v = 255;
   if (v<0) v = 0;
-
   audio_emit((int)v);
+#else
+  long int v = signal*1000000.0;
+  if (v>30000) v = 30000;
+  if (v<-30000) v = -30000;
+  audio_emit((int)v);
+#endif
+
   static long int top = -1, bot = 256;
   static double sig_top = -1e32, sig_bot = 1e32;
   if (v>top) top = v;

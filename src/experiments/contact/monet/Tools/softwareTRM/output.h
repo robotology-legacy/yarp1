@@ -19,9 +19,18 @@
 #define BITS_PER_SAMPLE           16
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void writeOutputToFile(TRMSampleRateConverter *sampleRateConverter, TRMData *data, const char *fileName);
 
 void writeAuFileHeader(int channels, long int numberSamples, float outputRate, FILE *outputFile);
 size_t fwriteShortMsb(int data, FILE *stream);
+
+#ifdef __cplusplus
+};
+#endif
+
 
 #endif

@@ -1,6 +1,10 @@
 #ifndef __INPUT_H
 #define __INPUT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "structs.h" // For TRMParameters
 
 TRMData *parseInputFile(const char *inputFile);
@@ -20,5 +24,9 @@ double fricCFAt(INPUT *ptr);
 double fricBWAt(INPUT *ptr);
 
 void printControlRateInputTable(TRMData *data);
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

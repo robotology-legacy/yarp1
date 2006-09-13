@@ -1,9 +1,9 @@
 
 #include "yarpy.h"
 
-#include <yarp/YARPSemaphore.h>
-#include <yarp/YARPTime.h>
-#include <yarp/YARPThread.h>
+#include <yarp/os/Semaphore.h>
+#include <yarp/os/Time.h>
+#include <yarp/os/Thread.h>
 
 #include <assert.h>
 
@@ -16,6 +16,7 @@ using namespace std;
 #define MAX_PARAM 20
 
 
+using namespace yarp::os;
 
 
 #include <time.h>
@@ -56,12 +57,12 @@ double getTime() {
 }
 
 
-class VoiceCmd : public YARPThread {
+class VoiceCmd : public Thread {
 private:
   
   double params[MAX_CHANNEL][MAX_PARAM];
   double prev_params[MAX_CHANNEL][MAX_PARAM];
-  YARPSemaphore mutex;
+  Semaphore mutex;
 
 public:  
   VoiceCmd() : mutex(1) {
@@ -76,7 +77,7 @@ public:
     }
   }
 
-  virtual void Body() {
+  virtual void run() {
     while (1) {
       fprintf(stderr,"Waiting for input\n");
       char buf[1000];
@@ -86,10 +87,10 @@ public:
 	double v = 0;
 	cin >> n1 >> n2 >> v;
 	if (n1<MAX_PARAM&&n2<MAX_CHANNEL) {
-	  mutex.Wait();
+	  mutex.wait();
 	  params[n1][n2] = v;
 	  printf("Got %d %d %g\n", n1, n2, v);
-	  mutex.Post();
+	  mutex.post();
 	}
       }
     }
@@ -168,7 +169,7 @@ public:
     float b = iparams(5,0)/25.0; // breathe
     float breath_width = iparams(6,0)/4;
 
-    mutex.Wait();
+    mutex.wait();
     ext_params->glotVol = iparams(0,0)/100;
     ext_params->glotPitch = iparams(0,1)/25;
     ext_params->aspVol = iparams(1,0)*3;
@@ -203,7 +204,7 @@ public:
       //printf("%g %g\n", t, ext_params->glotVol);
     }
     iparams(7,0);
-    mutex.Post();
+    mutex.post();
 
   }
 } the_voice;
@@ -241,7 +242,7 @@ void yarpy() {
   }
   exit(1);
   */
-  voice_cmd.Begin();
+  voice_cmd.start();
 }
 
 
