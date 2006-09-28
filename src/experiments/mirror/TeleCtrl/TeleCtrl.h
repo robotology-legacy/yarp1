@@ -1,5 +1,5 @@
 ///
-/// $Id: TeleCtrl.h,v 1.3 2006-07-22 15:37:05 babybot Exp $
+/// $Id: TeleCtrl.h,v 1.4 2006-09-28 13:21:06 babybot Exp $
 ///
 
 #ifndef TeleCtrlH
@@ -19,6 +19,8 @@
 #include <mirror/mirrorCollector/CollectorCommands.h>
 // need to know what a babybottle is
 #include <babybot/utils/include/yarp/YARPBabyBottle.h>
+// learning!!
+#include "libsvmLearner.h"
 
 using namespace std;
 
@@ -36,6 +38,7 @@ using namespace std;
 
 void SendCommandToCollector(const CollectorCommand);
 void ReadCollectorData(void);
+bool isACmd(char);
 
 // -----------------------------------
 // globals
@@ -72,6 +75,10 @@ YARPGenericImage _image;
 // positions from the arm
 YVector _armPos;
 
+// keyboard commands array
+int numOfCmds = 2;
+char keyboardCmd[2] = { 'q', 't' };
+
 #else
 
 extern YARPInputPortOf<CollectorNumericalData> _coll_data_in;
@@ -86,6 +93,8 @@ extern YARPSemaphore _repeaterSema, _controlSema;
 extern CollectorNumericalData _data;
 extern YARPGenericImage _image;
 extern YVector _armPos;
+extern int numOfCmds;
+extern char* keyboardCmd;
 
 #endif
 

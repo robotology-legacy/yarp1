@@ -1,6 +1,6 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
 
-WshShell.Run ("TeleOperateDisconnect.js", 7, true);
+WshShell.Run ("TeleOperationDisconnect.js", 7, true);
 
 WshShell.Run ("yarp-connect /mirrorCollector/o:str /TCCollector/i:str", 7, true);
 WshShell.Run ("yarp-connect /mirrorCollector/o:int /TCCollector/i:int", 7, true);

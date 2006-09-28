@@ -5,6 +5,8 @@
 
 #define MainRoutine
 
+#include <conio.h>
+
 #include "TeleCtrl.h"
 #include "GazeControlThread.h"
 #include "ArmPosControlThread.h"
@@ -123,12 +125,53 @@ void ReadCollectorData(void)
 
 }
 
+// check whether a key represents a command
+bool isACmd(char c)
+{
+
+	for (int i=0; i<numOfCmds; ++i) {
+		if ( c == keyboardCmd[i] ) {
+			return true;
+		}
+	}
+
+	return false;
+
+}
+
 // -----------------------------------
 // main
 // -----------------------------------
 
 int main()
 {
+
+    libsvmLearningMachine::params params;
+    params._capacity = 1000;
+    params._domainSize = 6;
+
+		params._svmparams.svm_type = NU_SVC;
+		params._svmparams.kernel_type = RBF;
+		params._svmparams.degree = 3;
+		params._svmparams.gamma = 1/(double)params._domainSize;
+		params._svmparams.coef0 = 0;
+		params._svmparams.nu = 0.3;
+		params._svmparams.cache_size = 10;
+		params._svmparams.C = 1;
+		params._svmparams.eps = 1e-3;
+		params._svmparams.p = 0.1;
+		params._svmparams.shrinking = 1;
+		params._svmparams.probability = 0;
+		params._svmparams.nr_weight = 0;
+		params._svmparams.weight_label = 0;
+		params._svmparams.weight = 0;
+
+    params._filter = false;
+
+	int machineType = typeOfMachine::plain;
+	double* tolerance;
+
+	libsvmLearner learner(typeOfMachine::plain,5,params,tolerance,0.5);
 
 	// preliminaries
 	cout.precision(2); cout.setf(ios::fixed);
@@ -191,8 +234,25 @@ int main()
 	hct->Begin();
 	gct->Begin();
 
-	// wait for a key to stop
-	cin.get();
+	// wait for a keyboard command
+	bool goOn = true;
+	while ( goOn ) {
+		if ( _kbhit() ) {
+			char c = _getch();
+			switch ( c ) {
+			case 'q': // QUIT
+				cout << "MAIN THREAD: Got QUIT command. Bailing out." << endl;
+				goOn = false;
+				break;
+			default: // unrecognised keyboard command. if it is for someone else, put it back.
+				if ( isACmd(c) ) {
+					_ungetch(c);
+				}
+				break;
+			}
+		}
+		YARPTime::DelayInSeconds(1.0/25.0);
+	} // while ( goOn )
 	
 	cout << endl << "Stopping teleoperation... "; cout.flush();
 	// stop control threads
