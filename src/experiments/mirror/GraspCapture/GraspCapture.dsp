@@ -54,6 +54,11 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
 # ADD LINK32 libYARP_sig.lib libYARP_OS.lib libYARP_dev.lib libYARP_robot.lib ace.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /machine:I386 /libpath:"..\..\..\..\lib\winnt"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Installing release version...
+PostBuild_Cmds=copy release\*.exe ..\..\..\..\bin\winnt
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "GraspCapture - Win32 Debug"
 
@@ -82,8 +87,8 @@ LINK32=link.exe
 # ADD LINK32 libYARP_sigd.lib libYARP_OSd.lib libYARP_devd.lib libYARP_robotd.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\..\lib\winnt"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=Installing...
-PostBuild_Cmds=copy .\Release\*.exe ..\..\..\..\bin\winnt
+PostBuild_Desc=Installing debug version...
+PostBuild_Cmds=copy debug\*.exe ..\..\..\..\bin\winnt
 # End Special Build Tool
 
 !ENDIF 
