@@ -28,7 +28,7 @@ CGraspCaptureDlg::CGraspCaptureDlg(CWnd* pParent /*=NULL*/)
 {
 
 	//{{AFX_DATA_INIT(CGraspCaptureDlg)
-		// NOTE: the ClassWizard will add member initialization here
+	m_prefixEdit = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -40,7 +40,7 @@ void CGraspCaptureDlg::DoDataExchange(CDataExchange* pDX)
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CGraspCaptureDlg)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
+	DDX_Text(pDX, IDC_EDIT1, m_prefixEdit);
 	//}}AFX_DATA_MAP
 
 }
@@ -110,7 +110,11 @@ BOOL CGraspCaptureDlg::OnInitDialog()
 	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
 	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
 
+	// intialise sequence acquisition:
+	// sequence index is initially 0
 	nSeq = 0;
+	// sequence prefix is initially that decided in the options
+	m_prefixEdit = _options.prefix;
 
 	if ( ! registerPorts() ) {
 		MessageBox("Could not register ports.", "Fatal error.",MB_ICONERROR);
@@ -418,7 +422,8 @@ void CGraspCaptureDlg::OnAcqStart()
 	char fName[255];
 	
 	saverThread.pFile = NULL;
-	ACE_OS::sprintf(saverThread.prefix, "%s\\%s%03d",_options.savePath, _options.prefix, nSeq);
+	ACE_OS::sprintf(saverThread.prefix, "%s\\%03d.%s",_options.savePath, nSeq, _options.prefix);
+//	ACE_OS::sprintf(saverThread.prefix, "%s\\%03d.%s",_options.savePath, nSeq, m_prefixEdit);
 	if ( _options.useDataGlove || _options.useGazeTracker ||
 		 _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
 		// if necessary, open the data output file

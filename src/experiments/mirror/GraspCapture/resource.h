@@ -53,6 +53,7 @@
 #define IDC_REFRESH                     1022
 #define IDC_SAVEPATH                    1023
 #define IDC_PREFIX                      1025
+#define IDC_EDIT1                       1025
 #define IDC_FINGER_13                   1026
 #define IDC_FINGER_14                   1027
 #define IDC_FINGER_15                   1028
@@ -77,7 +78,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1025
+#define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

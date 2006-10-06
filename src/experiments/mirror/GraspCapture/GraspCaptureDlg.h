@@ -59,6 +59,7 @@ public:
 	// Dialog Data
 	//{{AFX_DATA(CGraspCaptureDlg)
 	enum { IDD = IDD_GRASPCAPTURE_DIALOG };
+	CString	m_prefixEdit;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
