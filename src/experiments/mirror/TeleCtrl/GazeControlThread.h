@@ -20,18 +20,7 @@ class GazeControlThread : public ControlThread {
 
 public:
 
-	GazeControlThread(const double frequency,
-		YARPOutputPortOf<YARPBottle>& saccadesOutPort, YARPOutputPortOf<YARPGenericImage>& imgOutPort,
-		YARPSemaphore& sema, bool enabled=true) 
-		: ControlThread(frequency, sema, enabled),
-		  _saccadesOutPort(saccadesOutPort), _imgOutPort(imgOutPort),
-		  _gazeX(0,255), _gazeY(0,255),
-		  _gazeSampleCount(0), _enableSaccade(true)
-	{
-		_remappedImg.Resize (256, 256);
-		_coloredImg.Resize (_stheta, _srho);
-		_flippedImg.Resize (_remappedImg.GetWidth(), _remappedImg.GetHeight(), _remappedImg.GetID());
-	}
+	GazeControlThread(const double,YARPOutputPortOf<YARPBottle>&,YARPOutputPortOf<YARPGenericImage>&,YARPSemaphore&,bool);
 
 	void Body (void);
 	void calibrate(void);
@@ -40,6 +29,8 @@ public:
 
 private:
 
+	void evaluateGazeStats(int,int);
+	
 	// ports to the hSaccades and to camview
 	YARPOutputPortOf<YARPBottle>& _saccadesOutPort;
 	YARPOutputPortOf<YARPGenericImage>& _imgOutPort;

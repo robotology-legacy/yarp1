@@ -1,5 +1,5 @@
 ///
-/// $Id: TeleCtrl.h,v 1.4 2006-09-28 13:21:06 babybot Exp $
+/// $Id: TeleCtrl.h,v 1.5 2006-10-06 21:13:35 babybot Exp $
 ///
 
 #ifndef TeleCtrlH
@@ -38,7 +38,6 @@ using namespace std;
 
 void SendCommandToCollector(const CollectorCommand);
 void ReadCollectorData(void);
-bool isACmd(char);
 
 // -----------------------------------
 // globals
@@ -75,9 +74,10 @@ YARPGenericImage _image;
 // positions from the arm
 YVector _armPos;
 
-// keyboard commands array
-int numOfCmds = 2;
-char keyboardCmd[2] = { 'q', 't' };
+// user's biometric data statistics: control threads write them,
+// learning machine reads them.
+double armMotionMean = 0, armMotionStdv = 0, gazeStdv = 0;
+bool IWantToGrasp = false;
 
 #else
 
@@ -93,8 +93,8 @@ extern YARPSemaphore _repeaterSema, _controlSema;
 extern CollectorNumericalData _data;
 extern YARPGenericImage _image;
 extern YVector _armPos;
-extern int numOfCmds;
-extern char* keyboardCmd;
+extern double gazeStdv, armMotionMean, armMotionStdv;
+extern bool IWantToGrasp;
 
 #endif
 

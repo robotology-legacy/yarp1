@@ -125,18 +125,91 @@ void ReadCollectorData(void)
 
 }
 
-// check whether a key represents a command
-bool isACmd(char c)
+// -----------------------------------
+// main loop
+// -----------------------------------
+
+// this function (a) checks for keyboard commands, (b) using global data written
+// real-time by the control threads, trains the learner, or predicts what the user
+// wants to do.
+
+void mainLoop(libsvmLearner& learner)
 {
 
-	for (int i=0; i<numOfCmds; ++i) {
-		if ( c == keyboardCmd[i] ) {
-			return true;
+	bool goOn = true, nowTraining = false;
+
+	while ( goOn ) {
+
+		// ---- check for keyboard commands
+		if ( _kbhit() ) {
+			char c = _getch();
+			switch ( c ) {
+			case 'q': // QUIT
+				cout << "MAIN THREAD: Got QUIT command. Bailing out." << endl;
+				goOn = false;
+				break;
+			case 't': // switch between training and prediction
+				nowTraining = ! nowTraining;
+				if ( nowTraining ) {
+					cout << endl << "MAIN THREAD: now in TRAINING mode." << endl;
+				} else {
+					cout << endl << "MAIN THREAD: now in PREDICTION mode." << endl;
+				}
+				break;
+			default:
+				break;
+			}
 		}
-	}
 
-	return false;
+//goto vacca;
 
+		// ---- training or predicting? then train or predict!
+		if ( nowTraining ) {
+			// the user closes the hand to signal "I want to grasp!"
+			if ( _data.gloveData.palmArch < 45 ) {
+				IWantToGrasp = true;
+			} else {
+				IWantToGrasp = false;
+			}
+			// train
+			double x[3], y[1];
+			x[0] = armMotionMean;
+			x[1] = armMotionStdv;
+			x[2] = gazeStdv;
+			y[0] = (IWantToGrasp?1:-1);
+			learner.addExample(x,y);
+			learner.train();
+			cout 
+				<< "added: " 
+				<< armMotionMean << " " << armMotionStdv << " " 
+				<< gazeStdv << " " 
+				<< (IWantToGrasp?1:-1) << " "
+				<< "   \r";
+		} else {
+			double x[3];
+			x[0] = armMotionMean;
+			x[1] = armMotionStdv;
+			x[2] = gazeStdv;
+			learner.predict(x);
+//			IWantToGrasp = (learner._predicted[0]==1?true:false);
+			IWantToGrasp = (learner._predicted[0]>0?true:false);
+			cout << "predict: " << learner._predicted[0] << "   \r";
+		}
+
+		// ALTERNATIVELY: decide whether the user wants to grasp based upon hardcoded thresholds:
+		// if arm mean is far from zero, arm stdv is low, and gaze stdv is low, yes.
+/*vacca:	IWantToGrasp = ( ( armMotionMean > 1.0 && armMotionStdv < 1.5 && gazeStdv < 10 ) ? true : false );
+		cout 
+			<< (IWantToGrasp?1:-1) << "\t"
+			<< armMotionMean << " " << armMotionStdv << " " 
+			<< gazeStdv << " " 
+			<< "   \r";*/
+
+		// ---- enforce loop frequency
+		YARPTime::DelayInSeconds(1.0/25.0);
+
+	} // while ( goOn )
+	
 }
 
 // -----------------------------------
@@ -146,37 +219,35 @@ bool isACmd(char c)
 int main()
 {
 
-    libsvmLearningMachine::params params;
-    params._capacity = 1000;
-    params._domainSize = 6;
-
-		params._svmparams.svm_type = NU_SVC;
-		params._svmparams.kernel_type = RBF;
-		params._svmparams.degree = 3;
-		params._svmparams.gamma = 1/(double)params._domainSize;
-		params._svmparams.coef0 = 0;
-		params._svmparams.nu = 0.3;
-		params._svmparams.cache_size = 10;
-		params._svmparams.C = 1;
-		params._svmparams.eps = 1e-3;
-		params._svmparams.p = 0.1;
-		params._svmparams.shrinking = 1;
-		params._svmparams.probability = 0;
-		params._svmparams.nr_weight = 0;
-		params._svmparams.weight_label = 0;
-		params._svmparams.weight = 0;
-
-    params._filter = false;
-
-	int machineType = typeOfMachine::plain;
-	double* tolerance;
-
-	libsvmLearner learner(typeOfMachine::plain,5,params,tolerance,0.5);
+	// ------------- initalisation
 
 	// preliminaries
 	cout.precision(2); cout.setf(ios::fixed);
 	YARPScheduler::setHighResScheduling();
 
+	// intialise learner
+    libsvmLearningMachine::params params;
+    params._capacity = 10000;
+    params._domainSize = 3;
+	params._svmparams.svm_type = C_SVC;
+	params._svmparams.kernel_type = RBF;
+	//params._svmparams.degree = 3;
+	params._svmparams.gamma = 1/(double)params._domainSize;
+	//params._svmparams.coef0 = 0;
+	//params._svmparams.nu = 0.3;
+	params._svmparams.cache_size = 10;
+	params._svmparams.C = 1;
+	params._svmparams.eps = 1e-3;
+	//params._svmparams.p = 0.1;
+	params._svmparams.shrinking = 1;
+	params._svmparams.probability = 0;
+	params._svmparams.nr_weight = 0;
+	//params._svmparams.weight_label = 0;
+	//params._svmparams.weight = 0;
+    params._filter = false;
+	double* tolerance = 0;
+	libsvmLearner learner(typeOfMachine::plain,1,params,tolerance,0);
+	
 	// register communication ports
 	registerPorts();
 
@@ -202,26 +273,27 @@ int main()
 
 	// gather which sensors we use
 	_coll_cmd_in.Read();
-//	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0|HardwareUseGT) ) {
-	if ( _coll_cmd_in.Content() != (HardwareUseTracker0|HardwareUseDataGlove) ) {
+	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0|HardwareUseGT) ) {
+//	if ( _coll_cmd_in.Content() != (HardwareUseTracker0|HardwareUseDataGlove) ) {
 		cout << "must use tracker 0, gaze tracker and dataglove only." << endl;
+//		cout << "must use tracker 0 and dataglove only." << endl;
+		SendCommandToCollector(CCmdDisconnect);
 		unregisterPorts();
 		return 0;
 	}
 
-	// calibrate and initialise hand
+	// ------------- calibrate and initialise control threads
+
 	hct->calibrate();
 	hct->initialise();
 
-	// calibrate and initialise arm
 	act->calibrate();
 	act->initialise();
 
-	// calibrate and initialise gaze thread
 	gct->calibrate();
 	gct->initialise();
 
-	// ------------- main loop
+	// ------------- start data flow and control threads
 
 	// tell collector to start streaming
 	cout << "Teleoperation starting... "; cout.flush();
@@ -234,40 +306,24 @@ int main()
 	hct->Begin();
 	gct->Begin();
 
-	// wait for a keyboard command
-	bool goOn = true;
-	while ( goOn ) {
-		if ( _kbhit() ) {
-			char c = _getch();
-			switch ( c ) {
-			case 'q': // QUIT
-				cout << "MAIN THREAD: Got QUIT command. Bailing out." << endl;
-				goOn = false;
-				break;
-			default: // unrecognised keyboard command. if it is for someone else, put it back.
-				if ( isACmd(c) ) {
-					_ungetch(c);
-				}
-				break;
-			}
-		}
-		YARPTime::DelayInSeconds(1.0/25.0);
-	} // while ( goOn )
-	
+	// ------------- main loop
+
+	mainLoop(learner);
+
+	// ------------- main loop ends
+
 	cout << endl << "Stopping teleoperation... "; cout.flush();
 	// stop control threads
 	gct->End();
 	hct->End();
 	act->End();
-	// stop acquisition stream
+	// stop acquisition thread
 	at.End();
 	// tell collector to stop streaming
 	SendCommandToCollector(CCmdStopStreaming);
 	cout << "done." << endl;
 
-	// ------------- main loop ends
-
-	// shut down
+	// shut down control threads
 	gct->shutdown();
 	hct->shutdown();
 	act->shutdown();

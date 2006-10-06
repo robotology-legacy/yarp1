@@ -1,6 +1,30 @@
 #include "ArmPosControlThread.h"
 
 // -----------------------------------
+// thread constructor/destructor
+// -----------------------------------
+
+ArmPosControlThread::ArmPosControlThread(
+	const double frequency, YARPOutputPortOf<YARPBabyBottle>& outPort,YARPSemaphore& sema, bool enabled=true) :
+	ControlThread(frequency, sema, enabled),
+	_outPort(outPort),
+	_wristRoll(0,90), _wristPitch(50,-50),
+	_armInit0(25), _armInit1(25), _armInit2(-40),
+	_armInit3(0), _armInit4(-20), _armInit5(-180)
+{
+	// initialise motion control parameters
+	_motionTop = 0;
+	memset(_motionDiff, 0, sizeof(double)*20*3);
+	_currPos[0] = 0.0;
+	_currPos[1] = 0.0;
+	_currPos[2] = 0.0;
+	_oldPos[0] = 0.0;
+	_oldPos[1] = 0.0;
+	_oldPos[2] = 0.0;
+
+}
+
+// -----------------------------------
 // thread body
 // -----------------------------------
 
@@ -38,32 +62,8 @@ void ArmPosControlThread::Body (void)
 		// let next starting point be the one we've just found
 		starting_Q = required_Q; // all Qs are in DEGREES
 
-		// is wrist motion directed?
-		if ( isDirected(desired_X) ) {
-//			cout << "YES\r";
-		} else {
-//			cout << "NO \r";
-		}
-		
-		// any keyboard command?
-		if ( _kbhit() ) {
-			char c = _getch();
-			switch ( c ) {
-			case 't': // switch between training and prediction
-				nowTraining = ! nowTraining;
-				if ( nowTraining ) {
-					cout << endl << "MOTION DIRECTION THREAD: now in TRAINING mode." << endl;
-				} else {
-					cout << endl << "MOTION DIRECTION THREAD: now in PREDICTION mode." << endl;
-				}
-				break;
-			default: // unrecognised keyboard command.
-				if ( isACmd(c) ) {
-					_ungetch(c);
-				}
-				break;
-			}
-		}
+		// evaluate arm motion statistics
+		evaluateArmMotionStats(desired_X);
 
 //	    cout 
 //			<< "X " << desired_X[0]  << "\t" << desired_X[1]  << "\t" << desired_X[2] << "\t"
@@ -92,14 +92,12 @@ void ArmPosControlThread::Body (void)
 // evaluate direction of wrist motion
 // -----------------------------------
 
-bool ArmPosControlThread::isDirected(YVector& pos)
+void ArmPosControlThread::evaluateArmMotionStats(YVector& pos)
 {
 
 	// evaluate direction of wrist motion
 	// set _currPos to the current tracker position
-	_currPos[0] = pos[0];
-	_currPos[1] = pos[1];
-	_currPos[2] = pos[2];
+	_currPos[0] = pos[0]; _currPos[1] = pos[1];	_currPos[2] = pos[2];
 	// _oldPos is the previous tracker position; then evaluate
 	// the direction by subtracting, and store it. normalise.
 	_motionDiff[_motionTop][0] = _currPos[0] - _oldPos[0];
@@ -109,9 +107,7 @@ bool ArmPosControlThread::isDirected(YVector& pos)
 		_motionTop = 0;
 	}
 	// prepare oldPos for next round
-	_oldPos[0] = _currPos[0];
-	_oldPos[1] = _currPos[1];
-	_oldPos[2] = _currPos[2];
+	_oldPos[0] = _currPos[0]; _oldPos[1] = _currPos[1]; _oldPos[2] = _currPos[2];
 	// evaluate mean value of motion
 	int i;
 	double motionMean[3] = { 0.0, 0.0, 0.0 };
@@ -120,10 +116,8 @@ bool ArmPosControlThread::isDirected(YVector& pos)
 		motionMean[1] += _motionDiff[i][1];
 		motionMean[2] += _motionDiff[i][2];
 	}
-	motionMean[0] /= 20.0;
-	motionMean[1] /= 20.0;
-	motionMean[2] /= 20.0;
-	double mMeanMod = sqrt(motionMean[0]*motionMean[0]+motionMean[1]*motionMean[1]+motionMean[2]*motionMean[2]);
+	motionMean[0] /= 20.0; motionMean[1] /= 20.0; motionMean[2] /= 20.0;
+	armMotionMean = sqrt(motionMean[0]*motionMean[0]+motionMean[1]*motionMean[1]+motionMean[2]*motionMean[2]);
 	// evaluate stdv of motion
 	double motionStdv[3] = { 0.0, 0.0, 0.0 };
 	for ( i=0; i<20; ++i ) {
@@ -134,26 +128,13 @@ bool ArmPosControlThread::isDirected(YVector& pos)
 	motionStdv[0] = sqrt(motionStdv[0] / 19.0);
 	motionStdv[1] = sqrt(motionStdv[1] / 19.0);
 	motionStdv[2] = sqrt(motionStdv[2] / 19.0);
-	double mStdvMod = sqrt(motionStdv[0]*motionStdv[0]+motionStdv[1]*motionStdv[1]+motionStdv[2]*motionStdv[2]);
+	armMotionStdv = sqrt(motionStdv[0]*motionStdv[0]+motionStdv[1]*motionStdv[1]+motionStdv[2]*motionStdv[2]);
 
-	// now check the palm arch: is it open or closed?
-	// if it is closed, the user is signalling: "I want to grasp!"
-	if ( _data.gloveData.palmArch > 45 ) {
-		cout << "OPEN  \r"; cout.flush();
-	} else {
-		cout << "CLOSED\r"; cout.flush();
-	}
-	
-	// so: if mean is far from zero, and stdv is low, we have a directed motion.
+	// output values to screen
 /*	cout 
-		<< "mean: " << mMeanMod << "\tstdv: " << mStdvMod
+		<< "mean: " << motionMeanMod << "\tstdv: " << motionStdvMod
 		<< "                             \r";
 	cout.flush();*/
-	if ( mMeanMod > 1.0 && mStdvMod < 1.5 ) {
-		return true;
-	} else {
-		return false;
-	}
 
 }
 

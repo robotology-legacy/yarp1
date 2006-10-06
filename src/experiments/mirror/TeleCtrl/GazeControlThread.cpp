@@ -1,6 +1,26 @@
 #include "GazeControlThread.h"
 
 // -----------------------------------
+// thread constructor/destructor
+// -----------------------------------
+
+GazeControlThread::GazeControlThread(
+	const double frequency,
+	YARPOutputPortOf<YARPBottle>& saccadesOutPort, YARPOutputPortOf<YARPGenericImage>& imgOutPort,
+	YARPSemaphore& sema, bool enabled=true) :
+  ControlThread(frequency, sema, enabled),
+  _saccadesOutPort(saccadesOutPort), _imgOutPort(imgOutPort),
+  _gazeX(0,255), _gazeY(0,255),
+  _gazeSampleCount(0), _enableSaccade(true)
+{
+
+	_remappedImg.Resize (256, 256);
+	_coloredImg.Resize (_stheta, _srho);
+	_flippedImg.Resize (_remappedImg.GetWidth(), _remappedImg.GetHeight(), _remappedImg.GetID());
+
+}
+
+// -----------------------------------
 // thread body
 // -----------------------------------
 
@@ -13,11 +33,8 @@ void GazeControlThread::Body (void)
 		// set operating frequency
 		YARPTime::DelayInSeconds(_streamingFrequency);
 
-		// output to screen
 //		cout << "Gaze:" << "\t"
-//			 << _data.GTData.valid   << "\t"
-//			 << _data.GTData.pupilX  << "\t"
-//			 << _data.GTData.pupilY  << "\t"
+//			 << _data.GTData.valid   << "\t" << _data.GTData.pupilX  << "\t" << _data.GTData.pupilY  << "\t"
 //			 << "       \r";
 //		cout.flush();
 
@@ -27,63 +44,73 @@ void GazeControlThread::Body (void)
 		_sema.Post();
 		_LPMapper.Logpolar2Cartesian (_coloredImg, _remappedImg);
 
-		// store new gaze sample (circular array)
-		_gazeSampleCount = (_gazeSampleCount==_gazeSamples-1 ? 0 : _gazeSampleCount+1 );
-		if ( _gazeSampleCount == 0 ) {
-			_enableSaccade = true;
-		}
-		_gazeXPool[_gazeSampleCount] = _gazeX(_data.GTData.pupilX);
-		_gazeYPool[_gazeSampleCount] = _gazeY(_data.GTData.pupilY);
-		// evaluate mean and stdv
-		double meanX = 0.0, meanY = 0.0, stdvX = 0.0, stdvY = 0.0;
-		for ( int i=0; i<_gazeSamples; ++i ) {
-			meanX += _gazeXPool[i];
-			meanY += _gazeYPool[i];
-		}
-		meanX /= _gazeSamples;
-		meanY /= _gazeSamples;
-		for ( i=0; i<_gazeSamples; ++i ) {
-			stdvX += (_gazeXPool[i]-meanX)*(_gazeXPool[i]-meanX);
-			stdvY += (_gazeYPool[i]-meanY)*(_gazeYPool[i]-meanY);
-		}
-		stdvX = sqrt(stdvX / ((double)_gazeSamples-1.0));
-		stdvY = sqrt(stdvY / ((double)_gazeSamples-1.0));
-		double stdv = sqrt(stdvX*stdvX+stdvY*stdvY);
-		// draw current mean and stdv (thin, variable red cross)
-//		YarpPixelBGR tmpPixel2(255,0,0);
-//		YARPSimpleOperations::DrawCross<YarpPixelBGR>(_remappedImg, meanX, meanY, tmpPixel2, stdv, 1);
-		// draw current gaze position. if stdv is below T,
-		// it becomes green; otherwise, it is yellow
-		YarpPixelBGR tmpPixel1(255,255,0);
-		if ( stdv < 10.0 ) {
-			tmpPixel1.r = 0;
-			tmpPixel1.g = 255;
-			tmpPixel1.b = 0;
-			// possibly, send a saccade
-			if ( _enableSaccade ) {
-				YARPBottle tmpBottle;
-				tmpBottle.writeInt((int)meanX);
-				tmpBottle.writeInt((int)meanY);
-				if ( _enabled ) {
-					_hs_out.Content() = tmpBottle;
-					_hs_out.Write();
-				}
-				_enableSaccade = false;
-			}
-		
-		}
-		YARPSimpleOperations::DrawCross<YarpPixelBGR>(
-			_remappedImg, 
-			_gazeX(_data.GTData.pupilX), _gazeY(_data.GTData.pupilY), 
-			tmpPixel1, 8, 0);
+		// evaluate gaze statistics
+		evaluateGazeStats(_data.GTData.pupilX,_data.GTData.pupilY);
 
-		// send image to camview
+			// send image to camview
 		_imgOutPort.Content().Refer(_remappedImg);
 		_imgOutPort.Write();
 
 	}
     
 	return;
+
+}
+
+// -----------------------------------
+// evaluate gaze fixation
+// -----------------------------------
+
+void GazeControlThread::evaluateGazeStats(int pupilX, int pupilY)
+{
+
+	// store new gaze sample (circular array)
+	_gazeSampleCount = (_gazeSampleCount==_gazeSamples-1 ? 0 : _gazeSampleCount+1 );
+	if ( _gazeSampleCount == 0 ) {
+		_enableSaccade = true;
+	}
+	_gazeXPool[_gazeSampleCount] = _gazeX(pupilX);
+	_gazeYPool[_gazeSampleCount] = _gazeY(pupilY);
+	// evaluate mean and stdv
+	double meanX = 0.0, meanY = 0.0, stdvX = 0.0, stdvY = 0.0;
+	for ( int i=0; i<_gazeSamples; ++i ) {
+		meanX += _gazeXPool[i];
+		meanY += _gazeYPool[i];
+	}
+	meanX /= _gazeSamples;
+	meanY /= _gazeSamples;
+	for ( i=0; i<_gazeSamples; ++i ) {
+		stdvX += (_gazeXPool[i]-meanX)*(_gazeXPool[i]-meanX);
+		stdvY += (_gazeYPool[i]-meanY)*(_gazeYPool[i]-meanY);
+	}
+	stdvX = sqrt(stdvX / ((double)_gazeSamples-1.0));
+	stdvY = sqrt(stdvY / ((double)_gazeSamples-1.0));
+	gazeStdv = sqrt(stdvX*stdvX+stdvY*stdvY);
+
+	// usually, a red cross is drawn where the user's gaze is;
+	// but if the intention to grasp is signalled, the cross will be green
+	YarpPixelBGR tmpPixel(255,0,0);
+	// if gaze is fixated, the cross will turn green
+	if ( IWantToGrasp ) {
+		tmpPixel.r = 0;
+		tmpPixel.g = 255;
+	}
+	YARPSimpleOperations::DrawCross<YarpPixelBGR>(
+		_remappedImg, 
+		_gazeX(_data.GTData.pupilX), _gazeY(_data.GTData.pupilY), 
+		tmpPixel, 8, 0);
+
+	// OLD CODE: send a saccade to the fixated point
+	/*	if ( _enableSaccade ) {
+		YARPBottle tmpBottle;
+		tmpBottle.writeInt((int)meanX);
+		tmpBottle.writeInt((int)meanY);
+		if ( _enabled ) {
+			_hs_out.Content() = tmpBottle;
+			_hs_out.Write();
+		}
+		_enableSaccade = false;
+	}*/
 
 }
 
