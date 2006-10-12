@@ -138,6 +138,10 @@ SOURCE=.\SaverThread.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=..\mirrorCollector\CollectorCommands.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\DIBConverter.h
 # End Source File
 # Begin Source File

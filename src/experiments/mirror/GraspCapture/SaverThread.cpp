@@ -45,12 +45,6 @@ void CSaverThread::Body(void)
 			pImg1->Refer(p_img1_inport->Content());
 			ACE_OS::sprintf(fName,"%s.1.%03d.pgm", prefix, nFrames);
 			YARPImageFile::Write(fName, *pImg1,YARPImageFile::FORMAT_PPM);
-// if you're not intersted in 25 frames a second...
-//			if ( nFrames % 25 == 0 ) {
-//				ACE_OS::sprintf(fName,"%s.1.%03d.pgm", prefix, nFrames);
-//				ACE_OS::sprintf(fName,"%s.%03d.pgm", prefix, nFrames/25);
-//				YARPImageFile::Write(fName, *pImg1,YARPImageFile::FORMAT_PPM);
-//			}
 		}
 
 	} // while()
@@ -93,6 +87,6 @@ void CSaverThread::writeHeaderToFile()
 	fprintf(pFile,"PinkieInner;PinkieMiddle;PinkieOuter;");
 	fprintf(pFile,"ThumbIndex;IndexMiddle;MiddleRing;RingPinkie;");
 	fprintf(pFile,"PalmArch;WristPitch;WristYaw;");
-	fprintf(pFile,"PressureA;PressureB;PressureC;PressureC\n");
+	fprintf(pFile,"PressureA;PressureB;PressureC;PressureD\n");
 
 }
