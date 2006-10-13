@@ -17,8 +17,8 @@
 //////////////////////////////////////
 typedef struct GraspCaptureOptionsStruct {
 	GraspCaptureOptionsStruct() {
-//		ACE_OS::strcpy(connectScriptName,"C:\\yarp\\src\\experiments\\mirror\\GraspCapture\\graspCaptureConnect.bat");
-		ACE_OS::strcpy(connectScriptName,"Y:\\src\\experiments\\mirror\\GraspCapture\\graspCaptureConnect.bat");
+		ACE_OS::strcpy(connectScriptName,"C:\\yarp\\src\\experiments\\mirror\\GraspCapture\\graspCaptureConnect.bat");
+//		ACE_OS::strcpy(connectScriptName,"Y:\\src\\experiments\\mirror\\GraspCapture\\graspCaptureConnect.bat");
 		sizeX = sizeY = 0;
 		ACE_OS::strcpy(portName, "mirrorGrasp");
 		ACE_OS::strcpy(netName, "default");

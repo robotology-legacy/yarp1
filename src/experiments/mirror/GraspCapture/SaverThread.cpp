@@ -32,7 +32,7 @@ void CSaverThread::Body(void)
 		if ( useDataGlove || useGazeTracker || useTracker0 || useTracker1 || usePresSens ) {
 			p_data_inport->Read();
 			*pData = p_data_inport->Content();
-			writeDataToFile(nFrames);
+            writeDataToFile(nFrames);
 		}
 		if ( useCamera0 ) {
 			p_img0_inport->Read();

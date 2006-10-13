@@ -38,7 +38,6 @@ void CGraspCaptureDlg::DoDataExchange(CDataExchange* pDX)
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CGraspCaptureDlg)
-	DDX_Text(pDX, IDC_EDIT1, m_prefixEdit);
 	//}}AFX_DATA_MAP
 
 }
@@ -118,6 +117,9 @@ BOOL CGraspCaptureDlg::OnInitDialog()
 		MessageBox("Could not register ports.", "Fatal error.",MB_ICONERROR);
 		exit(YARP_FAIL);
 	}
+
+    std::cout.precision(2); std::cout.setf(ios::fixed);
+	YARPScheduler::setHighResScheduling();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 
