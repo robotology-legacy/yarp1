@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: CollectorCommands.h,v 1.8 2006-01-12 15:48:46 claudio72 Exp $
+/// $Id: CollectorCommands.h,v 1.9 2006-10-13 09:50:27 babybot Exp $
 ///
 ///
 
@@ -77,6 +77,7 @@
 
 #include<yarp/begin_pack_for_net.h>
 
+// commands exchanged with the client applications
 typedef enum {
 	CCmdFailed         = 0,
 	CCmdSucceeded      = 1,
@@ -88,6 +89,7 @@ typedef enum {
 	CCmdQuit           = 7
 } CollectorCommand;
 
+// numerical data sent over the network
 typedef struct CollectorNumericalDataStruct {
 	CollectorNumericalDataStruct() { clean(); };
 	void clean() {
@@ -104,8 +106,11 @@ typedef struct CollectorNumericalDataStruct {
 	PresSensData    pressureData;
 } CollectorNumericalData;
 
+// images sent over the network
 typedef YARPImageOf<YarpPixelBGR> CollectorImage;
 
+// what pieces of the setup do we actually use? (that is: what
+// pieces could be correctly initialised when a connection was required?)
 const int HardwareUseDataGlove = 0x01;
 const int HardwareUseTracker0  = 0x02;
 const int HardwareUseTracker1  = 0x04;

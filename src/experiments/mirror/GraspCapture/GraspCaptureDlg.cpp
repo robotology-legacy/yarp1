@@ -13,8 +13,6 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-const char* connectScriptName = "C:\\yarp\\src\\experiments\\mirror\\GraspCapture\\graspCaptureConnect.bat";
-
 /////////////////////////////////////////////////////////////////////////////
 // CGraspCaptureDlg dialog
 
@@ -309,7 +307,7 @@ bool CGraspCaptureDlg::registerPorts()
 	}
 
 	// connect ports
-	system(connectScriptName);
+	system(_options.connectScriptName);
 
 	return true;
 

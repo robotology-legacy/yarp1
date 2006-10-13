@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.13 2006-08-01 14:42:49 babybot Exp $
+/// $Id: main.cpp,v 1.14 2006-10-13 09:50:27 babybot Exp $
 ///
 ///
 
@@ -103,9 +103,10 @@ int main (int, char **);
 YARPOutputPortOf<CollectorNumericalData> _data_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 YARPOutputPortOf<YARPGenericImage> _img0_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 YARPOutputPortOf<YARPGenericImage> _img1_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-// channel for commands. MUST BE NO_BUFFERS, otherwise will lose sequentiality.
-// to improve synchronous communication, then, we force .write(true) on this port
+// channel for commands
+// to improve synchronous communication, write(true) on output port
 YARPOutputPortOf<int> _cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+// to improve synchronous communication, NO_BUFFERS
 YARPInputPortOf<int>  _cmd_inport (YARPInputPort::NO_BUFFERS, YARP_TCP);
 
 // ---------- global types
@@ -195,77 +196,67 @@ CollectorImage         _img1;
 // the default options file name
 char* CollectorConfFileName = "C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
 
-// the streaming frequency - used only if cameras are turned off
-const double CollectorStreamingFreq = 0.04;
-
-// a counter, telling us how many times GetData has been called
-unsigned long numOfGetDatas = 0;
+// the streaming frequency, in seconds
+double collectorFreq = 0.04;
 
 // ---------- streaming thread
 
 class streamingThread : public YARPThread {
-
 public:
-
 	streamingThread (void)
-		: _averageTime(0.0), _numOfRuns(0) {}
+		: _previousTime(0.0), count(0) {}
 
 	virtual void Body (void) {
 
-		// start streaming peripherals
-		if (_options.useDataGlove) {
-			_hardware.glove.startStreaming();
-		}
-		if (_options.useTracker0) {
-			_hardware.tracker0.startStreaming();
-		}
-		if (_options.useTracker1) {
-			_hardware.tracker1.startStreaming();
-		}
-
-//cout.precision(2);
-//_previousTime = YARPTime::GetTimeAsSeconds();
-
+		// for those sensors which admit a streaming command, start it
+		if (_options.useDataGlove)	_hardware.glove.startStreaming();
+		if (_options.useTracker0)	_hardware.tracker0.startStreaming();
+		if (_options.useTracker1)	_hardware.tracker1.startStreaming();
+		
 		// stream until terminated
 		while ( !IsTerminated() ) {
 
-// ------------ debug: show average frequency
-//_currentTime = YARPTime::GetTimeAsSeconds();
-//_interval = _currentTime - _previousTime;
-//_previousTime = _currentTime;
-//_averageTime += (_interval - _averageTime) / (++_numOfRuns);
-//cout << "--> interval:" << _interval << " (average: " << _averageTime << ")   \r";
-// ------------ debug
+			// evaluate streaming frequency
+			_currentTime = YARPTime::GetTimeAsSeconds();
+			_interval = _currentTime - _previousTime;
+			_previousTime = _currentTime;
+//			cout << "streaming at "
+//				 << 1/_interval << "Hz, should be " << 1/collectorFreq << "     \n";
 
-			acquireAndSend();
+			// wait for some time, in order to enforce the desired streaming frequency
+			cout << count++ << ": interval " << _interval;
+			if ( collectorFreq - _interval > 1e-3 ) {
+				YARPTime::DelayInSeconds(collectorFreq - _interval);
+				cout << ", delayed by " << collectorFreq - _interval << "     \n";
+			} else {
+				cout << ", no delay.\n";
+			}
 
-			if ( ! _options.useCamera0 && ! _options.useCamera1 ) {
+			// get data
+//			acquireAndSend();
+//			YARPTime::DelayInSeconds(0.01);
+
+/*			if ( ! _options.useCamera0 && ! _options.useCamera1 ) {
 				// if cameras are turned off, there is no delay;
 				// so we force one.
 				YARPTime::DelayInSeconds(CollectorStreamingFreq);
-			}
+			}*/
 
 		}
 
 		// stop streaming peripherals
-		if (_options.useDataGlove) {
-			_hardware.glove.stopStreaming();
-		}
-		if (_options.useTracker0) {
-			_hardware.tracker0.stopStreaming();
-		}
-		if (_options.useTracker1) {
-			_hardware.tracker1.stopStreaming();
-		}
-		
+		if (_options.useDataGlove)	_hardware.glove.stopStreaming();
+		if (_options.useTracker0)	_hardware.tracker0.stopStreaming();
+		if (_options.useTracker1)	_hardware.tracker1.stopStreaming();
+
+		// bail out
 		return;
+
 	}
 
 private:
-
-	double _previousTime, _currentTime, _averageTime, _interval;
-	unsigned long _numOfRuns;
-
+	double _previousTime, _currentTime, _interval;
+	unsigned long int count;
 };
 
 // ---------- functions
@@ -613,9 +604,13 @@ void unregisterPorts(void)
 int main (int argc, char *argv[])
 {
 
+	// preliminaries
+
+	cout.precision(5); cout.setf(ios::fixed);
+	YARPScheduler::setHighResScheduling();
+
 	getOptionsFromEnv(CollectorConfFileName);
 
-	YARPScheduler::setHighResScheduling();
 	_img0.Resize (_options.sizeX, _options.sizeY);
 	_img1.Resize (_options.sizeX, _options.sizeY);
 
@@ -634,8 +629,7 @@ int main (int argc, char *argv[])
 
 		while ( ! _cmd_inport.Read(false) ) {
 
-			// if no command has arrived thru the command port,
-			// wait for one from the keyboard (25 times a second)
+			// if no command has arrived thru the command port, check the keyboard
 			if ( _kbhit() ) {
 				switch ( _getch() ) {
 				case 'r':
@@ -673,7 +667,9 @@ int main (int argc, char *argv[])
 				}
 			}
 
-			YARPTime::DelayInSeconds(1.0/25.0);
+			// in order not to suck the CPU up, sleep .1 seconds at every cycle. this does not
+			// affect the actual streaming frequency, which is set in the streaming thread.
+			YARPTime::DelayInSeconds(0.1);
 
 		}
 
@@ -683,33 +679,21 @@ int main (int argc, char *argv[])
 			// connect peripherals
 			if ( ! bConnected ) {
 				if ( connectSensors() ) {
+					// if connectSensors returns true, at least one sensor has been
+					// connected. the fields _options.use* tell us which sensors are on.
 					bConnected = true;
 					// signal that connection was successful
 					_cmd_outport.Content() = CCmdSucceeded;
 					_cmd_outport.Write(true);
-					// send what hardware we use
+					// tell the client what hardware we use
 					int tmpOptions = 0;
-					if ( _options.useDataGlove ) {
-						tmpOptions |= HardwareUseDataGlove;
-					}
-					if ( _options.useGazeTracker ) {
-						tmpOptions |= HardwareUseGT;
-					}
-					if ( _options.useTracker0 ) {
-						tmpOptions |= HardwareUseTracker0;
-					}
-					if ( _options.useTracker1 ) {
-						tmpOptions |= HardwareUseTracker1;
-					}
-					if ( _options.usePresSens ) {
-						tmpOptions |= HardwareUsePresSens;
-					}
-					if ( _options.useCamera0 ) {
-						tmpOptions |= HardwareUseCamera0;
-					}
-					if ( _options.useCamera1 ) {
-						tmpOptions |= HardwareUseCamera1;
-					}
+					if ( _options.useDataGlove )	tmpOptions |= HardwareUseDataGlove;
+					if ( _options.useGazeTracker )	tmpOptions |= HardwareUseGT;
+					if ( _options.useTracker0 )		tmpOptions |= HardwareUseTracker0;
+					if ( _options.useTracker1 )		tmpOptions |= HardwareUseTracker1;
+					if ( _options.usePresSens )		tmpOptions |= HardwareUsePresSens;
+					if ( _options.useCamera0 ) 		tmpOptions |= HardwareUseCamera0;
+					if ( _options.useCamera1 )		tmpOptions |= HardwareUseCamera1;
 					_cmd_outport.Content() = tmpOptions;
 					_cmd_outport.Write(true);
 					// store and send size of the images
@@ -754,7 +738,6 @@ int main (int argc, char *argv[])
 				_cmd_outport.Write(true);
 				// acquire data and send
 				acquireAndSend();
-//	cout << "Getdata succeeded - data sent (" << ++numOfGetDatas << ")." << "\r";
 			} else {
 				_cmd_outport.Content() = CCmdFailed;
 				_cmd_outport.Write(true);
