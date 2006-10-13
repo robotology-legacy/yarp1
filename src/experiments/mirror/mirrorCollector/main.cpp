@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.14 2006-10-13 09:50:27 babybot Exp $
+/// $Id: main.cpp,v 1.15 2006-10-13 11:49:29 babybot Exp $
 ///
 ///
 
@@ -204,7 +204,7 @@ double collectorFreq = 0.04;
 class streamingThread : public YARPThread {
 public:
 	streamingThread (void)
-		: _previousTime(0.0), count(0) {}
+		: _previousTime(0.0) {}
 
 	virtual void Body (void) {
 
@@ -217,24 +217,23 @@ public:
 		while ( !IsTerminated() ) {
 
 			// evaluate streaming frequency
-			_currentTime = YARPTime::GetTimeAsSeconds();
-			_interval = _currentTime - _previousTime;
-			_previousTime = _currentTime;
+			_interval = YARPTime::GetTimeAsSecondsHr() - _previousTime;
+//cout << "interval: " << _interval << endl;
+			_previousTime = YARPTime::GetTimeAsSecondsHr();
 //			cout << "streaming at "
-//				 << 1/_interval << "Hz, should be " << 1/collectorFreq << "     \n";
+//				 << 1/_interval << "Hz (should be " << 1/collectorFreq << ")       \r";
 
 			// wait for some time, in order to enforce the desired streaming frequency
-			cout << count++ << ": interval " << _interval;
-			if ( collectorFreq - _interval > 1e-3 ) {
+//			cout << "interval " << _interval << endl;
+			if ( collectorFreq - _interval > 0 ) {
 				YARPTime::DelayInSeconds(collectorFreq - _interval);
-				cout << ", delayed by " << collectorFreq - _interval << "     \n";
-			} else {
-				cout << ", no delay.\n";
-			}
+//				cout << ", delayed by " << collectorFreq - _interval << "     \n";
+			} //else {
+//				cout << ", no delay.\n";
+//			}
 
 			// get data
-//			acquireAndSend();
-//			YARPTime::DelayInSeconds(0.01);
+			acquireAndSend();
 
 /*			if ( ! _options.useCamera0 && ! _options.useCamera1 ) {
 				// if cameras are turned off, there is no delay;
@@ -255,8 +254,8 @@ public:
 	}
 
 private:
-	double _previousTime, _currentTime, _interval;
-	unsigned long int count;
+	double _previousTime, _interval;
+
 };
 
 // ---------- functions
