@@ -136,7 +136,9 @@ void ReadCollectorData(void)
 void mainLoop(libsvmLearner& learner)
 {
 
-	bool goOn = true, nowTraining = false;
+	bool goOn = true;
+	bool motionTraining = false;
+	bool acquiringImg = false;
 
 	while ( goOn ) {
 
@@ -148,12 +150,29 @@ void mainLoop(libsvmLearner& learner)
 				cout << "MAIN THREAD: Got QUIT command. Bailing out." << endl;
 				goOn = false;
 				break;
-			case 't': // switch between training and prediction
-				nowTraining = ! nowTraining;
-				if ( nowTraining ) {
-					cout << endl << "MAIN THREAD: now in TRAINING mode." << endl;
+			case 't': // switch between motion training and prediction
+				motionTraining = ! motionTraining;
+				if ( motionTraining ) {
+					cout << endl << "MAIN THREAD: now in MOTION TRAINING mode." << endl;
 				} else {
-					cout << endl << "MAIN THREAD: now in PREDICTION mode." << endl;
+					cout << endl << "MAIN THREAD: now in MOTION PREDICTION mode." << endl;
+				}
+				break;
+			case 'i': // (de)activate acquisition of object images
+				acquiringImg = ! acquiringImg;
+				if ( acquiringImg ) {
+					cout << endl << "MAIN THREAD: now ACQUIRING OBJECT IMAGES." << endl;
+					int x,y;
+					cout << "enter coordinates: "; cin >> x >> y;
+					cout << "now ordering saccade..." << endl;
+					YARPBottle tmpBottle;
+					tmpBottle.writeInt(x); tmpBottle.writeInt(y);
+					_hs_out.Content() = tmpBottle;
+//					_hs_out.Write();
+					cout << "press any key to acquire image."; cin.get(); cin.get();
+					IWantToSave = true;
+				} else {
+					cout << endl << "MAIN THREAD: stopped acquiring images." << endl;
 				}
 				break;
 			default:
@@ -164,7 +183,7 @@ void mainLoop(libsvmLearner& learner)
 //goto vacca;
 
 		// ---- training or predicting? then train or predict!
-		if ( nowTraining ) {
+		if ( motionTraining ) {
 			// the user closes the hand to signal "I want to grasp!"
 			if ( _data.gloveData.palmArch < 45 ) {
 				IWantToGrasp = true;
@@ -193,7 +212,7 @@ void mainLoop(libsvmLearner& learner)
 			learner.predict(x);
 //			IWantToGrasp = (learner._predicted[0]==1?true:false);
 			IWantToGrasp = (learner._predicted[0]>0?true:false);
-			cout << "predict: " << learner._predicted[0] << "   \r";
+//			cout << "predict: " << learner._predicted[0] << "   \r";
 		}
 
 		// ALTERNATIVELY: decide whether the user wants to grasp based upon hardcoded thresholds:

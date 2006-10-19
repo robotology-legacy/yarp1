@@ -38,6 +38,8 @@ private:
 	// logpolar to Cartesian stuff
 	YARPGenericImage _flippedImg;
 	YARPImageOf<YarpPixelBGR> _remappedImg;
+	YARPImageOf<YarpPixelBGR> _remappedFoveaImg;
+	YARPImageOf<YarpPixelMono> _remappedFoveaGrayscaleImg;
 	YARPImageOf<YarpPixelBGR> _coloredImg;
 	YARPLogpolar _LPMapper;
 

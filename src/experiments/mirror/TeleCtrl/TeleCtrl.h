@@ -1,5 +1,5 @@
 ///
-/// $Id: TeleCtrl.h,v 1.5 2006-10-06 21:13:35 babybot Exp $
+/// $Id: TeleCtrl.h,v 1.6 2006-10-19 16:40:29 babybot Exp $
 ///
 
 #ifndef TeleCtrlH
@@ -79,6 +79,8 @@ YVector _armPos;
 double armMotionMean = 0, armMotionStdv = 0, gazeStdv = 0;
 bool IWantToGrasp = false;
 
+bool IWantToSave = false;
+
 #else
 
 extern YARPInputPortOf<CollectorNumericalData> _coll_data_in;
@@ -95,6 +97,7 @@ extern YARPGenericImage _image;
 extern YVector _armPos;
 extern double gazeStdv, armMotionMean, armMotionStdv;
 extern bool IWantToGrasp;
+extern bool IWantToSave;
 
 #endif
 

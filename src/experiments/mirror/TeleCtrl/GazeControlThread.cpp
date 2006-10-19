@@ -15,6 +15,8 @@ GazeControlThread::GazeControlThread(
 {
 
 	_remappedImg.Resize (256, 256);
+	_remappedFoveaImg.Resize (128, 128);
+	_remappedFoveaGrayscaleImg.Resize (128, 128);
 	_coloredImg.Resize (_stheta, _srho);
 	_flippedImg.Resize (_remappedImg.GetWidth(), _remappedImg.GetHeight(), _remappedImg.GetID());
 
@@ -42,7 +44,23 @@ void GazeControlThread::Body (void)
 		_sema.Wait();
 		_LPMapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)_image, _coloredImg);
 		_sema.Post();
+		_LPMapper.Logpolar2CartesianFovea (_coloredImg, _remappedFoveaImg);
 		_LPMapper.Logpolar2Cartesian (_coloredImg, _remappedImg);
+
+		if ( IWantToSave ) {
+			char filename[256] = "c:\\gino.pgm";
+
+			YarpPixelMono tmpPixelMono;
+			IMGFOR(_remappedFoveaImg,i,j) {
+				tmpPixelMono = (_remappedFoveaImg(i,j).r +
+					            _remappedFoveaImg(i,j).g +
+								_remappedFoveaImg(i,j).b ) / 3;
+				_remappedFoveaGrayscaleImg(i,j) = tmpPixelMono;
+			}
+			YARPImageFile::Write(filename,_remappedFoveaGrayscaleImg,YARPImageFile::FORMAT_PGM);
+			cout << "image saved as " << filename << endl;
+			IWantToSave = false;
+		}
 
 		// evaluate gaze statistics
 		evaluateGazeStats(_data.GTData.pupilX,_data.GTData.pupilY);
