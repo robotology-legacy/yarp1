@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: seqgrabber.cpp,v 1.6 2005-02-25 11:05:40 babybot Exp $
+/// $Id: seqgrabber.cpp,v 1.7 2006-10-20 13:15:37 babybot Exp $
 /// 
 
 #include <yarp/YARPConfig.h>
@@ -98,7 +98,7 @@ const char *DEFAULT_FOLDER = "C:/temp/";
 const int DEFAULT_LENGTH = 30;	// seconds
 const double timeFrame = 0.04;	// seconds
 
-int each = 10;		// save each 10
+int each = 1;		// save each 10
 ///
 ///
 ///
@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
 	bool stereo = false;
 	bool cinque = false;
 	bool stop = false;
+	bool logpolar = false;
 
 	int length;
 
@@ -162,6 +163,11 @@ int main(int argc, char *argv[])
 	{
 		stop = true;
 		each = 1;
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "-logpolar"))
+	{
+		logpolar = true;
 	}
 
 	/// images are coming from the input network.
@@ -253,9 +259,45 @@ int main(int argc, char *argv[])
 					YARPImageFile::Write(tmpName, _image5Port.Content());
 				}
 			}
+			else if(logpolar)
+			{
+
+				// added by Claudio October 20th, 2006
+				// the logpolar switch will save a fovea grayscale (PGM) image
+
+				YARPGenericImage _image;
+
+				YARPImageOf<YarpPixelBGR> _coloredImg;
+				_coloredImg.Resize (_stheta, _srho);
+				
+				YARPImageOf<YarpPixelBGR> _remappedFoveaImg;
+				_remappedFoveaImg.Resize (128, 128);
+
+				YARPImageOf<YarpPixelMono> _remappedFoveaGrayscaleImg;
+				_remappedFoveaGrayscaleImg.Resize (128, 128);
+
+				YARPLogpolar _LPMapper;
+
+				// reconstruct logpolar image
+				_image.Refer(_image1Port.Content());
+				_LPMapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)_image, _coloredImg);
+				_LPMapper.Logpolar2CartesianFovea (_coloredImg, _remappedFoveaImg);
+
+				sprintf(tmpName, "%s%s%05d.pgm", outdir.c_str(), name.c_str(), frameCounter);
+				YarpPixelMono tmpPixelMono;
+				IMGFOR(_remappedFoveaImg,i,j) {
+					tmpPixelMono = (_remappedFoveaImg(i,j).r +
+						            _remappedFoveaImg(i,j).g +
+									_remappedFoveaImg(i,j).b ) / 3;
+					_remappedFoveaGrayscaleImg(i,j) = tmpPixelMono;
+				}
+
+				YARPImageFile::Write(tmpName,_remappedFoveaGrayscaleImg,YARPImageFile::FORMAT_PGM);
+
+			}
 			else
 			{
-				sprintf(tmpName, "%s%s%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+				sprintf(tmpName, "%s%s%05d.ppm", outdir.c_str(), name.c_str(), frameCounter);
 				YARPImageFile::Write(tmpName, _image1Port.Content());
 			}
 		}
