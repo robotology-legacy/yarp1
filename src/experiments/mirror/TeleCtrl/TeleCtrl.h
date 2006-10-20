@@ -1,5 +1,5 @@
 ///
-/// $Id: TeleCtrl.h,v 1.6 2006-10-19 16:40:29 babybot Exp $
+/// $Id: TeleCtrl.h,v 1.7 2006-10-20 12:52:50 babybot Exp $
 ///
 
 #ifndef TeleCtrlH
@@ -78,7 +78,6 @@ YVector _armPos;
 // learning machine reads them.
 double armMotionMean = 0, armMotionStdv = 0, gazeStdv = 0;
 bool IWantToGrasp = false;
-
 bool IWantToSave = false;
 
 #else

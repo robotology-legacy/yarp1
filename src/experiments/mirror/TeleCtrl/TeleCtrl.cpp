@@ -168,7 +168,7 @@ void mainLoop(libsvmLearner& learner)
 					YARPBottle tmpBottle;
 					tmpBottle.writeInt(x); tmpBottle.writeInt(y);
 					_hs_out.Content() = tmpBottle;
-//					_hs_out.Write();
+					_hs_out.Write();
 					cout << "press any key to acquire image."; cin.get(); cin.get();
 					IWantToSave = true;
 				} else {

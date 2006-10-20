@@ -54,6 +54,11 @@ private:
 	double _gazeYPool[_gazeSamples];
 	unsigned int _gazeSampleCount;
 
+	// saving images
+	char imgPath[256];
+	char imgFileName[256];
+	int imgFileCount;
+
 };
 
 #endif

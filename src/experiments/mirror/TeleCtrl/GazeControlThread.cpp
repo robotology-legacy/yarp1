@@ -20,6 +20,10 @@ GazeControlThread::GazeControlThread(
 	_coloredImg.Resize (_stheta, _srho);
 	_flippedImg.Resize (_remappedImg.GetWidth(), _remappedImg.GetHeight(), _remappedImg.GetID());
 
+	strcpy(imgPath,"d:\\tmp");
+	strcpy(imgFileName,"prova");
+	imgFileCount = 1;
+
 }
 
 // -----------------------------------
@@ -48,8 +52,8 @@ void GazeControlThread::Body (void)
 		_LPMapper.Logpolar2Cartesian (_coloredImg, _remappedImg);
 
 		if ( IWantToSave ) {
-			char filename[256] = "c:\\gino.pgm";
-
+			char filename[256];
+			sprintf(filename, "%s\\%s%02d.pgm",imgPath,imgFileName,imgFileCount++);
 			YarpPixelMono tmpPixelMono;
 			IMGFOR(_remappedFoveaImg,i,j) {
 				tmpPixelMono = (_remappedFoveaImg(i,j).r +
