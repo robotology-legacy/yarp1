@@ -61,11 +61,14 @@ void libsvmLearningMachine::saveModel()
 	
 	// save model
 	string modelFileName = _params._path + _params._name + ".model";
-	if ( svm_save_model(modelFileName.c_str(), _model ) == -1 ) {
+	if ( _model == 0 ) {
+		cout << "WARNING: no model to be saved. Carrying on." << endl;
+	} else if ( svm_save_model(modelFileName.c_str(), _model ) == -1 ) {
 		cout << "ERROR: could not save model." << endl;
 		return;
+	} else {
+		cout << "saved model to " << modelFileName << "." << endl;
 	}
-	cout << "saved model to " << modelFileName << "." << endl;
 
 }
 
