@@ -26,9 +26,6 @@ void CSaverThread::Body(void)
 
 		nFrames++;
 
-		// must use synchronous version, otherwise there is no guarantee
-		// that data will be synchronised.
-
 		if ( useDataGlove || useGazeTracker || useTracker0 || useTracker1 || usePresSens ) {
 			p_data_inport->Read();
 			*pData = p_data_inport->Content();

@@ -7,8 +7,8 @@
 // libsvm learning machine
 // -------------------------------------------------------
 
-libsvmLearningMachine::libsvmLearningMachine( Normaliser* norm, params& params )
-    : LearningMachine(norm, params), _params(params), _model(0)
+libsvmLearningMachine::libsvmLearningMachine( normaliser* norm, params& params )
+    : LearningMachine(norm, params, false), _params(params), _model(0)
 {
 
     // allocate the problem's x's
@@ -23,6 +23,13 @@ libsvmLearningMachine::libsvmLearningMachine( Normaliser* norm, params& params )
     } }
     // allocate the problem's y's
 	lmAlloc(_problem.y, _params._capacity);
+	// are we doing classification or regression?
+	if ( _params._svmparams.svm_type == C_SVC ||
+		 _params._svmparams.svm_type == NU_SVC || 
+		 _params._svmparams.svm_type == ONE_CLASS ) {
+		_classification = true;
+		_norm->setAvoidColumn0();
+	}
 
 }
     
@@ -258,7 +265,12 @@ real libsvmLearningMachine::predict( const real x[] )
 	// and then predict (un-normalise before bailing out)
 	real y = svm_predict(_model, tmpSample);
     delete[] tmpSample;
-    return _norm->unNormalise( y, 0 );
+
+	if ( _classification == false ) {
+		return _norm->unNormalise( y, 0 );
+	} else {
+		return y;
+	}
 
 }
 
@@ -274,7 +286,7 @@ bool libsvmLearningMachine::isExampleWorthAdding ( const real x[], const real y 
 // libsvm uniform learning machine
 // -------------------------------------------------------
 
-libsvmUniLearningMachine::libsvmUniLearningMachine( Normaliser* norm, params& params, real* tol) 
+libsvmUniLearningMachine::libsvmUniLearningMachine( normaliser* norm, params& params, real* tol) 
   : libsvmLearningMachine(norm, params)
 {
 

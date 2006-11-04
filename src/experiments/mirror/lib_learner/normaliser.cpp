@@ -4,25 +4,15 @@
 #include "normaliser.h"
 
 // -------------------------------------------------------
-// null normaliser
+// base normaliser. only provides (un)normalisation of all data.
 // -------------------------------------------------------
 
-real nullNormaliser::normalise( real value, unsigned int index )
+void normaliser::normaliseAll( )
 {
 
-    return value;
-
-}
-
-real nullNormaliser::unNormalise( real value, unsigned int index )
-{
-
-    return value;
-
-}
-
-void nullNormaliser::normaliseAll( void )
-{
+	// flag avoidColumn0, is set, does not normalise column 0 of the
+	// source dataset. useful if column 0 represents labels in a
+	// classification task.
 
     // first reset the destination data set
     _dest->reset();
@@ -36,7 +26,11 @@ void nullNormaliser::normaliseAll( void )
 
     { foreach(_source->getCount(),i) {
         { foreach(_source->getSize(),j) {
-            tmpVector[j] = normalise( (*_source)(i,j), 0 );
+			if ( _avoidColumn0 && j==0 ) {
+				tmpVector[j] = (*_source)(i,j);
+			} else {
+				tmpVector[j] = normalise( (*_source)(i,j), j );
+			}
         } }
         _dest->add(tmpVector);
     } }
@@ -45,22 +39,26 @@ void nullNormaliser::normaliseAll( void )
 
 }
 
-void nullNormaliser::unNormaliseAll( void )
+void normaliser::unNormaliseAll( )
 {
 
     { foreach(_source->getCount(),i) {
         { foreach(_source->getSize(),j) { 
-            (*_dest)(i,j) = unNormalise( (*_source)(i,j), 0 );
+			if ( _avoidColumn0 && j==0 ) {
+				(*_dest)(i,j) = (*_source)(i,j);
+            } else {
+				(*_dest)(i,j) = unNormalise( (*_source)(i,j), j );
+			}
         } }
     } }
 
 }
 
 // -------------------------------------------------------
-// fixed statistics normaliser
+// fixed mean/stdv normaliser
 // -------------------------------------------------------
 
-real fixNormaliser::normalise( real value, unsigned int index )
+real fixMsNormaliser::normalise( real value, unsigned int index )
 {
 
     // for each dimension, subtract mean and divide by standard deviation
@@ -73,7 +71,7 @@ real fixNormaliser::normalise( real value, unsigned int index )
 
 }
 
-real fixNormaliser::unNormalise( real value, unsigned int index )
+real fixMsNormaliser::unNormalise( real value, unsigned int index )
 {
 
     // for each dimension, multiply by standard deviation and add mean
@@ -86,38 +84,33 @@ real fixNormaliser::unNormalise( real value, unsigned int index )
 
 }
 
-void fixNormaliser::normaliseAll( void )
+void fixMsNormaliser::save( string fileName )
 {
 
-    // first reset the destination data set
-    _dest->reset();
+	ofstream dataOfstream(fileName.c_str());
+	if ( dataOfstream.is_open() == 0 ) {
+		cout << "ERROR: could not save statistics." << endl;
+		return;
+	}
 
-    // then evaluate statistics
-	evalStatistics();
-
-    // then add normalised vectors
-    real* tmpVector;
-    lmAlloc(tmpVector, _source->getSize());
-
-    { foreach(_source->getCount(),i) {
-        { foreach(_source->getSize(),j) {
-            tmpVector[j] = normalise( (*_source)(i,j), j );
-        } }
-        _dest->add(tmpVector);
-    } }
-
-    delete[] tmpVector;
+    dataOfstream << _mean << " " << _stdv << endl;
 
 }
 
-void fixNormaliser::unNormaliseAll( void )
+bool fixMsNormaliser::load( string fileName )
 {
 
-    { foreach(_source->getCount(),i) {
-        { foreach(_source->getSize(),j) { 
-            (*_dest)(i,j) = unNormalise( (*_source)(i,j), j );
-        } }
-    } }
+	ifstream dataIfstream(fileName.c_str());
+	if ( dataIfstream.is_open() == 0 ) {
+		cout << "ERROR: could not load statistics." << endl;
+		return false;
+	}
+
+    dataIfstream >> _mean >> _stdv;
+
+	cout << "loaded fixed mean (" << _mean << ") and stdv (" << _stdv << ") values." << endl;
+
+	return true;
 
 }
 
@@ -164,41 +157,6 @@ real msNormaliser::unNormalise( real value, unsigned int index )
 	value += _mean[index];
 
     return value;
-
-}
-
-void msNormaliser::normaliseAll( void )
-{
-
-    // first reset the destination data set
-    _dest->reset();
-
-    // then evaluate statistics
-	evalStatistics();
-
-    // then add normalised vectors
-    real* tmpVector;
-    lmAlloc(tmpVector, _source->getSize());
-
-    { foreach(_source->getCount(),i) {
-        { foreach(_source->getSize(),j) {
-            tmpVector[j] = normalise( (*_source)(i,j), j );
-        } }
-        _dest->add(tmpVector);
-    } }
-
-    delete[] tmpVector;
-
-}
-
-void msNormaliser::unNormaliseAll( void )
-{
-
-    { foreach(_source->getCount(),i) {
-        { foreach(_source->getSize(),j) { 
-            (*_dest)(i,j) = unNormalise( (*_source)(i,j), j );
-        } }
-    } }
 
 }
 
@@ -305,41 +263,6 @@ real mmNormaliser::unNormalise( real value, unsigned int index )
 	value += _min[index];
 
     return value;
-
-}
-
-void mmNormaliser::normaliseAll( void )
-{
-
-    // first reset the destination data set
-    _dest->reset();
-
-    // then evaluate statistics
-	evalStatistics();
-
-    // then add normalised vectors
-    real* tmpVector;
-    lmAlloc(tmpVector, _source->getSize());
-
-    { foreach(_source->getCount(),i) {
-        { foreach(_source->getSize(),j) {
-            tmpVector[j] = normalise( (*_source)(i,j), j );
-        } }
-        _dest->add(tmpVector);
-    } }
-
-    delete[] tmpVector;
-
-}
-
-void mmNormaliser::unNormaliseAll( void )
-{
-
-    { foreach(_source->getCount(),i) {
-        { foreach(_source->getSize(),j) {
-            (*_dest)(i,j) = unNormalise( (*_source)(i,j), j );
-        } }
-    } }
 
 }
 

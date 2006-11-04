@@ -287,12 +287,12 @@ bool CGraspCaptureDlg::registerPorts()
 	
 	// Images port registration
 	ACE_OS::sprintf(portName,"/%s/i:img0", _options.portName);
-	if ( _img0_inport.Register(portName, _options.netName) != YARP_OK ) {
+	if ( _img0_inport.Register(portName, _options.imgNetName) != YARP_OK ) {
 		return false;
 	}
 
 	ACE_OS::sprintf(portName,"/%s/i:img1", _options.portName);
-	if ( _img1_inport.Register(portName, _options.netName) != YARP_OK ) {
+	if ( _img1_inport.Register(portName, _options.imgNetName) != YARP_OK ) {
 		return false;
 	}
 

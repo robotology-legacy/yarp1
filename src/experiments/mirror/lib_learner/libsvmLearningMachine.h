@@ -40,7 +40,7 @@ public:
 		bool _filter;
     };
 
-	libsvmLearningMachine( Normaliser*, params& );
+	libsvmLearningMachine( normaliser*, params& );
 	~libsvmLearningMachine( void );
 
 	void reset( void );
@@ -68,6 +68,8 @@ private:
 	svm_problem _problem;
 	// libsvm model pointer
 	svm_model* _model;
+	// classification or regression?
+	bool _classification;
 
 };
 
@@ -80,7 +82,7 @@ private:
 class libsvmUniLearningMachine : public libsvmLearningMachine {
 public:
 
-	libsvmUniLearningMachine( Normaliser*, params&, real* );
+	libsvmUniLearningMachine( normaliser*, params&, real* );
 	~libsvmUniLearningMachine( void );
 
 	bool isExampleWorthAdding ( const real[], const real );
@@ -101,7 +103,7 @@ private:
 class libsvmFBLearningMachine : public libsvmLearningMachine {
 public:
 
-	libsvmFBLearningMachine( Normaliser* norm, params& params, real thr ) 
+	libsvmFBLearningMachine( normaliser* norm, params& params, real thr ) 
 		: libsvmLearningMachine(norm, params), _threshold(thr) {}
 	~libsvmFBLearningMachine( void ) {}
 

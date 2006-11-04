@@ -128,7 +128,7 @@ private:
 	// what kind of machines do we use?
 	int _machineType;
 	// normalisers and machines
-	Normaliser** _norm;
+	normaliser** _norm;
     libsvmLearningMachine** _machine;
 	// size of the codomain
     unsigned int _codomainSize;

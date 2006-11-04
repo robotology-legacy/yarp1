@@ -151,6 +151,7 @@ void mainLoop(libsvmLearner& learner)
 				goOn = false;
 				break;
 			case 't': // switch between motion training and prediction
+//break;
 				motionTraining = ! motionTraining;
 				if ( motionTraining ) {
 					cout << endl << "MAIN THREAD: now in MOTION TRAINING mode." << endl;
@@ -159,6 +160,7 @@ void mainLoop(libsvmLearner& learner)
 				}
 				break;
 			case 'i': // (de)activate acquisition of object images
+//break;
 				acquiringImg = ! acquiringImg;
 				if ( acquiringImg ) {
 					cout << endl << "MAIN THREAD: now ACQUIRING OBJECT IMAGES." << endl;
@@ -210,9 +212,8 @@ void mainLoop(libsvmLearner& learner)
 			x[1] = armMotionStdv;
 			x[2] = gazeStdv;
 			learner.predict(x);
-//			IWantToGrasp = (learner._predicted[0]==1?true:false);
-			IWantToGrasp = (learner._predicted[0]>0?true:false);
-//			cout << "predict: " << learner._predicted[0] << "   \r";
+			IWantToGrasp = (learner._predicted[0]==1?true:false);
+			cout << "predict: " << learner._predicted[0] << "   \r";
 		}
 
 		// ALTERNATIVELY: decide whether the user wants to grasp based upon hardcoded thresholds:
@@ -248,6 +249,8 @@ int main()
     libsvmLearningMachine::params params;
     params._capacity = 10000;
     params._domainSize = 3;
+    params._path = "d:\\tmp\\";
+	params._name = "biometricData";
 	params._svmparams.svm_type = C_SVC;
 	params._svmparams.kernel_type = RBF;
 	//params._svmparams.degree = 3;
@@ -277,13 +280,13 @@ int main()
 	// acquisition thread
 	acquisitionThread at;
 	// arm position control thread
-	ControlThread* act = new ArmPosControlThread(0.04,_rep_out,_repeaterSema, false);
+	ControlThread* act = new ArmPosControlThread(1./25.,_rep_out,_repeaterSema, false);
 	// arm velocity control thread
-//	ControlThread* act = new ArmVelControlThread(0.04,_rep_out,_repeaterSema, false);
+//	ControlThread* act = new ArmVelControlThread(1./25.,_rep_out,_repeaterSema, false);
 	// hand control thread
-	ControlThread* hct = new HandControlThread(1./10.,_rep_out,_repeaterSema, false);
+	ControlThread* hct = new HandControlThread(1./25.,_rep_out,_repeaterSema, false);
 	// gaze control thread
-	ControlThread* gct = new GazeControlThread(1./10.,_hs_out,_img_out,_imageSema, false);
+	ControlThread* gct = new GazeControlThread(1./25.,_hs_out,_img_out,_imageSema, false);
 
 	// tell collector to activate the sensors
 	cout << endl << "Initialising collector... "; cout.flush();
@@ -293,7 +296,7 @@ int main()
 	// gather which sensors we use
 	_coll_cmd_in.Read();
 	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0|HardwareUseGT) ) {
-//	if ( _coll_cmd_in.Content() != (HardwareUseTracker0|HardwareUseDataGlove) ) {
+//	if ( _coll_cmd_in.Content() != (HardwareUseTracker0|HardwareUseGT) ) {
 		cout << "must use tracker 0, gaze tracker and dataglove only." << endl;
 //		cout << "must use tracker 0 and dataglove only." << endl;
 		SendCommandToCollector(CCmdDisconnect);
@@ -356,6 +359,9 @@ int main()
 	cout << "Now releasing collector. "; cout.flush();
 	SendCommandToCollector(CCmdDisconnect);
 	cout << "done." << endl;
+
+learner.train();
+learner.save();
 
 	// unregister ports and bail out
 	unregisterPorts();

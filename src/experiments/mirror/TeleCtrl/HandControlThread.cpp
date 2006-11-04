@@ -14,15 +14,15 @@ void HandControlThread::Body (void)
 		YARPTime::DelayInSeconds(_streamingFrequency);
 	    
 		// output to screen
-//		cout << "Hand:" << "\t"
-//			 << _thumb0(_data.gloveData.thumb[0])    << "\t"
-//			 << _thumb1(_data.gloveData.thumb[1])    << "\t"
-//			 << _index0(_data.gloveData.index[0])    << "\t"
-//			 << _index1(_data.gloveData.index[1])    << "\t"
-//			 << _fingers0(_data.gloveData.middle[0]) << "\t"
-//			 << _fingers1(_data.gloveData.middle[1])
-//			 << "       \r";
-//		cout.flush();
+/*		cout << "Hand:" << "\t"
+			 << _thumb0(_data.gloveData.thumb[0])    << "\t"
+			 << _thumb1(_data.gloveData.thumb[1])    << "\t"
+			 << _index0(_data.gloveData.index[0])    << "\t"
+			 << _index1(_data.gloveData.index[1])    << "\t"
+			 << _fingers0(_data.gloveData.middle[0]) << "\t"
+			 << _fingers1(_data.gloveData.middle[1])
+			 << "       \r";
+		cout.flush();*/
 
 		// send commands to the hand
         sendPosCmd(

@@ -35,7 +35,7 @@ public:
     class params {
 	  public:
 		params(unsigned int capacity, unsigned int domainSize, string name, string path = "")
-            : _capacity(capacity), _domainSize(domainSize), _name(name), _path(path) {}
+            : _capacity(capacity), _domainSize(domainSize), _path(path), _name(name) {}
 		params() : _capacity(100), _domainSize(1), _path(""), _name("learner") {}
 		unsigned int _capacity;
 		unsigned int _domainSize;
@@ -44,15 +44,17 @@ public:
 	};
 
 	// initialise with parameters or use default
-    LearningMachine( Normaliser* norm, params& params )
-	 : _params(params), _count(0), _rawData(_params._capacity,_params._domainSize+1),
+    LearningMachine( normaliser* norm, params& params, bool classification )
+	 : _params(params), _count(0),
+	   _rawData(_params._capacity,_params._domainSize+1),
        _normalData(_params._capacity,_params._domainSize+1),
 	   _norm(norm)
 	{
 		_norm->setDataSets(&_rawData,&_normalData);
 	}
-    LearningMachine( Normaliser* norm )
-	 : _count(0), _rawData(_params._capacity,_params._domainSize+1),
+    LearningMachine( normaliser* norm, bool classification )
+	 : _count(0),
+	   _rawData(_params._capacity,_params._domainSize+1),
        _normalData(_params._capacity,_params._domainSize+1),
 	   _norm(norm)
 	{
@@ -86,7 +88,7 @@ protected:
 	dataSet _rawData;
     dataSet _normalData;
     // the normaliser
-	Normaliser* _norm;
+	normaliser* _norm;
 
 };
 

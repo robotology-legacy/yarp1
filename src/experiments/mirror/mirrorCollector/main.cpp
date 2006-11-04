@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.17 2006-10-13 14:22:20 babybot Exp $
+/// $Id: main.cpp,v 1.18 2006-11-04 23:04:15 babybot Exp $
 ///
 ///
 
@@ -127,6 +127,7 @@ typedef struct CollectorOptionsStruct {
 	CollectorOptionsStruct() {
 		portName			= "mirrorCollector";
 		netName				= "default";
+		imgNetName			= "default";
 		useDataGlove		= false;
 		gloveComPort		= 3;
 		gloveBaudRate		= 115200;
@@ -155,6 +156,7 @@ typedef struct CollectorOptionsStruct {
 	};
 	YARPString portName;
 	YARPString netName;
+	YARPString imgNetName;
 	bool useCamera0;
 	bool useCamera1;
 	int	sizeX;
@@ -206,6 +208,8 @@ public:
 
 	virtual void Body (void) {
 
+		count = 0;
+
 		// stream until terminated
 		while ( !IsTerminated() ) {
 
@@ -214,13 +218,16 @@ public:
 			acquireAndSend();
             _time2 = YARPTime::GetTimeAsSecondsHr();
 
+//cout << "a&s took " << _time2-_time1 << endl;
+//cout << "sent " << count++ << "     \r";
+
             // if it is the case, add a delay to enforce streaming frequency
             _delay = collectorFreq*.99 - (_time2 - _time1);
 			if ( _delay > 0 ) YARPTime::DelayInSeconds(_delay);
 
             // show actual streaming frequency
-			cout << "streaming at " << 1/(YARPTime::GetTimeAsSecondsHr() - _time1)
-                 << "Hz (should be " << 1/collectorFreq << ")       \r";
+//			cout << "interval is " << YARPTime::GetTimeAsSecondsHr() - _time1
+//               << " (should be " << collectorFreq << ")       \r";
 
 		}
 
@@ -231,7 +238,7 @@ public:
 
 private:
 	double _delay, _time1, _time2;
-
+	int count;
 };
 
 // ---------- functions
@@ -463,6 +470,9 @@ void getOptionsFromEnv(char* fileName)
 	if ( optFile.getString("[NETWORK]", "NetName", buf) == YARP_OK) {
 		_options.netName = buf;
 	}
+	if ( optFile.getString("[NETWORK]", "ImgNetName", buf) == YARP_OK) {
+		_options.imgNetName = buf;
+	}
 	// glove
 	int yesNo;
 	optFile.get("[HARDWARE]", "UseDataGlove", &yesNo); _options.useDataGlove = (yesNo ? true : false);
@@ -526,7 +536,7 @@ void registerPorts(void)
 	// register images ports
 	cout << "Registering camera port 0... " << endl;
 	ACE_OS::sprintf(buf, "/%s/o:img0", _options.portName.c_str());
-	if ( _img0_outport.Register(buf,_options.netName.c_str()) != YARP_OK) {
+	if ( _img0_outport.Register(buf,_options.imgNetName.c_str()) != YARP_OK) {
 		cout << endl << "FATAL: could not register " << buf << endl;
 		exit(YARP_FAIL);
 	} else {
@@ -534,7 +544,7 @@ void registerPorts(void)
 	}
 	cout << "Registering camera port 1... " << endl;
 	ACE_OS::sprintf(buf, "/%s/o:img1", _options.portName.c_str());
-	if ( _img1_outport.Register(buf,_options.netName.c_str()) != YARP_OK) {
+	if ( _img1_outport.Register(buf,_options.imgNetName.c_str()) != YARP_OK) {
 		cout << endl << "FATAL: could not register " << buf << endl;
 		exit(YARP_FAIL);
 	} else {
@@ -581,7 +591,7 @@ int main (int argc, char *argv[])
 
 	// preliminaries
 
-	cout.precision(2); cout.setf(ios::fixed);
+	cout.precision(5); cout.setf(ios::fixed);
 	YARPScheduler::setHighResScheduling();
 
 	getOptionsFromEnv(CollectorConfFileName);
