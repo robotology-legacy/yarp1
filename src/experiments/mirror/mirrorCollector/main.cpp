@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.19 2006-11-14 10:13:28 babybot Exp $
+/// $Id: main.cpp,v 1.20 2006-11-14 10:39:34 babybot Exp $
 ///
 ///
 
@@ -570,6 +570,12 @@ void registerPorts(void)
 	} else {
 		cout << "Done." << endl;
 	}
+
+	// this is for safety reasons. sometimes shared memory does not work.
+	_cmd_outport.SetAllowShmem(0);
+	_data_outport.SetAllowShmem(0);
+	_img0_outport.SetAllowShmem(0);
+	_img1_outport.SetAllowShmem(0);
 
 }
 
