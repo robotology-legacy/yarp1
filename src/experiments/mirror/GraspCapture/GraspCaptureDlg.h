@@ -17,14 +17,11 @@
 //////////////////////////////////////
 typedef struct GraspCaptureOptionsStruct {
 	GraspCaptureOptionsStruct() {
-//		ACE_OS::strcpy(connectScriptName,"C:\\yarp\\src\\experiments\\mirror\\GraspCapture\\graspCaptureConnect.bat");
-		ACE_OS::strcpy(connectScriptName,"Y:\\src\\experiments\\mirror\\GraspCapture\\graspCaptureConnect.bat");
 		sizeX = sizeY = 0;
 		ACE_OS::strcpy(portName, "mirrorGrasp");
 		ACE_OS::strcpy(netName, "default");
 		ACE_OS::strcpy(imgNetName, "Net1");
-//		ACE_OS::strcpy(savePath, "d:\\tmp");
-		ACE_OS::strcpy(savePath, "c:");
+		ACE_OS::strcpy(savePath, "d:\\tmp");
 		ACE_OS::strcpy(prefix, "seq");
 		useCamera0 = useCamera1 = useTracker0 = useTracker1 =
 		useGazeTracker = useDataGlove = usePresSens = false;

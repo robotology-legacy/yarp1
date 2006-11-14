@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.18 2006-11-04 23:04:15 babybot Exp $
+/// $Id: main.cpp,v 1.19 2006-11-14 10:13:28 babybot Exp $
 ///
 ///
 
@@ -196,7 +196,7 @@ CollectorImage         _img0;
 CollectorImage         _img1;
 
 // the default options file name
-char* CollectorConfFileName = "C:\\yarp\\src\\experiments\\mirror\\mirrorCollector\\mirrorCollector.conf";
+char* CollectorConfFileName = "Y:\\conf\\mirrorCollector.conf";
 
 // the streaming frequency, in seconds
 double collectorFreq = 0.04;
