@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.20 2006-11-14 10:39:34 babybot Exp $
+/// $Id: main.cpp,v 1.21 2006-11-16 10:31:13 babybot Exp $
 ///
 ///
 
@@ -128,6 +128,7 @@ typedef struct CollectorOptionsStruct {
 		portName			= "mirrorCollector";
 		netName				= "default";
 		imgNetName			= "default";
+		streamingFreq		= 25.0;
 		useDataGlove		= false;
 		gloveComPort		= 3;
 		gloveBaudRate		= 115200;
@@ -157,6 +158,7 @@ typedef struct CollectorOptionsStruct {
 	YARPString portName;
 	YARPString netName;
 	YARPString imgNetName;
+	double streamingFreq;
 	bool useCamera0;
 	bool useCamera1;
 	int	sizeX;
@@ -198,9 +200,6 @@ CollectorImage         _img1;
 // the default options file name
 char* CollectorConfFileName = "Y:\\conf\\mirrorCollector.conf";
 
-// the streaming frequency, in seconds
-double collectorFreq = 0.04;
-
 // ---------- streaming thread
 
 class streamingThread : public YARPThread {
@@ -208,7 +207,16 @@ public:
 
 	virtual void Body (void) {
 
-		count = 0;
+		// circular buffer to evaluate mean streaming frequency
+		_intervalTop = 0;
+
+		// streaming interval
+		_streamInterval = 1/_options.streamingFreq;
+
+		// put those sensors which do have a streaming mode into streaming mode
+		if (_options.useDataGlove) _hardware.glove.startStreaming();
+		if (_options.useTracker0) _hardware.tracker0.startStreaming();
+		if (_options.useTracker1) _hardware.tracker1.startStreaming();
 
 		// stream until terminated
 		while ( !IsTerminated() ) {
@@ -218,18 +226,27 @@ public:
 			acquireAndSend();
             _time2 = YARPTime::GetTimeAsSecondsHr();
 
-//cout << "a&s took " << _time2-_time1 << endl;
-//cout << "sent " << count++ << "     \r";
-
             // if it is the case, add a delay to enforce streaming frequency
-            _delay = collectorFreq*.99 - (_time2 - _time1);
-			if ( _delay > 0 ) YARPTime::DelayInSeconds(_delay);
+            _delay = _streamInterval*.99 - (_time2 - _time1);
+			if ( _delay > 0 ) {
+//				cout << "delay added: " << _delay << "       \r";
+				YARPTime::DelayInSeconds(_delay);
+			}
 
-            // show actual streaming frequency
-//			cout << "interval is " << YARPTime::GetTimeAsSecondsHr() - _time1
-//               << " (should be " << collectorFreq << ")       \r";
+            // evaluate average streaming frequency
+			_interval[_intervalTop++] = YARPTime::GetTimeAsSecondsHr() - _time1;
+			if ( _intervalTop == 5 ) _intervalTop = 0;
+			_meanInterval = (_interval[0] + _interval[1] + _interval[2] + _interval[3] + _interval[4])/5;
+            // show average streaming frequency
+			cout << "mean interval " << _meanInterval
+                 << " (should be " << _streamInterval << ")       \r";
 
 		}
+
+		// stop streaming mode for some sensors
+		if (_options.useTracker1) _hardware.tracker1.stopStreaming();
+		if (_options.useTracker0) _hardware.tracker0.stopStreaming();
+		if (_options.useDataGlove) _hardware.glove.stopStreaming();
 
 		// bail out
 		return;
@@ -237,8 +254,10 @@ public:
 	}
 
 private:
-	double _delay, _time1, _time2;
-	int count;
+	double _streamInterval, _delay, _time1, _time2;
+	// 5 sample intervals to evaluate a reasonable average
+	double _meanInterval, _interval[5];
+	int _intervalTop;
 };
 
 // ---------- functions
@@ -270,28 +289,33 @@ void acquireAndSend(void)
 		_img1_outport.Write();
 	}
 
+	if (_options.useTracker0) {
+		// Read Tracker
+		_hardware.tracker0.getData(&_data.tracker0Data);
+	}
+
+	if (_options.useTracker1) {
+		_hardware.tracker1.getData(&_data.tracker1Data);
+	}
+	
+	if (_options.useGazeTracker) {
+		// Read GT
+		_hardware.gt.getData(&_data.GTData);
+	}
+	
+	if (_options.useDataGlove) {
+		// Read DataGlove
+		_hardware.glove.getData(&_data.gloveData);
+	}
+	
+	if (_options.usePresSens) {
+		// Read Pressure Sensors
+		_hardware.press.getData(&_data.pressureData);
+	}
+
 	if ( _options.useGazeTracker || _options.useDataGlove ||
 		 _options.usePresSens || _options.useTracker0 || _options.useTracker1 ) {
-		if (_options.useTracker0) {
-			// Read Tracker
-			_hardware.tracker0.getData(&_data.tracker0Data);
-		}
-		if (_options.useTracker1) {
-			_hardware.tracker1.getData(&_data.tracker1Data);
-		}
-		if (_options.useGazeTracker) {
-			// Read GT
-			_hardware.gt.getData(&_data.GTData);
-		}
-		if (_options.useDataGlove) {
-			// Read DataGlove
-			_hardware.glove.getData(&_data.gloveData);
-		}
-		if (_options.usePresSens) {
-			// Read Pressure Sensors
-			_hardware.press.getData(&_data.pressureData);
-		}
-		// send data
+		// if it is the case, send numerical data
 		_data_outport.Content() = _data;
 		_data_outport.Write();
 	}
@@ -473,6 +497,7 @@ void getOptionsFromEnv(char* fileName)
 	if ( optFile.getString("[NETWORK]", "ImgNetName", buf) == YARP_OK) {
 		_options.imgNetName = buf;
 	}
+	optFile.get("[NETWORK]", "StreamFreq", &_options.streamingFreq);
 	// glove
 	int yesNo;
 	optFile.get("[HARDWARE]", "UseDataGlove", &yesNo); _options.useDataGlove = (yesNo ? true : false);
@@ -597,7 +622,7 @@ int main (int argc, char *argv[])
 
 	// preliminaries
 
-	cout.precision(5); cout.setf(ios::fixed);
+	cout.precision(4); cout.setf(ios::fixed);
 	YARPScheduler::setHighResScheduling();
 
 	getOptionsFromEnv(CollectorConfFileName);

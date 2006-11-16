@@ -193,13 +193,20 @@ void mainLoop(libsvmLearner& learner)
 				IWantToGrasp = false;
 			}
 			// train
-			double x[3], y[1];
+/*			double x[3], y[1];
 			x[0] = armMotionMean;
 			x[1] = armMotionStdv;
-			x[2] = gazeStdv;
+			x[2] = gazeStdv;*/
+			// offline: just save the data, no processing
+			double x[5], y[1];
+			x[0] = armX;
+			x[1] = armY;
+			x[2] = armZ;
+			x[3] = gazeX;
+			x[4] = gazeY;
 			y[0] = (IWantToGrasp?1:-1);
-			learner.addExample(x,y);
-			learner.train();
+			//learner.addExample(x,y);
+			//learner.train();
 			cout 
 				<< "added: " 
 				<< armMotionMean << " " << armMotionStdv << " " 
@@ -248,9 +255,9 @@ int main()
 	// intialise learner
     libsvmLearningMachine::params params;
     params._capacity = 10000;
-    params._domainSize = 3;
+    params._domainSize = 5;
     params._path = "d:\\tmp\\";
-	params._name = "biometricData";
+	params._name = "arm-gazeData";
 	params._svmparams.svm_type = C_SVC;
 	params._svmparams.kernel_type = RBF;
 	//params._svmparams.degree = 3;
@@ -295,8 +302,8 @@ int main()
 
 	// gather which sensors we use
 	_coll_cmd_in.Read();
-	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0|HardwareUseGT) ) {
-//	if ( _coll_cmd_in.Content() != (HardwareUseTracker0|HardwareUseGT) ) {
+//	if ( _coll_cmd_in.Content() != (HardwareUseDataGlove|HardwareUseTracker0|HardwareUseGT) ) {
+	if ( _coll_cmd_in.Content() != (HardwareUseTracker0|HardwareUseDataGlove) ) {
 		cout << "must use tracker 0, gaze tracker and dataglove only." << endl;
 //		cout << "must use tracker 0 and dataglove only." << endl;
 		SendCommandToCollector(CCmdDisconnect);
@@ -360,8 +367,8 @@ int main()
 	SendCommandToCollector(CCmdDisconnect);
 	cout << "done." << endl;
 
-learner.train();
-learner.save();
+//learner.train();
+//learner.save();
 
 	// unregister ports and bail out
 	unregisterPorts();

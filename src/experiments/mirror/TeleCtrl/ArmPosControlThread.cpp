@@ -95,6 +95,9 @@ void ArmPosControlThread::Body (void)
 void ArmPosControlThread::evaluateArmMotionStats(YVector& pos)
 {
 
+	// for offline purposes
+	armX = pos[0]; armY = pos[1]; armZ = pos[2];
+
 	// evaluate direction of wrist motion
 	// set _currPos to the current tracker position
 	_currPos[0] = pos[0]; _currPos[1] = pos[1];	_currPos[2] = pos[2];

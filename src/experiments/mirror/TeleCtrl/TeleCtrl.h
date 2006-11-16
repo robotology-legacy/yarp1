@@ -1,5 +1,5 @@
 ///
-/// $Id: TeleCtrl.h,v 1.7 2006-10-20 12:52:50 babybot Exp $
+/// $Id: TeleCtrl.h,v 1.8 2006-11-16 10:31:27 babybot Exp $
 ///
 
 #ifndef TeleCtrlH
@@ -74,6 +74,10 @@ YARPGenericImage _image;
 // positions from the arm
 YVector _armPos;
 
+// for offline evaluation
+double armX = 0, armY = 0, armZ = 0;
+unsigned int gazeX = 0, gazeY = 0;
+
 // user's biometric data statistics: control threads write them,
 // learning machine reads them.
 double armMotionMean = 0, armMotionStdv = 0, gazeStdv = 0;
@@ -94,6 +98,8 @@ extern YARPSemaphore _repeaterSema, _controlSema;
 extern CollectorNumericalData _data;
 extern YARPGenericImage _image;
 extern YVector _armPos;
+extern double armX, armY, armZ;
+extern unsigned int gazeX, gazeY;
 extern double gazeStdv, armMotionMean, armMotionStdv;
 extern bool IWantToGrasp;
 extern bool IWantToSave;

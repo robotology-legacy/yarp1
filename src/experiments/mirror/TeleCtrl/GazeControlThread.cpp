@@ -86,6 +86,9 @@ void GazeControlThread::Body (void)
 void GazeControlThread::evaluateGazeStats(int pupilX, int pupilY)
 {
 
+	// for offline purposes
+	gazeX = pupilX; gazeY = pupilY;
+
 	// store new gaze sample (circular array)
 	_gazeSampleCount = (_gazeSampleCount==_gazeSamples-1 ? 0 : _gazeSampleCount+1 );
 	if ( _gazeSampleCount == 0 ) {
