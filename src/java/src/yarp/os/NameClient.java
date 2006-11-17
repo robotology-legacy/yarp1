@@ -128,7 +128,7 @@ public class NameClient {
 
 
     public File getConfigFile() {
-	String root = getEnv("YARP_ROOT");
+	String root = null; // don't use this: getEnv("YARP_ROOT");
 	String home = getEnv("HOME");
 	File conf = null;
 	if (root!=null) {
