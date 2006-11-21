@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.21 2006-11-16 10:31:13 babybot Exp $
+/// $Id: main.cpp,v 1.22 2006-11-21 10:48:53 babybot Exp $
 ///
 ///
 
@@ -208,7 +208,8 @@ public:
 	virtual void Body (void) {
 
 		// circular buffer to evaluate mean streaming frequency
-		_intervalTop = 0;
+		_elapsedTop = 0;
+		_previous = 0.0;
 
 		// streaming interval
 		_streamInterval = 1/_options.streamingFreq;
@@ -221,25 +222,24 @@ public:
 		// stream until terminated
 		while ( !IsTerminated() ) {
 
-            // time data acquisition and sending
-            _time1 = YARPTime::GetTimeAsSecondsHr();
+			// acquire and send data
 			acquireAndSend();
-            _time2 = YARPTime::GetTimeAsSecondsHr();
 
-            // if it is the case, add a delay to enforce streaming frequency
-            _delay = _streamInterval*.99 - (_time2 - _time1);
-			if ( _delay > 0 ) {
-//				cout << "delay added: " << _delay << "       \r";
-				YARPTime::DelayInSeconds(_delay);
+			// evaluate elapsed time since last loop
+            _now = YARPTime::GetTimeAsSecondsHr();
+            _elapsed[_elapsedTop] = _now - _previous;
+            _previous = _now;
+
+			// insert appropriate delay
+			if ( _elapsed[_elapsedTop] < _streamInterval ) {
+				// no idea why, need a correction factor (1.7)
+				YARPTime::DelayInSeconds( _streamInterval*1.7 - _elapsed[_elapsedTop] );
 			}
 
-            // evaluate average streaming frequency
-			_interval[_intervalTop++] = YARPTime::GetTimeAsSecondsHr() - _time1;
-			if ( _intervalTop == 5 ) _intervalTop = 0;
-			_meanInterval = (_interval[0] + _interval[1] + _interval[2] + _interval[3] + _interval[4])/5;
-            // show average streaming frequency
-			cout << "mean interval " << _meanInterval
-                 << " (should be " << _streamInterval << ")       \r";
+			// show average loop time, over 5 runs
+			if ( ++_elapsedTop == 5 ) _elapsedTop = 0;
+			_meanElapsed = ( _elapsed[0] + _elapsed[1] + _elapsed[2] + _elapsed[3] + _elapsed[4] )/5;
+			cout << "mean interval " << _meanElapsed << " (should be " << _streamInterval << ")       \r";
 
 		}
 
@@ -254,10 +254,10 @@ public:
 	}
 
 private:
-	double _streamInterval, _delay, _time1, _time2;
+	double _streamInterval, _now, _previous;
 	// 5 sample intervals to evaluate a reasonable average
-	double _meanInterval, _interval[5];
-	int _intervalTop;
+	double _meanElapsed, _elapsed[5];
+	int _elapsedTop;
 };
 
 // ---------- functions
@@ -622,7 +622,7 @@ int main (int argc, char *argv[])
 
 	// preliminaries
 
-	cout.precision(4); cout.setf(ios::fixed);
+	cout.precision(3); cout.setf(ios::fixed);
 	YARPScheduler::setHighResScheduling();
 
 	getOptionsFromEnv(CollectorConfFileName);
