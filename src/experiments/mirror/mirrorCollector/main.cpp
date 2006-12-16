@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.22 2006-11-21 10:48:53 babybot Exp $
+/// $Id: main.cpp,v 1.23 2006-12-16 11:44:18 babybot Exp $
 ///
 ///
 
@@ -358,9 +358,14 @@ bool connectSensors(void)
 	if (_options.useTracker0) {
 		// Tracker Initialization
 		cout << "Initialising tracker #0... ";
-		if ( _hardware.tracker0.initialize (0, _options.tracker0ComPort,
-											_options.tracker0BaudRate,
-											_options.tracker0Timeout) == YARP_OK ) {
+		FoBOpenParameters FoBparams;
+//		FoBparams.nGroupID = 0;
+		FoBparams.comPort = _options.tracker0ComPort;
+		FoBparams.baudRate = _options.tracker0BaudRate;
+		FoBparams.timeOut = _options.tracker0Timeout;
+		FoBparams.measurementRate = _options.tracker0MeasRate;
+		FoBparams.transOpMode = _options.tracker0TransOpMode;
+		if ( _hardware.tracker0.initialize(FoBparams) == YARP_OK ) {
 			cout <<  "done. On COM" << _options.tracker0ComPort << ", " << _options.tracker0BaudRate << " baud." << endl;
 			atLeastOneIsOK = true;
 		} else {
@@ -372,9 +377,14 @@ bool connectSensors(void)
 	if (_options.useTracker1) {
 		// Tracker Initialization
 		cout << "Initialising tracker #1... ";
-		if ( _hardware.tracker1.initialize (1, _options.tracker1ComPort,
-											_options.tracker1BaudRate,
-											_options.tracker1Timeout) == YARP_OK ) {
+		FoBOpenParameters FoBparams;
+//		FoBparams.nGroupID = 0;
+		FoBparams.comPort = _options.tracker1ComPort;
+		FoBparams.baudRate = _options.tracker1BaudRate;
+		FoBparams.timeOut = _options.tracker1Timeout;
+		FoBparams.measurementRate = _options.tracker1MeasRate;
+		FoBparams.transOpMode = _options.tracker1TransOpMode;
+		if ( _hardware.tracker1.initialize(FoBparams) == YARP_OK ) {
 			cout <<  "done. On COM" << _options.tracker1ComPort << ", " << _options.tracker1BaudRate << " baud." << endl;
 			atLeastOneIsOK = true;
 		} else {
