@@ -37,7 +37,10 @@ public:
 	YARPInputPortOf<YARPGenericImage>*       p_img1_inport;
 
 private:
-	int nFrames;
+	int _nFrames;
+// -------------------- tmp BEGIN
+int _graspCount;
+// -------------------- tmp BEGIN
 };
 
 #endif // !defined(AFX_SAVERTHREAD_H__F6E88ED1_F198_4E75_83FB_05438B0AD6A6__INCLUDED_)

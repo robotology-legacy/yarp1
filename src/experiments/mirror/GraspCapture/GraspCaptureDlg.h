@@ -21,7 +21,8 @@ typedef struct GraspCaptureOptionsStruct {
 		ACE_OS::strcpy(portName, "mirrorGrasp");
 		ACE_OS::strcpy(netName, "default");
 		ACE_OS::strcpy(imgNetName, "Net1");
-		ACE_OS::strcpy(savePath, "d:\\tmp");
+		ACE_OS::strcpy(savePath, "y:\\zgarbage");
+//		ACE_OS::strcpy(savePath, "d:\\tmp");
 		ACE_OS::strcpy(prefix, "seq");
 		useCamera0 = useCamera1 = useTracker0 = useTracker1 =
 		useGazeTracker = useDataGlove = usePresSens = false;

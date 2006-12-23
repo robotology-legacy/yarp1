@@ -427,7 +427,7 @@ void CGraspCaptureDlg::OnAcqStart()
 	if ( _options.useDataGlove || _options.useGazeTracker ||
 		 _options.useTracker0 || _options.useTracker1 || _options.usePresSens ) {
 		// if necessary, open the data output file
-		ACE_OS::sprintf(fName, "%s.csv",saverThread.prefix);
+		ACE_OS::sprintf(fName, "%s.dat",saverThread.prefix);
 		saverThread.pFile = fopen(fName,"w");
 		if (saverThread.pFile == NULL) {
 			MessageBox("Could not open output file.", "Error.", MB_ICONERROR);
