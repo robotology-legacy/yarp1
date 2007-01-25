@@ -12,6 +12,6 @@ WshShell.Run ("yarp-connect /TCImg/o:img           /TCSaccades/i:img", 7, true);
 
 WshShell.Run ("yarp-connect /TCHeadSaccades/o:bot /headsaccades/target/i", 7, true);
 
-WshShell.Run ("yarp-connect /left/o:img            /service/i:img", 7, true);
+//WshShell.Run ("yarp-connect /left/o:img            /service/i:img", 7, true);
 
 WshShell.Run ("yarp-connect /armcontrol/position/o:vect /TCArmPos/i:vec", 7, true);
