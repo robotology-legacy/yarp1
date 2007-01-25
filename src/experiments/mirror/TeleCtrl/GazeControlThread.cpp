@@ -36,6 +36,8 @@ void GazeControlThread::Body (void)
 	// loop until the thread is terminated
 	while ( !IsTerminated() ) {
 
+//goto vacca;
+
 		// set operating frequency
 		YARPTime::DelayInSeconds(_streamingFrequency);
 
@@ -73,6 +75,8 @@ void GazeControlThread::Body (void)
 		_imgOutPort.Content().Refer(_remappedImg);
 		_imgOutPort.Write();
 
+//vacca: ;
+
 	}
     
 	return;
@@ -88,6 +92,8 @@ void GazeControlThread::evaluateGazeStats(int pupilX, int pupilY)
 
 	// for offline purposes
 	gazeX = pupilX; gazeY = pupilY;
+
+goto vacca; {
 
 	// store new gaze sample (circular array)
 	_gazeSampleCount = (_gazeSampleCount==_gazeSamples-1 ? 0 : _gazeSampleCount+1 );
@@ -111,6 +117,9 @@ void GazeControlThread::evaluateGazeStats(int pupilX, int pupilY)
 	stdvX = sqrt(stdvX / ((double)_gazeSamples-1.0));
 	stdvY = sqrt(stdvY / ((double)_gazeSamples-1.0));
 	gazeStdv = sqrt(stdvX*stdvX+stdvY*stdvY);
+
+}
+vacca:
 
 	// usually, a red cross is drawn where the user's gaze is;
 	// but if the intention to grasp is signalled, the cross will be green

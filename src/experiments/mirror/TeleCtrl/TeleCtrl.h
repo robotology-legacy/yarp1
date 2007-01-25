@@ -1,5 +1,5 @@
 ///
-/// $Id: TeleCtrl.h,v 1.8 2006-11-16 10:31:27 babybot Exp $
+/// $Id: TeleCtrl.h,v 1.9 2007-01-25 08:51:10 babybot Exp $
 ///
 
 #ifndef TeleCtrlH
@@ -74,6 +74,9 @@ YARPGenericImage _image;
 // positions from the arm
 YVector _armPos;
 
+// general straming frequency -- this is then passed on to the threads
+double frequency = 100.0;
+
 // for offline evaluation
 double armX = 0, armY = 0, armZ = 0;
 unsigned int gazeX = 0, gazeY = 0;
@@ -98,6 +101,7 @@ extern YARPSemaphore _repeaterSema, _controlSema;
 extern CollectorNumericalData _data;
 extern YARPGenericImage _image;
 extern YVector _armPos;
+extern double frequency;
 extern double armX, armY, armZ;
 extern unsigned int gazeX, gazeY;
 extern double gazeStdv, armMotionMean, armMotionStdv;

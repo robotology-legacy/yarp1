@@ -58,9 +58,9 @@ void ArmPosControlThread::Body (void)
 		// set the desired_X (in cms)
 		desired_X[0] = -frX*InchCm; desired_X[1] = frY*InchCm; desired_X[2] = frZ*InchCm;
 		// evaluate inverse kinematics
-		inverse_kinematics(desired_X, required_Q, starting_Q);
+//		inverse_kinematics(desired_X, required_Q, starting_Q);
 		// let next starting point be the one we've just found
-		starting_Q = required_Q; // all Qs are in DEGREES
+//		starting_Q = required_Q; // all Qs are in DEGREES
 
 		// evaluate arm motion statistics
 		evaluateArmMotionStats(desired_X);
@@ -97,6 +97,8 @@ void ArmPosControlThread::evaluateArmMotionStats(YVector& pos)
 
 	// for offline purposes
 	armX = pos[0]; armY = pos[1]; armZ = pos[2];
+
+return;
 
 	// evaluate direction of wrist motion
 	// set _currPos to the current tracker position
