@@ -26,7 +26,7 @@
 ///                                                                   ///
 /////////////////////////////////////////////////////////////////////////
 //
-// $Id: YARPGalilDeviceDriver.cpp,v 1.5 2006-02-22 19:52:17 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.6 2007-03-14 16:52:33 beltran Exp $
 //
 
 #include "YARPGalilDeviceDriver.h"
@@ -1364,6 +1364,14 @@ int YARPGalilDeviceDriver::set_jogs (void *spds)
 		_index_search = false;
 	}
 	rc = begin_motion(NULL);
+
+    /**
+     * Note: This is likely to be a bug. BG is only needed the first time you issue JG. It
+     * is like the firs JG changes the mode, then a BG is issued and successive
+     * JG's change the velocity of the joint on the fly. To stop you can issue
+     * a ST. See example 7 velocity control in pag 31 DMC-1700/1800 Manual Rev
+     * 1.2.h
+     */
 	return rc;
 }
 
