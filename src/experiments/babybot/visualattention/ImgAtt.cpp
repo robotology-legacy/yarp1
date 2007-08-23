@@ -2018,13 +2018,13 @@ void YARPImgAtt::drawBlobs(bool stable)
 	//salience.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
 	
 	// Comment the following line to disable the elimination of non valid blob
-	salience.RemoveNonValid(max_tag, 6000, minBoundingArea);
-	//salience.RemoveNonValidNoRange(max_tag, 6000, minBoundingArea);
+	//salience.RemoveNonValid(max_tag, 6000, minBoundingArea);
+	salience.RemoveNonValidNoRange(max_tag, 6000, minBoundingArea);
 	
 	//salience.checkIOR(tagged, IORBoxes, num_IORBoxes);
 	salience.doIOR(tagged, IORBoxes, num_IORBoxes);
 
-	salience.DrawContrastLP2(rgs, grs, bys, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
+	salience.DrawContrastLP2(rgs, grs, bys, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY, 255); // somma coeff pos=3 somma coeff neg=-3
 
 	salience.ComputeMeanColors(max_tag);
 	salience.DrawMeanColorsLP(meanCol, tagged);

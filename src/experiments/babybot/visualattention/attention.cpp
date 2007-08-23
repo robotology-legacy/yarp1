@@ -893,14 +893,24 @@ int main (int argc, char *argv[])
 				att_mod.setParameters(mRG, mGR, mBY, cmp, ect, 0, 1);
 				_thread.searching=true;
 				_thread.exploring=false;
+			} else if (c=='t') {
+				cout<<"1 top down"<<endl;
+				att_mod.setParametersBUTD(0, 1);
+				_thread.searching=true;
+				_thread.exploring=false;
+			} else if (c=='p') {
+				cout<<".5 bottom up, 0.5 top down"<<endl;
+				att_mod.setParametersBUTD(.5, .5);
+				_thread.searching=true;
+				_thread.exploring=false;
 			} else if (c=='e') {
-				cout<<"Exploring the scene"<<endl;
-				att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
+				cout<<"Exploring the scene (1 bottom up)"<<endl;
+				att_mod.setParametersBUTD(1, 0);
 				_thread.searching=false;
 				_thread.exploring=false;
 			} else if (c=='E') {
 				cout<<"Exploring the scene through grasping"<<endl;
-				att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
+				att_mod.setParametersBUTD(1, 0);
 				_thread.searching=false;
 				_thread.exploring=true;
 			} else if (c=='u') {

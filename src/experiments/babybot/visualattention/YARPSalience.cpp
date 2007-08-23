@@ -723,13 +723,16 @@ int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMonoSigned>& rg, YARPImag
 {
 	int salienceBU, salienceTD;
 
-	int a1,b1,a2,b2;
+	double a1,b1,a2,b2,a3,b3;
 
 	int minSalienceBU=INT_MAX;
 	int maxSalienceBU=INT_MIN;
 
 	int minSalienceTD=INT_MAX;
 	int maxSalienceTD=INT_MIN;
+
+	int minSalienceTot=INT_MAX;
+	int maxSalienceTot=INT_MIN;
 
 	dst.Zero();
 	
@@ -738,7 +741,7 @@ int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMonoSigned>& rg, YARPImag
 	integralRG.computeCartesian(rg);
 	integralGR.computeCartesian(gr);
 	integralBY.computeCartesian(by);
-	
+
 	for (int i = 1; i < numBlob; i++) {
 		// The salience should not change if a blob is eliminated because it is too small
 		// or too big
@@ -839,21 +842,19 @@ int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMonoSigned>& rg, YARPImag
 		}
 	}
 
-	//const int maxDest=170;
-
 	if (maxSalienceBU!=minSalienceBU) {
-		a1=255*(maxDest-1)/(maxSalienceBU-minSalienceBU);
-		b1=1-a1*minSalienceBU/255;
+		//a1=255.*(maxDest-1)/(maxSalienceBU-minSalienceBU);
+		a1=254./(maxSalienceBU-minSalienceBU);
+		b1=1.-a1*minSalienceBU;
 	} else {
 		a1=0;
 		b1=0;
 	}
 
 	if (maxSalienceTD!=minSalienceTD) {
-		a2=255*(maxDest-1)/(maxSalienceTD-minSalienceTD);
-		b2=1-a2*minSalienceTD/255;
-		//a2=255*254/(minSalienceTD-maxSalienceTD);
-		//b2=1-a2*maxSalienceTD/255;
+		//a2=255.*(maxDest-1)/(maxSalienceTD-minSalienceTD);
+		a2=254./(maxSalienceTD-minSalienceTD);
+		b2=1.-a2*minSalienceTD;
 	} else {
 		a2=0;
 		b2=0;
@@ -861,18 +862,37 @@ int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMonoSigned>& rg, YARPImag
 
 	for (i = 1; i < numBlob; i++) {
 		if (m_boxes[i].valid) {
-			if ((m_boxes[i].salienceBU==maxSalienceBU && pBU==1) || (m_boxes[i].salienceTD==maxSalienceTD && pTD==1))
+			m_boxes[i].salienceTotal=pBU*(a1*m_boxes[i].salienceBU+b1)+pTD*(a2*m_boxes[i].salienceTD+b2);
+
+			if (m_boxes[i].salienceTotal<minSalienceTot)
+				minSalienceTot=m_boxes[i].salienceTotal;
+			else if (m_boxes[i].salienceTotal>maxSalienceTot)
+				maxSalienceTot=m_boxes[i].salienceTotal;
+		}
+	}
+
+	if (maxSalienceTot!=minSalienceTot) {
+		a3=((double)(maxDest-1))/(maxSalienceTot-minSalienceTot);
+		b3=1.-a3*minSalienceTot;
+	} else {
+		a3=0;
+		b3=0;
+	}
+
+	for (i = 1; i < numBlob; i++) {
+		if (m_boxes[i].valid) {
+			//if ((m_boxes[i].salienceBU==maxSalienceBU && pBU==1) || (m_boxes[i].salienceTD==maxSalienceTD && pTD==1))
+			if (m_boxes[i].salienceTotal==maxSalienceTot)
 				m_boxes[i].salienceTotal=255;
 			else
-				m_boxes[i].salienceTotal=pBU*(a1*m_boxes[i].salienceBU/255+b1)+pTD*(a2*m_boxes[i].salienceTD/255+b2);
-				//m_boxes[i].salienceTotal=pBU*m_boxes[i].salienceBU+pTD*(a2*m_boxes[i].salienceTD/255+b2);
-				//m_boxes[i].salienceTotal=pBU*255+pTD*(a2*m_boxes[i].salienceTD/255+b2);
+				m_boxes[i].salienceTotal=a3*m_boxes[i].salienceTotal+b3;
+
 			for (int r=m_boxes[i].rmin; r<=m_boxes[i].rmax; r++)
 				for (int c=m_boxes[i].cmin; c<=m_boxes[i].cmax; c++)
 					if (tagged(c, r)==m_boxes[i].id) {
 						//if (sal>th) dst(c ,r)=sal;
 						//else dst(c ,r)=0;
-						dst(c ,r)=m_boxes[i].salienceTotal;
+						dst(c ,r)=(YarpPixelMono)m_boxes[i].salienceTotal;
 					}
 		}
 	}

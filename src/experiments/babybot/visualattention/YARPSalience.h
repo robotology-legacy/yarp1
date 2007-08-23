@@ -71,7 +71,7 @@ public:
 
 	int salienceBU;
 	int salienceTD;
-	YarpPixelMono salienceTotal;
+	int salienceTotal;
 
 	double elev;
 	double az;
@@ -129,7 +129,7 @@ public:
 	void DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
 	void DrawVQColor(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
 	int DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
-	int DrawContrastLP2(YARPImageOf<YarpPixelMonoSigned>& rg, YARPImageOf<YarpPixelMonoSigned>& gr, YARPImageOf<YarpPixelMonoSigned>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMonoSigned prg, YarpPixelMonoSigned pgr, YarpPixelMonoSigned pby, YarpPixelMono maxDest=170);
+	int DrawContrastLP2(YARPImageOf<YarpPixelMonoSigned>& rg, YARPImageOf<YarpPixelMonoSigned>& gr, YARPImageOf<YarpPixelMonoSigned>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMonoSigned prg, YarpPixelMonoSigned pgr, YarpPixelMonoSigned pby, YarpPixelMono maxDest=200);
 	//int DrawGrayLP(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, int numBlob);
 	void drawFoveaBlob(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, const YarpPixelMono gray=255);
 	void drawBlobList(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, const YarpPixelMono gray=255);

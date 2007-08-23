@@ -359,6 +359,12 @@ public:
 		sBU=salienceBU;
 		sTD=salienceTD;
 	}
+	inline void setParametersBUTD(const float sBU, const float sTD)
+	{
+		salienceBU=sBU;
+		salienceTD=sTD;
+	}
+
 	inline void setPosition(const YVector &p) { salience.setPosition(p); }
 	inline bool isWithinRange(int x, int y) { double elev, az; return salience.isWithinRange(x, y, elev, az); }
 	inline bool isWithinRange(int x, int y, double &elev, double &az) { return salience.isWithinRange(x, y, elev, az); }
