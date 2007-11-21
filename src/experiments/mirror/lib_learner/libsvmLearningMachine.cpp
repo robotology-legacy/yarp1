@@ -8,7 +8,7 @@
 // -------------------------------------------------------
 
 libsvmLearningMachine::libsvmLearningMachine( normaliser* norm, params& params )
-    : LearningMachine(norm, params, false), _params(params), _model(0)
+    : LearningMachine(norm, params), _params(params), _model(0)
 {
 
     // allocate the problem's x's
@@ -29,7 +29,9 @@ libsvmLearningMachine::libsvmLearningMachine( normaliser* norm, params& params )
 		 _params._svmparams.svm_type == ONE_CLASS ) {
 		_classification = true;
 		_norm->setAvoidColumn0();
-	}
+    } else {
+		_classification = false;
+    }
 
 }
     

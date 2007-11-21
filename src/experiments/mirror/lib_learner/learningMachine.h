@@ -44,7 +44,7 @@ public:
 	};
 
 	// initialise with parameters or use default
-    LearningMachine( normaliser* norm, params& params, bool classification )
+    LearningMachine( normaliser* norm, params& params )
 	 : _params(params), _count(0),
 	   _rawData(_params._capacity,_params._domainSize+1),
        _normalData(_params._capacity,_params._domainSize+1),
@@ -52,7 +52,7 @@ public:
 	{
 		_norm->setDataSets(&_rawData,&_normalData);
 	}
-    LearningMachine( normaliser* norm, bool classification )
+    LearningMachine( normaliser* norm )
 	 : _count(0),
 	   _rawData(_params._capacity,_params._domainSize+1),
        _normalData(_params._capacity,_params._domainSize+1),
